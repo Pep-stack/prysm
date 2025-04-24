@@ -118,20 +118,20 @@ export default function DashboardPage() {
     
     console.log("Drag ended. Active:", active.id, "Over:", over.id, "Over data:", over.data.current);
 
-    // Case 1: Dropping a new section from the right column onto the card
+    // Case 1: Dropping new section
     if (active.data.current?.type === 'card-option' && over.id === 'prysma-card-dropzone') {
       const droppedOption = active.data.current.option;
       const isAlreadyAdded = cardSections.some(section => section.id === droppedOption.id);
-      
       if (!isAlreadyAdded) {
-        console.log(`Adding section ${droppedOption.name} to the card!`);
         const newSections = [...cardSections, droppedOption];
         setCardSections(newSections);
+        // TODO: Save new layout to DB
+        // saveLayoutToDb(newSections);
       } else {
-        console.log(`Section ${droppedOption.name} is already on the card.`);
+        // Escape alert message
         alert(`${droppedOption.name} is already on your card.`);
       }
-      return; // Handled adding new section
+      return;
     }
     
     // Case 2: Sorting sections already within the card

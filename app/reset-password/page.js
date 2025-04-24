@@ -36,7 +36,7 @@ export default function ResetPasswordPage() {
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
       <h2>Reset Password</h2>
-      <p>Enter your email address and we'll send you a link to reset your password.</p>
+      <p>Enter your email address and we&apos;ll send you a link to reset your password.</p>
       
       <form onSubmit={handleResetPassword}>
         <div>

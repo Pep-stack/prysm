@@ -85,7 +85,7 @@ export default function LoginPage() {
         {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error}</p>}
       </form>
       <p style={{ marginTop: '15px', textAlign: 'center' }}>
-        Don't have an account? <a href="/signup" style={{ color: '#0070f3', textDecoration: 'none' }}>Sign Up</a>
+        Don&apos;t have an account? <a href="/signup" style={{ color: '#0070f3', textDecoration: 'none' }}>Sign Up</a>
       </p>
     </div>
   );
