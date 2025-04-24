@@ -258,7 +258,7 @@ export default function DashboardPage() {
           <div style={{ flex: 1 }}>
             <h2>Your Prysma Profile Card</h2>
             <p style={{ marginBottom: '20px' }}>
-              Drag sections from the right onto the card below. Drag sections within the card to reorder. Click 'X' to remove a section. Click a section to edit.
+              Drag sections from the right onto the card below. Drag sections within the card to reorder. Click &apos;X&apos; to remove a section. Click a section to edit.
             </p>
             
             <PrysmaCard 
