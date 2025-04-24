@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Prysm
 
-## Getting Started
+**Prysm** is een modern carrièreplatform dat digitale visitekaartjes combineert met profielpagina’s, netwerktools en slimme routing. Het is speciaal ontworpen voor professionals die zich willen onderscheiden met een eigen online presence, zoals een "Linktree for career-driven people."
 
-First, run the development server:
+---
+
+## 🌍 Visie & Bedrijfsplan
+
+### 🔹 Doelgroep
+Professionals, young talents, freelancers, coaches, recruiters, ondernemers en carrièregerichte creatieven.
+
+### 🔹 Probleem
+Er is geen goede manier om je online professioneel te profileren op een visueel aantrekkelijke, snelle en minimalistische manier — zonder afhankelijk te zijn van logge sociale netwerken of verouderde portfolio-tools.
+
+### 🔹 Oplossing
+Prysm biedt gebruikers een eigen online kaart/profielpagina die te delen is als digitale visitekaart. Alles is slim opgebouwd en te personaliseren via:
+- 🔗 Deelbare URL's
+- 📇 Profiel + CV info
+- 🎨 Custom styling en templates
+- 📊 Analytics (later fase)
+- 🧩 API-koppelingen met o.a. LinkedIn, Calendly en Notion
+
+### 🔹 Verdienmodel
+- **Freemium**: Basis gratis profiel
+- **Premium**: Extra functionaliteiten (custom domains, analytics, meerdere kaarten)
+- **B2B Whitelabel**: Voor teams, recruiters en events
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 14 (App Router, TypeScript)
+- **Styling**: Tailwind CSS
+- **Auth & Database**: Supabase
+- **Editor**: Cursor / VS Code
+
+---
+
+## 🎨 Stylingregels
+
+Om een vertrouwd, professioneel en consistent gevoel te creëren gebruiken we:
+
+### 🔸 Kleurenpalet (wit, grijs, blauw)
+| Naam              | Hex       | Gebruik                                 |
+|-------------------|-----------|-----------------------------------------|
+| **Wit**           | `#ffffff` | Basisachtergrond, tekstvelden           |
+| **Lichtgrijs**    | `#f5f5f7` | Sectieachtergronden                     |
+| **Middengrijs**   | `#d1d5db` | Borders, UI-elementen                   |
+| **Donkergrijs**   | `#374151` | Subtiele tekst                          |
+| **Primair blauw** | `#2563eb` | Knoppen, CTA’s                          |
+| **Licht blauw**   | `#60a5fa` | Hoverstates, iconen, accenten           |
+| **Donkerblauw**   | `#1e3a8a` | Contrast, donkere thema’s, headings     |
+
+> ✨ Deze kleuren worden ingesteld via `tailwind.config.ts` onder `theme.extend.colors.brand`.
+
+### 🔸 Typography
+- Font: `font-sans` (Inter of SF Pro)
+- Titels: `text-2xl`, `font-semibold`
+- Body: `text-base`, `leading-relaxed`
+- Gebruik voldoende witruimte
+
+### 🔸 Componentstructuur
+- Reusable UI: `Button.tsx`, `Card.tsx`, `Input.tsx`
+- Componenten staan in `/components`
+- Utility-first Tailwind styling
+
+### 🔸 Layout
+- Responsive, mobile-first
+- Grid-based dashboard (12-koloms)
+- Sticky navbar en optionele sidebar
+
+---
+
+## 🧠 Projectstructuur
+
+Zie `src/` voor mappenstructuur en routing. Iedere route wordt beheerd via de `app/` folder van Next.js App Router.
+
+---
+
+## 📦 Installatie
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
