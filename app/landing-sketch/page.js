@@ -210,9 +210,12 @@ const PricingSection = () => (
 const TestimonialsSection = () => (
   <section style={{...commonStyles.sectionPadding, backgroundColor: colors.white}}>
     <div style={{...commonStyles.container, ...commonStyles.splitLayout}}>
-       {/* Large Testimonial */} 
+       {/* Large Testimonial */}
       <div style={{...commonStyles.splitText, background: colors.lightGrey, padding: '30px', borderRadius: '8px'}}>
-         <p style={{...commonStyles.paragraph, fontSize: '20px', fontStyle: 'italic', marginBottom: '20px'}}>"This made my resume click-ready and finally gave me one link to share everywhere. Simple, fast, and professional."</p>
+         {/* Escape quotes inside the text */}
+         <p style={{...commonStyles.paragraph, fontSize: '20px', fontStyle: 'italic', marginBottom: '20px'}}>
+           &quot;This made my resume click-ready and finally gave me one link to share everywhere. Simple, fast, and professional.&quot;
+         </p>
          <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
             <div style={{width: '50px', height: '50px', borderRadius: '50%', background: colors.bluePrimary, color: colors.white, display:'flex', alignItems:'center', justifyContent:'center'}}>AV</div> {/* Avatar Placeholder */} 
             <div>
@@ -221,22 +224,23 @@ const TestimonialsSection = () => (
             </div>
          </div>
       </div>
-       {/* Smaller Testimonials Grid (Simplified) */} 
+       {/* Smaller Testimonials Grid (Simplified) */}
       <div style={{...commonStyles.splitVisual, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', background: 'none', height: 'auto'}}>
+         {/* Escape quotes inside the text */}
          <div style={{background: colors.lightGrey, padding: '15px', borderRadius: '8px', fontSize: '14px'}}>
-            <p>"Finally a profile that looks like me."</p>
+            <p>&quot;Finally a profile that looks like me.&quot;</p>
             <small>- Designer</small>
          </div>
           <div style={{background: colors.lightGrey, padding: '15px', borderRadius: '8px', fontSize: '14px'}}>
-            <p>"Simple, fast, and professional."</p>
+            <p>&quot;Simple, fast, and professional.&quot;</p>
             <small>- Freelancer</small>
          </div>
           <div style={{background: colors.lightGrey, padding: '15px', borderRadius: '8px', fontSize: '14px'}}>
-            <p>"Great for sharing my portfolio."</p>
+            <p>&quot;Great for sharing my portfolio.&quot;</p>
             <small>- Developer</small>
          </div>
           <div style={{background: colors.lightGrey, padding: '15px', borderRadius: '8px', fontSize: '14px'}}>
-            <p>"So much cleaner than Linktree."</p>
+            <p>&quot;So much cleaner than Linktree.&quot;</p>
             <small>- Coach</small>
          </div>
       </div>

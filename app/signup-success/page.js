@@ -25,7 +25,7 @@ export default function SignupSuccessPage() {
       </p>
       
       <div style={{ marginTop: '40px', fontSize: '14px', color: '#666' }}>
-        <p>Didn't receive the email? Check your spam folder or contact support.</p>
+        <p>Didn&apos;t receive the email? Check your spam folder or contact support.</p>
       </div>
     </div>
   );
