@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../../src/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +16,6 @@ export default function SignupPage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     
-    // Basic validation
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -36,10 +36,7 @@ export default function SignupPage() {
       if (error) {
         setError(error.message);
       } else {
-        // Success - user will need to verify email
         router.push('/signup-success');
-        // If you don't have a success page yet, you can redirect to login
-        // router.push('/login');
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -50,54 +47,83 @@ export default function SignupPage() {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSignup}>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-lg shadow-md">
         <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-          />
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Create your Prysma account
+          </h2>
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-          />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: '8px', marginBottom: '15px' }}
-          />
-        </div>
-        <button 
-          type="submit" 
-          disabled={loading}
-          style={{ padding: '10px 15px' }}
-        >
-          {loading ? 'Signing up...' : 'Sign Up'}
-        </button>
-        {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error}</p>}
-      </form>
-      <p style={{ marginTop: '15px' }}>
-        Already have an account? <a href="/login">Log In</a>
-      </p>
+        <form className="mt-8 space-y-6" onSubmit={handleSignup}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="sr-only">Email address</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                required
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-600 text-center">
+              {error}
+            </p>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Creating account...' : 'Sign Up'}
+            </button>
+          </div>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            Log In
+          </Link>
+        </p>
+      </div>
     </div>
   );
 } 
