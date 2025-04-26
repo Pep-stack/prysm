@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../src/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useSession } from '../../../src/components/SessionProvider';
+import { useSession } from '../../../src/components/auth/SessionProvider';
 
 export default function ProfilePage() {
   const { user, loading: sessionLoading } = useSession();
@@ -15,11 +15,14 @@ export default function ProfilePage() {
     skills: '',
     location: '',
     website: '',
+    avatar_url: '',
   });
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   // Fetch profile data when component mounts
   useEffect(() => {
@@ -36,8 +39,13 @@ export default function ProfilePage() {
 
         if (error) {
           console.error('Error fetching profile:', error);
+          if (error.code === 'PGRST116') {
+            console.log('No profile found for user, using defaults.');
+            setProfile(prev => ({ ...prev, avatar_url: '' }));
+          } else {
+            setError('Could not fetch profile data.');
+          }
         } else if (data) {
-          // Set default values for fields that might be null
           setProfile({
             name: data.name || '',
             headline: data.headline || '',
@@ -45,10 +53,12 @@ export default function ProfilePage() {
             skills: data.skills || '',
             location: data.location || '',
             website: data.website || '',
+            avatar_url: data.avatar_url || '',
           });
         }
       } catch (error) {
         console.error('Unexpected error fetching profile:', error);
+        setError('An unexpected error occurred while fetching profile.');
       } finally {
         setLoading(false);
       }
@@ -66,6 +76,64 @@ export default function ProfilePage() {
     }));
   };
 
+  // Handle avatar file selection
+  const handleAvatarChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
+  };
+
+  // Handle avatar upload
+  const uploadAvatar = async () => {
+    if (!avatarFile || !user) return;
+
+    setUploadingAvatar(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const fileExt = avatarFile.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, avatarFile);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+      
+      if (!urlData || !urlData.publicUrl) {
+         throw new Error("Could not get public URL for avatar.");
+      }
+      const newAvatarUrl = urlData.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: newAvatarUrl, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      setProfile(prev => ({ ...prev, avatar_url: newAvatarUrl }));
+      setMessage('Avatar updated successfully!');
+      setAvatarFile(null);
+
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      setError(`Avatar upload failed: ${error.message}`);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,17 +144,19 @@ export default function ProfilePage() {
     setMessage(null);
 
     try {
+      const profileUpdates = {
+        name: profile.name,
+        headline: profile.headline,
+        bio: profile.bio,
+        skills: profile.skills,
+        location: profile.location,
+        website: profile.website,
+        updated_at: new Date().toISOString(),
+      };
+      
       const { error } = await supabase
         .from('profiles')
-        .update({
-          name: profile.name,
-          headline: profile.headline,
-          bio: profile.bio,
-          skills: profile.skills,
-          location: profile.location,
-          website: profile.website,
-          updated_at: new Date().toISOString(),
-        })
+        .update(profileUpdates)
         .eq('id', user.id);
 
       if (error) {
@@ -121,6 +191,49 @@ export default function ProfilePage() {
   return (
     <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
       <h1>Profile Settings</h1>
+      
+      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+         <img 
+           src={profile.avatar_url || 'https://via.placeholder.com/150'}
+           alt="Profile Avatar" 
+           style={{ 
+              width: '120px', 
+              height: '120px', 
+              borderRadius: '50%', 
+              objectFit: 'cover', 
+              marginBottom: '10px',
+              border: '2px solid #eee' 
+           }} 
+         />
+         <div>
+           <input 
+             type="file" 
+             id="avatar" 
+             name="avatar" 
+             accept="image/png, image/jpeg" 
+             onChange={handleAvatarChange} 
+             disabled={uploadingAvatar}
+             style={{ display: 'block', margin: '10px auto' }}
+           />
+           <button
+             type="button"
+             onClick={uploadAvatar}
+             disabled={!avatarFile || uploadingAvatar}
+             style={{
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                marginTop: '5px',
+                opacity: (!avatarFile || uploadingAvatar) ? 0.5 : 1,
+             }}
+           >
+             {uploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
+           </button>
+         </div>
+      </div>
       
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '20px' }}>
@@ -226,9 +339,10 @@ export default function ProfilePage() {
             fontSize: '16px',
             cursor: 'pointer',
             marginTop: '10px',
+            opacity: updating ? 0.5 : 1,
           }}
         >
-          {updating ? 'Saving...' : 'Save Profile'}
+          {updating ? 'Saving...' : 'Save Profile Details'}
         </button>
 
         {message && <p style={{ color: 'green', marginTop: '20px' }}>{message}</p>}

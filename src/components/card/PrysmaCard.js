@@ -5,96 +5,18 @@ import { useRouter } from 'next/navigation';
 import { useDroppable } from '@dnd-kit/core';
 import {
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import SortableCardSection from './SortableCardSection';
 
-// --- Sortable Section Component ---
-function SortableCardSection({ id, children, onRemove, onClick, sectionData }) {
-  console.log('SortableCardSection rendered. id:', id, 'onRemove exists:', !!onRemove, 'onClick exists:', !!onClick);
-  
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+// Import the new section content components
+import BioSectionContent from './cardSections/BioSectionContent';
+import SkillsSectionContent from './cardSections/SkillsSectionContent';
+import ContactSectionContent from './cardSections/ContactSectionContent';
+import LocationSectionContent from './cardSections/LocationSectionContent';
+import WebsiteSectionContent from './cardSections/WebsiteSectionContent';
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    marginBottom: '10px',
-    opacity: isDragging ? 0.5 : 1,
-    position: 'relative',
-    border: isDragging ? '1px dashed gray' : '1px solid #eee',
-    padding: '10px',
-    paddingLeft: '30px', // Make space for drag handle
-    borderRadius: '4px',
-    cursor: 'pointer',
-  };
-
-  const dragHandleStyle = {
-    position: 'absolute',
-    left: '5px',
-    top: '50%',
-    transform: 'translateY(-50%)',
-    cursor: 'grab',
-    padding: '5px',
-    color: '#888',
-    touchAction: 'none', // Important for dnd-kit listeners
-  };
-
-  const removeButtonStyle = {
-    position: 'absolute',
-    top: '5px',
-    right: '5px',
-    background: 'rgba(255, 0, 0, 0.7)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50%',
-    width: '20px',
-    height: '20px',
-    lineHeight: '18px',
-    textAlign: 'center',
-    cursor: 'pointer',
-    fontSize: '12px',
-    fontWeight: 'bold',
-    zIndex: 1,
-    display: isDragging ? 'none' : 'block',
-  };
-
-  return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      onClick={() => {
-         if (onClick) onClick(sectionData);
-      }}
-    >
-      <span 
-        style={dragHandleStyle} 
-        {...listeners} 
-        {...attributes}
-        aria-label="Drag to reorder section"
-      >
-        ⠿ {/* Grip icon */} 
-      </span>
-      
-      {children}
-      
-      <button 
-        style={removeButtonStyle} 
-        onClick={(e) => {
-          e.stopPropagation();
-          console.log('Remove button clicked for id:', id); 
-          if (onRemove) onRemove(id); 
-        }}
-        aria-label={`Remove ${id} section`}
-      >
-        X
-      </button>
-    </div>
-  );
-}
-// --- End Sortable Section Component ---
-
-export default function PrysmaCard({ profile, user, cardSections = [], onRemoveSection, onEditSection }) {
+export default function PrysmaCard({ profile, user, cardSections = [], onRemoveSection, onEditSection, onAvatarClick }) {
   const router = useRouter();
   const [showQR, setShowQR] = useState(false);
   
@@ -278,7 +200,11 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
       
       {/* Card Header with Avatar and Name */}
       <div style={cardHeaderStyle}>
-        <div style={avatarStyle}>
+        <div 
+          style={{...avatarStyle, cursor: 'pointer', position: 'relative'}}
+          onClick={onAvatarClick}
+          title="Change Profile Picture"
+        >
           {profile?.avatar_url ? (
             <img 
               src={profile.avatar_url} 
@@ -286,7 +212,9 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            getInitials(profile?.name)
+            <span style={{cursor: 'pointer'}}> 
+               {getInitials(profile?.name)}
+            </span>
           )}
         </div>
         <div>
@@ -298,90 +226,57 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
       {/* --- Dynamically Rendered & Sortable Sections --- */}
       <SortableContext items={cardSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
         {cardSections.map((section) => {
-          let sectionContent = null;
-          let isPlaceholder = false;
+          let SectionContentComponent = null;
 
+          // Map section ID to the correct content component and required styles
           switch (section.id) {
             case 'bio':
-              if (profile?.bio) {
-                sectionContent = <div style={sectionStyle}><p style={{ lineHeight: '1.5' }}>{profile.bio}</p></div>;
-              } else {
-                 sectionContent = <div style={placeholderStyle}><p>Click to add your Bio</p></div>;
-                 isPlaceholder = true;
-              }
+              SectionContentComponent = (
+                <BioSectionContent profile={profile} styles={{ sectionStyle, placeholderStyle }} />
+              );
               break;
             case 'skills':
-              if (profile?.skills) {
-                sectionContent = (
-                  <div style={sectionStyle}>
-                    <h3 style={sectionTitleStyle}>Skills</h3>
-                    <div>
-                      {profile.skills.split(',').map((skill, index) => (
-                        <span key={index} style={tagStyle}>{skill.trim()}</span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              } else {
-                 sectionContent = <div style={placeholderStyle}><p>Click to add your Skills</p></div>;
-                 isPlaceholder = true;
-              }
+              SectionContentComponent = (
+                <SkillsSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, tagStyle, placeholderStyle }} />
+              );
               break;
             case 'contact':
-               sectionContent = (
-                <div style={sectionStyle}>
-                  <h3 style={sectionTitleStyle}>Contact</h3>
-                  <div><p style={{ margin: '5px 0' }}><strong>Email:</strong> {user?.email}</p></div>
-                </div>
+              // Contact section is rendered directly (not sortable)
+              SectionContentComponent = (
+                <ContactSectionContent user={user} styles={{ sectionStyle, sectionTitleStyle }} />
               );
               break;
              case 'location':
-              if (profile?.location) {
-                 sectionContent = (
-                   <div style={sectionStyle}>
-                     <h3 style={sectionTitleStyle}>Location</h3>
-                     <p style={{ margin: '5px 0' }}>{profile.location}</p>
-                   </div>
-                 );
-              } else {
-                 sectionContent = <div style={placeholderStyle}><p>Click to add your Location</p></div>;
-                 isPlaceholder = true;
-              }
+              SectionContentComponent = (
+                <LocationSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
+              );
               break;
              case 'website':
-              if (profile?.website) {
-                 sectionContent = (
-                    <div style={sectionStyle}>
-                      <h3 style={sectionTitleStyle}>Website</h3>
-                      <p style={{ margin: '5px 0' }}>
-                        <a href={profile.website} target="_blank" rel="noopener noreferrer" style={{ color: '#0070f3', textDecoration: 'none' }}>
-                          {profile.website}
-                        </a>
-                      </p>
-                    </div>
-                 );
-              } else {
-                 sectionContent = <div style={placeholderStyle}><p>Click to add your Website</p></div>;
-                 isPlaceholder = true;
-              }
+              SectionContentComponent = (
+                <WebsiteSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
+              );
               break;
             default:
-              sectionContent = null;
+              // Optionally handle unknown section types
+              console.warn("Unknown section type:", section.id);
+              SectionContentComponent = null;
           }
           
+          // Render Contact directly, others within SortableCardSection
           if (section.id === 'contact') {
-             return sectionContent;
+             return SectionContentComponent; // Render directly
           }
           
-          return sectionContent ? (
+          // Render sortable sections
+          return SectionContentComponent ? (
             <SortableCardSection 
               key={section.id} 
               id={section.id} 
               onRemove={onRemoveSection}
-              onClick={onEditSection}
-              sectionData={section}
+              onClick={onEditSection} // Pass handler for clicking the section
+              sectionData={section}   // Pass section data for the onClick handler
             >
-              {sectionContent}
+              {SectionContentComponent}
             </SortableCardSection>
           ) : null;
         })}
@@ -414,21 +309,6 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
           Copy Profile Link
         </button>
       </div>
-      
-      {/* Instructions if profile is incomplete */}
-      {(!profile?.name || !profile?.headline || !profile?.bio) && (
-        <div style={{ 
-          marginTop: '20px', 
-          padding: '15px', 
-          backgroundColor: '#fff9c4', 
-          borderRadius: '6px',
-          fontSize: '14px',
-        }}>
-          <p style={{ margin: 0 }}>
-            <strong>Tip:</strong> Complete your Prysma Card to share your professional profile
-          </p>
-        </div>
-      )}
     </div>
   );
 } 

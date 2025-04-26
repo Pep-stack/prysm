@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../src/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useSession } from '../../src/components/SessionProvider';
-import PrysmaCard from '../../src/components/PrysmaCard';
+import { useSession } from '../../src/components/auth/SessionProvider';
+import PrysmaCard from '../../src/components/card/PrysmaCard';
 import {
   DndContext,
   closestCenter,
@@ -13,32 +13,36 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { 
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
-// Import the moved components
-import DraggableCardOptionsContainer from '../../src/components/DraggableCardOptionsContainer';
-import EditSectionModal from '../../src/components/EditSectionModal';
+// Import page components
+import DraggableCardOptionsContainer from '../../src/components/card/DraggableCardOptionsContainer';
+import EditSectionModal from '../../src/components/modal/EditSectionModal';
+import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
+
+// Import the custom hook
+import { useCardLayout } from '../../src/hooks/useCardLayout';
 
 export default function DashboardPage() {
   const { user, loading: sessionLoading, signOut } = useSession();
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Separate loading state for profile data
   const router = useRouter();
-  const [activeId, setActiveId] = useState(null);
-  const [cardSections, setCardSections] = useState([]);
+  const [activeId, setActiveId] = useState(null); // Drag state remains here for now
 
-  // --- Modal State ---
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSection, setEditingSection] = useState(null);
+  // --- Use the custom hook for card layout management ---
+  const { cardSections, handleRemoveSection, handleDragEnd: handleLayoutDragEnd } = useCardLayout(/* pass initial layout from profile here later */);
+  // -----------------------------------------------------
+
+  // --- Modal State (remains here for now, could be moved to useEditModal later) ---
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingSection, setEditingSection] = useState(null); 
   const [modalInputValue, setModalInputValue] = useState('');
+  const [modalLoading, setModalLoading] = useState(false); // Separate loading for modal save
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false); // State for avatar modal
   // --- End Modal State ---
 
-  // Sensors now include keyboard coordinates for sortable
+  // Sensors (no change)
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -46,18 +50,27 @@ export default function DashboardPage() {
     })
   );
 
+  // Fetch User Data (Adjust to load initial layout later)
   useEffect(() => {
-    // Check if the user is authenticated and fetch profile
     const fetchUserData = async () => {
+      if (!user) return;
+      setLoading(true);
       try {
-        if (!user) return;
+        // TODO: Select and load card_layout from profiles
         const { data, error } = await supabase
           .from('profiles')
-          .select('*')
+          .select('*') 
           .eq('id', user.id)
           .single();
-        if (error) console.error('Error fetching profile:', error);
-        else setProfile(data);
+        if (error) {
+           console.error('Error fetching profile:', error);
+        } else {
+          setProfile(data);
+          // TODO: Pass initial layout to useCardLayout hook
+          // Example: If layout stored in data.card_layout
+          // const initialLayout = data.card_layout || []; 
+          // const { cardSections, ... } = useCardLayout(initialLayout); // Need to call hook conditionally or manage state update
+        }
       } catch (err) {
         console.error('Error checking authentication:', err);
       } finally {
@@ -65,17 +78,19 @@ export default function DashboardPage() {
       }
     };
     fetchUserData();
-  }, [user]);
+  }, [user]); // Re-fetch if user changes
 
-  // Redirect to login if not authenticated
+  // Redirect if not logged in (no change)
   useEffect(() => {
     if (!sessionLoading && !user) {
       router.push('/login');
     }
   }, [sessionLoading, user, router]);
 
+  // handleSignOut (no change)
   const handleSignOut = async () => {
-    try {
+    // ... sign out logic ...
+     try {
       await signOut();
       router.push('/login');
     } catch (error) {
@@ -83,208 +98,146 @@ export default function DashboardPage() {
     }
   };
 
+  // Main loading state (no change)
   if (sessionLoading || loading) {
-    return (
-      <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
-        <p>Loading...</p>
-      </div>
-    );
+    return <div className="p-10">Loading...</div>;
   }
 
-  // Handler to remove a section from the card
-  function handleRemoveSection(idToRemove) {
-    console.log("Removing section:", idToRemove);
-    setCardSections((prevSections) => 
-      prevSections.filter((section) => section.id !== idToRemove)
-    );
-  }
-
-  // dnd-kit handlers
-  function handleDragStart(event) {
-    setActiveId(event.active.id);
-    console.log("Drag started:", event.active.id, event.active.data.current);
-  }
-
-  function handleDragEnd(event) {
-    const { active, over } = event;
-    
-    // Reset activeId immediately
-    setActiveId(null);
-    
-    if (!over) {
-      console.log("Drag ended outside any droppable area.");
-      return; // Dropped outside any container
-    }
-    
-    console.log("Drag ended. Active:", active.id, "Over:", over.id, "Over data:", over.data.current);
-
-    // Case 1: Dropping new section
-    if (active.data.current?.type === 'card-option' && over.id === 'prysma-card-dropzone') {
-      const droppedOption = active.data.current.option;
-      const isAlreadyAdded = cardSections.some(section => section.id === droppedOption.id);
-      if (!isAlreadyAdded) {
-        const newSections = [...cardSections, droppedOption];
-        setCardSections(newSections);
-        // TODO: Save new layout to DB
-        // saveLayoutToDb(newSections);
-      } else {
-        // Escape alert message
-        alert(`${droppedOption.name} is already on your card.`);
-      }
-      return;
-    }
-    
-    // Case 2: Sorting sections already within the card
-    // Ensure both active and over items are within the sortable context (have the same parent or similar logic)
-    // For simplicity, we check if active.id is one of the cardSections ids and over.id is the dropzone or another section id
-    const isActiveSection = cardSections.some(section => section.id === active.id);
-    const isOverCardArea = over.id === 'prysma-card-dropzone' || cardSections.some(section => section.id === over.id);
-    
-    if (isActiveSection && isOverCardArea && active.id !== over.id) {
-        console.log(`Reordering section ${active.id} over ${over.id}`);
-        setCardSections((sections) => {
-          const oldIndex = sections.findIndex((item) => item.id === active.id);
-          // Find index of the item we are dropping over. If dropping on the container, find the last index? 
-          // It's often simpler if the droppable area itself isn't sortable, only the items within.
-          // Let's refine: Check if 'over' is a sortable item itself.
-          const overIsSection = cardSections.some(section => section.id === over.id);
-          if (oldIndex !== -1 && overIsSection) { 
-            const newIndex = sections.findIndex((item) => item.id === over.id);
-            if (newIndex !== -1) {
-               const newSections = arrayMove(sections, oldIndex, newIndex);
-               return newSections;
-            }
-          }
-          // If dropping onto the main dropzone container instead of another item, 
-          // perhaps don't reorder or append to end (depending on desired UX)
-          // For now, we only reorder when dropping over another existing section.
-          return sections; // Return original array if drop wasn't valid for reordering
-        });
-    }
-  }
-
-  // --- Modal Handlers ---
+  // Modal Handlers (Keep here for now, update to use separate loading state)
   const openEditModal = (section) => {
-    if (!profile) return; // Need profile data
-    console.log("Opening modal for:", section);
+    if (!profile) return;
     setEditingSection(section);
-    // Initialize input value with current profile data for that section
     setModalInputValue(profile[section.id] || ''); 
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
   const closeEditModal = () => {
-    setIsModalOpen(false);
+    setIsEditModalOpen(false);
     setEditingSection(null);
-    setModalInputValue(''); // Clear input value on close
+    setModalInputValue(''); 
   };
 
   const handleModalSave = async () => {
     if (!editingSection || !user) return;
-    
     const sectionId = editingSection.id;
     const newValue = modalInputValue;
     
-    console.log(`Saving ${sectionId}: ${newValue}`);
-    
-    // --- Update Supabase --- (Actual DB update)
+    setModalLoading(true); // Use modal loading state
     try {
-       setLoading(true); // Indicate loading state
        const { data, error } = await supabase
         .from('profiles')
-        .update({ 
-          [sectionId]: newValue, // Dynamic key update
-          updated_at: new Date().toISOString()
-        })
+        .update({ [sectionId]: newValue, updated_at: new Date().toISOString() })
         .eq('id', user.id)
-        .select() // Select the updated profile data
+        .select()
         .single(); 
 
       if (error) {
         console.error('Error updating profile section:', error);
         alert(`Error saving ${editingSection.name}: ${error.message}`);
       } else {
-        console.log('Update successful, new profile data:', data);
-        // --- Update local profile state --- 
-        setProfile(data); 
+        setProfile(data); // Update local profile state
         closeEditModal();
-        // Optional: Add success message/toast
       }
     } catch (err) {
        console.error('Unexpected error saving section:', err);
        alert('An unexpected error occurred while saving.');
     } finally {
-       setLoading(false);
+       setModalLoading(false);
     }
-    // --- End Update Supabase ---
   };
-  // --- End Modal Handlers ---
+
+  // Avatar Modal Handlers
+  const openAvatarModal = () => {
+    setIsAvatarModalOpen(true);
+  };
+
+  const closeAvatarModal = () => {
+    setIsAvatarModalOpen(false);
+  };
+
+  const handleAvatarUploadSuccess = (newAvatarUrl) => {
+    // Update the profile state locally so the PrysmaCard re-renders
+    setProfile(prevProfile => ({
+      ...prevProfile,
+      avatar_url: newAvatarUrl
+    }));
+    // Optionally show a success message
+  };
+
+  // dnd-kit handlers (handleDragStart remains, handleDragEnd uses the hook's version)
+  function handleDragStart(event) {
+    setActiveId(event.active.id);
+  }
+
+  // handleDragEnd is now provided by the useCardLayout hook as handleLayoutDragEnd
+  // const handleDragEnd = (event) => { ... MOVED TO HOOK ... };
+
+  // handleRemoveSection is now provided by the useCardLayout hook
+  // function handleRemoveSection(idToRemove) { ... MOVED TO HOOK ... };
 
   return (
     <DndContext 
       sensors={sensors} 
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
+      onDragEnd={handleLayoutDragEnd} // Use the handler from the hook
     >
-      <div 
-        style={{ maxWidth: '1200px', margin: '50px auto', padding: '20px' }} 
-        onClick={() => console.log('Dashboard Page main div clicked!')}
-      >
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <h1>Dashboard</h1>
+      <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+        {/* Header */} 
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <button 
-            onClick={(e) => { e.stopPropagation(); handleSignOut(); }}
-            style={{ 
-              backgroundColor: '#f44336',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '8px 16px',
-              cursor: 'pointer',
-              fontSize: '14px'
-            }}
+            onClick={handleSignOut} 
+            className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out"
           >
             Sign Out
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: '40px' }} onClick={(e) => e.stopPropagation()}>
-          <div style={{ flex: 1 }}>
-            <h2>Your Prysma Profile Card</h2>
-            <p style={{ marginBottom: '20px' }}>
+        {/* Two-column layout */} 
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Column */} 
+          <div className="lg:flex-1">
+            <h2 className="text-xl font-semibold text-gray-800 mb-2">Your Prysma Profile Card</h2>
+            <p className="text-sm text-gray-600 mb-4">
               Drag sections from the right onto the card below. Drag sections within the card to reorder. Click &apos;X&apos; to remove a section. Click a section to edit.
             </p>
-            
             <PrysmaCard 
               profile={profile} 
               user={user} 
-              cardSections={cardSections} 
-              onRemoveSection={handleRemoveSection}
+              cardSections={cardSections} // Use state from the hook
+              onRemoveSection={handleRemoveSection} // Use handler from the hook
               onEditSection={openEditModal}
+              onAvatarClick={openAvatarModal}
             />
           </div>
 
-          <div style={{ flex: 1, border: '1px dashed #ccc', padding: '20px', borderRadius: '8px' }}>
-            <h2>Build Your Card</h2>
-            <p>Available Sections:</p>
-            <DraggableCardOptionsContainer />
+          {/* Right Column */} 
+          <div className="lg:w-1/3">
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Build Your Card</h2>
+              <p className="text-sm text-gray-600 mb-4">Available Sections:</p>
+              <DraggableCardOptionsContainer cardSections={cardSections} />
+            </div>
           </div>
         </div>
       </div>
       
+      {/* Render the Modals */}
       <EditSectionModal 
-        isOpen={isModalOpen}
+        isOpen={isEditModalOpen}
         onClose={closeEditModal}
         section={editingSection}
         value={modalInputValue}
         onChange={setModalInputValue}
         onSave={handleModalSave}
+        isLoading={modalLoading}
+      />
+      <AvatarUploadModal 
+        isOpen={isAvatarModalOpen}
+        onClose={closeAvatarModal}
+        onUploadSuccess={handleAvatarUploadSuccess}
+        user={user} // Pass user object needed for upload path/logic
       />
     </DndContext>
   );
