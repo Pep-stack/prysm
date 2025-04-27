@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../../src/lib/supabase';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../src/components/auth/SessionProvider';
 import PrysmaCard from '../../src/components/card/PrysmaCard';
@@ -22,25 +21,46 @@ import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
 
 // Import the custom hook
 import { useCardLayout } from '../../src/hooks/useCardLayout';
+import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
+import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
+import { useUserProfile } from '../../src/hooks/useUserProfile';
 
 export default function DashboardPage() {
   const { user, loading: sessionLoading, signOut } = useSession();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true); // Separate loading state for profile data
   const router = useRouter();
-  const [activeId, setActiveId] = useState(null); // Drag state remains here for now
+  const [activeId, setActiveId] = useState(null);
 
-  // --- Use the custom hook for card layout management ---
-  const { cardSections, handleRemoveSection, handleDragEnd: handleLayoutDragEnd } = useCardLayout(/* pass initial layout from profile here later */);
-  // -----------------------------------------------------
-
-  // --- Modal State (remains here for now, could be moved to useEditModal later) ---
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingSection, setEditingSection] = useState(null); 
-  const [modalInputValue, setModalInputValue] = useState('');
-  const [modalLoading, setModalLoading] = useState(false); // Separate loading for modal save
-  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false); // State for avatar modal
-  // --- End Modal State ---
+  // --- Use custom hooks for managing state and logic --- 
+  const { 
+     profile, 
+     loading: profileLoading, 
+     handleProfileUpdate, 
+     handleAvatarUpdate 
+  } = useUserProfile(user);
+  
+  const { 
+     cardSections, 
+     handleRemoveSection, 
+     handleDragEnd: handleLayoutDragEnd 
+  } = useCardLayout(/* TODO: Pass initial layout from profile */);
+  
+  const { 
+     isModalOpen: isEditModalOpen, 
+     editingSection, 
+     inputValue: modalInputValue, 
+     isLoading: modalLoading, 
+     openModal: openEditModal, 
+     closeModal: closeEditModal, 
+     setInputValue: setModalInputValue, 
+     handleSave: handleModalSave 
+  } = useEditSectionModal(user, profile, handleProfileUpdate);
+  
+  const { 
+     isModalOpen: isAvatarModalOpen, 
+     openModal: openAvatarModal, 
+     closeModal: closeAvatarModal, 
+     handleSuccess: handleAvatarUploadSuccess 
+  } = useAvatarUploadModal(handleAvatarUpdate);
 
   // Sensors (no change)
   const sensors = useSensors(
@@ -49,36 +69,6 @@ export default function DashboardPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  // Fetch User Data (Adjust to load initial layout later)
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user) return;
-      setLoading(true);
-      try {
-        // TODO: Select and load card_layout from profiles
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*') 
-          .eq('id', user.id)
-          .single();
-        if (error) {
-           console.error('Error fetching profile:', error);
-        } else {
-          setProfile(data);
-          // TODO: Pass initial layout to useCardLayout hook
-          // Example: If layout stored in data.card_layout
-          // const initialLayout = data.card_layout || []; 
-          // const { cardSections, ... } = useCardLayout(initialLayout); // Need to call hook conditionally or manage state update
-        }
-      } catch (err) {
-        console.error('Error checking authentication:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserData();
-  }, [user]); // Re-fetch if user changes
 
   // Redirect if not logged in (no change)
   useEffect(() => {
@@ -89,8 +79,7 @@ export default function DashboardPage() {
 
   // handleSignOut (no change)
   const handleSignOut = async () => {
-    // ... sign out logic ...
-     try {
+    try {
       await signOut();
       router.push('/login');
     } catch (error) {
@@ -99,81 +88,14 @@ export default function DashboardPage() {
   };
 
   // Main loading state (no change)
-  if (sessionLoading || loading) {
+  if (sessionLoading || profileLoading) {
     return <div className="p-10">Loading...</div>;
   }
-
-  // Modal Handlers (Keep here for now, update to use separate loading state)
-  const openEditModal = (section) => {
-    if (!profile) return;
-    setEditingSection(section);
-    setModalInputValue(profile[section.id] || ''); 
-    setIsEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setEditingSection(null);
-    setModalInputValue(''); 
-  };
-
-  const handleModalSave = async () => {
-    if (!editingSection || !user) return;
-    const sectionId = editingSection.id;
-    const newValue = modalInputValue;
-    
-    setModalLoading(true); // Use modal loading state
-    try {
-       const { data, error } = await supabase
-        .from('profiles')
-        .update({ [sectionId]: newValue, updated_at: new Date().toISOString() })
-        .eq('id', user.id)
-        .select()
-        .single(); 
-
-      if (error) {
-        console.error('Error updating profile section:', error);
-        alert(`Error saving ${editingSection.name}: ${error.message}`);
-      } else {
-        setProfile(data); // Update local profile state
-        closeEditModal();
-      }
-    } catch (err) {
-       console.error('Unexpected error saving section:', err);
-       alert('An unexpected error occurred while saving.');
-    } finally {
-       setModalLoading(false);
-    }
-  };
-
-  // Avatar Modal Handlers
-  const openAvatarModal = () => {
-    setIsAvatarModalOpen(true);
-  };
-
-  const closeAvatarModal = () => {
-    setIsAvatarModalOpen(false);
-  };
-
-  const handleAvatarUploadSuccess = (newAvatarUrl) => {
-    // Update the profile state locally so the PrysmaCard re-renders
-    setProfile(prevProfile => ({
-      ...prevProfile,
-      avatar_url: newAvatarUrl
-    }));
-    // Optionally show a success message
-  };
 
   // dnd-kit handlers (handleDragStart remains, handleDragEnd uses the hook's version)
   function handleDragStart(event) {
     setActiveId(event.active.id);
   }
-
-  // handleDragEnd is now provided by the useCardLayout hook as handleLayoutDragEnd
-  // const handleDragEnd = (event) => { ... MOVED TO HOOK ... };
-
-  // handleRemoveSection is now provided by the useCardLayout hook
-  // function handleRemoveSection(idToRemove) { ... MOVED TO HOOK ... };
 
   return (
     <DndContext 

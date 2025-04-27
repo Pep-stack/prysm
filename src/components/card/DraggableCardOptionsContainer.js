@@ -12,6 +12,9 @@ const availableCardOptions = [
     // { id: 'contact', name: 'Contact Section', inputType: 'none' },
     { id: 'location', name: 'Location Section', inputType: 'text' },
     { id: 'website', name: 'Website Section', inputType: 'text' },
+    { id: 'linkedin', name: 'LinkedIn Profile', inputType: 'text', placeholder: 'Enter your LinkedIn profile URL' },
+    { id: 'x_profile', name: 'X Profile', inputType: 'text', placeholder: 'Enter your X profile URL' },
+    { id: 'instagram', name: 'Instagram Profile', inputType: 'text', placeholder: 'Enter your Instagram profile URL' },
     // Add other potential sections if they exist and should be draggable options
 ];
 
