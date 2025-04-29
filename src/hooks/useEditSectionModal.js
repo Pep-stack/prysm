@@ -29,14 +29,18 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     if (!editingSection || !user) return;
     
     const sectionId = editingSection.id;
-    const newValue = inputValue;
+    // Process value BEFORE sending to Supabase
+    let valueToSave = inputValue;
+    if (sectionId === 'languages' && Array.isArray(inputValue)) {
+      valueToSave = inputValue.join(','); // Join array into comma-separated string
+    }
     
     setIsLoading(true); 
     setError(null);
     try {
        const { data, error: updateError } = await supabase
         .from('profiles')
-        .update({ [sectionId]: newValue, updated_at: new Date().toISOString() })
+        .update({ [sectionId]: valueToSave, updated_at: new Date().toISOString() }) // Use processed value
         .eq('id', user.id)
         .select() // Select the updated row
         .single(); 
@@ -47,7 +51,14 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       
       // Call the callback passed from the parent to update its profile state
       if (onProfileUpdate) {
-         onProfileUpdate(data); // Pass the newly updated profile data
+         // IMPORTANT: Pass back the *original* input value if it was an array,
+         // so the parent state (and LanguageSelector) gets the correct format.
+         // The 'data' returned from Supabase will have the string version.
+         const updatedProfileData = { ...data };
+         if (sectionId === 'languages') {
+            updatedProfileData[sectionId] = inputValue; // Restore the array format for local state
+         }
+         onProfileUpdate(updatedProfileData); 
       }
       closeModal(); // Close modal on success
 

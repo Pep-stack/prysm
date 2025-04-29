@@ -18,10 +18,38 @@ import WebsiteSectionContent from './cardSections/WebsiteSectionContent';
 import LinkedInSectionContent from './cardSections/LinkedInSectionContent';
 import XSectionContent from './cardSections/XSectionContent';
 import InstagramSectionContent from './cardSections/InstagramSectionContent';
+import ExperienceSectionContent from './cardSections/ExperienceSectionContent';
+import EducationSectionContent from './cardSections/EducationSectionContent';
+import CertificationsSectionContent from './cardSections/CertificationsSectionContent';
+import ProjectsSectionContent from './cardSections/ProjectsSectionContent';
+import PublicationsSectionContent from './cardSections/PublicationsSectionContent';
+import EventsSectionContent from './cardSections/EventsSectionContent';
+import AwardsSectionContent from './cardSections/AwardsSectionContent';
+import LanguagesSectionContent from './cardSections/LanguagesSectionContent';
+import TestimonialsSectionContent from './cardSections/TestimonialsSectionContent';
+import ServicesSectionContent from './cardSections/ServicesSectionContent';
+import CalendarSchedulingSectionContent from './cardSections/CalendarSchedulingSectionContent';
+import ContactButtonsSectionContent from './cardSections/ContactButtonsSectionContent';
+import ContactFormSectionContent from './cardSections/ContactFormSectionContent';
+import NewsletterSignupSectionContent from './cardSections/NewsletterSignupSectionContent';
+// Placeholders for components potentially not created yet or needing retry
+import GithubGitlabSectionContent from './cardSections/GithubGitlabSectionContent'; // Import actual component
+import DribbbleBehanceSectionContent from './cardSections/DribbbleBehanceSectionContent'; // Import actual component
+import YoutubeChannelSectionContent from './cardSections/YoutubeChannelSectionContent'; // Import actual component
+import TiktokSectionContent from './cardSections/TiktokSectionContent'; // Import actual component
+import FacebookSectionContent from './cardSections/FacebookSectionContent'; // Import actual component
+import StackoverflowSectionContent from './cardSections/StackoverflowSectionContent'; // Import actual component
+import GoogleMapsSectionContent from './cardSections/GoogleMapsSectionContent'; // Import actual component
+import TimezoneHoursSectionContent from './cardSections/TimezoneHoursSectionContent'; // Import actual component
+import DownloadCvSectionContent from './cardSections/DownloadCvSectionContent'; // Import actual component
+import StatisticsProofSectionContent from './cardSections/StatisticsProofSectionContent'; // Import actual component
+import BlogArticlesSectionContent from './cardSections/BlogArticlesSectionContent'; // Import actual component
+import VideoBannerSectionContent from './cardSections/VideoBannerSectionContent'; // Import actual component
 
-export default function PrysmaCard({ profile, user, cardSections = [], onRemoveSection, onEditSection, onAvatarClick }) {
+export default function PrysmaCard({ profile, user, cardSections = [], onRemoveSection, onEditSection, onAvatarClick, onSaveLayoutClick, isSavingLayout, onSaveLanguages }) {
   const router = useRouter();
   const [showQR, setShowQR] = useState(false);
+  const [editingLanguageSectionId, setEditingLanguageSectionId] = useState(null);
   
   // Make the card a droppable area
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
@@ -159,6 +187,14 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
     fontWeight: 'bold',
     marginRight: '10px',
     marginTop: '10px',
+    opacity: 1, // Default opacity
+    transition: 'opacity 0.2s ease' // Smooth transition for disabled state
+  };
+  
+  const disabledButtonStyle = {
+     ...buttonStyle,
+     opacity: 0.5,
+     cursor: 'not-allowed'
   };
   
   const secondaryButtonStyle = {
@@ -206,6 +242,17 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
     router.push('/dashboard/profile');
   };
   
+  // Function to handle clicks on sections
+  const handleSectionClick = (sectionData) => {
+    if (sectionData.id === 'languages') {
+      setEditingLanguageSectionId(sectionData.id);
+    } else if (onEditSection) {
+      if (sectionData.inputType !== 'none' || sectionData.editorComponent) {
+         onEditSection(sectionData);
+      }
+    }
+  };
+
   return (
     <div ref={setDroppableNodeRef} style={cardStyle}>
        {/* --- Header Image --- */} 
@@ -266,92 +313,82 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
           
           {/* --- Dynamically Rendered & Sortable Sections --- */} 
           <SortableContext items={cardSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
-            {/* ADDED: Wrapper div for flex layout */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}> 
               {cardSections.map((section) => {
                 let SectionContentComponent = null;
+                const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle } }; // Consolidate props
 
-                // Map section ID to the correct content component and required styles
                 switch (section.id) {
-                  case 'bio':
-                    SectionContentComponent = (
-                      <BioSectionContent profile={profile} styles={{ sectionStyle, placeholderStyle }} />
-                    );
-                    break;
-                  case 'skills':
-                    SectionContentComponent = (
-                      <SkillsSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, tagStyle, placeholderStyle }} />
-                    );
-                    break;
-                  case 'contact':
-                    // Contact section is rendered directly (not sortable)
-                    SectionContentComponent = (
-                      <ContactSectionContent user={user} styles={{ sectionStyle, sectionTitleStyle }} />
-                    );
-                    break;
-                 case 'location':
-                    SectionContentComponent = (
-                      <LocationSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
-                    );
-                    break;
-                 case 'website':
-                    SectionContentComponent = (
-                      <WebsiteSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
-                    );
-                    break;
-                 case 'linkedin':
-                    SectionContentComponent = (
-                      <LinkedInSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
-                    );
-                    break;
-                 case 'x_profile':
-                    SectionContentComponent = (
-                      <XSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
-                    );
-                    break;
-                 case 'instagram':
-                    SectionContentComponent = (
-                      <InstagramSectionContent profile={profile} styles={{ sectionStyle, sectionTitleStyle, placeholderStyle }} />
-                    );
-                    break;
+                  // Existing cases
+                  case 'bio': SectionContentComponent = <BioSectionContent {...sectionProps} />; break;
+                  case 'skills': SectionContentComponent = <SkillsSectionContent {...sectionProps} />; break;
+                  case 'contact': SectionContentComponent = <ContactSectionContent {...sectionProps} />; break;
+                  case 'location': SectionContentComponent = <LocationSectionContent {...sectionProps} />; break;
+                  case 'website': SectionContentComponent = <WebsiteSectionContent {...sectionProps} />; break;
+                  case 'linkedin': SectionContentComponent = <LinkedInSectionContent {...sectionProps} />; break;
+                  case 'x_profile': SectionContentComponent = <XSectionContent {...sectionProps} />; break;
+                  case 'instagram': SectionContentComponent = <InstagramSectionContent {...sectionProps} />; break;
+                  
+                  // Newly added cases
+                  case 'experience': SectionContentComponent = <ExperienceSectionContent {...sectionProps} />; break;
+                  case 'education': SectionContentComponent = <EducationSectionContent {...sectionProps} />; break;
+                  case 'certifications': SectionContentComponent = <CertificationsSectionContent {...sectionProps} />; break;
+                  case 'projects': SectionContentComponent = <ProjectsSectionContent {...sectionProps} />; break;
+                  case 'publications': SectionContentComponent = <PublicationsSectionContent {...sectionProps} />; break;
+                  case 'events': SectionContentComponent = <EventsSectionContent {...sectionProps} />; break;
+                  case 'awards': SectionContentComponent = <AwardsSectionContent {...sectionProps} />; break;
+                  case 'languages': SectionContentComponent = <LanguagesSectionContent {...sectionProps} />; break;
+                  case 'testimonials': SectionContentComponent = <TestimonialsSectionContent {...sectionProps} />; break;
+                  case 'services': SectionContentComponent = <ServicesSectionContent {...sectionProps} />; break;
+                  case 'calendar_scheduling': SectionContentComponent = <CalendarSchedulingSectionContent {...sectionProps} />; break;
+                  case 'contact_buttons': SectionContentComponent = <ContactButtonsSectionContent {...sectionProps} />; break;
+                  case 'contact_form': SectionContentComponent = <ContactFormSectionContent {...sectionProps} />; break;
+                  case 'newsletter_signup': SectionContentComponent = <NewsletterSignupSectionContent {...sectionProps} />; break;
+                  
+                  // Cases for components potentially not created yet (render placeholder)
+                  case 'github_gitlab': SectionContentComponent = <GithubGitlabSectionContent {...sectionProps} />; break;
+                  case 'dribbble_behance': SectionContentComponent = <DribbbleBehanceSectionContent {...sectionProps} />; break;
+                  case 'youtube_channel': SectionContentComponent = <YoutubeChannelSectionContent {...sectionProps} />; break;
+                  case 'tiktok': SectionContentComponent = <TiktokSectionContent {...sectionProps} />; break;
+                  case 'facebook': SectionContentComponent = <FacebookSectionContent {...sectionProps} />; break;
+                  case 'stackoverflow': SectionContentComponent = <StackoverflowSectionContent {...sectionProps} />; break;
+                  case 'google_maps': SectionContentComponent = <GoogleMapsSectionContent {...sectionProps} />; break;
+                  case 'timezone_hours': SectionContentComponent = <TimezoneHoursSectionContent {...sectionProps} />; break;
+                  case 'download_cv': SectionContentComponent = <DownloadCvSectionContent {...sectionProps} />; break;
+                  case 'statistics_proof': SectionContentComponent = <StatisticsProofSectionContent {...sectionProps} />; break;
+                  case 'blog_articles': SectionContentComponent = <BlogArticlesSectionContent {...sectionProps} />; break;
+                  case 'video_banner': SectionContentComponent = <VideoBannerSectionContent {...sectionProps} />; break;
+
                   default:
-                    // Optionally handle unknown section types
                     console.warn("Unknown section type:", section.id);
                     SectionContentComponent = null;
                 }
                 
-                // Render Contact directly, others within SortableCardSection
-                if (section.id === 'contact') {
-                  // Contact might need specific styling if it's outside the flex wrapper now or inside?
-                  // For now, let's keep it outside the flex wrapper if it should remain full width
-                  // Or include it if it should also flex. Let's assume it stays outside for now.
-                  // return SectionContentComponent; 
-                   return null; // Let's render contact separately below the flex container
-                }
-                
-                // Render sortable sections within the flex container
+                // Render ALL sections within the flex container using SortableCardSection
                 return SectionContentComponent ? (
                   <SortableCardSection 
                     key={section.id} 
                     id={section.id} 
                     onRemove={onRemoveSection}
-                    onClick={onEditSection} // Pass handler for clicking the section
-                    sectionData={section}   // Pass section data for the onClick handler
-                    // ADDED: Style for flex item (optional, controls width/basis)
-                    style={{ flex: '1 1 calc(50% - 8px)' }} // Example: aim for 2 columns, adjust gap
+                    onClick={() => handleSectionClick(section)}
+                    sectionData={section}
+                    style={{ flex: '1 1 calc(50% - 8px)' }}
                   >
-                    {SectionContentComponent}
+                    {/* Pass editing state and save handler to LanguageSectionContent */} 
+                    {React.cloneElement(SectionContentComponent, {
+                       isEditing: editingLanguageSectionId === section.id,
+                       onSave: (newCodes) => {
+                          if (onSaveLanguages) {
+                              onSaveLanguages(newCodes); 
+                          }
+                          setEditingLanguageSectionId(null);
+                       },
+                       onCancel: () => setEditingLanguageSectionId(null)
+                    })}
                   </SortableCardSection>
                 ) : null;
               })}
             </div>
-             {/* Render Contact section separately if it exists and should be full width */}
-             {cardSections.find(s => s.id === 'contact') && (
-               <ContactSectionContent 
-                 user={user} 
-                 styles={{ sectionStyle: {...sectionStyle, marginTop: '16px'}, sectionTitleStyle }} // Add margin top
-               />
-             )}
           </SortableContext>
           
           {/* Action Buttons */} 
@@ -362,6 +399,14 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
             >
               Edit Profile
             </button>
+             {/* ADDED: Save Layout Button */}
+             <button 
+               style={isSavingLayout ? disabledButtonStyle : buttonStyle} 
+               onClick={onSaveLayoutClick} 
+               disabled={isSavingLayout} // Disable button while saving
+             >
+               {isSavingLayout ? 'Saving Layout...' : 'Save Layout'}
+             </button>
             <button 
               style={secondaryButtonStyle} 
               onClick={() => setShowQR(true)}

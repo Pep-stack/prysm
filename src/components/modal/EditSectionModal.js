@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import LanguageSelector from '../shared/LanguageSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave }) {
   // Note: Removed the console.log from here during cleanup
@@ -49,30 +50,49 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     gap: '10px',
   };
 
+  const renderInput = () => {
+    // Check if a custom editor component is specified
+    if (section.editorComponent === 'LanguageSelector') {
+      // Ensure 'value' passed to LanguageSelector is an array of selected language codes
+      const selectedLanguageCodes = Array.isArray(value) ? value : (value ? value.split(',').map(c => c.trim()) : []);
+      return (
+        <LanguageSelector 
+          value={selectedLanguageCodes} // Pass current codes
+          onChange={onChange} // onChange should expect an array of codes
+        />
+      );
+    }
+
+    // Default rendering based on inputType
+    if (section.inputType === 'textarea') {
+      return (
+        <textarea
+          style={textareaStyle}
+          value={value || ''} // Ensure value is not null/undefined for textarea
+          onChange={(e) => { if (onChange) onChange(e.target.value); }}
+          placeholder={`Enter your ${section.id}...`}
+          rows={5}
+        />
+      );
+    } else {
+      return (
+        <input
+          type={section.inputType || 'text'}
+          style={inputStyle}
+          value={value || ''} // Ensure value is not null/undefined for input
+          onChange={(e) => { if (onChange) onChange(e.target.value); }}
+          placeholder={section.placeholder || `Enter your ${section.id}...`}
+        />
+      );
+    }
+  };
+
   return (
     <div style={modalOverlayStyle} onClick={onClose}> 
       <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}> 
         <h2>Edit {section.name}</h2>
         
-        {section.inputType === 'textarea' ? (
-          <textarea
-            style={textareaStyle}
-            value={value}
-            // Note: Removed direct console.log during cleanup
-            onChange={(e) => { if (onChange) onChange(e.target.value); }}
-            placeholder={`Enter your ${section.id}...`}
-            rows={5}
-          />
-        ) : (
-          <input
-            type={section.inputType || 'text'}
-            style={inputStyle}
-            value={value}
-            // Note: Removed direct console.log during cleanup
-            onChange={(e) => { if (onChange) onChange(e.target.value); }}
-            placeholder={section.placeholder || `Enter your ${section.id}...`}
-          />
-        )}
+        {renderInput()} {/* Render the correct input or custom component */}
 
         <div style={buttonContainerStyle}>
           <button onClick={onClose} style={{ padding: '8px 15px' }}>Cancel</button>

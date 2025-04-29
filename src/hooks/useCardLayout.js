@@ -1,73 +1,89 @@
 'use client'; // Hooks might be used in client components
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 
-// Initial state can be loaded from props/API later
-const INITIAL_SECTIONS = [];
+// Default initial state if profile is null or has no sections
+const DEFAULT_SECTIONS = [{ id: 'bio' }, { id: 'contact' }]; 
 
-export function useCardLayout(initialSections = INITIAL_SECTIONS) {
-  const [cardSections, setCardSections] = useState(initialSections);
+export function useCardLayout(profile) { // Accept profile object
+  // Initialize state based on profile?.card_sections or default
+  const [cardSections, setCardSections] = useState(() => {
+    const initial = profile?.card_sections;
+    // Ensure it's a valid array, otherwise use default
+    return Array.isArray(initial) && initial.length > 0 ? initial : DEFAULT_SECTIONS;
+  });
 
-  // Handler to remove a section from the card
+  // Effect to update local state if profile data changes externally
+  useEffect(() => {
+    const sectionsFromProfile = profile?.card_sections;
+    if (Array.isArray(sectionsFromProfile)) {
+        // Optional: Deep compare if needed, or simply check if different
+        // For simplicity, let's update if the reference or length differs significantly,
+        // or based on a specific condition (e.g., after a save action indicated by profile update time)
+        // Simple check based on length and first/last element id might be enough
+        const currentIds = cardSections.map(s => s.id).join(',');
+        const profileIds = sectionsFromProfile.map(s => s.id).join(',');
+        if (profileIds !== currentIds) {
+             setCardSections(sectionsFromProfile.length > 0 ? sectionsFromProfile : DEFAULT_SECTIONS);
+        }
+    } else {
+        // Profile has no sections defined, use default
+        if (cardSections.length !== DEFAULT_SECTIONS.length || cardSections[0]?.id !== DEFAULT_SECTIONS[0]?.id) {
+            setCardSections(DEFAULT_SECTIONS);
+        }
+    }
+  }, [profile?.card_sections]); // Dependency on the card_sections array from profile
+
+  // Handler to remove a section from the card (only updates local state)
   const handleRemoveSection = useCallback((idToRemove) => {
     setCardSections((prevSections) => {
       const newSections = prevSections.filter((section) => section.id !== idToRemove);
-      // TODO: Save updated layout (new array without removed section) to DB
-      // saveLayoutToDb(newSectionsArray);
+      // NO DB save here - will be done via save button
       return newSections;
     });
-  }, []); // Dependency array is empty as it only uses setCardSections
+  }, []);
 
-  // Handler for drag end - manages adding new sections and sorting existing ones
+  // Handler for drag end (only updates local state)
   const handleDragEnd = useCallback((event) => {
     const { active, over } = event;
     
-    if (!over) {
-      return; // Dropped outside any container
-    }
+    if (!over) return;
     
-    // Determine if we are dropping onto the main card dropzone
     const droppingOnCard = over.id === 'prysma-card-dropzone';
-
-    // Case 1: Dropping a new section from the right column onto the card
     const isActiveOption = active.data.current?.type === 'card-option';
 
+    // Case 1: Dropping a new section from the right column onto the card
     if (isActiveOption && droppingOnCard) {
       const droppedOption = active.data.current.option;
-
       setCardSections((prevSections) => {
         const isAlreadyAdded = prevSections.some(section => section.id === droppedOption.id);
-
         if (!isAlreadyAdded) {
-          const newSections = [...prevSections, droppedOption];
-          // TODO: Save new layout to DB
-          // saveLayoutToDb(newSections);
+          // Add only the ID (or necessary data) to the layout state
+          const newSections = [...prevSections, { id: droppedOption.id }]; 
+          // NO DB save here
           return newSections;
         } else {
-          return prevSections; // Return previous state if already added
+          return prevSections;
         }
       });
-      return; // Handled adding new section
+      return;
     }
     
     // Case 2: Sorting sections already within the card
     setCardSections((prevSections) => {
         const isActiveSection = prevSections.some(section => section.id === active.id);
-        // Check if dropping over the card zone OR another section within the card
         const isOverCardArea = over.id === 'prysma-card-dropzone' || prevSections.some(section => section.id === over.id);
         
         if (isActiveSection && isOverCardArea && active.id !== over.id) {
             const oldIndex = prevSections.findIndex((item) => item.id === active.id);
-            // Ensure we are dropping over another *section*, not just the container background
             const overIsSection = prevSections.some(section => section.id === over.id);
 
             if (oldIndex !== -1 && overIsSection) { 
                 const newIndex = prevSections.findIndex((item) => item.id === over.id);
                 if (newIndex !== -1) {
                    const newSections = arrayMove(prevSections, oldIndex, newIndex);
-                   // TODO: Save new layout to DB
-                   // saveLayoutToDb(newSections);
+                   // NO DB save here
                    return newSections;
                 }
             }
@@ -75,13 +91,12 @@ export function useCardLayout(initialSections = INITIAL_SECTIONS) {
         return prevSections; 
     });
 
-  }, []); // Dependency array is empty as logic depends only on state setters or doesn't change
+  }, []);
 
   // Return the state and the handlers
   return {
-    cardSections,
+    cardSections, // The current layout state
     handleRemoveSection,
     handleDragEnd,
-    // We could also return setCardSections if needed directly, but handlers are cleaner
   };
 } 
