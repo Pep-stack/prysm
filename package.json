@@ -11,6 +11,7 @@
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "country-flag-icons": "^1.5.19",
     "framer-motion": "^12.9.2",

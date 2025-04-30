@@ -46,21 +46,32 @@ import StatisticsProofSectionContent from './cardSections/StatisticsProofSection
 import BlogArticlesSectionContent from './cardSections/BlogArticlesSectionContent'; // Import actual component
 import VideoBannerSectionContent from './cardSections/VideoBannerSectionContent'; // Import actual component
 
-export default function PrysmaCard({ profile, user, cardSections = [], onRemoveSection, onEditSection, onAvatarClick, onSaveLayoutClick, isSavingLayout, onSaveLanguages }) {
+export default function PrysmaCard({ 
+  profile, 
+  user, 
+  cardSections = [], 
+  onRemoveSection, 
+  onEditSection, 
+  onAvatarClick, 
+  onSaveLayoutClick, 
+  isSavingLayout, 
+  onSaveLanguages,
+  isPublicView = false
+}) {
   const router = useRouter();
   const [showQR, setShowQR] = useState(false);
   const [editingLanguageSectionId, setEditingLanguageSectionId] = useState(null);
   
-  // Make the card a droppable area
+  // Make the card droppable *only* if not in public view
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
     id: 'prysma-card-dropzone',
-    data: {
-      type: 'card-container'
-    }
+    data: { type: 'card-container' },
+    disabled: isPublicView
   });
 
-  // Generate a shareable profile URL
-  const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${user?.id}`;
+  // Adjust profile URL logic slightly if needed for public view (user might be null)
+  const displayUserId = user?.id || profile?.id; // Use profile ID if user is null
+  const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${displayUserId}`;
   
   // CSS styles for the Prysma Card
   const headerHeight = '120px'; // Define header height
@@ -113,7 +124,7 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
      overflow: 'hidden',
      marginRight: '15px',
      boxShadow: '0 2px 4px rgba(0,0,0,0.1)', // Optional shadow
-     cursor: 'pointer',
+     cursor: isPublicView ? 'default' : 'pointer',
      display: 'flex',
      alignItems: 'center',
      justifyContent: 'center',
@@ -153,7 +164,7 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
     ...sectionStyle, 
     fontStyle: 'italic', 
     color: '#888',
-    cursor: 'pointer',
+    cursor: isPublicView ? 'default' : 'pointer',
     padding: '15px 10px',
     border: '1px dashed #ccc',
     borderRadius: '4px',
@@ -242,8 +253,10 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
     router.push('/dashboard/profile');
   };
   
-  // Function to handle clicks on sections
+  // Adjust click handler for public view
   const handleSectionClick = (sectionData) => {
+    if (isPublicView) return; // Do nothing in public view
+
     if (sectionData.id === 'languages') {
       setEditingLanguageSectionId(sectionData.id);
     } else if (onEditSection) {
@@ -251,6 +264,88 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
          onEditSection(sectionData);
       }
     }
+  };
+
+  // Function to render a single section (either sortable or static)
+  const renderSection = (section) => {
+      let SectionContentComponent = null;
+      const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle } };
+
+      switch (section.id) {
+         // --- Cases for all section types --- 
+         case 'bio': SectionContentComponent = <BioSectionContent {...sectionProps} />; break;
+         case 'skills': SectionContentComponent = <SkillsSectionContent {...sectionProps} />; break;
+         case 'contact': SectionContentComponent = <ContactSectionContent {...sectionProps} />; break;
+         case 'location': SectionContentComponent = <LocationSectionContent {...sectionProps} />; break;
+         case 'website': SectionContentComponent = <WebsiteSectionContent {...sectionProps} />; break;
+         case 'linkedin': SectionContentComponent = <LinkedInSectionContent {...sectionProps} />; break;
+         case 'x_profile': SectionContentComponent = <XSectionContent {...sectionProps} />; break;
+         case 'instagram': SectionContentComponent = <InstagramSectionContent {...sectionProps} />; break;
+         case 'experience': SectionContentComponent = <ExperienceSectionContent {...sectionProps} />; break;
+         case 'education': SectionContentComponent = <EducationSectionContent {...sectionProps} />; break;
+         case 'certifications': SectionContentComponent = <CertificationsSectionContent {...sectionProps} />; break;
+         case 'projects': SectionContentComponent = <ProjectsSectionContent {...sectionProps} />; break;
+         case 'publications': SectionContentComponent = <PublicationsSectionContent {...sectionProps} />; break;
+         case 'events': SectionContentComponent = <EventsSectionContent {...sectionProps} />; break;
+         case 'awards': SectionContentComponent = <AwardsSectionContent {...sectionProps} />; break;
+         case 'languages': SectionContentComponent = <LanguagesSectionContent {...sectionProps} />; break;
+         case 'testimonials': SectionContentComponent = <TestimonialsSectionContent {...sectionProps} />; break;
+         case 'services': SectionContentComponent = <ServicesSectionContent {...sectionProps} />; break;
+         case 'calendar_scheduling': SectionContentComponent = <CalendarSchedulingSectionContent {...sectionProps} />; break;
+         case 'contact_buttons': SectionContentComponent = <ContactButtonsSectionContent {...sectionProps} />; break;
+         case 'contact_form': SectionContentComponent = <ContactFormSectionContent {...sectionProps} />; break;
+         case 'newsletter_signup': SectionContentComponent = <NewsletterSignupSectionContent {...sectionProps} />; break;
+         case 'github_gitlab': SectionContentComponent = <GithubGitlabSectionContent {...sectionProps} />; break;
+         case 'dribbble_behance': SectionContentComponent = <DribbbleBehanceSectionContent {...sectionProps} />; break;
+         case 'youtube_channel': SectionContentComponent = <YoutubeChannelSectionContent {...sectionProps} />; break;
+         case 'tiktok': SectionContentComponent = <TiktokSectionContent {...sectionProps} />; break;
+         case 'facebook': SectionContentComponent = <FacebookSectionContent {...sectionProps} />; break;
+         case 'stackoverflow': SectionContentComponent = <StackoverflowSectionContent {...sectionProps} />; break;
+         case 'google_maps': SectionContentComponent = <GoogleMapsSectionContent {...sectionProps} />; break;
+         case 'timezone_hours': SectionContentComponent = <TimezoneHoursSectionContent {...sectionProps} />; break;
+         case 'download_cv': SectionContentComponent = <DownloadCvSectionContent {...sectionProps} />; break;
+         case 'statistics_proof': SectionContentComponent = <StatisticsProofSectionContent {...sectionProps} />; break;
+         case 'blog_articles': SectionContentComponent = <BlogArticlesSectionContent {...sectionProps} />; break;
+         case 'video_banner': SectionContentComponent = <VideoBannerSectionContent {...sectionProps} />; break;
+         default:
+           console.warn("Unknown section type:", section.id);
+           return null; // Don't render unknown sections
+      }
+
+      // Add editing props only if not in public view
+      const editingProps = !isPublicView ? {
+          isEditing: editingLanguageSectionId === section.id,
+          onSave: (newCodes) => {
+              if (onSaveLanguages) { onSaveLanguages(newCodes); }
+              setEditingLanguageSectionId(null);
+          },
+          onCancel: () => setEditingLanguageSectionId(null)
+      } : {};
+
+      const finalComponent = React.cloneElement(SectionContentComponent, editingProps);
+
+      if (isPublicView) {
+         // Render static section for public view
+         return (
+           <div key={section.id} style={{ flex: '1 1 calc(50% - 8px)' }}>
+              {finalComponent}
+           </div>
+         );
+      } else {
+         // Render sortable section for dashboard view
+         return (
+           <SortableCardSection 
+             key={section.id} 
+             id={section.id} 
+             onRemove={onRemoveSection} // Only pass onRemove if not public
+             onClick={() => handleSectionClick(section)} // Handle clicks only if not public
+             sectionData={section}
+             style={{ flex: '1 1 calc(50% - 8px)' }}
+           >
+             {finalComponent}
+           </SortableCardSection>
+         );
+      }
   };
 
   return (
@@ -291,8 +386,8 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
              {/* Avatar Container */} 
              <div 
                style={avatarContainerStyle} 
-               onClick={onAvatarClick} 
-               title="Change Profile Picture"
+               onClick={!isPublicView ? onAvatarClick : undefined} // Only allow click if not public
+               title={!isPublicView ? "Change Profile Picture" : profile?.name || 'Profile Picture'}
              >
                {profile?.avatar_url ? (
                  <img 
@@ -311,120 +406,27 @@ export default function PrysmaCard({ profile, user, cardSections = [], onRemoveS
              </div>
           </div>
           
-          {/* --- Dynamically Rendered & Sortable Sections --- */} 
-          <SortableContext items={cardSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}> 
-              {cardSections.map((section) => {
-                let SectionContentComponent = null;
-                const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle } }; // Consolidate props
-
-                switch (section.id) {
-                  // Existing cases
-                  case 'bio': SectionContentComponent = <BioSectionContent {...sectionProps} />; break;
-                  case 'skills': SectionContentComponent = <SkillsSectionContent {...sectionProps} />; break;
-                  case 'contact': SectionContentComponent = <ContactSectionContent {...sectionProps} />; break;
-                  case 'location': SectionContentComponent = <LocationSectionContent {...sectionProps} />; break;
-                  case 'website': SectionContentComponent = <WebsiteSectionContent {...sectionProps} />; break;
-                  case 'linkedin': SectionContentComponent = <LinkedInSectionContent {...sectionProps} />; break;
-                  case 'x_profile': SectionContentComponent = <XSectionContent {...sectionProps} />; break;
-                  case 'instagram': SectionContentComponent = <InstagramSectionContent {...sectionProps} />; break;
-                  
-                  // Newly added cases
-                  case 'experience': SectionContentComponent = <ExperienceSectionContent {...sectionProps} />; break;
-                  case 'education': SectionContentComponent = <EducationSectionContent {...sectionProps} />; break;
-                  case 'certifications': SectionContentComponent = <CertificationsSectionContent {...sectionProps} />; break;
-                  case 'projects': SectionContentComponent = <ProjectsSectionContent {...sectionProps} />; break;
-                  case 'publications': SectionContentComponent = <PublicationsSectionContent {...sectionProps} />; break;
-                  case 'events': SectionContentComponent = <EventsSectionContent {...sectionProps} />; break;
-                  case 'awards': SectionContentComponent = <AwardsSectionContent {...sectionProps} />; break;
-                  case 'languages': SectionContentComponent = <LanguagesSectionContent {...sectionProps} />; break;
-                  case 'testimonials': SectionContentComponent = <TestimonialsSectionContent {...sectionProps} />; break;
-                  case 'services': SectionContentComponent = <ServicesSectionContent {...sectionProps} />; break;
-                  case 'calendar_scheduling': SectionContentComponent = <CalendarSchedulingSectionContent {...sectionProps} />; break;
-                  case 'contact_buttons': SectionContentComponent = <ContactButtonsSectionContent {...sectionProps} />; break;
-                  case 'contact_form': SectionContentComponent = <ContactFormSectionContent {...sectionProps} />; break;
-                  case 'newsletter_signup': SectionContentComponent = <NewsletterSignupSectionContent {...sectionProps} />; break;
-                  
-                  // Cases for components potentially not created yet (render placeholder)
-                  case 'github_gitlab': SectionContentComponent = <GithubGitlabSectionContent {...sectionProps} />; break;
-                  case 'dribbble_behance': SectionContentComponent = <DribbbleBehanceSectionContent {...sectionProps} />; break;
-                  case 'youtube_channel': SectionContentComponent = <YoutubeChannelSectionContent {...sectionProps} />; break;
-                  case 'tiktok': SectionContentComponent = <TiktokSectionContent {...sectionProps} />; break;
-                  case 'facebook': SectionContentComponent = <FacebookSectionContent {...sectionProps} />; break;
-                  case 'stackoverflow': SectionContentComponent = <StackoverflowSectionContent {...sectionProps} />; break;
-                  case 'google_maps': SectionContentComponent = <GoogleMapsSectionContent {...sectionProps} />; break;
-                  case 'timezone_hours': SectionContentComponent = <TimezoneHoursSectionContent {...sectionProps} />; break;
-                  case 'download_cv': SectionContentComponent = <DownloadCvSectionContent {...sectionProps} />; break;
-                  case 'statistics_proof': SectionContentComponent = <StatisticsProofSectionContent {...sectionProps} />; break;
-                  case 'blog_articles': SectionContentComponent = <BlogArticlesSectionContent {...sectionProps} />; break;
-                  case 'video_banner': SectionContentComponent = <VideoBannerSectionContent {...sectionProps} />; break;
-
-                  default:
-                    console.warn("Unknown section type:", section.id);
-                    SectionContentComponent = null;
-                }
-                
-                // Render ALL sections within the flex container using SortableCardSection
-                return SectionContentComponent ? (
-                  <SortableCardSection 
-                    key={section.id} 
-                    id={section.id} 
-                    onRemove={onRemoveSection}
-                    onClick={() => handleSectionClick(section)}
-                    sectionData={section}
-                    style={{ flex: '1 1 calc(50% - 8px)' }}
-                  >
-                    {/* Pass editing state and save handler to LanguageSectionContent */} 
-                    {React.cloneElement(SectionContentComponent, {
-                       isEditing: editingLanguageSectionId === section.id,
-                       onSave: (newCodes) => {
-                          if (onSaveLanguages) {
-                              onSaveLanguages(newCodes); 
-                          }
-                          setEditingLanguageSectionId(null);
-                       },
-                       onCancel: () => setEditingLanguageSectionId(null)
-                    })}
-                  </SortableCardSection>
-                ) : null;
-              })}
-            </div>
-          </SortableContext>
-          
-          {/* Action Buttons */} 
-          <div style={{ marginTop: '30px', display: 'flex', flexWrap: 'wrap' }}>
-            <button 
-              style={buttonStyle} 
-              onClick={handleEditProfile}
-            >
-              Edit Profile
-            </button>
-             {/* ADDED: Save Layout Button */}
-             <button 
-               style={isSavingLayout ? disabledButtonStyle : buttonStyle} 
-               onClick={onSaveLayoutClick} 
-               disabled={isSavingLayout} // Disable button while saving
-             >
-               {isSavingLayout ? 'Saving Layout...' : 'Save Layout'}
-             </button>
-            <button 
-              style={secondaryButtonStyle} 
-              onClick={() => setShowQR(true)}
-            >
-              Share Profile
-            </button>
-            <button 
-              style={{
-                ...secondaryButtonStyle,
-                backgroundColor: 'transparent',
-                border: '1px solid #333',
-                color: '#333',
-              }} 
-              onClick={copyProfileUrl}
-            >
-              Copy Profile Link
-            </button>
+          {/* --- Section Rendering Logic --- */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+            {isPublicView 
+              ? cardSections.map(renderSection) // Render static sections if public
+              : ( // Render sortable sections if on dashboard
+                  <SortableContext items={cardSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                     {cardSections.map(renderSection)}
+                  </SortableContext>
+                )
+            }
           </div>
+          
+          {/* Action Buttons - Only show if not in public view */}
+          {!isPublicView && (
+             <div style={{ marginTop: '30px', display: 'flex', flexWrap: 'wrap' }}>
+               <button style={buttonStyle} onClick={handleEditProfile}>Edit Profile</button>
+               <button style={isSavingLayout ? disabledButtonStyle : buttonStyle} onClick={onSaveLayoutClick} disabled={isSavingLayout}>{isSavingLayout ? 'Saving Layout...' : 'Save Layout'}</button>
+               <button style={secondaryButtonStyle} onClick={() => setShowQR(true)}>Share Profile</button>
+               <button style={{ ...secondaryButtonStyle, backgroundColor: 'transparent', border: '1px solid #333', color: '#333' }} onClick={copyProfileUrl}>Copy Profile Link</button>
+             </div>
+          )}
        </div> 
     </div>
   );
