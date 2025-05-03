@@ -1,0 +1,96 @@
+/* Definieer de scroll animatie */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* Scroll precies de breedte van één set logo's */
+    transform: translateX(-50%);
+  }
+}
+
+/* NIEUWE scroll animatie (rechts) */
+@keyframes scrollReverse {
+  0% {
+    transform: translateX(-50%); /* Begin waar de linker scroll eindigt */
+  }
+  100% {
+    transform: translateX(0); /* Eindig bij de startpositie */
+  }
+}
+
+/* Container voor de carousel - mask ZEER STERK aangepast */
+.logoCarouselContainer {
+  width: 100%;
+  overflow: hidden;
+  padding: 40px 0;
+  position: relative;
+  /* AANGEPASTE mask: Fade begint zeer dicht bij midden (bv. 45%/55%) */
+  -webkit-mask-image: linear-gradient(to right, transparent, black 45%, black 55%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 45%, black 55%, transparent);
+}
+
+/* Basis track stijl - ZEER langzame animatie */
+.logoTrack {
+  display: flex;
+  width: fit-content;
+  gap: 50px;
+  align-items: center;
+  /* Animatie vertraagd naar 120s (of langer bv. 150s) */
+  animation: scroll 120s linear infinite;
+}
+
+/* Klasse voor omgekeerde track - ZEER langzame animatie */
+.logoTrackReverse {
+  composes: logoTrack;
+  gap: 50px;
+  animation-name: scrollReverse;
+  animation-duration: 120s; /* Houd consistent met .logoTrack */
+}
+
+/* Stijl voor elk logo item (hoogte blijft 80px) */
+.logoItem {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoItem img {
+  max-height: 100%;
+  max-width: none;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* Stijl voor logo bij hover (alleen scale) */
+.logoItem:hover img {
+  transform: scale(1.1);
+}
+
+/* Responsive aanpassingen (voorbeeld) */
+@media (max-width: 768px) {
+  .logoTrack, .logoTrackReverse {
+    gap: 30px;
+    /* Pas eventueel mobiele animatieduur aan */
+    /* animation-duration: 80s; */
+  }
+  .logoItem {
+    height: 60px;
+  }
+   /* Pas eventueel mask aan voor mobiel */
+  .logoCarouselContainer {
+     /* Maak fade ook sterker op mobiel */
+     -webkit-mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent);
+     mask-image: linear-gradient(to right, transparent, black 35%, black 65%, transparent);
+  }
+}
+
+/* Respecteer gebruikersvoorkeur voor minder beweging */
+@media (prefers-reduced-motion) {
+  .logoTrack, .logoTrackReverse {
+    /* Houd deze regel, maar :hover is weg */
+    animation-play-state: paused !important;
+  }
+} 
