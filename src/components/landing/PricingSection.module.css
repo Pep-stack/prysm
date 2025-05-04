@@ -1,0 +1,209 @@
+.section {
+  padding: 30px 20px;
+  background-color: #ffffff; /* Light grey background */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif; /* Font familie ingesteld op Inter */
+  font-size: 2rem; /* Vergroot font size (pas aan indien nodig) */
+  font-weight: 700; /* Vetgedrukt (pas aan indien nodig) */
+  margin-bottom: 25px; /* Iets meer ruimte onder de heading */
+  color: #000; /* Zwart zoals voorheen */
+  letter-spacing: -0.02em; /* Optioneel: voor een strakkere look */
+  line-height: 1.2; /* Zorg voor goede regelafstand */
+}
+
+/* --- Media Query voor grotere heading op desktop --- */
+@media (min-width: 768px) {
+  .heading {
+    font-size: 2.5rem; /* Terug naar grotere size */
+    margin-bottom: 30px; /* Terug naar grotere margin */
+  }
+}
+
+.cardContainer {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  background-color: #ffffff; /* Witte achtergrond */
+  border-radius: 12px; /* Afgeronde hoeken */
+  padding: 30px; /* Interne ruimte */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Subtiele schaduw */
+  border: 1px solid #e2e8f0; /* Lichte rand */
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Zorgt dat kaarten gelijke hoogte hebben in grid */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center; /* <<< Tekst centreren in de kaart */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.card h3 {
+  color: #00C896; /* Accent color */
+  margin-bottom: 10px;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.card li {
+  margin-bottom: 8px;
+  color: #333; /* Dark grey text */
+}
+
+.button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #00C896; /* Accent color */
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button:hover {
+  background-color: #009f7f; /* Darker accent color */
+}
+
+.pricingGrid {
+  display: grid;
+  /* Standaard 1 kolom voor mobiel */
+  grid-template-columns: 1fr;
+  gap: 30px; /* Ruimte tussen kaarten */
+  margin-top: 40px;
+}
+
+/* 2 kolommen op medium schermen */
+@media (min-width: 768px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 3 kolommen op grote schermen */
+@media (min-width: 1024px) {
+  .pricingGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Speciale stijl voor de "Pro" kaart (highlight) */
+.highlightedCard {
+  composes: card; /* Erf basisstijlen (inclusief text-align: center) */
+  border-color: #00C896; /* Gebruik je highlight kleur */
+  box-shadow: 0 6px 20px rgba(0, 200, 150, 0.15); /* Subtiele gekleurde schaduw */
+  /* Optioneel: lichte achtergrond tint? */
+  /* background-color: #f8fdfb; */
+}
+
+.cardTitle {
+  font-size: 1.5rem; /* 24px */
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333; /* Donkergrijs/zwart */
+}
+
+.cardSubtitle {
+    font-size: 0.9rem; /* 14px */
+    color: #666; /* Medium grijs */
+    margin-bottom: 20px;
+}
+
+.cardPrice {
+  font-size: 2.5rem; /* 40px */
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.priceDetails {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.featureList {
+  list-style: none; /* Geen standaard bolletjes */
+  padding: 0;
+  margin: 0 auto 30px auto; /* Auto marges links/rechts centreren de lijst als block */
+  flex-grow: 1; /* Laat lijst groeien om ruimte te vullen */
+  max-width: max-content; /* Zorgt dat de lijst niet breder wordt dan nodig */
+}
+
+.featureItem {
+  display: flex;
+  /* align-items: center; Verwijderd of aangepast indien nodig */
+  justify-content: center; /* <<< Centreert de flex items (icoon + tekst) horizontaal */
+  gap: 10px; /* Ruimte tussen icoon en tekst */
+  margin-bottom: 12px;
+  font-size: 1rem; /* 16px */
+  color: #444; /* Iets lichter dan titel */
+  text-align: left; /* <<< Zorgt dat tekst *naast* het icoon links uitgelijnd blijft */
+}
+
+.featureIcon {
+  color: #00C896; /* Highlight kleur voor icoon */
+  font-size: 1.2rem; /* Grootte van checkmark */
+  flex-shrink: 0; /* Voorkom krimpen icoon */
+  /* Voeg eventueel margin-top toe als verticale uitlijning niet klopt */
+}
+
+/* Stijl voor de knop */
+.ctaButton {
+  display: inline-block; /* Zorg dat het geen volledige breedte inneemt */
+  padding: 12px 25px;
+  border-radius: 25px; /* Ronde hoeken */
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  border: none;
+  margin-top: auto; /* Duw knop naar onderkant kaart */
+}
+
+.primaryButton {
+  composes: ctaButton;
+  background-color: #00C896; /* Highlight kleur */
+  color: white;
+}
+
+.primaryButton:hover {
+    filter: brightness(1.1);
+    transform: scale(1.05);
+}
+
+.secondaryButton {
+    composes: ctaButton;
+    background-color: transparent;
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.secondaryButton:hover {
+    background-color: #f0f0f0;
+    transform: scale(1.05);
+}
+
+/* Highlighted knop (kan dezelfde zijn als primary) */
+.highlightedButton {
+    composes: primaryButton;
+} 

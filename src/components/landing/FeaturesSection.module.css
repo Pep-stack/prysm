@@ -30,20 +30,20 @@
   mask-image: linear-gradient(to right, transparent, black 45%, black 55%, transparent);
 }
 
-/* Basis track stijl - ZEER langzame animatie */
+/* Basis track stijl - gap VERGROOT */
 .logoTrack {
   display: flex;
   width: fit-content;
-  gap: 50px;
+  gap: 80px;
   align-items: center;
   /* Animatie vertraagd naar 120s (of langer bv. 150s) */
   animation: scroll 120s linear infinite;
 }
 
-/* Klasse voor omgekeerde track - ZEER langzame animatie */
+/* Klasse voor omgekeerde track - gap VERGROOT */
 .logoTrackReverse {
   composes: logoTrack;
-  gap: 50px;
+  gap: 80px;
   animation-name: scrollReverse;
   animation-duration: 120s; /* Houd consistent met .logoTrack */
 }
@@ -72,7 +72,7 @@
 /* Responsive aanpassingen (voorbeeld) */
 @media (max-width: 768px) {
   .logoTrack, .logoTrackReverse {
-    gap: 30px;
+    gap: 40px;
     /* Pas eventueel mobiele animatieduur aan */
     /* animation-duration: 80s; */
   }
