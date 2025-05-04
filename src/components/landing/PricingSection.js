@@ -33,7 +33,7 @@ export default function PricingSection() {
             <li className={styles.featureItem}><CheckIcon /> 1 digital card</li>
             <li className={styles.featureItem}><CheckIcon /> Limited templates</li>
             <li className={styles.featureItem}><CheckIcon /> Basic analytics</li>
-            <li className={styles.featureItem}><CheckIcon /> "Made with Prysma" branding</li>
+            <li className={styles.featureItem}><CheckIcon /> &quot;Made with Prysma&quot; branding</li>
           </ul>
           <Link href="/signup" passHref>
              <button className={styles.secondaryButton}>Start Free</button>
