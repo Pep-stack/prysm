@@ -1,14 +1,3 @@
-/* Kleur variabelen voor consistentie (optioneel maar handig) */
-:root {
-  --prysma-accent: #00C896;
-  --prysma-black: #000000;
-  --prysma-dark-grey: #333333;
-  --prysma-medium-grey: #666666;
-  --prysma-light-grey: #e2e8f0;
-  --prysma-white: #ffffff;
-  --prysma-bg-light: #f8f9fa; /* Lichte achtergrond voor contrast */
-}
-
 .footer {
   color: var(--prysma-dark-grey); /* Donkergrijze tekst */
   padding: 60px 20px 30px 20px; /* Padding: top, sides, bottom */
