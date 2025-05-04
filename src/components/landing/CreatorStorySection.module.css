@@ -1,0 +1,95 @@
+.section {
+  /* Lichte achtergrond voor contrast, of gebruik #ffffff als je wit wilt */
+  background-color: #ffffff;
+  padding: 60px 20px; /* Ruime padding */
+}
+
+.container {
+  max-width: 800px; /* Maximale breedte voor leesbaarheid */
+  margin: 0 auto; /* Centreren */
+  text-align: center; /* Tekst centreren */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Items verticaal centreren */
+}
+
+.mainLogo {
+  /* Ruimte onder het hoofdlogo */
+  margin-bottom: 20px;
+  /* Je kunt hier vaste width/height instellen of de Image props gebruiken */
+}
+
+.heading {
+  font-family: 'Inter', sans-serif; /* Consistent font */
+  font-size: 2.2rem; /* Iets kleiner dan hoofdsectie-titels */
+  font-weight: 700;
+  color: #000000; /* Zwart */
+  margin-bottom: 15px;
+  line-height: 1.3;
+}
+
+.paragraph {
+  font-size: 1.1rem; /* Goed leesbare grootte */
+  color: #333; /* Donkergrijs */
+  line-height: 1.7; /* Ruime regelafstand */
+  margin-bottom: 30px; /* Ruimte voor de knop */
+  max-width: 650px; /* Voorkom te brede regels */
+}
+
+/* Basisstijl voor knoppen in deze sectie */
+.button {
+  display: inline-flex; /* Gebruik flex voor icoon + tekst */
+  align-items: center; /* Verticaal uitlijnen */
+  gap: 8px; /* Ruimte tussen icoon en tekst */
+  padding: 10px 20px;
+  border-radius: 25px; /* Ronde hoeken */
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Added color transition */
+  border: none;
+  font-size: 0.95rem;
+}
+
+/* Specifieke stijl voor de "Follow" knop (voorheen xButton) */
+.followButton {
+  composes: button; /* Erf basisstijlen */
+  background-color: #ffffff; /* Witte achtergrond */
+  color: #000000; /* Zwarte tekst */
+  border: 1px solid #000000; /* Zwarte rand */
+}
+
+.followButton:hover {
+  background-color: #f0f0f0; /* Lichte grijze achtergrond op hover */
+  /* color: #000000; Blijft zwart */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Iets subtielere schaduw */
+}
+
+/* Stijl voor het X logo in de knop (voorheen followLogo) */
+.xLogo {
+  /* Pas grootte van het X logo aan */
+  width: 16px; /* Terug naar 16px of gewenste grootte */
+  height: 16px; /* Terug naar 16px of gewenste grootte */
+}
+
+/* Media query voor kleinere schermen */
+@media (max-width: 768px) {
+  .section {
+    padding: 40px 20px;
+  }
+  .heading {
+    font-size: 1.8rem;
+  }
+  .paragraph {
+    font-size: 1rem;
+  }
+  .button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+  .xLogo {
+    width: 14px; /* Terug naar 14px of gewenste grootte */
+    height: 14px; /* Terug naar 14px of gewenste grootte */
+  }
+} 

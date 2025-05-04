@@ -2,45 +2,63 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { colors, commonStyles } from '../../lib/landingStyles';
+import Image from 'next/image';
+import styles from './Footer.module.css';
 
 export default function Footer() {
  return (
-  <footer style={{backgroundColor: colors.darkGrey, color: colors.white, padding: '40px 20px', marginTop: '60px'}}>
-     <div style={{...commonStyles.container, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '30px'}}>
-        {/* Left Side */} 
-        <div>
-           <div style={{fontWeight: 'bold', fontSize: '24px', marginBottom: '10px'}}>Prysma Logo</div> {/* Placeholder */} 
-           <p style={{fontSize: '14px', opacity: 0.8, marginBottom: '15px'}}>Made with structure and clarity</p>
-           {/* Add link */} 
+  <footer className={styles.footer}>
+     <div className={styles.container}>
+        <div className={styles.leftSection}>
+           <div className={styles.logoContainer}>
+             <Link href="/">
+               <Image
+                 src="/images/logo.png"
+                 alt="Prysma Logo"
+                 width={110}
+                 height={36}
+               />
+             </Link>
+           </div>
         </div>
-        {/* Right Side */} 
-        <div style={{display: 'flex', gap: '40px', flexWrap: 'wrap'}}>
-           <div>
-              <h4 style={{marginBottom: '10px', fontWeight: 'bold'}}>Quick Links</h4>
-              <ul style={{listStyle: 'none', padding: 0, margin: 0, fontSize: '14px', opacity: 0.9}}>
-                 <li style={{marginBottom: '8px'}}><Link href="#features" style={{color: colors.white, textDecoration: 'none'}}>Features</Link></li>
-                 <li style={{marginBottom: '8px'}}><Link href="#pricing" style={{color: colors.white, textDecoration: 'none'}}>Pricing</Link></li>
-                 <li style={{marginBottom: '8px'}}><Link href="#support" style={{color: colors.white, textDecoration: 'none'}}>Support</Link></li>
-                 <li style={{marginBottom: '8px'}}><Link href="/terms" style={{color: colors.white, textDecoration: 'none'}}>Terms</Link></li>
-                 <li><Link href="/privacy" style={{color: colors.white, textDecoration: 'none'}}>Privacy</Link></li>
+        <div className={styles.rightSection}>
+           <div className={styles.linkColumn}>
+              <h4 className={styles.columnTitle}>Quick Links</h4>
+              <ul className={styles.linkList}>
+                 <li className={styles.linkItem}><Link href="#features" className={styles.link}>Features</Link></li>
+                 <li className={styles.linkItem}><Link href="#pricing" className={styles.link}>Pricing</Link></li>
+                 <li className={styles.linkItem}><Link href="/terms" className={styles.link}>Terms</Link></li>
+                 <li className={styles.linkItem}><Link href="/privacy" className={styles.link}>Privacy</Link></li>
               </ul>
            </div>
-           <div>
-              <h4 style={{marginBottom: '10px', fontWeight: 'bold'}}>Stay Updated</h4>
-              {/* Basic form - consider a proper form component */} 
-              <input type="email" placeholder="Enter your email" style={{padding: '8px', borderRadius: '4px', border: 'none', marginRight: '5px'}}/>
-              <button style={{...commonStyles.button, ...commonStyles.primaryButton, padding: '8px 15px', fontSize: '14px'}}>Sign Up</button>
-              <div style={{marginTop: '15px', display: 'flex', gap: '10px'}}>
-                 {/* Social Icons Placeholders - Replace with actual icons/links */} 
-                 <a href="#" aria-label="Twitter" style={{color: colors.white}}>X</a> 
-                 <a href="#" aria-label="YouTube" style={{color: colors.white}}>YT</a> 
-                 <a href="mailto:info@prysma.com" aria-label="Email" style={{color: colors.white}}>Email</a> 
+           <div className={styles.linkColumn}>
+              <h4 className={styles.columnTitle}>Stay Updated</h4>
+              <form className={styles.newsletterForm}>
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className={styles.newsletterInput}
+                  aria-label="Email for newsletter"
+                />
+                <button type="submit" className={styles.newsletterButton}>
+                  Sign Up
+                </button>
+              </form>
+              <div className={styles.socialLinks}>
+                 <a href="#" aria-label="Follow Prysma on X" className={styles.socialLink} target="_blank" rel="noopener noreferrer">
+                    <Image src="/images/logo/x.png" alt="X Logo" width={22} height={30} className={styles.socialIcon} />
+                 </a>
+                 <a href="#" aria-label="Follow Prysma on Instagram" className={styles.socialLink} target="_blank" rel="noopener noreferrer">
+                    <Image src="/images/logo/instagram.png" alt="Instagram Logo" width={20} height={20} className={styles.socialIcon} />
+                 </a>
+                 <a href="#" aria-label="Follow Prysma on TikTok" className={styles.socialLink} target="_blank" rel="noopener noreferrer">
+                    <Image src="/images/logo/tiktok.png" alt="TikTok Logo" width={25} height={20} className={styles.socialIcon} />
+                 </a>
               </div>
            </div>
         </div>
      </div>
-     <div style={{textAlign: 'center', marginTop: '40px', paddingTop: '20px', borderTop: `1px solid ${colors.lightGrey}33`, fontSize: '12px', opacity: 0.7}}>
+     <div className={styles.copyright}>
        &copy; Prysma {new Date().getFullYear()}
      </div>
   </footer>

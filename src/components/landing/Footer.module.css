@@ -1,0 +1,207 @@
+/* Kleur variabelen voor consistentie (optioneel maar handig) */
+:root {
+  --prysma-accent: #00C896;
+  --prysma-black: #000000;
+  --prysma-dark-grey: #333333;
+  --prysma-medium-grey: #666666;
+  --prysma-light-grey: #e2e8f0;
+  --prysma-white: #ffffff;
+  --prysma-bg-light: #f8f9fa; /* Lichte achtergrond voor contrast */
+}
+
+.footer {
+  color: var(--prysma-dark-grey); /* Donkergrijze tekst */
+  padding: 60px 20px 30px 20px; /* Padding: top, sides, bottom */
+  margin-top: 80px; /* Ruimte boven de footer */
+  position: relative; /* Nodig voor de gradient pseudo-element */
+  background-color: var(--prysma-white); /* Witte achtergrond */
+  overflow: hidden; /* Voorkom dat gradient buiten de footer lekt */
+}
+
+/* Gradient Glow Effect (subtieler dan hero) */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150%; /* Breder dan de footer */
+  height: 150px; /* Hoogte van de glow */
+  z-index: 0; /* Achter de content */
+  background:
+    /* Groene Glow */
+    radial-gradient(ellipse at center top, rgba(0, 200, 150, 0.1) 0%, transparent 70%),
+    /* Zwarte Glow */
+    radial-gradient(ellipse at center top, rgba(0, 0, 0, 0.05) 0%, transparent 70%);
+  pointer-events: none; /* Zorgt dat het niet klikbaar is */
+}
+
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Zorgt dat items onder elkaar gaan op kleinere schermen */
+  gap: 40px; /* Ruimte tussen de hoofdsecties */
+  position: relative; /* Zorgt dat content boven de gradient komt */
+  z-index: 1;
+}
+
+/* Linker Sectie (Logo & Tagline) */
+.leftSection {
+  flex: 1; /* Neemt beschikbare ruimte */
+  min-width: 200px; /* Minimale breedte */
+}
+
+.logoContainer {
+  margin-bottom: 15px;
+  position: relative;
+  top: 70px; /* <<< Veranderd naar 70px */
+  line-height: 0;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: var(--prysma-medium-grey);
+  margin-bottom: 15px;
+  /* Optioneel: Voeg meer ruimte toe boven de tagline als het logo te dichtbij komt */
+  /* margin-top: 50px;  Pas deze waarde aan indien nodig */
+}
+
+/* Rechter Sectie (Links & Newsletter) */
+.rightSection {
+  display: flex;
+  flex-wrap: wrap; /* Kolommen onder elkaar op kleinere schermen */
+  gap: 50px; /* Ruimte tussen kolommen */
+  flex: 2; /* Neemt meer ruimte dan links */
+  justify-content: flex-end; /* Lijn rechts uit op grotere schermen */
+}
+
+.linkColumn {
+  min-width: 150px; /* Minimale breedte per kolom */
+}
+
+.columnTitle {
+  font-weight: 600; /* Bold */
+  color: var(--prysma-black); /* Zwart */
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linkItem {
+  margin-bottom: 10px;
+}
+
+.link {
+  color: var(--prysma-dark-grey); /* Donkergrijze links */
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--prysma-accent); /* Accentkleur op hover */
+}
+
+/* Newsletter Stijlen */
+.newsletterForm {
+  display: flex;
+  flex-wrap: wrap; /* Input en knop onder elkaar op mobiel */
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.newsletterInput {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--prysma-light-grey);
+  font-size: 0.9rem;
+  flex-grow: 1; /* Neemt beschikbare ruimte */
+  min-width: 180px; /* Minimale breedte */
+}
+
+.newsletterInput:focus {
+  outline: none;
+  border-color: var(--prysma-accent);
+  box-shadow: 0 0 0 2px rgba(0, 200, 150, 0.2);
+}
+
+.newsletterButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  background-color: var(--prysma-accent); /* Accentkleur */
+  color: var(--prysma-white);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.newsletterButton:hover {
+  filter: brightness(1.1);
+}
+
+/* Social Links */
+.socialLinks {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.socialLink {
+  text-decoration: none;
+  display: inline-block;
+  line-height: 0;
+}
+
+/* Optionele styling voor de iconen zelf */
+.socialIcon {
+  transition: opacity 0.2s ease;
+}
+
+.socialIcon:hover {
+  opacity: 0.7;
+}
+
+/* Copyright Sectie */
+.copyright {
+  text-align: center;
+  margin-top: 50px; /* Ruimte boven copyright */
+  padding-top: 20px;
+  border-top: 1px solid var(--prysma-light-grey); /* Lichte scheidingslijn */
+  font-size: 0.8rem;
+  color: var(--prysma-medium-grey); /* Medium grijs */
+  position: relative; /* Zorgt dat het boven de gradient komt */
+  z-index: 1;
+}
+
+/* Responsive Aanpassingen */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column; /* Stapel links en rechts */
+    align-items: center; /* Centreer items */
+    text-align: center; /* Centreer tekst binnen items */
+  }
+  .rightSection {
+    justify-content: center; /* Centreer kolommen */
+    gap: 30px;
+    width: 100%; /* Volledige breedte */
+  }
+  .leftSection {
+    align-items: center; /* Centreer logo etc. */
+  }
+  .newsletterForm {
+     justify-content: center; /* Centreer input/knop */
+  }
+   .socialLinks {
+     justify-content: center; /* Centreer social links */
+   }
+} 
