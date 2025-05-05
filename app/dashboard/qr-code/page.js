@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useSession } from '../../../src/components/auth/SessionProvider'; // Pas pad aan indien nodig
-import { QRCodeCanvas } from 'qrcode.react'; // Importeer de QR code component
-import { LuDownload } from "react-icons/lu"; // Icoon voor download knop
+import { useSession } from '../../../src/components/auth/SessionProvider'; // Controleer dit pad
+import { QRCodeCanvas } from 'qrcode.react'; // Controleer of 'qrcode.react' is geïnstalleerd
+import { LuDownload } from "react-icons/lu";
 
+// Zorg ervoor dat de functie correct wordt geëxporteerd
 export default function QRCodePage() {
   const { user, loading: sessionLoading } = useSession();
   const [profileUrl, setProfileUrl] = useState('');
@@ -17,9 +18,10 @@ export default function QRCodePage() {
       setProfileUrl(`${window.location.origin}/p/${user.id}`);
       setIsLoading(false);
     } else if (!sessionLoading && !user) {
+      // Geen gebruiker gevonden na het laden
       setIsLoading(false);
     }
-  }, [sessionLoading, user?.id]);
+  }, [sessionLoading, user?.id]); // Afhankelijkheden van het effect
 
   // Functie om de QR code als PNG te downloaden
   const handleDownload = () => {
@@ -33,17 +35,17 @@ export default function QRCodePage() {
       downloadLink.download = 'prysma-qr-code.png'; // Bestandsnaam
       document.body.appendChild(downloadLink);
       downloadLink.click();
-      document.body.removeChild(downloadLink);
+      document.body.removeChild(downloadLink); // Ruim de link op
     } else {
-        console.error("QR Code Canvas element not found");
-        alert("Could not initiate download. QR code not found.");
+        console.error("QR Code Canvas element not found with ID: prysma-qrcode-canvas");
+        alert("Could not initiate download. QR code element not found.");
     }
   };
 
   // --- Loading State ---
   if (isLoading) {
     return (
-      <div className="max-w-lg">
+      <div className="max-w-lg space-y-6">
         <h1 className="text-xl font-semibold text-black mb-4">Your QR Code</h1>
         {/* Loading Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -51,7 +53,7 @@ export default function QRCodePage() {
              <div className="flex flex-col items-center gap-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-4 self-start"></div>
                 <div className="w-48 h-48 bg-gray-200 rounded-md"></div> {/* QR Placeholder */}
-                <div className="h-10 bg-gray-200 rounded w-1/2"></div> {/* Button Placeholder */}
+                <div className="h-10 bg-gray-200 rounded w-1/2 mt-1"></div> {/* Button Placeholder */}
              </div>
           </div>
         </div>
@@ -61,35 +63,36 @@ export default function QRCodePage() {
 
   // --- Pagina Content ---
   return (
-    <div className="max-w-lg space-y-6">
+    // Zorg dat alle JSX correct is en de return geldig is
+    <div className="max-w-lg space-y-6 pb-16 md:pb-0"> {/* Padding bottom voor mobiele nav */}
       <h1 className="text-xl font-semibold text-black">Your QR Code</h1>
 
       {/* QR Code Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 sm:p-5 space-y-5"> {/* Meer verticale ruimte */}
+        <div className="p-4 sm:p-5 space-y-5">
           <p className="text-sm text-gray-600 text-center">
             Scan this code or download it to share your Prysma profile visually.
           </p>
 
           {profileUrl ? (
-            <div className="flex flex-col items-center gap-5"> {/* Gecentreerd, meer ruimte */}
+            <div className="flex flex-col items-center gap-5">
               {/* Container voor QR code met padding/border */}
               <div className="p-2 bg-white inline-block rounded-md border border-gray-200 shadow-inner">
                 <QRCodeCanvas
-                  id="prysma-qrcode-canvas" // Belangrijk voor download functie
+                  id="prysma-qrcode-canvas" // ID moet hier aanwezig zijn voor download
                   value={profileUrl}
-                  size={192} // Grootte van de QR code (pas aan indien nodig)
-                  bgColor={"#ffffff"} // Achtergrondkleur
-                  fgColor={"#000000"} // Kleur van de blokjes
-                  level={"L"} // Error correction level (L, M, Q, H)
-                  includeMargin={false} // Geen extra witte marge van de library
+                  size={192}
+                  bgColor={"#ffffff"}
+                  fgColor={"#000000"}
+                  level={"L"}
+                  includeMargin={false}
                 />
               </div>
 
               {/* Download Knop */}
               <button
                 onClick={handleDownload}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 bg-[#00C896] text-white hover:bg-[#00A078] focus:ring-[#00C896]" // Primaire actie knop stijl
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 bg-[#00C896] text-white hover:bg-[#00A078] focus:ring-[#00C896]"
                 aria-label="Download QR Code"
               >
                 <LuDownload size={16} />
@@ -97,16 +100,14 @@ export default function QRCodePage() {
               </button>
             </div>
           ) : (
-             // Foutmelding als URL niet gegenereerd kon worden
+             // Foutmelding als URL niet gegenereerd kon worden (bv. geen user ID)
             <p className="text-sm text-red-600 text-center">
-              Could not generate QR code. User profile information is missing.
+              Could not generate QR code. User profile information might be missing.
             </p>
           )}
         </div>
       </div>
-
-      {/* Eventuele extra info of opties */}
-
     </div>
   );
-} 
+
+} // Zorg ervoor dat de functie correct wordt afgesloten met '}' 
