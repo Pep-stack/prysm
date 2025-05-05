@@ -26,54 +26,106 @@
 }
 
 
+/* Container - Basis (Wordt Grid op Desktop) */
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap; /* Zorgt dat items onder elkaar gaan op kleinere schermen */
-  gap: 40px; /* Ruimte tussen de hoofdsecties */
-  position: relative; /* Zorgt dat content boven de gradient komt */
-  z-index: 1;
-}
-
-/* Linker Sectie (Logo & Tagline) */
-.leftSection {
-  flex: 1; /* Neemt beschikbare ruimte */
-  min-width: 200px; /* Minimale breedte */
-}
-
-.logoContainer {
-  margin-bottom: 15px;
   position: relative;
-  top: 70px; /* <<< Veranderd naar 70px */
+  z-index: 1;
+  /* Display wordt specifiek in media queries gezet */
+}
+
+/* Logo container - Basis */
+.logoContainer {
   line-height: 0;
+  /* Reset eventuele desktop positionering */
+  position: static;
+  top: auto;
 }
 
-.tagline {
-  font-size: 0.9rem;
-  color: var(--prysma-medium-grey);
-  margin-bottom: 15px;
-  /* Optioneel: Voeg meer ruimte toe boven de tagline als het logo te dichtbij komt */
-  /* margin-top: 50px;  Pas deze waarde aan indien nodig */
-}
-
-/* Rechter Sectie (Links & Newsletter) */
-.rightSection {
-  display: flex;
-  flex-wrap: wrap; /* Kolommen onder elkaar op kleinere schermen */
-  gap: 50px; /* Ruimte tussen kolommen */
-  flex: 2; /* Neemt meer ruimte dan links */
-  justify-content: flex-end; /* Lijn rechts uit op grotere schermen */
-}
+/* Linker/Rechter sectie klassen zijn weg */
 
 .linkColumn {
-  min-width: 150px; /* Minimale breedte per kolom */
+  /* Basis styling voor kolommen */
 }
 
+/* Order klassen - basis (wordt specifiek per view) */
+.orderLogo { /* Geen standaard order nodig */ }
+.orderQuickLinks { /* Geen standaard order nodig */ }
+.orderStayUpdated { /* Geen standaard order nodig */ }
+
+/* --- Desktop Layout (min-width: 769px) --- */
+@media (min-width: 769px) {
+  .container {
+    display: grid;
+    /* Kolommen: Logo (auto-breedte), Kolom1 (1fr), Kolom2 (1fr) */
+    /* Pas 'auto' aan of geef vaste breedte zoals '150px' indien nodig */
+    grid-template-columns: auto 1fr 1fr;
+    gap: 40px; /* Ruimte tussen grid kolommen */
+    align-items: start; /* Lijn items bovenaan uit */
+  }
+
+  .orderLogo {
+    grid-column: 1 / 2; /* Plaats in de eerste grid kolom */
+    /* Desktop-specifieke positionering */
+    position: relative;
+    top: 70px; /* Verplaats 70px naar beneden */
+  }
+
+  .orderQuickLinks {
+    grid-column: 2 / 3; /* Plaats in de tweede grid kolom */
+  }
+
+  .orderStayUpdated {
+    grid-column: 3 / 4; /* Plaats in de derde grid kolom */
+    /* Zorg eventueel dat deze kolom rechts uitlijnt indien nodig */
+    /* justify-self: end; <-- Experimenteer hiermee als nodig */
+  }
+
+  .linkColumn {
+     /* Desktop specifieke kolom styling indien nodig */
+     text-align: left; /* Zorg dat tekst links uitlijnt op desktop */
+  }
+}
+
+
+/* --- Mobiele Layout (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: column; /* Stapel verticaal */
+    align-items: center; /* Centreer horizontaal */
+    gap: 30px; /* Ruimte tussen gestapelde items */
+  }
+
+  /* Mobiele volgorde instellen */
+  .orderQuickLinks { order: 1; }
+  .orderLogo { order: 2; }
+  .orderStayUpdated { order: 3; }
+
+  /* Zorg dat alle items volledige breedte nemen en centreren */
+  .logoContainer,
+  .linkColumn {
+    width: 100%;
+    display: flex; /* Maakt centreren makkelijker */
+    flex-direction: column;
+    align-items: center; /* Centreer inhoud */
+    text-align: center; /* Centreer tekst */
+  }
+
+  .logoContainer {
+     margin-bottom: 0; /* Reset eventuele bottom margin */
+     /* position: static; top: auto; <-- expliciet voor zekerheid */
+     position: static;
+     top: auto;
+  }
+}
+
+
+/* ... .columnTitle, .linkList, etc. blijven hetzelfde ... */
 .columnTitle {
-  font-weight: 600; /* Bold */
-  color: var(--prysma-black); /* Zwart */
+  font-weight: 600;
+  color: var(--prysma-black);
   margin-bottom: 15px;
   font-size: 1rem;
 }
@@ -89,22 +141,23 @@
 }
 
 .link {
-  color: var(--prysma-dark-grey); /* Donkergrijze links */
+  color: var(--prysma-dark-grey);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: var(--prysma-accent); /* Accentkleur op hover */
+  color: var(--prysma-accent);
 }
 
 /* Newsletter Stijlen */
 .newsletterForm {
   display: flex;
-  flex-wrap: wrap; /* Input en knop onder elkaar op mobiel */
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
+  justify-content: center; /* Centreer op mobiel */
 }
 
 .newsletterInput {
@@ -112,8 +165,9 @@
   border-radius: 6px;
   border: 1px solid var(--prysma-light-grey);
   font-size: 0.9rem;
-  flex-grow: 1; /* Neemt beschikbare ruimte */
-  min-width: 180px; /* Minimale breedte */
+  flex-grow: 1;
+  min-width: 180px;
+  max-width: 250px; /* Voorkom te breed worden */
 }
 
 .newsletterInput:focus {
@@ -126,7 +180,7 @@
   padding: 10px 20px;
   border-radius: 6px;
   border: none;
-  background-color: var(--prysma-accent); /* Accentkleur */
+  background-color: var(--prysma-accent);
   color: var(--prysma-white);
   font-weight: 600;
   font-size: 0.9rem;
@@ -143,6 +197,7 @@
   display: flex;
   gap: 15px;
   margin-top: 15px;
+  justify-content: center; /* Centreer op mobiel */
 }
 
 .socialLink {
@@ -151,7 +206,6 @@
   line-height: 0;
 }
 
-/* Optionele styling voor de iconen zelf */
 .socialIcon {
   transition: opacity 0.2s ease;
 }
@@ -160,37 +214,15 @@
   opacity: 0.7;
 }
 
+
 /* Copyright Sectie */
 .copyright {
   text-align: center;
-  margin-top: 50px; /* Ruimte boven copyright */
+  margin-top: 50px;
   padding-top: 20px;
-  border-top: 1px solid var(--prysma-light-grey); /* Lichte scheidingslijn */
+  border-top: 1px solid var(--prysma-light-grey);
   font-size: 0.8rem;
-  color: var(--prysma-medium-grey); /* Medium grijs */
-  position: relative; /* Zorgt dat het boven de gradient komt */
+  color: var(--prysma-medium-grey);
+  position: relative;
   z-index: 1;
-}
-
-/* Responsive Aanpassingen */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column; /* Stapel links en rechts */
-    align-items: center; /* Centreer items */
-    text-align: center; /* Centreer tekst binnen items */
-  }
-  .rightSection {
-    justify-content: center; /* Centreer kolommen */
-    gap: 30px;
-    width: 100%; /* Volledige breedte */
-  }
-  .leftSection {
-    align-items: center; /* Centreer logo etc. */
-  }
-  .newsletterForm {
-     justify-content: center; /* Centreer input/knop */
-  }
-   .socialLinks {
-     justify-content: center; /* Centreer social links */
-   }
 } 

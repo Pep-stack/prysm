@@ -18,28 +18,31 @@ export function useCardLayout(profile) { // Accept profile object
   useEffect(() => {
     const sectionsFromProfile = profile?.card_sections;
     if (Array.isArray(sectionsFromProfile)) {
-        // Optional: Deep compare if needed, or simply check if different
-        // For simplicity, let's update if the reference or length differs significantly,
-        // or based on a specific condition (e.g., after a save action indicated by profile update time)
-        // Simple check based on length and first/last element id might be enough
+        // Vereenvoudigde check: update alleen als de string-representatie anders is
+        // Je kunt dit verfijnen indien nodig
         const currentIds = cardSections.map(s => s.id).join(',');
         const profileIds = sectionsFromProfile.map(s => s.id).join(',');
         if (profileIds !== currentIds) {
+             console.log('Syncing local state FROM profile sections'); // Log voor debuggen
              setCardSections(sectionsFromProfile.length > 0 ? sectionsFromProfile : DEFAULT_SECTIONS);
         }
     } else {
-        // Profile has no sections defined, use default
-        if (cardSections.length !== DEFAULT_SECTIONS.length || cardSections[0]?.id !== DEFAULT_SECTIONS[0]?.id) {
+        // Als profile geen sections heeft, zet default (tenzij al default)
+        const defaultIds = DEFAULT_SECTIONS.map(s => s.id).join(',');
+        const currentIds = cardSections.map(s => s.id).join(',');
+        if (currentIds !== defaultIds) {
+            console.log('Syncing local state TO default sections (profile empty)'); // Log voor debuggen
             setCardSections(DEFAULT_SECTIONS);
         }
     }
-  }, [profile?.card_sections]); // Dependency on the card_sections array from profile
+  }, [profile?.card_sections]); // <-- ALLEEN AFHANKELIJK VAN PROFILE DATA
 
   // Handler to remove a section from the card (only updates local state)
   const handleRemoveSection = useCallback((idToRemove) => {
+    console.log(`Attempting to remove section with ID: ${idToRemove}`);
     setCardSections((prevSections) => {
       const newSections = prevSections.filter((section) => section.id !== idToRemove);
-      // NO DB save here - will be done via save button
+      console.log('New sections after filter:', newSections);
       return newSections;
     });
   }, []);
@@ -96,6 +99,7 @@ export function useCardLayout(profile) { // Accept profile object
   // Return the state and the handlers
   return {
     cardSections, // The current layout state
+    setCardSections,
     handleRemoveSection,
     handleDragEnd,
   };
