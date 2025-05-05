@@ -1,0 +1,9 @@
+.sectionsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 0; /* Overruled de standaard margin */
+}
+
+/* Stijlen specifiek voor de sectie-items zelf komen in
+   SortableCardSection.module.css of de content componenten */ 

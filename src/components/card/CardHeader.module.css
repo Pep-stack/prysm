@@ -1,0 +1,72 @@
+/* Stijlen specifiek voor de Card Header */
+
+.headerImage {
+  /* Vaste hoogte blijft belangrijk */
+  height: 120px;
+  background-color: #d1d5db; /* Default grey background */
+  background-size: cover;
+  background-position: center;
+  border-top-left-radius: 12px; /* Match PrysmaCard rounding */
+  border-top-right-radius: 12px;
+  position: relative; /* Nodig voor positionering van content eroverheen */
+}
+
+.headerContent {
+  /* Wrapper voor avatar & naam/headline */
+  display: flex;
+  align-items: flex-end; /* Lijn onderaan uit voor overlap */
+  /* Negatieve marge berekend op basis van header hoogte */
+  /* We gebruiken hier een CSS variabele die via inline style wordt gezet */
+  margin-top: calc(-1 * var(--header-overlap, 60px) - 10px);
+  position: relative; /* Zorgt dat het boven headerImage komt */
+  padding-left: 24px; /* Match content padding van PrysmaCard */
+  margin-bottom: 20px;
+}
+
+.avatarContainer {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #f0f0f0; /* Placeholder kleur */
+  border: 4px solid white;
+  overflow: hidden;
+  margin-right: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px; /* Voor initialen */
+  color: #666;
+  font-weight: bold;
+  flex-shrink: 0; /* Voorkom krimpen avatar */
+}
+
+.avatarContainerClickable {
+  cursor: pointer;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Zorgt dat afbeelding netjes vult */
+}
+
+.nameHeadlineContainer {
+  /* Optioneel: styling voor leesbaarheid */
+}
+
+.name {
+  margin: 0 0 2px 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1f2937; /* Donkergrijs/zwart */
+  /* Optioneel: lichte tekstschaduw voor leesbaarheid over afbeelding */
+  /* text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8); */
+}
+
+.headline {
+  margin: 0;
+  color: #4b5563; /* Medium grijs */
+  font-size: 14px;
+  /* text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8); */
+} 

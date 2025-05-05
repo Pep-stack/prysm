@@ -182,8 +182,6 @@ export default function DashboardPageContent() {
                   profile={profile}
                   user={user}
                   cardSections={cardSections}
-                  onAvatarClick={openAvatarModal}
-                  onSaveLanguages={saveLanguages}
                />
            </div>
         </div>
