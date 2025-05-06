@@ -63,9 +63,25 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       closeModal(); // Close modal on success
 
     } catch (err) {
-       console.error('Error updating profile section:', err);
-       setError(`Error saving ${editingSection.name}: ${err.message}`);
-       // alert might be better handled in the component using the error state
+        // Log het hele error object en response indien aanwezig
+        console.error('Error updating profile section:', err, err?.response?.data, err?.message);
+
+        // Zoek een bruikbare error message
+        let errorMsg = 'Unknown error';
+        if (err?.response?.data?.message) {
+            errorMsg = err.response.data.message;
+        } else if (err?.response?.data?.error) {
+            errorMsg = err.response.data.error;
+        } else if (err?.message) {
+            errorMsg = err.message;
+        } else if (typeof err === 'string') {
+            errorMsg = err;
+        } else if (err?.toString) {
+            errorMsg = err.toString();
+        }
+
+        setError(`Error saving ${editingSection.name}: ${errorMsg}`);
+        // alert might be better handled in the component using the error state
     } finally {
        setIsLoading(false);
     }

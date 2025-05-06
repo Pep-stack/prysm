@@ -4,7 +4,7 @@
   padding: 0; /* Geen padding op de kaart zelf, zit in contentArea */
   background-color: #ffffff; /* Standaard witte achtergrond */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  max-width: 400px;
+  max-width: 100%;
   margin: 30px auto; /* Behoud centreren en verticale marge */
   position: relative; /* Belangrijk voor absolute kinderen zoals QR overlay */
   overflow: visible; /* Belangrijk voor header overlap */

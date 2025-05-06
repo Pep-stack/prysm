@@ -4,7 +4,7 @@ import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { LuGripVertical, LuTrash2, LuPencil } from 'react-icons/lu'; // Lucide icons
-import { getIconForSection } from '../../lib/sectionIcons'; // We maken deze helper zo aan
+import { SECTION_OPTIONS } from '../../lib/sectionOptions';
 
 export function EditableSectionItem({ id, section, onRemove, onEdit }) {
   const {
@@ -23,7 +23,9 @@ export function EditableSectionItem({ id, section, onRemove, onEdit }) {
     zIndex: isDragging ? 10 : 'auto', // Ensure dragged item is on top
   };
 
-  const Icon = getIconForSection(section.type); // Haal het icoon op
+  // Zoek het juiste icoon op basis van section.type
+  const option = SECTION_OPTIONS.find(opt => opt.type === section.type);
+  const Icon = option?.icon;
 
   return (
     <div

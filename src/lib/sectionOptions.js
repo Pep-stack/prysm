@@ -1,13 +1,15 @@
 // Importeer de iconen die je wilt gebruiken
 import {
   LuHeading1, LuText, LuLink, LuImage, LuGithub, LuLinkedin, LuTwitter,
-  LuQrCode, LuLanguages, LuYoutube, LuUserCircle, LuSettings, LuMail,
+  LuQrCode, LuLanguages, LuYoutube, LuUser, LuSettings, LuMail,
   LuMousePointerClick, LuCalendar, LuMapPin, // Voeg alle benodigde iconen toe
   LuStar, // Voor Essentials
   LuShare2, // Voor Social & Links
   LuPlay, // Voor Media & Content
   LuWrench, // Voor Utilities
-  LuPackage // Voor Other/Default
+  LuPackage, // Voor Other/Default
+  LuBriefcase, LuBookOpen, LuAward, LuPalette, LuMusic, LuCode,
+  LuFolderOpen, LuBook, LuMessageCircle, LuChartBar, LuFileText, LuDownload, LuClock
 } from "react-icons/lu";
 // Importeer eventueel uit andere sets zoals Fa, Fa6 etc.
 // import { FaSpotify, FaTwitch } from "react-icons/fa";
@@ -38,6 +40,10 @@ export const SECTION_OPTIONS = [
   { id: 'bio', type: 'bio', name: 'Bio / Text Block', icon: LuText, category: CATEGORIES.ESSENTIALS },
   // { id: 'avatar', type: 'avatar', name: 'Avatar', icon: LuUserCircle, category: CATEGORIES.ESSENTIALS }, // Meestal onderdeel van Header/Profile?
   { id: 'contact', type: 'contact', name: 'Contact Details', icon: LuMail, category: CATEGORIES.ESSENTIALS },
+  { id: 'experience', type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS },
+  { id: 'education', type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS },
+  { id: 'certifications', type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS },
+  { id: 'awards', type: 'awards', name: 'Awards', icon: LuAward, category: CATEGORIES.ESSENTIALS },
 
   // Social & Links
   { id: 'links', type: 'links', name: 'Link Collection', icon: LuLink, category: CATEGORIES.SOCIAL },
@@ -46,18 +52,37 @@ export const SECTION_OPTIONS = [
   { id: 'linkedin', type: 'linkedin', name: 'LinkedIn Profile Link', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
   { id: 'twitter', type: 'twitter', name: 'X (Twitter) Profile Link', icon: LuTwitter, category: CATEGORIES.SOCIAL },
   // { id: 'instagram', type: 'instagram', name: 'Instagram Profile Link', icon: FaInstagram, category: CATEGORIES.SOCIAL }, // Voorbeeld Fa
+  { id: 'github_gitlab', type: 'github_gitlab', name: 'GitHub/GitLab', icon: LuGithub, category: CATEGORIES.SOCIAL },
+  { id: 'dribbble_behance', type: 'dribbble_behance', name: 'Dribbble/Behance', icon: LuPalette, category: CATEGORIES.SOCIAL },
+  { id: 'tiktok', type: 'tiktok', name: 'TikTok', icon: LuMusic, category: CATEGORIES.SOCIAL },
+  { id: 'facebook', type: 'facebook', name: 'Facebook', icon: LuUser, category: CATEGORIES.SOCIAL },
+  { id: 'stackoverflow', type: 'stackoverflow', name: 'Stack Overflow', icon: LuCode, category: CATEGORIES.SOCIAL },
 
   // Media & Content
   { id: 'image', type: 'image', name: 'Image', icon: LuImage, category: CATEGORIES.MEDIA },
   { id: 'youtube', type: 'youtube', name: 'YouTube Video', icon: LuYoutube, category: CATEGORIES.MEDIA },
-  // { id: 'spotify', type: 'spotify', name: 'Spotify Track/Podcast', icon: FaSpotify, category: CATEGORIES.MEDIA }, // Voorbeeld Fa
-  // { id: 'twitch', type: 'twitch', name: 'Twitch Stream', icon: FaTwitch, category: CATEGORIES.MEDIA }, // Voorbeeld Fa
+  { id: 'projects', type: 'projects', name: 'Projects', icon: LuFolderOpen, category: CATEGORIES.MEDIA },
+  { id: 'publications', type: 'publications', name: 'Publications', icon: LuBook, category: CATEGORIES.MEDIA },
+  { id: 'events', type: 'events', name: 'Events', icon: LuCalendar, category: CATEGORIES.MEDIA },
+  { id: 'testimonials', type: 'testimonials', name: 'Testimonials', icon: LuMessageCircle, category: CATEGORIES.MEDIA },
+  { id: 'services', type: 'services', name: 'Services', icon: LuSettings, category: CATEGORIES.MEDIA },
+  { id: 'statistics_proof', type: 'statistics_proof', name: 'Statistics/Proof', icon: LuChartBar, category: CATEGORIES.MEDIA },
+  { id: 'blog_articles', type: 'blog_articles', name: 'Blog Articles', icon: LuFileText, category: CATEGORIES.MEDIA },
+  { id: 'video_banner', type: 'video_banner', name: 'Video Banner', icon: LuPlay, category: CATEGORIES.MEDIA },
 
   // Utilities
   { id: 'qrcode', type: 'qrcode', name: 'QR Code', icon: LuQrCode, category: CATEGORIES.TOOLS },
   { id: 'map', type: 'map', name: 'Map Location', icon: LuMapPin, category: CATEGORIES.TOOLS },
+  { id: 'google_maps', type: 'google_maps', name: 'Google Maps', icon: LuMapPin, category: CATEGORIES.TOOLS },
   { id: 'event', type: 'event', name: 'Event / Calendar', icon: LuCalendar, category: CATEGORIES.TOOLS },
-  { id: 'languages', type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS }, // Past dit hier?
+  { id: 'calendar_scheduling', type: 'calendar_scheduling', name: 'Calendar Scheduling', icon: LuCalendar, category: CATEGORIES.TOOLS },
+  { id: 'languages', type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS },
+  { id: 'timezone_hours', type: 'timezone_hours', name: 'Timezone/Hours', icon: LuClock, category: CATEGORIES.TOOLS },
+  { id: 'download_cv', type: 'download_cv', name: 'Download CV', icon: LuDownload, category: CATEGORIES.TOOLS },
+  { id: 'contact_buttons', type: 'contact_buttons', name: 'Contact Buttons', icon: LuMousePointerClick, category: CATEGORIES.ESSENTIALS },
+  { id: 'contact_form', type: 'contact_form', name: 'Contact Form', icon: LuMail, category: CATEGORIES.ESSENTIALS },
+  { id: 'newsletter_signup', type: 'newsletter_signup', name: 'Newsletter Signup', icon: LuMail, category: CATEGORIES.ESSENTIALS },
+  { id: 'youtube_channel', type: 'youtube_channel', name: 'YouTube Channel', icon: LuYoutube, category: CATEGORIES.MEDIA },
 
   // Zorg ervoor dat ALLE component-types uit app/components/card/cardsections hier een entry hebben
 ];

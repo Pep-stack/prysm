@@ -72,8 +72,8 @@ export function useUserProfile(user) {
     setLayoutError(null);
 
     try {
-      // Ensure newLayout is an array of objects with at least an 'id'
-      const validLayout = Array.isArray(newLayout) ? newLayout.map(section => ({ id: section.id })) : [];
+      // Sla de volledige sectie-objecten op
+      const validLayout = Array.isArray(newLayout) ? newLayout : [];
 
       const { error: updateError } = await supabase
         .from('profiles')

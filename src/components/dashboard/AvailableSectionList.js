@@ -74,7 +74,10 @@ export default function AvailableSectionList({ onAddSection, existingSectionType
                       return (
                         <button
                           key={option.type}
-                          onClick={() => onAddSection(option.type)}
+                          onClick={() => {
+                            onAddSection(option.type);
+                          }}
+                          disabled={existingSectionTypes.includes(option.type)}
                           className="flex flex-col items-center justify-center p-3 text-center rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 transition-colors h-20"
                         >
                           <span className="text-gray-600 mb-1">

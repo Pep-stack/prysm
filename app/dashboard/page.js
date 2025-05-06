@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../src/components/auth/SessionProvider';
 import PrysmaCard from '../../src/components/card/PrysmaCard';
@@ -14,21 +14,18 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
-// Importeer de componenten voor de linkerkolom
 import EditableSectionList from '../../src/components/dashboard/EditableSectionList';
 import AvailableSectionList from '../../src/components/dashboard/AvailableSectionList';
 import EditSectionModal from '../../src/components/modal/EditSectionModal';
 import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
 
-// Importeer hooks
-import { useCardLayout } from '../../src/hooks/useCardLayout';
 import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
 import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
 
-// Importeer uuid en helpers
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
+import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 
 export default function DashboardPageContent() {
   const { user, loading: sessionLoading } = useSession();
@@ -36,42 +33,49 @@ export default function DashboardPageContent() {
   const [activeId, setActiveId] = useState(null);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // --- Hooks ---
   const {
-     profile,
-     loading: profileLoading,
-     handleProfileUpdate,
-     handleAvatarUpdate,
-     saveCardLayout,
-     updatingLayout,
-     layoutError,
-     saveLanguages,
-     updatingLanguages,
-     languagesError
+    profile,
+    loading: profileLoading,
+    handleProfileUpdate,
+    handleAvatarUpdate,
+    saveCardLayout,
+    updatingLayout,
+    layoutError,
+    saveLanguages,
+    updatingLanguages,
+    languagesError,
   } = useUserProfile(user);
 
-  const {
-     cardSections,
-     setCardSections,
-     handleRemoveSection,
-  } = useCardLayout(profile);
+  const [cardSections, setCardSections] = useState([]);
+  const [hasInitializedSections, setHasInitializedSections] = useState(false);
+
+  useEffect(() => {
+    if (profile && !profileLoading && !hasInitializedSections) {
+      setCardSections(profile.cardLayout?.sections || []);
+      setHasInitializedSections(true);
+    }
+  }, [profile, profileLoading, hasInitializedSections]);
+
+  const handleRemoveSection = (id) => {
+    setCardSections((prev) => prev.filter((section) => section.id !== id));
+  };
 
   const {
-     isModalOpen: isEditModalOpen,
-     editingSection,
-     inputValue: modalInputValue,
-     isLoading: modalLoading,
-     openModal: openEditModal,
-     closeModal: closeEditModal,
-     setInputValue: setModalInputValue,
-     handleSave: handleModalSave
+    isModalOpen: isEditModalOpen,
+    editingSection,
+    inputValue: modalInputValue,
+    isLoading: modalLoading,
+    openModal: openEditModal,
+    closeModal: closeEditModal,
+    setInputValue: setModalInputValue,
+    handleSave: handleModalSave,
   } = useEditSectionModal(user, profile, handleProfileUpdate);
 
   const {
-     isModalOpen: isAvatarModalOpen,
-     openModal: openAvatarModal,
-     closeModal: closeAvatarModal,
-     handleSuccess: handleAvatarUploadSuccess
+    isModalOpen: isAvatarModalOpen,
+    openModal: openAvatarModal,
+    closeModal: closeAvatarModal,
+    handleSuccess: handleAvatarUploadSuccess,
   } = useAvatarUploadModal(handleAvatarUpdate);
 
   const sensors = useSensors(
@@ -91,7 +95,9 @@ export default function DashboardPageContent() {
     return <div>Loading Dashboard Content...</div>;
   }
 
-  function handleDragStart(event) { setActiveId(event.active.id); }
+  function handleDragStart(event) {
+    setActiveId(event.active.id);
+  }
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
@@ -102,11 +108,11 @@ export default function DashboardPageContent() {
       const newIndex = cardSections.findIndex((item) => item.id === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {
-         const newSections = Array.from(cardSections);
-         const [movedItem] = newSections.splice(oldIndex, 1);
-         newSections.splice(newIndex, 0, movedItem);
+        const newSections = Array.from(cardSections);
+        const [movedItem] = newSections.splice(oldIndex, 1);
+        newSections.splice(newIndex, 0, movedItem);
 
-         setCardSections(newSections);
+        setCardSections(newSections);
       }
     }
   };
@@ -123,16 +129,16 @@ export default function DashboardPageContent() {
   };
 
   const handleAddSection = (sectionType) => {
-     const defaultProps = getDefaultSectionProps(sectionType);
-     const newSection = {
-        id: uuidv4(),
-        type: sectionType,
-        ...defaultProps
-     };
-     setCardSections((prevSections) => [...prevSections, newSection]);
+    const defaultProps = getDefaultSectionProps(sectionType);
+    const newSection = {
+      id: uuidv4(),
+      type: sectionType,
+      ...defaultProps,
+    };
+    setCardSections((prev) => [...prev, newSection]);
   };
 
-  const existingSectionTypes = cardSections.map(s => s.type);
+  const existingSectionTypes = cardSections.map((s) => s.type);
 
   return (
     <DndContext
@@ -141,52 +147,53 @@ export default function DashboardPageContent() {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex flex-col lg:flex-row gap-8 xl:gap-12">
-        <div className="lg:flex-1 xl:w-3/5">
-           <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
-           </div>
-           <AvailableSectionList
-             onAddSection={handleAddSection}
-             existingSectionTypes={existingSectionTypes}
-           />
-           <EditableSectionList
-             items={cardSections}
-             onRemoveSection={handleRemoveSection}
-             onEditSection={openEditModal}
-           />
-           <div className="mt-6 text-right">
-              <button
-                 onClick={handleSaveLayoutClick}
-                 disabled={updatingLayout}
-                 className="bg-black text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50"
-              >
-                 {updatingLayout ? 'Saving...' : 'Save Layout Order'}
-              </button>
-              {saveMessage && (
-                <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
-                   {saveMessage}
-                </p>
-              )}
-               {(layoutError || languagesError) && !saveMessage && (
-                 <p className="mt-2 text-sm text-red-600">
-                   Error: {layoutError || languagesError || 'Could not save changes.'}
-                 </p>
-               )}
-           </div>
+      <div className="flex flex-col lg:flex-row gap-4 xl:gap-6">
+        {/* Linkerkolom */}
+        <div className="flex-1 lg:border-r lg:border-gray-200 lg:pr-6 lg:mr-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
+          </div>
+          <AvailableSectionList
+            onAddSection={handleAddSection}
+            existingSectionTypes={existingSectionTypes}
+          />
+          <EditableSectionList
+            items={cardSections}
+            onRemoveSection={handleRemoveSection}
+            onEditSection={openEditModal}
+          />
+          <div className="mt-6 text-right">
+            <button
+              onClick={handleSaveLayoutClick}
+              disabled={updatingLayout}
+              className="bg-black text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50"
+            >
+              {updatingLayout ? 'Saving...' : 'Save Layout Order'}
+            </button>
+            {saveMessage && (
+              <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
+                {saveMessage}
+              </p>
+            )}
+            {(layoutError || languagesError) && !saveMessage && (
+              <p className="mt-2 text-sm text-red-600">
+                Error: {layoutError || languagesError || 'Could not save changes.'}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="lg:w-auto xl:w-2/5 flex justify-center lg:justify-end items-start pt-10 lg:pt-0">
-           <div className="sticky top-10">
-               <PrysmaCard
-                  profile={profile}
-                  user={user}
-                  cardSections={cardSections}
-               />
-           </div>
+        {/* Rechterkolom */}
+        <div className="flex-shrink-0 w-[380px]">
+          <PrysmaCard
+            profile={profile}
+            user={user}
+            cardSections={cardSections}
+          />
         </div>
       </div>
 
+      {/* Modals */}
       <EditSectionModal
         isOpen={isEditModalOpen}
         onClose={closeEditModal}
@@ -204,4 +211,4 @@ export default function DashboardPageContent() {
       />
     </DndContext>
   );
-} 
+}

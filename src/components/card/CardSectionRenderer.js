@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 // VERWIJDER: import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 // VERWIJDER: import SortableCardSection from './SortableCardSection';
 
@@ -42,7 +42,7 @@ import VideoBannerSectionContent from './cardSections/VideoBannerSectionContent'
 // Voeg hier AL je sectie types toe
 
 // Mapping van sectie type/id naar component (efficiënter dan switch)
-const sectionComponentMap = {
+export const sectionComponentMap = {
   'bio': BioSectionContent,
   'skills': SkillsSectionContent,
   'contact': ContactSectionContent,
@@ -85,7 +85,7 @@ export default function CardSectionRenderer({
   cardSections = [],
   profile,
   user,
-  // VERWIJDER: isPublicView = false, // Altijd publiek nu
+  isPublicView = false,
   // VERWIJDER: onRemoveSection,
   // VERWIJDER: onEditSection,
   // Behoud props voor specifieke secties indien nodig
@@ -97,8 +97,10 @@ export default function CardSectionRenderer({
   sectionStyle,
   sectionTitleStyle,
   placeholderStyle,
-  tagStyle
+  tagStyle,
+  onSaveLanguages
 }) {
+  // console.log("[CardSectionRenderer] Rendering with cardSections:", cardSections); // <-- VERWIJDER LOG 4
 
   const renderSingleSection = (section) => {
     const SectionContentComponent = sectionComponentMap[section.id] || sectionComponentMap[section.type];
