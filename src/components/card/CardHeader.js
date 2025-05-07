@@ -31,7 +31,7 @@ export default function CardHeader({ profile, user, isPublicView = false }) {
   };
 
   return (
-    <div> {/* Wrapper div */}
+    <div className="px-2 sm:px-4 ..."> {/* Wrapper div */}
       {/* Header Afbeelding */}
       <div
         className={styles.headerImage}
@@ -50,7 +50,7 @@ export default function CardHeader({ profile, user, isPublicView = false }) {
             <Image
               src={profile.avatar_url}
               alt={profile?.name || user?.email || 'Profile Avatar'}
-              width={1000} // Exacte grootte specificeren
+              width={80} // Exacte grootte specificeren
               height={80} // Exacte grootte specificeren
               className={styles.avatarImage} // Gebruik class voor object-fit etc.
             />
