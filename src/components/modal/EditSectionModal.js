@@ -25,8 +25,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     padding: '30px',
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
-    minWidth: '400px',
-    maxWidth: '600px',
+     width: '100%',
+     maxWidth: '400px'
   };
 
   const inputStyle = {
