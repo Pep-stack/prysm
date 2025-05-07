@@ -60,4 +60,15 @@
   /* flex-wrap: wrap; */
   /* gap: 16px; */
   /* margin-top: 0; */
+}
+
+@media (max-width: 600px) {
+  .card {
+    width: 100%;
+    margin: 12px 0;
+    border-radius: 8px;
+  }
+  .contentArea {
+    padding: 0 8px 12px 8px;
+  }
 } 

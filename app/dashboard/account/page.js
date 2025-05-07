@@ -81,7 +81,7 @@ export default function AccountSettingsPage() {
   // --- Pagina Content ---
   return (
     // Gebruik max-w-2xl voor betere leesbaarheid van instellingen
-    <div className="max-w-2xl space-y-6 pb-16 md:pb-0"> {/* Padding bottom voor mobiele nav */}
+    <div className="w-full max-w-2xl space-y-6 pb-16 md:pb-0"> {/* w-full toegevoegd voor mobiel */}
       <h1 className="text-xl font-semibold text-black">Account Settings</h1>
 
       {/* --- Account Informatie Card --- */}

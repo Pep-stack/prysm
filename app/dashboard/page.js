@@ -51,7 +51,7 @@ export default function DashboardPageContent() {
 
   useEffect(() => {
     if (profile && !profileLoading && !hasInitializedSections) {
-      setCardSections(profile.cardLayout?.sections || []);
+      setCardSections(profile.card_sections || []);
       setHasInitializedSections(true);
     }
   }, [profile, profileLoading, hasInitializedSections]);
@@ -119,6 +119,7 @@ export default function DashboardPageContent() {
 
   const handleSaveLayoutClick = async () => {
     setSaveMessage('');
+    console.log('Opslaan in Supabase:', { id: user.id, card_sections: cardSections });
     await saveCardLayout(cardSections);
     if (layoutError) {
       setSaveMessage('Error saving layout.');
