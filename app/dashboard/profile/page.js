@@ -32,14 +32,14 @@ export default function ProfilePage() {
 
   if (sessionLoading || loading) {
     return (
-      <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
+      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-lg">
         <p>Loading...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '50px auto', padding: '20px' }}>
+    <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-lg">
       <h1>Profile Settings</h1>
       
       <ProfileHeaderUploader

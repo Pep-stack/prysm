@@ -93,7 +93,7 @@ export default function AccountSettingsPage() {
              <h2 className="text-base font-medium text-black">Account Information</h2>
           </div>
           {/* Details */}
-          <div className="text-sm space-y-1.5 pl-8"> {/* Inspringen voor details */}
+          <div className="text-sm space-y-1.5 sm:pl-8">
              <p><span className="font-medium text-gray-500 w-16 inline-block">Email:</span> {user?.email || 'N/A'}</p>
              {/* Voeg hier evt. naam of andere details toe die in 'user' zitten */}
              {/* <p><span className="font-medium text-gray-500 w-16 inline-block">Name:</span> {user?.name || 'N/A'}</p> */}
@@ -110,7 +110,7 @@ export default function AccountSettingsPage() {
               <h2 className="text-base font-medium text-black">Subscription</h2>
            </div>
            {/* Details */}
-           <div className="text-sm space-y-2 pl-8">
+           <div className="text-sm space-y-2 sm:pl-8">
               {subscription ? (
                 <>
                   <p><span className="font-medium text-gray-500 w-28 inline-block">Current Plan:</span> {subscription.planName}</p>
@@ -151,7 +151,7 @@ export default function AccountSettingsPage() {
               <h2 className="text-base font-medium text-black">Security</h2>
            </div>
            {/* Acties */}
-           <div className="text-sm space-y-2 pl-8">
+           <div className="text-sm space-y-2 sm:pl-8">
               <button
                   onClick={handleChangePassword}
                   className="text-sm text-[#00C896] hover:text-[#00A078] font-medium"
@@ -173,7 +173,7 @@ export default function AccountSettingsPage() {
               <h2 className="text-base font-medium">Danger Zone</h2>
            </div>
            {/* Acties */}
-           <div className="text-sm space-y-3 pl-8">
+           <div className="text-sm space-y-3 sm:pl-8">
                <p className="text-red-700">
                   Deleting your account will permanently remove all your profile data and cannot be undone.
                </p>

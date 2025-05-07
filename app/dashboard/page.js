@@ -142,74 +142,77 @@ export default function DashboardPageContent() {
   const existingSectionTypes = cardSections.map((s) => s.type);
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex flex-col lg:flex-row gap-4 xl:gap-6">
-        {/* Linkerkolom */}
-        <div className="flex-1 lg:border-r lg:border-gray-200 lg:pr-6 lg:mr-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
+    <div className="w-full max-w-lg mx-auto px-0 sm:px-0">
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex flex-col lg:flex-row gap-4 xl:gap-6">
+          {/* Linkerkolom */}
+          <div className="flex-1 w-full sm:max-w-[380px] sm:mx-auto sm:px-0 lg:border-r lg:border-gray-200 lg:pr-6 lg:mr-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
+            </div>
+            <AvailableSectionList
+              onAddSection={handleAddSection}
+              existingSectionTypes={existingSectionTypes}
+            />
+            <EditableSectionList
+              items={cardSections}
+              onRemoveSection={handleRemoveSection}
+              onEditSection={openEditModal}
+            />
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={handleSaveLayoutClick}
+                disabled={updatingLayout}
+                className="bg-emerald-500 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-emerald-600 transition disabled:opacity-50"
+                style={{ backgroundColor: '#00C48C' }}
+              >
+                {updatingLayout ? 'Saving...' : 'Save Layout'}
+              </button>
+              {saveMessage && (
+                <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
+                  {saveMessage}
+                </p>
+              )}
+              {(layoutError || languagesError) && !saveMessage && (
+                <p className="mt-2 text-sm text-red-600">
+                  Error: {layoutError || languagesError || 'Could not save changes.'}
+                </p>
+              )}
+            </div>
           </div>
-          <AvailableSectionList
-            onAddSection={handleAddSection}
-            existingSectionTypes={existingSectionTypes}
-          />
-          <EditableSectionList
-            items={cardSections}
-            onRemoveSection={handleRemoveSection}
-            onEditSection={openEditModal}
-          />
-          <div className="mt-6 text-right">
-            <button
-              onClick={handleSaveLayoutClick}
-              disabled={updatingLayout}
-              className="bg-black text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-gray-800 transition disabled:opacity-50"
-            >
-              {updatingLayout ? 'Saving...' : 'Save Layout Order'}
-            </button>
-            {saveMessage && (
-              <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
-                {saveMessage}
-              </p>
-            )}
-            {(layoutError || languagesError) && !saveMessage && (
-              <p className="mt-2 text-sm text-red-600">
-                Error: {layoutError || languagesError || 'Could not save changes.'}
-              </p>
-            )}
+
+          {/* Rechterkolom */}
+          <div className="w-full max-w-[380px] mx-auto sm:w-[380px] sm:mx-auto sm:px-0">
+            <PrysmaCard
+              profile={profile}
+              user={user}
+              cardSections={cardSections}
+            />
           </div>
         </div>
 
-        {/* Rechterkolom */}
-        <div className="flex-shrink-0 w-[380px]">
-          <PrysmaCard
-            profile={profile}
-            user={user}
-            cardSections={cardSections}
-          />
-        </div>
-      </div>
-
-      {/* Modals */}
-      <EditSectionModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
-        section={editingSection}
-        value={modalInputValue}
-        onChange={setModalInputValue}
-        onSave={handleModalSave}
-        isLoading={modalLoading}
-      />
-      <AvatarUploadModal
-        isOpen={isAvatarModalOpen}
-        onClose={closeAvatarModal}
-        onUploadSuccess={handleAvatarUploadSuccess}
-        user={user}
-      />
-    </DndContext>
+        {/* Modals */}
+        <EditSectionModal
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          section={editingSection}
+          value={modalInputValue}
+          onChange={setModalInputValue}
+          onSave={handleModalSave}
+          isLoading={modalLoading}
+        />
+        <AvatarUploadModal
+          isOpen={isAvatarModalOpen}
+          onClose={closeAvatarModal}
+          onUploadSuccess={handleAvatarUploadSuccess}
+          user={user}
+        />
+      </DndContext>
+    </div>
   );
 }

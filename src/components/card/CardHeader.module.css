@@ -1,6 +1,8 @@
 /* Stijlen specifiek voor de Card Header */
 
 .headerImage {
+  width: 100%;
+  max-width: 100%;
   /* Vaste hoogte blijft belangrijk */
   height: 120px;
   background-color: #d1d5db; /* Default grey background */
@@ -69,4 +71,10 @@
   color: #4b5563; /* Medium grijs */
   font-size: 14px;
   /* text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8); */
+}
+
+@media (max-width: 600px) {
+  .headerContent {
+    padding-left: 8px;
+  }
 } 

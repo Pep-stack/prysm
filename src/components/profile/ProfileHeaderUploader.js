@@ -131,7 +131,7 @@ export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUpload
           {uploading ? 'Uploading...' : 'Upload New Header'}
         </button>
          {message && <p style={{ color: 'green', marginTop: '10px' }}>{message}</p>}
-         {error && <p style={{ color: 'red', marginTop: '10px' }}>Error: {error}</p>}
+         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
       </div>
     </div>
   );

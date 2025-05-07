@@ -115,7 +115,7 @@ export default function DraggableCardOptionsContainer({ cardSections = [] }) {
                             </button>
                             {/* Conditionally render options based on open state */}
                             {isOpen && (
-                                <div className="space-y-2 pl-2"> {/* Indent options slightly */}
+                                <div className="space-y-2 pl-1 sm:pl-2"> {/* Indent options slightly */}
                                     {filteredOptions.map(option => (
                                         <DraggableCardOption key={option.id} option={option} />
                                     ))}

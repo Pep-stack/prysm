@@ -31,7 +31,7 @@ export default function CardHeader({ profile, user, isPublicView = false }) {
   };
 
   return (
-    <div className="px-2 sm:px-4 ..."> {/* Wrapper div */}
+    <div className="px-1 sm:px-4 ..."> {/* Wrapper div */}
       {/* Header Afbeelding */}
       <div
         className={styles.headerImage}

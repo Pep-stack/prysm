@@ -59,7 +59,7 @@ export default function PrysmaLinkPage() {
   // Toon de pagina inhoud
   return (
     // Smallere container voor een strakker gevoel
-    <div className="max-w-lg space-y-6">
+    <div className="w-full max-w-lg mx-auto px-4 space-y-6">
       <h1 className="text-xl font-semibold text-black">Your Prysma Link</h1>
 
       {/* "Grouped" card styling */}
@@ -72,10 +72,11 @@ export default function PrysmaLinkPage() {
 
           {profileUrl ? (
             // Container voor link en knop
-            <div className="flex items-center border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-[#00C896] focus-within:ring-opacity-50 transition-shadow duration-150">
+            <div className="flex items-center border border-gray-300 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-[#00C896] focus-within:ring-opacity-50 transition-shadow duration-150 w-full max-w-[220px] sm:max-w-none">
               {/* Link (neemt meeste ruimte) - geen input, maar gestylde div */}
               <span
-                className="flex-1 px-3 py-2.5 text-sm text-gray-800 bg-white truncate" // truncate voorkomt overflow
+                className="flex-1 px-3 py-2.5 text-xs sm:text-sm text-gray-800 bg-white truncate pointer-events-none"
+                style={{ minWidth: 0 }}
                 aria-label="Your Prysma profile link"
               >
                 {profileUrl}
