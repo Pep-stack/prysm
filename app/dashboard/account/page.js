@@ -80,8 +80,8 @@ export default function AccountSettingsPage() {
 
   // --- Pagina Content ---
   return (
-    // Gebruik max-w-full op mobiel, sm:max-w-2xl op grotere schermen
-    <div className="w-full max-w-full sm:max-w-2xl mx-auto space-y-6 pb-16 md:pb-0">
+    // Gebruik max-w-lg voor nette mobiele breedte, net als QR code page
+    <div className="w-full max-w-lg mx-auto space-y-6 pb-16 md:pb-0">
       <h1 className="text-xl font-semibold text-black">Account Settings</h1>
 
       {/* --- Account Informatie Card --- */}
