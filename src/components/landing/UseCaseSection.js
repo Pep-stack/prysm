@@ -26,7 +26,7 @@ export default function UseCaseSection() {
           <div className="flex-1 text-left">
             <h3 className="text-2xl font-bold mb-3">Your Digital Business Card, Always Up-to-Date</h3>
             <p className="text-lg text-gray-700 mb-2">
-              With a Prysma profile, you have one central place for all your professional links, projects, and contact information. Share your unique link and make an instant impression—whether you're applying for jobs, attracting clients, or expanding your network.
+              With a Prysma profile, you have one central place for all your professional links, projects, and contact information. Share your unique link and make an instant impression—whether you&apos;re applying for jobs, attracting clients, or expanding your network.
             </p>
             <p className="text-base text-emerald-600 font-semibold">Show who you are. Start with Prysma today!</p>
           </div>
