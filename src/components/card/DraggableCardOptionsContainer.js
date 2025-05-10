@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import DraggableCardOption from './DraggableCardOption'; // Import the component we just created
+import { useOpenCategories } from '../../hooks/useOpenCategories';
 
 // RESTRUCTURED: Define options within categories
 const categorizedOptions = [
@@ -77,18 +78,7 @@ export default function DraggableCardOptionsContainer({ cardSections = [] }) {
     const sectionsOnCardIds = new Set(cardSections.map(section => section.id));
 
     // ADDED: State to track open categories (default all open)
-    const [openCategories, setOpenCategories] = useState(() => {
-        const initialState = {};
-        categorizedOptions.forEach(group => {
-            initialState[group.category] = false; // Default to closed
-        });
-        return initialState;
-    });
-
-    // ADDED: Function to toggle a category's open state
-    const toggleCategory = (categoryName) => {
-        setOpenCategories(prev => ({ ...prev, [categoryName]: !prev[categoryName] }));
-    };
+    const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
 
     // UPDATED: Rendering logic to handle categories and toggling
     return (

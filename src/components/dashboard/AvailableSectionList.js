@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
+import { useOpenCategories } from '../../hooks/useOpenCategories';
 // Importeer de opties en de grouping functie (of alleen options als je niet groepeert)
 import { SECTION_OPTIONS, getGroupedSectionOptions, CATEGORY_ICONS } from '../../lib/sectionOptions';
 // Iconen worden nu hier direct gebruikt
@@ -8,20 +9,12 @@ import { SECTION_OPTIONS, getGroupedSectionOptions, CATEGORY_ICONS } from '../..
 import { LuChevronDown } from "react-icons/lu";
 
 export default function AvailableSectionList({ onAddSection, existingSectionTypes = [] }) {
-  const [openCategories, setOpenCategories] = useState({});
+  const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
   // console.log("Initial openCategories:", openCategories); // Vorige debug log
 
   // Gebruik de grouping functie (of filter SECTION_OPTIONS direct)
   const groupedAvailableOptions = getGroupedSectionOptions(existingSectionTypes);
   const categories = Object.keys(groupedAvailableOptions);
-
-  const toggleCategory = (category) => {
-    // console.log(`Toggling category: ${category}`); // Vorige debug log
-    setOpenCategories(prev => ({
-      ...prev,
-      [category]: !prev[category]
-    }));
-  };
 
   if (categories.length === 0) {
     return (

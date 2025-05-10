@@ -1,29 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 // Importeer de NIEUWE grouping functie
 import { getGroupedSectionOptions } from '../../lib/sectionOptions'; // Verwijder import SECTION_OPTIONS als niet direct nodig
 // VERWIJDER import { getIconForSection } from '../../lib/sectionIcons';
 import { LuChevronDown } from "react-icons/lu"; // Icoon voor dropdown pijl
+import { useOpenCategories } from '../../hooks/useOpenCategories';
 
 // ForwardRef is nodig om de ref van buitenaf te kunnen koppelen voor click-outside detectie
 const AddSectionPopover = React.forwardRef(({ isOpen, onSelectSection, existingSectionTypes = [] }, ref) => {
-  // State om bij te houden welke categorieën open zijn. Start gesloten.
-  const [openCategories, setOpenCategories] = useState({});
+  const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
 
   if (!isOpen) return null;
 
   // Gebruik de grouping functie met de bestaande types
   const groupedAvailableOptions = getGroupedSectionOptions(existingSectionTypes);
   const categories = Object.keys(groupedAvailableOptions);
-
-  // Functie om een categorie te openen/sluiten
-  const toggleCategory = (category) => {
-    setOpenCategories(prev => ({
-      ...prev, // Behoud de staat van andere categorieën
-      [category]: !prev[category] // Toggle de staat van de geklikte categorie
-    }));
-  };
 
   return (
     // Positionering aangepast: left-0 right-0 om breedte te forceren

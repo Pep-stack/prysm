@@ -32,53 +32,53 @@ export default function ProfilePage() {
 
   if (sessionLoading || loading) {
     return (
-      <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-lg">
-        <p>Loading...</p>
+      <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
+        <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px]">
+          <p>Loading...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[380px] mx-auto px-4 sm:max-w-lg">
-      <h1>Profile Settings</h1>
-      
-      <ProfileHeaderUploader
-         user={user}
-         currentHeaderUrl={profile.header_url}
-         onUploadSuccess={handleHeaderUploadSuccess}
-      />
-
-      <ProfileAvatarUploader 
-         user={user}
-         currentAvatarUrl={profile.avatar_url}
-         onUploadSuccess={handleAvatarUploadSuccess}
-      />
-      
-      <h2>Profile Details</h2>
-      <ProfileDetailsForm 
-         profile={profile}
-         onChange={handleChange}
-         onSubmit={(e) => {
-             e.preventDefault(); 
-             saveProfileDetails();
-         }}
-         updating={updating}
-         message={message}
-         error={error}
-      />
-
-      <div style={{ marginTop: '40px' }}>
-        <a
-          href="/dashboard"
-          style={{
-            display: 'inline-block',
-            marginTop: '20px',
-            color: '#0070f3',
-            textDecoration: 'none',
+    <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
+      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px]">
+        <h1>Profile Settings</h1>
+        <ProfileHeaderUploader
+          user={user}
+          currentHeaderUrl={profile.header_url}
+          onUploadSuccess={handleHeaderUploadSuccess}
+        />
+        <ProfileAvatarUploader 
+          user={user}
+          currentAvatarUrl={profile.avatar_url}
+          onUploadSuccess={handleAvatarUploadSuccess}
+        />
+        <h2>Profile Details</h2>
+        <ProfileDetailsForm 
+          profile={profile}
+          onChange={handleChange}
+          onSubmit={(e) => {
+              e.preventDefault(); 
+              saveProfileDetails();
           }}
-        >
-          ← Back to Dashboard
-        </a>
+          updating={updating}
+          message={message}
+          error={error}
+        />
+        <div style={{ marginTop: '40px' }}>
+          <a
+            href="/dashboard"
+            style={{
+              display: 'inline-block',
+              marginTop: '20px',
+              color: '#0070f3',
+              textDecoration: 'none',
+            }}
+          >
+            ← Back to Dashboard
+          </a>
+        </div>
       </div>
     </div>
   );

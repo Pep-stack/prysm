@@ -1,85 +1,45 @@
 'use client';
 
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabase'; // Adjusted path
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUploadSuccess }) {
-  const [uploading, setUploading] = useState(false);
   const [headerFile, setHeaderFile] = useState(null);
-  const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const { isUploading, error, uploadFile, reset } = useFileUpload();
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setHeaderFile(e.target.files[0]);
-      setError(null);
       setMessage(null);
     }
   };
 
   const handleUpload = async () => {
     if (!headerFile || !user) return;
-
-    setUploading(true);
-    setError(null);
     setMessage(null);
-
     try {
-      // --- Optional: Delete existing header --- 
-      // const currentFileName = currentHeaderUrl?.split('/').pop();
-      // if (currentFileName) {
-      //    await supabase.storage.from('headers').remove([currentFileName]);
-      // }
-      // --- End Optional Delete ---
-
       const fileExt = headerFile.name.split('.').pop();
-      const fileName = `header-${user.id}-${Date.now()}.${fileExt}`; // Unique filename
+      const fileName = `header-${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
-
-      // Upload the new file to the 'headers' bucket
-      const { error: uploadError } = await supabase.storage
-        .from('headers') 
-        .upload(filePath, headerFile, { 
-            cacheControl: '3600', 
-            upsert: false 
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
+      // Upload file to Supabase Storage (headers bucket)
+      await uploadFile(headerFile, filePath);
       // Get the public URL
-      const { data: urlData } = supabase.storage
-          .from('headers')
-          .getPublicUrl(filePath);
-          
-      if (!urlData || !urlData.publicUrl) {
-         throw new Error("Could not get public URL for header.");
-      }
+      const { data: urlData } = await import('../../lib/supabase').then(m => m.supabase.storage.from('headers').getPublicUrl(filePath));
+      if (!urlData || !urlData.publicUrl) throw new Error('Could not get public URL for header.');
       const newHeaderUrl = urlData.publicUrl;
-
       // Update the profile table
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ header_url: newHeaderUrl, updated_at: new Date().toISOString() })
-        .eq('id', user.id);
-
+      const { error: updateError } = await import('../../lib/supabase').then(m => m.supabase.from('profiles').update({ header_url: newHeaderUrl, updated_at: new Date().toISOString() }).eq('id', user.id));
       if (updateError) {
-        // Cleanup storage if DB update fails
-        try { await supabase.storage.from('headers').remove([filePath]); } catch (e) {}
+        await import('../../lib/supabase').then(m => m.supabase.storage.from('headers').remove([filePath]));
         throw updateError;
       }
-
-      // Call the success callback
       onUploadSuccess(newHeaderUrl);
       setMessage('Header updated successfully!');
-      setHeaderFile(null); // Clear the selected file
-
-    } catch (error) {
-      console.error('Error uploading header:', error);
-      setError(`Header upload failed: ${error.message}`);
-    } finally {
-      setUploading(false);
+      setHeaderFile(null);
+    } catch (err) {
+      setMessage(null);
+      // error wordt automatisch door de hook gezet
     }
   };
 
@@ -110,13 +70,13 @@ export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUpload
           name="header" 
           accept="image/png, image/jpeg, image/webp" // Allow relevant types
           onChange={handleFileChange} 
-          disabled={uploading}
+          disabled={isUploading}
           style={{ display: 'block', margin: '10px 0' }} // Adjust styling
         />
         <button
           type="button" 
           onClick={handleUpload}
-          disabled={!headerFile || uploading}
+          disabled={!headerFile || isUploading}
           style={{
               backgroundColor: '#4CAF50', // Green
               color: 'white',
@@ -125,10 +85,10 @@ export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUpload
               padding: '8px 16px',
               cursor: 'pointer',
               marginTop: '5px',
-              opacity: (!headerFile || uploading) ? 0.5 : 1,
+              opacity: (!headerFile || isUploading) ? 0.5 : 1,
           }}
         >
-          {uploading ? 'Uploading...' : 'Upload New Header'}
+          {isUploading ? 'Uploading...' : 'Upload New Header'}
         </button>
          {message && <p style={{ color: 'green', marginTop: '10px' }}>{message}</p>}
          {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}

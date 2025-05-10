@@ -1,23 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, user }) {
   const [avatarFile, setAvatarFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState(null);
+  const { isUploading, error, uploadFile, reset } = useFileUpload();
   const [previewUrl, setPreviewUrl] = useState(null);
 
   // Reset state when modal opens/closes or file changes
   useEffect(() => {
     if (!isOpen) {
       setAvatarFile(null);
-      setUploading(false);
-      setError(null);
+      reset();
       setPreviewUrl(null);
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   useEffect(() => {
     if (avatarFile) {
@@ -40,73 +38,29 @@ export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, us
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setAvatarFile(e.target.files[0]);
-      setError(null); // Clear previous errors
+      reset();
     }
   };
 
   const handleUpload = async () => {
     if (!avatarFile || !user) return;
-
-    setUploading(true);
-    setError(null);
-
     try {
-      // --- Check for existing avatar and delete (optional but recommended) --- 
-      // You might need to fetch the current avatar_url first if not easily available
-      // const { data: profileData } = await supabase.from('profiles').select('avatar_url').eq('id', user.id).single();
-      // const currentPath = profileData?.avatar_url?.split('/').pop(); 
-      // if (currentPath) { ... supabase.storage.from('avatars').remove([currentPath]) ... } 
-      // --- End optional delete --- 
-
       const fileExt = avatarFile.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
-
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, avatarFile, { 
-            cacheControl: '3600', // Optional: cache control
-            upsert: false // Set to true if you want to overwrite files with the same name (use with caution without deleting old files)
-        });
-
-      if (uploadError) {
-        // Handle potential duplicate file name error if upsert is false
-        // or other storage errors
-        throw uploadError;
-      }
-
-      // Get public URL of the uploaded file
-      const { data: urlData } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(filePath);
-          
-      if (!urlData || !urlData.publicUrl) {
-         throw new Error("Could not get public URL for avatar.");
-      }
+      await uploadFile(avatarFile, filePath);
+      const { data: urlData } = await import('../../lib/supabase').then(m => m.supabase.storage.from('avatars').getPublicUrl(filePath));
+      if (!urlData || !urlData.publicUrl) throw new Error('Could not get public URL for avatar.');
       const newAvatarUrl = urlData.publicUrl;
-
-      // Update profile table with the new avatar URL
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: newAvatarUrl, updated_at: new Date().toISOString() })
-        .eq('id', user.id);
-
+      const { error: updateError } = await import('../../lib/supabase').then(m => m.supabase.from('profiles').update({ avatar_url: newAvatarUrl, updated_at: new Date().toISOString() }).eq('id', user.id));
       if (updateError) {
-        // If DB update fails, potentially remove the just uploaded file
-        await supabase.storage.from('avatars').remove([filePath]);
+        await import('../../lib/supabase').then(m => m.supabase.storage.from('avatars').remove([filePath]));
         throw updateError;
       }
-
-      // Notify parent component of success
       onUploadSuccess(newAvatarUrl);
-      onClose(); // Close modal on success
-
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      setError(`Avatar upload failed: ${error.message}`);
-    } finally {
-      setUploading(false);
+      onClose();
+    } catch (err) {
+      // error wordt automatisch door de hook gezet
     }
   };
 
@@ -164,7 +118,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, us
           id="avatar-upload" 
           accept="image/png, image/jpeg" 
           onChange={handleFileChange} 
-          disabled={uploading}
+          disabled={isUploading}
           style={{ display: 'block', margin: '15px auto' }}
         />
         
@@ -173,7 +127,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, us
         <div style={{ marginTop: '20px' }}>
           <button
             onClick={handleUpload}
-            disabled={!avatarFile || uploading}
+            disabled={!avatarFile || isUploading}
             style={{
                 backgroundColor: '#4CAF50', 
                 color: 'white',
@@ -182,14 +136,14 @@ export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, us
                 padding: '10px 20px',
                 cursor: 'pointer',
                 marginRight: '10px',
-                opacity: (!avatarFile || uploading) ? 0.5 : 1,
+                opacity: (!avatarFile || isUploading) ? 0.5 : 1,
             }}
           >
-            {uploading ? 'Uploading...' : 'Upload'}
+            {isUploading ? 'Uploading...' : 'Upload'}
           </button>
           <button
             onClick={onClose}
-            disabled={uploading}
+            disabled={isUploading}
              style={{
                 backgroundColor: '#f44336', // Red
                 color: 'white',
@@ -197,7 +151,7 @@ export default function AvatarUploadModal({ isOpen, onClose, onUploadSuccess, us
                 borderRadius: '4px',
                 padding: '10px 20px',
                 cursor: 'pointer',
-                opacity: uploading ? 0.5 : 1,
+                opacity: isUploading ? 0.5 : 1,
              }}
           >
             Cancel

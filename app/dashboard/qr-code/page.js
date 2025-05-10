@@ -45,16 +45,18 @@ export default function QRCodePage() {
   // --- Loading State ---
   if (isLoading) {
     return (
-      <div className="max-w-lg space-y-6">
-        <h1 className="text-xl font-semibold text-black mb-4">Your QR Code</h1>
-        {/* Loading Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-5 animate-pulse">
-             <div className="flex flex-col items-center gap-4">
+      <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
+        <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px] space-y-6">
+          <h1 className="text-xl font-semibold text-black mb-4">Your QR Code</h1>
+          {/* Loading Card */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-4 sm:p-5 animate-pulse">
+              <div className="flex flex-col items-center gap-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-4 self-start"></div>
                 <div className="w-48 h-48 bg-gray-200 rounded-md"></div> {/* QR Placeholder */}
                 <div className="h-10 bg-gray-200 rounded w-1/2 mt-1"></div> {/* Button Placeholder */}
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -63,51 +65,47 @@ export default function QRCodePage() {
 
   // --- Pagina Content ---
   return (
-    // Zorg dat alle JSX correct is en de return geldig is
-    <div className="max-w-lg space-y-6 pb-16 md:pb-0"> {/* Padding bottom voor mobiele nav */}
-      <h1 className="text-xl font-semibold text-black">Your QR Code</h1>
-
-      {/* QR Code Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-4 sm:p-5 space-y-5">
-          <p className="text-sm text-gray-600 text-center">
-            Scan this code or download it to share your Prysma profile visually.
-          </p>
-
-          {profileUrl ? (
-            <div className="flex flex-col items-center gap-5">
-              {/* Container voor QR code met padding/border */}
-              <div className="p-2 bg-white inline-block rounded-md border border-gray-200 shadow-inner">
-                <QRCodeCanvas
-                  id="prysma-qrcode-canvas" // ID moet hier aanwezig zijn voor download
-                  value={profileUrl}
-                  size={192}
-                  bgColor={"#ffffff"}
-                  fgColor={"#000000"}
-                  level={"L"}
-                  includeMargin={false}
-                />
-              </div>
-
-              {/* Download Knop */}
-              <button
-                onClick={handleDownload}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 bg-[#00C896] text-white hover:bg-[#00A078] focus:ring-[#00C896]"
-                aria-label="Download QR Code"
-              >
-                <LuDownload size={16} />
-                Download QR Code
-              </button>
-            </div>
-          ) : (
-             // Foutmelding als URL niet gegenereerd kon worden (bv. geen user ID)
-            <p className="text-sm text-red-600 text-center">
-              Could not generate QR code. User profile information might be missing.
+    <div className="flex justify-center px-4 max-w-screen-lg mx-auto pb-16 md:pb-0">
+      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px] space-y-6">
+        <h1 className="text-xl font-semibold text-black">Your QR Code</h1>
+        {/* QR Code Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 sm:p-5 space-y-5">
+            <p className="text-sm text-gray-600 text-center">
+              Scan this code or download it to share your Prysma profile visually.
             </p>
-          )}
+            {profileUrl ? (
+              <div className="flex flex-col items-center gap-5">
+                {/* Container voor QR code met padding/border */}
+                <div className="p-2 bg-white inline-block rounded-md border border-gray-200 shadow-inner">
+                  <QRCodeCanvas
+                    id="prysma-qrcode-canvas"
+                    value={profileUrl}
+                    size={192}
+                    bgColor={"#ffffff"}
+                    fgColor={"#000000"}
+                    level={"L"}
+                    includeMargin={false}
+                  />
+                </div>
+                {/* Download Knop */}
+                <button
+                  onClick={handleDownload}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 bg-[#00C896] text-white hover:bg-[#00A078] focus:ring-[#00C896]"
+                  aria-label="Download QR Code"
+                >
+                  <LuDownload size={16} />
+                  Download QR Code
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm text-red-600 text-center">
+                Could not generate QR code. User profile information might be missing.
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-
 } // Zorg ervoor dat de functie correct wordt afgesloten met '}' 
