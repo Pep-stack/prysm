@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 import PrysmaCard from './PrysmaCard';
 import { supabase } from '@/lib/supabase';
 
@@ -15,10 +16,18 @@ export default function PrysmaCardContainer({ profile, user, onSaveLanguages }) 
       .select('sections')
       .eq('user_id', displayUserId)
       .single();
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-      console.error('Fout bij ophalen secties:', error);
+    
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching sections:', error);
     }
-    setCardSections(data?.sections || []);
+    
+    // Zorg ervoor dat elke sectie een unieke ID heeft
+    const sections = (data?.sections || []).map(section => ({
+      ...section,
+      id: section.id || section.type || `section-${Math.random().toString(36).substr(2, 9)}`
+    }));
+    
+    setCardSections(sections);
     setLoading(false);
   }
 
@@ -47,6 +56,25 @@ export default function PrysmaCardContainer({ profile, user, onSaveLanguages }) 
     }
   }
 
+  const handleReorder = async (oldIndex, newIndex) => {
+    const newSections = arrayMove(cardSections, oldIndex, newIndex);
+    setCardSections(newSections);
+
+    // Save to Supabase
+    const { error } = await supabase
+      .from('card_sections')
+      .upsert([
+        {
+          user_id: displayUserId,
+          sections: newSections,
+        },
+      ]);
+    
+    if (error) {
+      console.error('Error saving reordered sections:', error);
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   // Log de daadwerkelijk uit Supabase opgehaalde secties
@@ -59,6 +87,7 @@ export default function PrysmaCardContainer({ profile, user, onSaveLanguages }) 
       cardSections={cardSections}
       onSaveLanguages={onSaveLanguages}
       onAddSection={handleAddSection}
+      onReorder={handleReorder}
     />
   );
 } 

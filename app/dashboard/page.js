@@ -26,6 +26,25 @@ import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
+import { supabase } from '../../src/lib/supabase';
+import DesignToolbar from '../../components/dashboard/DesignToolbar';
+
+const FONT_OPTIONS = [
+  { label: 'Inter', value: 'Inter, sans-serif' },
+  { label: 'Poppins', value: 'Poppins, sans-serif' },
+  { label: 'Roboto', value: 'Roboto, sans-serif' },
+  { label: 'DM Sans', value: 'DM Sans, sans-serif' },
+];
+const ICON_PACKS = [
+  { label: 'Lucide', value: 'lucide' },
+  { label: 'FontAwesome', value: 'fa' },
+  { label: 'Material', value: 'material' },
+];
+const BUTTON_SHAPES = [
+  { label: 'Rounded', value: 'rounded-full' },
+  { label: 'Pill', value: 'rounded-xl' },
+  { label: 'Square', value: 'rounded-md' },
+];
 
 export default function DashboardPageContent() {
   const { user, loading: sessionLoading } = useSession();
@@ -48,6 +67,24 @@ export default function DashboardPageContent() {
 
   const [cardSections, setCardSections] = useState([]);
   const [hasInitializedSections, setHasInitializedSections] = useState(false);
+
+  // Design settings state
+  const [buttonColor, setButtonColor] = useState(profile?.button_color || '#00C48C');
+  const [buttonShape, setButtonShape] = useState(profile?.button_shape || 'rounded-full');
+  const [fontFamily, setFontFamily] = useState(profile?.font_family || 'Inter, sans-serif');
+  const [iconPack, setIconPack] = useState(profile?.icon_pack || 'lucide');
+  const [savingAppearance, setSavingAppearance] = useState(false);
+  const [appearanceSaved, setAppearanceSaved] = useState(false);
+
+  // Sync settings with profile
+  useEffect(() => {
+    if (profile) {
+      setButtonColor(profile.button_color || '#00C48C');
+      setButtonShape(profile.button_shape || 'rounded-full');
+      setFontFamily(profile.font_family || 'Inter, sans-serif');
+      setIconPack(profile.icon_pack || 'lucide');
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (profile && !profileLoading && !hasInitializedSections) {
@@ -90,6 +127,19 @@ export default function DashboardPageContent() {
       router.push('/login');
     }
   }, [sessionLoading, user, router]);
+
+  async function handleSaveAppearance() {
+    setSavingAppearance(true);
+    setAppearanceSaved(false);
+    const { error } = await supabase.from('profiles').update({
+      button_color: buttonColor,
+      button_shape: buttonShape,
+      font_family: fontFamily,
+      icon_pack: iconPack,
+    }).eq('id', user.id);
+    setSavingAppearance(false);
+    setAppearanceSaved(!error);
+  }
 
   if (sessionLoading || profileLoading) {
     return <div>Loading Dashboard Content...</div>;
@@ -142,65 +192,78 @@ export default function DashboardPageContent() {
   const existingSectionTypes = cardSections.map((s) => s.type);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
-      <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
-        </div>
-        <AvailableSectionList
-          onAddSection={handleAddSection}
-          existingSectionTypes={existingSectionTypes}
-        />
-        <EditableSectionList
-          items={cardSections}
-          onRemoveSection={handleRemoveSection}
-          onEditSection={openEditModal}
-        />
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={handleSaveLayoutClick}
-            disabled={updatingLayout}
-            className="bg-emerald-500 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-emerald-600 transition disabled:opacity-50"
-            style={{ backgroundColor: '#00C48C' }}
-          >
-            {updatingLayout ? 'Saving...' : 'Save Layout'}
-          </button>
-          {saveMessage && (
-            <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
-              {saveMessage}
-            </p>
-          )}
-          {(layoutError || languagesError) && !saveMessage && (
-            <p className="mt-2 text-sm text-red-600">
-              Error: {layoutError || languagesError || 'Could not save changes.'}
-            </p>
-          )}
-        </div>
-      </aside>
-      <main className="flex-1 flex justify-center items-start">
-        <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[360px]">
-          <PrysmaCard
-            profile={profile}
-            user={user}
-            cardSections={cardSections}
+    <>
+      {/* Horizontale DesignToolbar over de hele breedte */}
+      <div className="w-full px-6">
+        <DesignToolbar initial={profile} userId={user.id} />
+      </div>
+      <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
+        <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
+          </div>
+          <AvailableSectionList
+            onAddSection={handleAddSection}
+            existingSectionTypes={existingSectionTypes}
           />
-        </div>
-      </main>
-      <EditSectionModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
-        section={editingSection}
-        value={modalInputValue}
-        onChange={setModalInputValue}
-        onSave={handleModalSave}
-        isLoading={modalLoading}
-      />
-      <AvatarUploadModal
-        isOpen={isAvatarModalOpen}
-        onClose={closeAvatarModal}
-        onUploadSuccess={handleAvatarUploadSuccess}
-        user={user}
-      />
-    </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <EditableSectionList
+              items={cardSections}
+              onRemoveSection={handleRemoveSection}
+              onEditSection={openEditModal}
+            />
+          </DndContext>
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleSaveLayoutClick}
+              disabled={updatingLayout}
+              className="bg-emerald-500 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-emerald-600 transition disabled:opacity-50"
+              style={{ backgroundColor: '#00C48C' }}
+            >
+              {updatingLayout ? 'Saving...' : 'Save Layout'}
+            </button>
+            {saveMessage && (
+              <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
+                {saveMessage}
+              </p>
+            )}
+            {(layoutError || languagesError) && !saveMessage && (
+              <p className="mt-2 text-sm text-red-600">
+                Error: {layoutError || languagesError || 'Could not save changes.'}
+              </p>
+            )}
+          </div>
+        </aside>
+        <main className="flex-1 flex justify-center items-start">
+          <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[360px]">
+            <PrysmaCard
+              profile={profile}
+              user={user}
+              cardSections={cardSections}
+            />
+          </div>
+        </main>
+        <EditSectionModal
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          section={editingSection}
+          value={modalInputValue}
+          onChange={setModalInputValue}
+          onSave={handleModalSave}
+          isLoading={modalLoading}
+        />
+        <AvatarUploadModal
+          isOpen={isAvatarModalOpen}
+          onClose={closeAvatarModal}
+          onUploadSuccess={handleAvatarUploadSuccess}
+          user={user}
+        />
+      </div>
+    </>
   );
 }

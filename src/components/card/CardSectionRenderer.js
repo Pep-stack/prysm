@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useEffect } from 'react';
-// VERWIJDER: import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-// VERWIJDER: import SortableCardSection from './SortableCardSection';
+// import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+// import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+// import SortableSection from './SortableSection';
 
 // Import alle sectie content componenten
 import BioSectionContent from './cardSections/BioSectionContent';
@@ -98,7 +99,8 @@ export default function CardSectionRenderer({
   sectionTitleStyle,
   placeholderStyle,
   tagStyle,
-  onSaveLanguages
+  onSaveLanguages,
+  onReorder
 }) {
   // console.log("[CardSectionRenderer] Rendering with cardSections:", cardSections); // <-- VERWIJDER LOG 4
 
@@ -124,9 +126,12 @@ export default function CardSectionRenderer({
   };
 
   return (
-    <div className={containerClassName} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}> {/* Aangepast naar flex-col */}
-      {/* VERWIJDER: Conditionele check en SortableContext */}
-      {cardSections.map(renderSingleSection)}
+    <div className={containerClassName} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+      {cardSections.map((section) => (
+        <div key={section.id} className="w-full">
+          {renderSingleSection(section)}
+        </div>
+      ))}
     </div>
   );
 } 

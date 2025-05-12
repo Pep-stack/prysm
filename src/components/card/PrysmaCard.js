@@ -25,6 +25,7 @@ export default function PrysmaCard({
   user,
   cardSections = [],
   onSaveLanguages,
+  onReorder,
 }) {
   const displayUserId = user?.id || profile?.id;
   const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${displayUserId}`;
@@ -44,6 +45,7 @@ export default function PrysmaCard({
           isPublicView={true}
           containerClassName={styles.sectionsContainer}
           onSaveLanguages={onSaveLanguages}
+          onReorder={onReorder}
         />
       </div>
     </div>
