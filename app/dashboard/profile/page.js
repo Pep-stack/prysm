@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useSession } from '../../../src/components/auth/SessionProvider';
 import ProfileAvatarUploader from '../../../src/components/profile/ProfileAvatarUploader';
 import ProfileHeaderUploader from '../../../src/components/profile/ProfileHeaderUploader';
-import ProfileDetailsForm from '../../../src/components/profile/ProfileDetailsForm';
 import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
 
 export default function ProfilePage() {
@@ -32,54 +31,97 @@ export default function ProfilePage() {
 
   if (sessionLoading || loading) {
     return (
-      <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
-        <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px]">
-          <p>Loading...</p>
-        </div>
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
-      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px]">
-        <h1>Profile Settings</h1>
-        <ProfileHeaderUploader
-          user={user}
-          currentHeaderUrl={profile.header_url}
-          onUploadSuccess={handleHeaderUploadSuccess}
-        />
-        <ProfileAvatarUploader 
-          user={user}
-          currentAvatarUrl={profile.avatar_url}
-          onUploadSuccess={handleAvatarUploadSuccess}
-        />
-        <h2>Profile Details</h2>
-        <ProfileDetailsForm 
-          profile={profile}
-          onChange={handleChange}
-          onSubmit={(e) => {
-              e.preventDefault(); 
-              saveProfileDetails();
-          }}
-          updating={updating}
-          message={message}
-          error={error}
-        />
-        <div style={{ marginTop: '40px' }}>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50 px-2">
+      <form
+        className="bg-white rounded-2xl shadow-xl w-full max-w-md pb-8"
+        style={{ overflow: 'hidden', position: 'relative' }}
+        onSubmit={e => { e.preventDefault(); saveProfileDetails(); }}
+      >
+        {/* Header/banner */}
+        <div className="relative w-full h-32 bg-gray-200">
+          <ProfileHeaderUploader
+            user={user}
+            currentHeaderUrl={profile.header_url}
+            onUploadSuccess={handleHeaderUploadSuccess}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          {/* Profielfoto overlapt header */}
+          <div className="absolute left-1/2 -bottom-10 transform -translate-x-1/2">
+            <ProfileAvatarUploader
+              user={user}
+              currentAvatarUrl={profile.avatar_url}
+              onUploadSuccess={handleAvatarUploadSuccess}
+              size={80}
+              className="ring-4 ring-white rounded-full shadow"
+            />
+          </div>
+        </div>
+        {/* Spacer voor overlappende avatar */}
+        <div style={{ height: 40 }} />
+        {/* Naam, headline, bio */}
+        <div className="px-6 flex flex-col items-center gap-2">
+          <input
+            type="text"
+            name="name"
+            value={profile.name || ''}
+            onChange={handleChange}
+            placeholder="Naam"
+            className="text-xl font-bold text-center border-none bg-transparent focus:ring-0 focus:outline-none w-full"
+            maxLength={40}
+            required
+            autoComplete="off"
+          />
+          <input
+            type="text"
+            name="headline"
+            value={profile.headline || ''}
+            onChange={handleChange}
+            placeholder="Headline (optioneel)"
+            className="text-base text-gray-500 text-center border-none bg-transparent focus:ring-0 focus:outline-none w-full"
+            maxLength={60}
+            autoComplete="off"
+          />
+          <textarea
+            name="bio"
+            value={profile.bio || ''}
+            onChange={handleChange}
+            placeholder="Bio (optioneel)"
+            className="mt-2 text-sm text-gray-700 text-center border-none bg-transparent focus:ring-0 focus:outline-none w-full resize-none"
+            rows={3}
+            maxLength={200}
+            style={{ minHeight: 48 }}
+          />
+        </div>
+        {/* Save button */}
+        <div className="flex justify-center mt-6">
+          <button
+            type="submit"
+            disabled={updating}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full px-6 py-2 shadow transition disabled:opacity-50"
+          >
+            {updating ? 'Opslaan...' : 'Opslaan'}
+          </button>
+        </div>
+        {/* Feedback */}
+        {message && <p className="text-green-600 text-center mt-2">{message}</p>}
+        {error && <p className="text-red-600 text-center mt-2">{error}</p>}
+        {/* Terug-link */}
+        <div className="flex justify-center mt-8">
           <a
             href="/dashboard"
-            style={{
-              display: 'inline-block',
-              marginTop: '20px',
-              color: '#0070f3',
-              textDecoration: 'none',
-            }}
+            className="text-emerald-600 hover:underline text-sm"
           >
-            ← Back to Dashboard
+            ← Terug naar dashboard
           </a>
         </div>
-      </div>
+      </form>
     </div>
   );
 } 

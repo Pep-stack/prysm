@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
+import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
 
 // Helper functie voor initialen (kan ook globaal zijn)
 const getInitials = (name) => {
@@ -14,16 +15,17 @@ const getInitials = (name) => {
   return name.charAt(0).toUpperCase();
 };
 
-export default function CardHeader({ profile, user, isPublicView = false }) {
+export default function CardHeader({ profile, user, isPublicView = false, backgroundColor }) {
+  const { settings } = useDesignSettings();
 
   // Definieer de hoogte voor de berekening en inline stijl
   const headerImageHeight = 120; // in pixels
   const headerOverlap = headerImageHeight / 2;
 
   // Bepaal de achtergrondstijl voor de header afbeelding
-  const headerImageStyle = {
-    backgroundImage: profile?.header_url ? `url(${profile.header_url})` : 'none',
-  };
+  const headerImageStyle = profile?.header_url
+    ? { backgroundImage: `url(${profile.header_url})` }
+    : { backgroundColor: settings.card_color || backgroundColor || '#ffffff' };
 
   // Bepaal de inline stijl voor de overlap berekening
   const headerContentStyle = {

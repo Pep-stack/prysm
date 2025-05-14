@@ -28,7 +28,7 @@ import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../components/dashboard/DesignToolbar';
-import { DesignSettingsProvider } from '../../components/dashboard/DesignSettingsContext';
+import { DesignSettingsProvider, useDesignSettings } from '../../components/dashboard/DesignSettingsContext';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
@@ -246,15 +246,7 @@ export default function DashboardPageContent() {
             )}
           </div>
         </aside>
-        <main className="flex-1 flex justify-center items-start">
-          <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[360px]">
-            <PrysmaCard
-              profile={profile}
-              user={user}
-              cardSections={cardSections}
-            />
-          </div>
-        </main>
+        <DashboardMainWithBg profile={profile} user={user} cardSections={cardSections} />
         <EditSectionModal
           isOpen={isEditModalOpen}
           onClose={closeEditModal}
@@ -272,5 +264,20 @@ export default function DashboardPageContent() {
         />
       </div>
     </DesignSettingsProvider>
+  );
+}
+
+function DashboardMainWithBg({ profile, user, cardSections }) {
+  const { settings } = useDesignSettings();
+  return (
+    <main className="flex-1 flex justify-center items-start" style={{ backgroundColor: settings.background_color || '#f8f9fa', minHeight: '100vh', borderRadius: '15px' }}>
+      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[360px]">
+        <PrysmaCard
+          profile={profile}
+          user={user}
+          cardSections={cardSections}
+        />
+      </div>
+    </main>
   );
 }

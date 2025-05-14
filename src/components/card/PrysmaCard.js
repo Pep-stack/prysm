@@ -5,6 +5,7 @@ import CardHeader from './CardHeader';
 import CardSectionRenderer from './CardSectionRenderer';
 import styles from './PrysmaCard.module.css';
 import { supabase } from '@/lib/supabase';
+import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
 
 // Section content component imports
 import GithubGitlabSectionContent from './cardSections/GithubGitlabSectionContent';
@@ -27,15 +28,17 @@ export default function PrysmaCard({
   onSaveLanguages,
   onReorder,
 }) {
+  const { settings } = useDesignSettings();
   const displayUserId = user?.id || profile?.id;
   const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${displayUserId}`;
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} style={{ backgroundColor: settings.card_color || '#ffffff' }}>
       <CardHeader
         profile={profile}
         user={user}
         isPublicView={true}
+        backgroundColor={settings.background_color || '#f8f9fa'}
       />
       <div className={styles.contentArea}>
         <CardSectionRenderer

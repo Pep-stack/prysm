@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMP WITH TIME ZONE,
   avatar_size TEXT DEFAULT 'medium',
   avatar_position TEXT DEFAULT 'left',
-  avatar_shape TEXT DEFAULT 'circle'
+  avatar_shape TEXT DEFAULT 'circle',
+  card_color TEXT DEFAULT '#ffffff',
+  background_color TEXT DEFAULT '#f8f9fa'
 );
 
 -- Set up Row Level Security (RLS)

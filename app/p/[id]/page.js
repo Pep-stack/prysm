@@ -5,6 +5,7 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'; // 
 import { cookies } from 'next/headers';
 import PrysmaCard from '../../../src/components/card/PrysmaCard'; // Adjust path if needed
 import DesignSettingsClientProvider from '../../../components/dashboard/DesignSettingsClientProvider';
+import PublicProfilePageContent from './PublicProfilePageContent';
 
 // Function to fetch profile data on the server
 async function getProfileData(userId) {
@@ -54,18 +55,8 @@ export default async function PublicProfilePage({ params }) {
   const cardSections = Array.isArray(profile.card_sections) ? profile.card_sections : [];
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
-      {/* Centered container for the card */}
-      <div className="max-w-xl mx-auto"> 
-         <DesignSettingsClientProvider initial={profile}>
-           <PrysmaCard 
-              profile={profile} 
-              user={null}
-              cardSections={cardSections} 
-              isPublicView={true}
-           />
-         </DesignSettingsClientProvider>
-      </div>
-    </div>
+    <DesignSettingsClientProvider initial={profile}>
+      <PublicProfilePageContent profile={profile} cardSections={cardSections} />
+    </DesignSettingsClientProvider>
   );
 } 

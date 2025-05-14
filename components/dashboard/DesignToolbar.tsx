@@ -33,6 +33,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [avatarSize, setAvatarSize] = useState(initial?.avatar_size || 'medium');
   const [avatarPosition, setAvatarPosition] = useState(initial?.avatar_position || 'left');
   const [avatarShape, setAvatarShape] = useState(initial?.avatar_shape || 'circle');
+  const [cardColor, setCardColor] = useState(initial?.card_color || '#ffffff');
+  const [backgroundColor, setBackgroundColor] = useState(initial?.background_color || '#f8f9fa');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -65,6 +67,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setAvatarSize(initial?.avatar_size || 'medium');
     setAvatarPosition(initial?.avatar_position || 'left');
     setAvatarShape(initial?.avatar_shape || 'circle');
+    setCardColor(initial?.card_color || '#ffffff');
+    setBackgroundColor(initial?.background_color || '#f8f9fa');
   }, [initial]);
 
   const handleSave = async () => {
@@ -78,7 +82,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       icon_pack: iconPack,
       avatar_size: avatarSize,
       avatar_position: avatarPosition,
-      avatar_shape: avatarShape
+      avatar_shape: avatarShape,
+      card_color: cardColor,
+      background_color: backgroundColor
     };
 
     console.log('Attempting to save settings:', {
@@ -191,6 +197,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
             role="dialog"
             aria-modal="true"
             tabIndex={-1}
+            style={{ maxHeight: '90vh', overflowY: 'auto' }}
           >
             <button
               aria-label="Close Design Settings"
@@ -335,6 +342,26 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                 <option value="rounded">Rounded</option>
                 <option value="square">Square</option>
               </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Card Color</span>
+              <input
+                type="color"
+                value={cardColor}
+                onChange={e => setCardColor(e.target.value)}
+                className="w-8 h-8 border-none bg-transparent cursor-pointer"
+                aria-label="Card color"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Background Color</span>
+              <input
+                type="color"
+                value={backgroundColor}
+                onChange={e => setBackgroundColor(e.target.value)}
+                className="w-8 h-8 border-none bg-transparent cursor-pointer"
+                aria-label="Background color"
+              />
             </div>
             <button
               aria-label="Save Appearance"
