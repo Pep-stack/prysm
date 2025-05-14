@@ -13,6 +13,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   location TEXT,
   website TEXT,
   avatar_url TEXT,
+  button_color TEXT DEFAULT '#00C48C',
+  button_shape TEXT DEFAULT 'rounded-full',
+  font_family TEXT DEFAULT 'Inter, sans-serif',
+  icon_pack TEXT DEFAULT 'lucide',
   updated_at TIMESTAMP WITH TIME ZONE
 );
 
@@ -52,12 +56,20 @@ BEGIN
     id, 
     email, 
     name,  -- Initialize name as username part of email
+    button_color,
+    button_shape,
+    font_family,
+    icon_pack,
     updated_at
   )
   VALUES (
     NEW.id, 
     NEW.email, 
-    SPLIT_PART(NEW.email, '@', 1), 
+    SPLIT_PART(NEW.email, '@', 1),
+    '#00C48C',
+    'rounded-full',
+    'Inter, sans-serif',
+    'lucide',
     NOW()
   );
   RETURN NEW;

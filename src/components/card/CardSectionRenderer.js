@@ -40,6 +40,7 @@ import DownloadCvSectionContent from './cardSections/DownloadCvSectionContent';
 import StatisticsProofSectionContent from './cardSections/StatisticsProofSectionContent';
 import BlogArticlesSectionContent from './cardSections/BlogArticlesSectionContent';
 import VideoBannerSectionContent from './cardSections/VideoBannerSectionContent';
+import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
 // Voeg hier AL je sectie types toe
 
 // Mapping van sectie type/id naar component (efficiënter dan switch)
@@ -102,20 +103,20 @@ export default function CardSectionRenderer({
   onSaveLanguages,
   onReorder
 }) {
-  // console.log("[CardSectionRenderer] Rendering with cardSections:", cardSections); // <-- VERWIJDER LOG 4
+  const { settings } = useDesignSettings();
 
   const renderSingleSection = (section) => {
-    const SectionContentComponent = sectionComponentMap[section.id] || sectionComponentMap[section.type];
-    if (!SectionContentComponent) return null;
+    const Component = sectionComponentMap[section.type];
+    if (!Component) return null;
 
-    const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle } };
+    const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle }, designSettings: settings };
 
     // Logica voor editing props (bv. Languages) - Blijft, maar wordt alleen getoond als state actief is
     // const editingProps = section.id === 'languages' ? { ... } : {};
     // const finalContentComponent = React.cloneElement(<SectionContentComponent {...sectionProps} />, editingProps);
 
     // Voor een pure preview, geen editing props nodig:
-    const finalContentComponent = <SectionContentComponent {...sectionProps} />;
+    const finalContentComponent = <Component {...sectionProps} />;
 
     // Render altijd de statische div
     return (

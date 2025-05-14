@@ -28,6 +28,7 @@ import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../components/dashboard/DesignToolbar';
+import { DesignSettingsProvider } from '../../components/dashboard/DesignSettingsContext';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
@@ -191,11 +192,17 @@ export default function DashboardPageContent() {
 
   const existingSectionTypes = cardSections.map((s) => s.type);
 
+  // Callback om profiel te updaten na opslaan van design settings
+  const handleProfileUpdateFromToolbar = (updatedProfile) => {
+    if (updatedProfile) {
+      handleProfileUpdate(updatedProfile);
+    }
+  };
+
   return (
-    <>
-      {/* Horizontale DesignToolbar over de hele breedte */}
-      <div className="w-full px-6">
-        <DesignToolbar initial={profile} userId={user.id} />
+    <DesignSettingsProvider initial={profile}>
+      <div className="relative w-full flex justify-end z-40">
+        <DesignToolbar initial={profile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
       </div>
       <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
         <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
@@ -264,6 +271,6 @@ export default function DashboardPageContent() {
           user={user}
         />
       </div>
-    </>
+    </DesignSettingsProvider>
   );
 }
