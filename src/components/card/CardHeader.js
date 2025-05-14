@@ -30,8 +30,57 @@ export default function CardHeader({ profile, user, isPublicView = false }) {
     '--header-overlap': `${headerOverlap}px`, // CSS variabele voor margin-top calc()
   };
 
+  // Avatar settings uit profiel
+  const avatarSize = profile?.avatar_size || 'medium';
+  const avatarPosition = profile?.avatar_position || 'left';
+  const avatarShape = profile?.avatar_shape || 'circle';
+
+  // Grootte bepalen
+  const avatarSizePx = avatarSize === 'small' ? 48 : avatarSize === 'large' ? 120 : 80;
+  // Vorm bepalen
+  const avatarBorderRadius =
+    avatarShape === 'circle' ? '50%'
+    : avatarShape === 'rounded' ? '16px'
+    : '0px';
+  // Horizontale positionering
+  let avatarJustify = 'flex-start';
+  if (avatarPosition === 'center') avatarJustify = 'center';
+  if (avatarPosition === 'right') avatarJustify = 'flex-end';
+
+  // Inline style voor avatar container
+  const avatarContainerStyle = {
+    width: avatarSizePx,
+    height: avatarSizePx,
+    borderRadius: avatarBorderRadius,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    backgroundColor: '#f0f0f0',
+    border: '4px solid white',
+    overflow: 'hidden',
+    marginRight: avatarPosition === 'left' ? 15 : 0,
+    marginLeft: avatarPosition === 'right' ? 15 : 0,
+  };
+
+  // Wrapper voor horizontale positionering
+  const avatarRowStyle = {
+    display: 'flex',
+    justifyContent: avatarJustify,
+    alignItems: 'flex-end',
+    width: '100%',
+  };
+
+  // Wrapper voor avatar + naam/ headline verticaal
+  const avatarColumnStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '100%',
+  };
+
   return (
-    <div className="px-1 sm:px-4 ..."> {/* Wrapper div */}
+    <div> {/* Wrapper div zonder padding */}
       {/* Header Afbeelding */}
       <div
         className={styles.headerImage}
@@ -40,29 +89,32 @@ export default function CardHeader({ profile, user, isPublicView = false }) {
 
       {/* Header Content (Avatar, Naam, Headline) */}
       <div className={styles.headerContent} style={headerContentStyle}>
-        {/* Avatar Container */}
-        <div
-          className={styles.avatarContainer}
-          title={profile?.name || 'Profile Picture'}
-        >
-          {profile?.avatar_url ? (
-            // Gebruik next/image voor optimalisatie
-            <Image
-              src={profile.avatar_url}
-              alt={profile?.name || user?.email || 'Profile Avatar'}
-              width={80} // Exacte grootte specificeren
-              height={80} // Exacte grootte specificeren
-              className={styles.avatarImage} // Gebruik class voor object-fit etc.
-            />
-          ) : (
-            <span>{getInitials(profile?.name)}</span>
-          )}
-        </div>
-
-        {/* Naam en Headline */}
-        <div className={styles.nameHeadlineContainer}>
-          <h2 className={styles.name}>{profile?.name || 'Your Name'}</h2>
-          <p className={styles.headline}>{profile?.headline || 'Add a headline'}</p>
+        <div style={avatarRowStyle}>
+          <div style={avatarColumnStyle}>
+            <div
+              style={avatarContainerStyle}
+              title={profile?.name || 'Profile Picture'}
+            >
+              {profile?.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile?.name || user?.email || 'Profile Avatar'}
+                  width={avatarSizePx}
+                  height={avatarSizePx}
+                  style={{ width: avatarSizePx, height: avatarSizePx, borderRadius: avatarBorderRadius, objectFit: 'cover' }}
+                />
+              ) : (
+                <span>{getInitials(profile?.name)}</span>
+              )}
+            </div>
+            {/* Naam en Headline altijd onder de avatar */}
+            <div className={styles.nameHeadlineContainer} style={{ textAlign: 'center', marginTop: 8 }}>
+              <h2 className={styles.name}>{profile?.name || 'Your Name'}</h2>
+              {profile?.headline && (
+                <p className={styles.headline}>{profile.headline}</p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

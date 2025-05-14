@@ -30,6 +30,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [buttonShape, setButtonShape] = useState(initial?.button_shape || 'rounded-full');
   const [fontFamily, setFontFamily] = useState(initial?.font_family || 'Inter, sans-serif');
   const [iconPack, setIconPack] = useState(initial?.icon_pack || 'lucide');
+  const [avatarSize, setAvatarSize] = useState(initial?.avatar_size || 'medium');
+  const [avatarPosition, setAvatarPosition] = useState(initial?.avatar_position || 'left');
+  const [avatarShape, setAvatarShape] = useState(initial?.avatar_shape || 'circle');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -59,6 +62,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setButtonShape(initial?.button_shape || 'rounded-full');
     setFontFamily(initial?.font_family || 'Inter, sans-serif');
     setIconPack(initial?.icon_pack || 'lucide');
+    setAvatarSize(initial?.avatar_size || 'medium');
+    setAvatarPosition(initial?.avatar_position || 'left');
+    setAvatarShape(initial?.avatar_shape || 'circle');
   }, [initial]);
 
   const handleSave = async () => {
@@ -69,7 +75,10 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       button_color: buttonColor,
       button_shape: buttonShape,
       font_family: fontFamily,
-      icon_pack: iconPack
+      icon_pack: iconPack,
+      avatar_size: avatarSize,
+      avatar_position: avatarPosition,
+      avatar_shape: avatarShape
     };
 
     console.log('Attempting to save settings:', {
@@ -302,6 +311,30 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                   </div>
                 )}
               </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Size</span>
+              <select value={avatarSize} onChange={e => setAvatarSize(e.target.value)} className="rounded border px-2 py-1 text-sm">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Position</span>
+              <select value={avatarPosition} onChange={e => setAvatarPosition(e.target.value)} className="rounded border px-2 py-1 text-sm">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Shape</span>
+              <select value={avatarShape} onChange={e => setAvatarShape(e.target.value)} className="rounded border px-2 py-1 text-sm">
+                <option value="circle">Circle</option>
+                <option value="rounded">Rounded</option>
+                <option value="square">Square</option>
+              </select>
             </div>
             <button
               aria-label="Save Appearance"

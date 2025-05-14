@@ -4,6 +4,7 @@ import React from 'react';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'; // Use server client
 import { cookies } from 'next/headers';
 import PrysmaCard from '../../../src/components/card/PrysmaCard'; // Adjust path if needed
+import DesignSettingsClientProvider from '../../../components/dashboard/DesignSettingsClientProvider';
 
 // Function to fetch profile data on the server
 async function getProfileData(userId) {
@@ -56,15 +57,14 @@ export default async function PublicProfilePage({ params }) {
     <div className="min-h-screen bg-gray-100 py-10">
       {/* Centered container for the card */}
       <div className="max-w-xl mx-auto"> 
-         {/* Render PrysmaCard in public view mode */}
-         <PrysmaCard 
-            profile={profile} 
-            user={null} // No logged-in user context here
-            cardSections={cardSections} 
-            isPublicView={true} // IMPORTANT: Set public view mode
-            // Omit props related to editing:
-            // onRemoveSection, onEditSection, onAvatarClick, onSaveLayoutClick, onSaveLanguages
-         />
+         <DesignSettingsClientProvider initial={profile}>
+           <PrysmaCard 
+              profile={profile} 
+              user={null}
+              cardSections={cardSections} 
+              isPublicView={true}
+           />
+         </DesignSettingsClientProvider>
       </div>
     </div>
   );

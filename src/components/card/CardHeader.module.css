@@ -8,8 +8,8 @@
   background-color: #d1d5db; /* Default grey background */
   background-size: cover;
   background-position: center;
-  border-top-left-radius: 12px; /* Match PrysmaCard rounding */
-  border-top-right-radius: 12px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
   position: relative; /* Nodig voor positionering van content eroverheen */
 }
 

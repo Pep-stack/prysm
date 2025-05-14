@@ -5,7 +5,12 @@ import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
 import { useDesignSettings } from '../../../../components/dashboard/DesignSettingsContext';
 
 export default function ContactButtonsSectionContent({ profile, user, styles, designSettings }) {
-  const { buttonColor, buttonShape, fontFamily, iconPack } = designSettings || {};
+  const {
+    button_color: buttonColor,
+    button_shape: buttonShape,
+    font_family: fontFamily,
+    icon_pack: iconPack
+  } = designSettings || {};
 
   const buttonStyle = {
     backgroundColor: buttonColor || '#00C48C',
@@ -30,8 +35,10 @@ export default function ContactButtonsSectionContent({ profile, user, styles, de
     return <Icon className="w-5 h-5" />;
   };
 
+  console.log('ContactButtonsSectionContent designSettings:', { buttonColor, buttonShape, fontFamily, iconPack });
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" key={`${buttonColor}-${buttonShape}-${fontFamily}-${iconPack}`}>
       {profile?.phone && (
         <a
           href={`tel:${profile.phone}`}

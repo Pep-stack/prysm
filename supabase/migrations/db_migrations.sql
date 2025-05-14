@@ -17,7 +17,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   button_shape TEXT DEFAULT 'rounded-full',
   font_family TEXT DEFAULT 'Inter, sans-serif',
   icon_pack TEXT DEFAULT 'lucide',
-  updated_at TIMESTAMP WITH TIME ZONE
+  updated_at TIMESTAMP WITH TIME ZONE,
+  avatar_size TEXT DEFAULT 'medium',
+  avatar_position TEXT DEFAULT 'left',
+  avatar_shape TEXT DEFAULT 'circle'
 );
 
 -- Set up Row Level Security (RLS)
