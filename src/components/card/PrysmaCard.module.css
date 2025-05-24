@@ -1,3 +1,37 @@
+/* Main card container */
+.prysmaCard {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Card body for main sections */
+.cardBody {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Placeholder when card is empty */
+.placeholder {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 /* Stijl voor de content area (voormalig binnen de kaart, nu direct) */
 .contentArea {
   padding: 0 24px 24px 24px; /* Padding zijkanten en onderkant */
@@ -51,9 +85,23 @@
 }
 
 @media (max-width: 600px) {
+  .prysmaCard {
+    margin: 0 10px;
+    border-radius: 12px;
+  }
+
+  .cardBody {
+    padding: 0 16px 16px 16px;
+  }
+
   .contentArea {
     width: 100%;
     max-width: 100%;
     padding: 0 16px 16px 16px;
+  }
+
+  .placeholder {
+    margin: 10px;
+    padding: 30px 15px;
   }
 } 

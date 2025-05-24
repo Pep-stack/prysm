@@ -84,7 +84,7 @@ export const sectionComponentMap = {
 
 // Component rendert nu altijd de publieke/statische view
 export default function CardSectionRenderer({
-  cardSections = [],
+  section, // Changed from cardSections array to single section
   profile,
   user,
   isPublicView = false,
@@ -105,34 +105,25 @@ export default function CardSectionRenderer({
 }) {
   const { settings } = useDesignSettings();
 
-  const renderSingleSection = (section) => {
-    const Component = sectionComponentMap[section.type];
-    if (!Component) return null;
+  if (!section) return null;
+  
+  const Component = sectionComponentMap[section.type];
+  if (!Component) return null;
 
-    const sectionProps = { profile, user, styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle }, designSettings: settings };
-
-    // Logica voor editing props (bv. Languages) - Blijft, maar wordt alleen getoond als state actief is
-    // const editingProps = section.id === 'languages' ? { ... } : {};
-    // const finalContentComponent = React.cloneElement(<SectionContentComponent {...sectionProps} />, editingProps);
-
-    // Voor een pure preview, geen editing props nodig:
-    const finalContentComponent = <Component {...sectionProps} />;
-
-    // Render altijd de statische div
-    return (
-      <div key={section.id} className="w-full"> {/* Basis layout, geen flex nodig hier misschien? */}
-        {finalContentComponent}
-      </div>
-    );
+  const sectionProps = { 
+    profile, 
+    user, 
+    styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle }, 
+    designSettings: settings 
   };
 
+  // Voor een pure preview, geen editing props nodig:
+  const finalContentComponent = <Component {...sectionProps} />;
+
+  // Render altijd de statische div
   return (
-    <div className={containerClassName} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
-      {cardSections.map((section) => (
-        <div key={section.id} className="w-full">
-          {renderSingleSection(section)}
-        </div>
-      ))}
+    <div className="w-full">
+      {finalContentComponent}
     </div>
   );
 } 

@@ -2,19 +2,30 @@
 
 import React from 'react';
 
-// Simple inline SVG for X logo (adjust path data if needed)
+// Simple inline SVG for X (formerly Twitter) logo
 const XIcon = () => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
     viewBox="0 0 24 24" 
     fill="currentColor" 
-    style={{ width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle' }}
+    style={{ width: '24px', height: '24px', marginRight: '8px', verticalAlign: 'middle' }}
   >
-    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/>
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
   </svg>
 );
 
-export default function XSectionContent({ profile, styles }) {
+const XIconCompact = () => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 24 24" 
+    fill="#000000" 
+    style={{ width: '20px', height: '20px' }}
+  >
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
+
+export default function XSectionContent({ profile, styles, isCompact = false }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   const xProfileUrl = profile?.x_profile; // Use the correct column name
 
@@ -30,6 +41,22 @@ export default function XSectionContent({ profile, styles }) {
   };
 
   if (isValidUrl(xProfileUrl)) {
+    if (isCompact) {
+      // Compact mode - just the icon as a link
+      return (
+        <a 
+           href={xProfileUrl} 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           style={sectionStyle}
+           title={`Visit ${profile.name || 'user'}'s X Profile`}
+        >
+          <XIconCompact />
+        </a>
+      );
+    }
+
+    // Regular mode - full section
     return (
       <div style={sectionStyle}>
         <h3 style={sectionTitleStyle}>X (Twitter)</h3>
@@ -46,6 +73,10 @@ export default function XSectionContent({ profile, styles }) {
       </div>
     );
   } else {
+    if (isCompact) {
+      return null; // Don't show placeholder in compact mode
+    }
+    
     return <div style={placeholderStyle}><p>Click to add your X profile URL</p></div>;
   }
 } 

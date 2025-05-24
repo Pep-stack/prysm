@@ -3,6 +3,7 @@
 import React from 'react';
 import CardHeader from './CardHeader';
 import CardSectionRenderer from './CardSectionRenderer';
+import SocialBar from './SocialBar';
 import styles from './PrysmaCard.module.css';
 import { supabase } from '@/lib/supabase';
 import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
@@ -25,32 +26,45 @@ export default function PrysmaCard({
   profile,
   user,
   cardSections = [],
-  onSaveLanguages,
-  onReorder,
+  socialBarSections = [],
+  isPublicView = false,
+  className = ""
 }) {
   const { settings } = useDesignSettings();
   const displayUserId = user?.id || profile?.id;
   const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${displayUserId}`;
 
   return (
-    <>
+    <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}>
+      {/* Header Section */}
       <CardHeader
         profile={profile}
         user={user}
-        isPublicView={true}
+        isPublicView={isPublicView}
         backgroundColor={settings.background_color || '#f8f9fa'}
       />
-      <div className={styles.contentArea}>
-        <CardSectionRenderer
-          cardSections={cardSections}
-          profile={profile}
-          user={user}
-          isPublicView={true}
-          containerClassName={styles.sectionsContainer}
-          onSaveLanguages={onSaveLanguages}
-          onReorder={onReorder}
-        />
+      
+      {/* Social Bar - Always visible below header when sections exist */}
+      <SocialBar
+        sections={socialBarSections}
+        profile={profile}
+        user={user}
+      />
+
+      {/* Main Sections */}
+      <div className={styles.cardBody}>
+        {cardSections && cardSections.length > 0 && (
+          cardSections.map((section) => (
+            <CardSectionRenderer
+              key={section.id}
+              section={section}
+              profile={profile}
+              user={user}
+              isPublicView={isPublicView}
+            />
+          ))
+        )}
       </div>
-    </>
+    </div>
   );
 }

@@ -16,12 +16,14 @@ import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
 import EditableSectionList from '../../src/components/dashboard/EditableSectionList';
 import AvailableSectionList from '../../src/components/dashboard/AvailableSectionList';
+import SocialBarDropzone from '../../src/components/dashboard/SocialBarDropzone';
 import EditSectionModal from '../../src/components/modal/EditSectionModal';
 import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
 
 import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
 import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
+import { useCardLayoutWithSocialBar } from '../../src/hooks/useCardLayoutWithSocialBar';
 
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
@@ -50,34 +52,45 @@ const BUTTON_SHAPES = [
 export default function DashboardPageContent() {
   const { user, loading: sessionLoading } = useSession();
   const router = useRouter();
-  const [activeId, setActiveId] = useState(null);
-  const [saveMessage, setSaveMessage] = useState('');
 
   const {
     profile,
     loading: profileLoading,
-    handleProfileUpdate,
-    handleAvatarUpdate,
+    error: profileError,
     saveCardLayout,
     updatingLayout,
     layoutError,
-    saveLanguages,
-    updatingLanguages,
     languagesError,
+    updateProfile: handleProfileUpdate,
   } = useUserProfile(user);
 
-  const [cardSections, setCardSections] = useState([]);
-  const [hasInitializedSections, setHasInitializedSections] = useState(false);
+  // Use the new social bar hook
+  const {
+    cardSections,
+    socialBarSections,
+    setCardSections,
+    setSocialBarSections,
+    handleRemoveSection,
+    handleDragEnd,
+    getAllSections,
+  } = useCardLayoutWithSocialBar(profile);
 
-  // Design settings state
-  const [buttonColor, setButtonColor] = useState(profile?.button_color || '#00C48C');
-  const [buttonShape, setButtonShape] = useState(profile?.button_shape || 'rounded-full');
-  const [fontFamily, setFontFamily] = useState(profile?.font_family || 'Inter, sans-serif');
-  const [iconPack, setIconPack] = useState(profile?.icon_pack || 'lucide');
+  const [activeId, setActiveId] = useState(null);
+  const [hasInitializedSections, setHasInitializedSections] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
+  // Design state
+  const [buttonColor, setButtonColor] = useState('#00C48C');
+  const [buttonShape, setButtonShape] = useState('rounded-full');
+  const [fontFamily, setFontFamily] = useState('Inter, sans-serif');
+  const [iconPack, setIconPack] = useState('lucide');
   const [savingAppearance, setSavingAppearance] = useState(false);
   const [appearanceSaved, setAppearanceSaved] = useState(false);
 
-  // Sync settings with profile
+  const handleAvatarUpdate = (newAvatarUrl) => {
+    console.log('Avatar updated:', newAvatarUrl);
+  };
+
   useEffect(() => {
     if (profile) {
       setButtonColor(profile.button_color || '#00C48C');
@@ -86,17 +99,6 @@ export default function DashboardPageContent() {
       setIconPack(profile.icon_pack || 'lucide');
     }
   }, [profile]);
-
-  useEffect(() => {
-    if (profile && !profileLoading && !hasInitializedSections) {
-      setCardSections(profile.card_sections || []);
-      setHasInitializedSections(true);
-    }
-  }, [profile, profileLoading, hasInitializedSections]);
-
-  const handleRemoveSection = (id) => {
-    setCardSections((prev) => prev.filter((section) => section.id !== id));
-  };
 
   const {
     isModalOpen: isEditModalOpen,
@@ -150,28 +152,11 @@ export default function DashboardPageContent() {
     setActiveId(event.active.id);
   }
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (over && active.id !== over.id) {
-      const oldIndex = cardSections.findIndex((item) => item.id === active.id);
-      const newIndex = cardSections.findIndex((item) => item.id === over.id);
-
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const newSections = Array.from(cardSections);
-        const [movedItem] = newSections.splice(oldIndex, 1);
-        newSections.splice(newIndex, 0, movedItem);
-
-        setCardSections(newSections);
-      }
-    }
-  };
-
   const handleSaveLayoutClick = async () => {
     setSaveMessage('');
-    console.log('Opslaan in Supabase:', { id: user.id, card_sections: cardSections });
-    await saveCardLayout(cardSections);
+    const allSections = getAllSections();
+    console.log('Saving layout with social bar:', allSections);
+    await saveCardLayout(allSections);
     if (layoutError) {
       setSaveMessage('Error saving layout.');
     } else {
@@ -187,10 +172,21 @@ export default function DashboardPageContent() {
       type: sectionType,
       ...defaultProps,
     };
-    setCardSections((prev) => [...prev, newSection]);
+    
+    // Check if it's a social media type and add to appropriate area
+    const SOCIAL_MEDIA_TYPES = [
+      'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
+      'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons'
+    ];
+    
+    if (SOCIAL_MEDIA_TYPES.includes(sectionType)) {
+      setSocialBarSections((prev) => [...prev, { ...newSection, area: 'social_bar' }]);
+    } else {
+      setCardSections((prev) => [...prev, newSection]);
+    }
   };
 
-  const existingSectionTypes = cardSections.map((s) => s.type);
+  const existingSectionTypes = [...cardSections, ...socialBarSections].map((s) => s.type);
 
   // Callback om profiel te updaten na opslaan van design settings
   const handleProfileUpdateFromToolbar = (updatedProfile) => {
@@ -219,6 +215,11 @@ export default function DashboardPageContent() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
+            <SocialBarDropzone
+              sections={socialBarSections}
+              onRemoveSection={handleRemoveSection}
+              onEditSection={openEditModal}
+            />
             <EditableSectionList
               items={cardSections}
               onRemoveSection={handleRemoveSection}
@@ -246,7 +247,12 @@ export default function DashboardPageContent() {
             )}
           </div>
         </aside>
-        <DashboardMainWithBg profile={profile} user={user} cardSections={cardSections} />
+        <DashboardMainWithBg 
+          profile={profile} 
+          user={user} 
+          cardSections={cardSections}
+          socialBarSections={socialBarSections}
+        />
         <EditSectionModal
           isOpen={isEditModalOpen}
           onClose={closeEditModal}
@@ -267,7 +273,7 @@ export default function DashboardPageContent() {
   );
 }
 
-function DashboardMainWithBg({ profile, user, cardSections }) {
+function DashboardMainWithBg({ profile, user, cardSections, socialBarSections }) {
   const { settings } = useDesignSettings();
   return (
     <main className="flex-1 flex justify-center items-start" style={{ backgroundColor: settings.background_color || '#f8f9fa', minHeight: '100vh', borderRadius: '15px' }}>
@@ -276,6 +282,7 @@ function DashboardMainWithBg({ profile, user, cardSections }) {
           profile={profile}
           user={user}
           cardSections={cardSections}
+          socialBarSections={socialBarSections}
         />
       </div>
     </main>

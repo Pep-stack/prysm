@@ -1,42 +1,93 @@
 'use client';
 
 import React from 'react';
-import { FaPhone, FaEnvelope, FaWhatsapp } from 'react-icons/fa';
+import { 
+  FaPhone, FaEnvelope, FaWhatsapp, FaTelegram, FaSignal,
+  FaLinkedin, FaTwitter, FaInstagram, FaFacebook, FaYoutube, FaTiktok
+} from 'react-icons/fa';
 import { useDesignSettings } from '../../../../components/dashboard/DesignSettingsContext';
 
-export default function ContactButtonsSectionContent({ profile, user, styles, designSettings }) {
+export default function ContactButtonsSectionContent({ profile, user, styles, designSettings, isCompact = false }) {
+  const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  
   const {
-    button_color: buttonColor,
-    button_shape: buttonShape,
-    font_family: fontFamily,
-    icon_pack: iconPack
+    buttonColor = designSettings?.buttonColor || '#00C48C',
+    buttonShape = designSettings?.buttonShape || 'rounded-full',
+    fontFamily = designSettings?.fontFamily || 'Inter, sans-serif',
+    iconPack = designSettings?.iconPack || 'lucide'
   } = designSettings || {};
 
   const buttonStyle = {
-    backgroundColor: buttonColor || '#00C48C',
-    borderRadius: buttonShape === 'rounded-full' ? '9999px' : 
-                 buttonShape === 'rounded-xl' ? '0.75rem' : '0.375rem',
-    fontFamily: fontFamily || 'Inter, sans-serif',
+    backgroundColor: buttonColor,
+    borderRadius: buttonShape === 'rounded-full' ? '50px' : 
+                   buttonShape === 'rounded-xl' ? '12px' : '6px',
+    fontFamily: fontFamily,
+    border: 'none',
+    cursor: 'pointer'
   };
 
-  const renderIcon = (Icon) => {
-    if (iconPack === 'emoji') {
-      switch (Icon) {
-        case FaPhone:
-          return '📞';
-        case FaEnvelope:
-          return '✉️';
-        case FaWhatsapp:
-          return '💬';
-        default:
-          return Icon;
-      }
-    }
-    return <Icon className="w-5 h-5" />;
+  const renderIcon = (IconComponent) => {
+    return <IconComponent size={isCompact ? 16 : 20} />;
   };
 
-  console.log('ContactButtonsSectionContent designSettings:', { buttonColor, buttonShape, fontFamily, iconPack });
+  if (isCompact) {
+    // Compact mode - render horizontal icon buttons
+    return (
+      <div className="flex gap-2" style={{ fontFamily }}>
+        {profile?.phone && (
+          <a
+            href={`tel:${profile.phone}`}
+            className="flex items-center justify-center text-white transition-colors hover:opacity-90"
+            style={{ 
+              ...buttonStyle, 
+              width: '40px', 
+              height: '40px',
+              textDecoration: 'none'
+            }}
+            title="Call"
+          >
+            {renderIcon(FaPhone)}
+          </a>
+        )}
+        
+        {profile?.email && (
+          <a
+            href={`mailto:${profile.email}`}
+            className="flex items-center justify-center text-white transition-colors hover:opacity-90"
+            style={{ 
+              ...buttonStyle, 
+              width: '40px', 
+              height: '40px',
+              textDecoration: 'none'
+            }}
+            title="Email"
+          >
+            {renderIcon(FaEnvelope)}
+          </a>
+        )}
+        
+        {profile?.whatsapp && (
+          <a
+            href={`https://wa.me/${profile.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center text-white transition-colors hover:opacity-90"
+            style={{ 
+              ...buttonStyle, 
+              width: '40px', 
+              height: '40px',
+              textDecoration: 'none'
+            }}
+            title="WhatsApp"
+          >
+            {renderIcon(FaWhatsapp)}
+          </a>
+        )}
+      </div>
+    );
+  }
 
+  // Regular mode - original layout
   return (
     <div className="flex flex-col gap-3" key={`${buttonColor}-${buttonShape}-${fontFamily}-${iconPack}`}>
       {profile?.phone && (
