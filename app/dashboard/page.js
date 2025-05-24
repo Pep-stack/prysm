@@ -271,7 +271,7 @@ function DashboardMainWithBg({ profile, user, cardSections }) {
   const { settings } = useDesignSettings();
   return (
     <main className="flex-1 flex justify-center items-start" style={{ backgroundColor: settings.background_color || '#f8f9fa', minHeight: '100vh', borderRadius: '15px' }}>
-      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[360px]">
+      <div className="w-full max-w-3xl px-4 py-6">
         <PrysmaCard
           profile={profile}
           user={user}

@@ -1,21 +1,9 @@
-.card {
-  border: 1px solid #e0e0e0; /* Standaard rand */
-  border-radius: 20px;
-  padding: 0; /* Geen padding op de kaart zelf, zit in contentArea */
-  background-color: #ffffff; /* Standaard witte achtergrond */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  max-width: 100%;
-  margin: 30px auto; /* Behoud centreren en verticale marge */
-  position: relative; /* Belangrijk voor absolute kinderen zoals QR overlay */
-  overflow: hidden;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-  box-sizing: border-box; /* <-- Toegevoegd */
-}
-
-/* Stijl voor de content area binnen de kaart (onder de header) */
+/* Stijl voor de content area (voormalig binnen de kaart, nu direct) */
 .contentArea {
   padding: 0 24px 24px 24px; /* Padding zijkanten en onderkant */
-  /* marginTop wordt impliciet beheerd door de positionering van de CardHeader */
+  max-width: 600px; /* Behoud maximale breedte */
+  margin: 0 auto; /* Centreer de content */
+  width: 100%;
 }
 
 /* Stijl voor de QR code overlay */
@@ -32,7 +20,7 @@
   align-items: center;
   z-index: 10; /* Zorg dat het boven de normale content komt */
   padding: 20px;
-  border-radius: 12px; /* Match kaart afronding */
+  border-radius: 12px;
 }
 
 /* Stijl om de QR overlay zichtbaar te maken */
@@ -56,23 +44,16 @@
 
 /* Stijl voor de container van de secties (flexbox) */
 .sectionsContainer {
-  /* Deze klasse wordt nog steeds doorgegeven, maar de styling zit nu in de Renderer JSX */
-  /* display: flex; */
-  /* flex-wrap: wrap; */
-  /* gap: 16px; */
-  /* margin-top: 0; */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 0;
 }
 
 @media (max-width: 600px) {
-  .card {
-    width: 100%;
-    max-width: 380px;
-    margin: 12px auto;
-    border-radius: 8px;
-  }
   .contentArea {
     width: 100%;
     max-width: 100%;
-    padding: 0 8px 12px 8px;
+    padding: 0 16px 16px 16px;
   }
 } 

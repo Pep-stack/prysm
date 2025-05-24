@@ -5,7 +5,7 @@ import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
 
-// Helper functie voor initialen (kan ook globaal zijn)
+// Helper functie voor initialen
 const getInitials = (name) => {
   if (!name) return '?';
   const words = name.split(' ');
@@ -18,107 +18,155 @@ const getInitials = (name) => {
 export default function CardHeader({ profile, user, isPublicView = false, backgroundColor }) {
   const { settings } = useDesignSettings();
 
-  // Definieer de hoogte voor de berekening en inline stijl
-  const headerImageHeight = 120; // in pixels
-  const headerOverlap = headerImageHeight / 2;
-
-  // Bepaal de achtergrondstijl voor de header afbeelding
-  const headerImageStyle = profile?.header_url
-    ? { backgroundImage: `url(${profile.header_url})` }
-    : { backgroundColor: settings.card_color || backgroundColor || '#ffffff' };
-
-  // Bepaal de inline stijl voor de overlap berekening
-  const headerContentStyle = {
-    '--header-overlap': `${headerOverlap}px`, // CSS variabele voor margin-top calc()
-  };
+  // Display type from profile (header or avatar)
+  const displayType = profile?.display_type || 'avatar';
 
   // Avatar settings uit profiel
   const avatarSize = profile?.avatar_size || 'medium';
-  const avatarPosition = profile?.avatar_position || 'left';
   const avatarShape = profile?.avatar_shape || 'circle';
+  const avatarPosition = profile?.avatar_position || 'left';
 
-  // Grootte bepalen
-  const avatarSizePx = avatarSize === 'small' ? 48 : avatarSize === 'large' ? 120 : 80;
-  // Vorm bepalen
-  const avatarBorderRadius =
-    avatarShape === 'circle' ? '50%'
-    : avatarShape === 'rounded' ? '16px'
-    : '0px';
-  // Horizontale positionering
-  let avatarJustify = 'flex-start';
-  if (avatarPosition === 'center') avatarJustify = 'center';
-  if (avatarPosition === 'right') avatarJustify = 'flex-end';
+  // Debug logging
+  console.log('CardHeader Debug:', {
+    displayType,
+    avatarSize,
+    avatarShape,
+    avatarPosition,
+    header_url: profile?.header_url,
+    avatar_url: profile?.avatar_url
+  });
 
-  // Inline style voor avatar container
-  const avatarContainerStyle = {
-    width: avatarSizePx,
-    height: avatarSizePx,
-    borderRadius: avatarBorderRadius,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    backgroundColor: '#f0f0f0',
-    border: '4px solid white',
-    overflow: 'hidden',
-    marginRight: avatarPosition === 'left' ? 15 : 0,
-    marginLeft: avatarPosition === 'right' ? 15 : 0,
+  // Avatar grootte bepalen
+  const getAvatarSize = (size) => {
+    switch (size) {
+      case 'small': return 60;
+      case 'large': return 120;
+      default: return 80; // medium
+    }
   };
 
-  // Wrapper voor horizontale positionering
-  const avatarRowStyle = {
-    display: 'flex',
-    justifyContent: avatarJustify,
-    alignItems: 'flex-end',
-    width: '100%',
+  // Avatar vorm bepalen
+  const getAvatarBorderRadius = (shape) => {
+    switch (shape) {
+      case 'square': return '0px';
+      case 'rounded': return '12px';
+      default: return '50%'; // circle
+    }
   };
 
-  // Wrapper voor avatar + naam/ headline verticaal
-  const avatarColumnStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '100%',
+  // Avatar positie bepalen
+  const getAvatarJustification = (position) => {
+    switch (position) {
+      case 'center': return 'center';
+      case 'right': return 'flex-end';
+      default: return 'flex-start'; // left
+    }
   };
+
+  const avatarSizePx = getAvatarSize(avatarSize);
+  const avatarBorderRadius = getAvatarBorderRadius(avatarShape);
+  const avatarJustification = getAvatarJustification(avatarPosition);
 
   return (
-    <div> {/* Wrapper div zonder padding */}
-      {/* Header Afbeelding */}
-      <div
-        className={styles.headerImage}
-        style={headerImageStyle} // Pas dynamische achtergrond toe
-      ></div>
-
-      {/* Header Content (Avatar, Naam, Headline) */}
-      <div className={styles.headerContent} style={headerContentStyle}>
-        <div style={avatarRowStyle}>
-          <div style={avatarColumnStyle}>
-            <div
-              style={avatarContainerStyle}
-              title={profile?.name || 'Profile Picture'}
-            >
-              {profile?.avatar_url ? (
-                <Image
-                  src={profile.avatar_url}
-                  alt={profile?.name || user?.email || 'Profile Avatar'}
-                  width={avatarSizePx}
-                  height={avatarSizePx}
-                  style={{ width: avatarSizePx, height: avatarSizePx, borderRadius: avatarBorderRadius, objectFit: 'cover' }}
-                />
-              ) : (
-                <span>{getInitials(profile?.name)}</span>
-              )}
+    <div className={styles.profileSection}>
+      {/* Header afbeelding (alleen tonen als display_type = 'header') */}
+      {displayType === 'header' && (
+        <div className={styles.profileCoverContainer}>
+          {profile?.header_url ? (
+            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+              <Image
+                src={profile.header_url}
+                alt="Profile Header"
+                fill
+                className={styles.profileCoverImage}
+                style={{ objectFit: 'cover' }}
+                onError={(e) => {
+                  console.error('Header image failed to load:', profile.header_url);
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div 
+                className={styles.profileCoverPlaceholder}
+                style={{ display: 'none' }}
+              >
+                <span className={styles.profileInitials}>
+                  {getInitials(profile?.name)}
+                </span>
+              </div>
             </div>
-            {/* Naam en Headline altijd onder de avatar */}
-            <div className={styles.nameHeadlineContainer} style={{ textAlign: 'center', marginTop: 8 }}>
-              <h2 className={styles.name}>{profile?.name || 'Your Name'}</h2>
-              {profile?.headline && (
-                <p className={styles.headline}>{profile.headline}</p>
-              )}
+          ) : (
+            <div className={styles.profileCoverPlaceholder}>
+              <span className={styles.profileInitials}>
+                {getInitials(profile?.name)}
+              </span>
             </div>
-          </div>
+          )}
         </div>
+      )}
+      
+      {/* Avatar sectie (alleen tonen als display_type = 'avatar') */}
+      {displayType === 'avatar' && (
+        <div 
+          className={styles.avatarContainer}
+          style={{ 
+            justifyContent: avatarJustification,
+            marginTop: '0px',
+            display: 'flex',
+            width: '100%'
+          }}
+        >
+          {profile?.avatar_url ? (
+            <Image
+              src={profile.avatar_url}
+              alt={profile?.name || user?.email || 'Profile Avatar'}
+              width={avatarSizePx}
+              height={avatarSizePx}
+              className={styles.avatar}
+              style={{ 
+                objectFit: 'cover',
+                borderRadius: avatarBorderRadius,
+                width: `${avatarSizePx}px`,
+                height: `${avatarSizePx}px`,
+                flexShrink: 0
+              }}
+            />
+          ) : (
+            <div 
+              className={styles.avatarPlaceholder}
+              style={{
+                width: `${avatarSizePx}px`,
+                height: `${avatarSizePx}px`,
+                borderRadius: avatarBorderRadius,
+                fontSize: `${avatarSizePx * 0.4}px`,
+                flexShrink: 0
+              }}
+            >
+              <span className={styles.avatarInitials}>
+                {getInitials(profile?.name)}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Profiel informatie */}
+      <div 
+        className={styles.profileInfo}
+        style={{ 
+          textAlign: displayType === 'avatar' && avatarPosition === 'center' ? 'center' : 
+                    displayType === 'avatar' && avatarPosition === 'right' ? 'right' : 'left',
+          marginTop: displayType === 'header' ? '20px' : '16px'
+        }}
+      >
+        <h2 className={styles.name}>{profile?.name || 'Your Name'}</h2>
+        {profile?.headline && (
+          <p className={styles.headline}>{profile.headline}</p>
+        )}
+        {profile?.bio && (
+          <p className={styles.bio}>{profile.bio}</p>
+        )}
       </div>
     </div>
   );
-} 
+}

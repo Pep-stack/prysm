@@ -13,6 +13,10 @@ const initialProfileState = {
   website: '',
   avatar_url: '',
   header_url: '',
+  display_type: 'avatar',
+  avatar_size: 'medium',
+  avatar_shape: 'circle',
+  avatar_position: 'left',
 };
 
 export function useProfileEditor(user) {
@@ -62,6 +66,10 @@ export function useProfileEditor(user) {
             website: data.website || '',
             avatar_url: data.avatar_url || '',
             header_url: data.header_url || '', // Initialize header_url
+            display_type: data.display_type || 'avatar',
+            avatar_size: data.avatar_size || 'medium',
+            avatar_shape: data.avatar_shape || 'circle',
+            avatar_position: data.avatar_position || 'left',
           });
         }
       } catch (err) {
@@ -96,15 +104,12 @@ export function useProfileEditor(user) {
     setMessage(null);
 
     try {
+      // Only include fields that exist in the database
       const profileUpdates = {
         name: profile.name,
         headline: profile.headline,
         bio: profile.bio,
-        skills: profile.skills,
-        location: profile.location,
-        website: profile.website,
         updated_at: new Date().toISOString(),
-        // avatar_url and header_url are handled separately
       };
 
       const { error: updateError } = await supabase
@@ -115,6 +120,7 @@ export function useProfileEditor(user) {
       if (updateError) {
         throw updateError;
       }
+
       setMessage('Profile details updated successfully!');
     } catch (err) {
       console.error('Error updating profile details:', err);
