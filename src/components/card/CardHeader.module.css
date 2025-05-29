@@ -75,22 +75,22 @@
   
   /* Mobile text padding adjustments */
   .fullWidth .profileInfo {
-    padding: 0 84px; /* Mobile: 64px compensation + 20px original */
+    padding: 0 40px; /* Mobile dashboard: reduced from 84px to 40px */
     margin-top: 20px;
   }
   
   .contained .profileInfo {
-    padding: 0 84px; /* Mobile: both full width, so same padding */
+    padding: 0 40px; /* Mobile public: same as dashboard */
     margin-top: 20px;
   }
   
   .fullWidth .avatarContainer {
-    padding: 0 84px; /* Mobile: 64px compensation + 20px original */
+    padding: 0 40px; /* Mobile dashboard: reduced from 84px to 40px */
     margin-bottom: 16px;
   }
   
   .contained .avatarContainer {
-    padding: 0 84px; /* Mobile: both full width, so same padding */
+    padding: 0 40px; /* Mobile public: same as dashboard */
     margin-bottom: 16px;
   }
 
