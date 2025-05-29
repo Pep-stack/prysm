@@ -36,6 +36,9 @@ export default function PrysmaCard({
   
   // Check if header is present
   const hasHeader = profile?.display_type === 'header';
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
 
   return (
     <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}>
@@ -44,7 +47,6 @@ export default function PrysmaCard({
         profile={profile}
         user={user}
         isPublicView={isPublicView}
-        backgroundColor={settings.background_color || '#f8f9fa'}
       />
       
       {/* Social Bar - Always visible below header when sections exist */}

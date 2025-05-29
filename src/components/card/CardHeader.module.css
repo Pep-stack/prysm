@@ -2,29 +2,165 @@
 
 .profileSection {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
+  position: relative;
+  /* Ensure perfect edge alignment */
+  overflow: hidden;
 }
+
+/* Full width header - breaks out of all container padding */
+.fullWidth {
+  /* Break out of all container layers: layout p-6/p-8/p-10 + page px-6 + container px-4 */
+  width: calc(100% + 160px); /* Large screens: (40+24+16)*2 = 160px */
+  margin-left: -80px; /* Large screens: -(40+24+16) = -80px */
+  margin-right: -80px;
+}
+
+/* Contained header - stays within card bounds */
+.contained {
+  width: 100%;
+  margin: 0;
+}
+
+/* Responsive adjustments for full width */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .fullWidth {
+    width: calc(100% + 144px); /* Medium screens: (32+24+16)*2 = 144px */
+    margin-left: -72px; /* Medium screens: -(32+24+16) = -72px */
+    margin-right: -72px;
+  }
+  
+  .fullWidth .profileInfo {
+    padding: 0 96px; /* Medium screens: 72px compensation + 24px original */
+  }
+  
+  .fullWidth .avatarContainer {
+    padding: 0 96px; /* Medium screens: 72px compensation + 24px original */
+  }
+}
+
+@media (max-width: 767px) {
+  .fullWidth {
+    width: calc(100% + 128px); /* Mobile: (24+24+16)*2 = 128px */
+    margin-left: -64px; /* Mobile: -(24+24+16) = -64px */
+    margin-right: -64px;
+  }
+  
+  /* Public profile on mobile should also be full width */
+  .contained {
+    width: calc(100% + 128px);
+    margin-left: -64px;
+    margin-right: -64px;
+  }
+  
+  .profileSection {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .profileCoverContainer { 
+    height: 200px; /* Smaller height on mobile */
+    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+    margin: 0;
+  }
+  
+  .profileCoverImage, .profileCoverPlaceholder { 
+    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+  }
+  
+  .profileInitials { 
+    font-size: 32px; 
+  }
+  
+  /* Mobile text padding adjustments */
+  .fullWidth .profileInfo {
+    padding: 0 84px; /* Mobile: 64px compensation + 20px original */
+    margin-top: 20px;
+  }
+  
+  .contained .profileInfo {
+    padding: 0 84px; /* Mobile: both full width, so same padding */
+    margin-top: 20px;
+  }
+  
+  .fullWidth .avatarContainer {
+    padding: 0 84px; /* Mobile: 64px compensation + 20px original */
+    margin-bottom: 16px;
+  }
+  
+  .contained .avatarContainer {
+    padding: 0 84px; /* Mobile: both full width, so same padding */
+    margin-bottom: 16px;
+  }
+
+  .avatar, .avatarPlaceholder {
+    border-width: 3px;
+  }
+
+  /* Mobile specific styles */
+  .profileSection {
+    width: 100%;
+    margin: 0;
+  }
+  
+  .profileCoverContainer { 
+    height: 200px; /* Smaller height on mobile */
+    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+    margin: 0;
+  }
+  
+  .profileCoverImage, .profileCoverPlaceholder { 
+    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+  }
+  
+  .profileInitials { 
+    font-size: 32px; 
+  }
+  
+  .name { 
+    font-size: 24px; 
+    margin-bottom: 6px; 
+  }
+  
+  .headline { 
+    font-size: 16px; 
+    margin-bottom: 8px; 
+  }
+  
+  .bio { 
+    font-size: 14px; 
+  }
+} 
 
 .profileCoverContainer {
   width: 100%;
   height: 300px;
-  border-radius: 16px 16px 0 0; /* Only round top corners */
+  border-radius: 16px 16px 0 0;
   overflow: hidden;
-  margin-bottom: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0;
+  position: relative;
+  box-sizing: border-box;
+  /* Ensure absolutely no gaps */
+  left: 0;
+  right: 0;
+  top: 0;
 }
 
 .profileCoverImage {
   width: 100%; 
   height: 100%; 
-  border-radius: 16px 16px 0 0; /* Only round top corners */
-  transition: none; /* Remove zoom transition */
+  border-radius: 16px 16px 0 0;
+  transition: none;
+  object-fit: cover;
+  display: block;
+  /* Ensure no gaps */
+  margin: 0;
+  padding: 0;
 }
 
 .profileCoverImage:hover {
-  transform: none; /* Remove zoom effect */
+  transform: none;
 }
 
 .profileCoverPlaceholder { 
@@ -34,7 +170,10 @@
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  border-radius: 16px 16px 0 0; /* Only round top corners */
+  border-radius: 16px 16px 0 0;
+  /* Ensure no gaps */
+  margin: 0;
+  padding: 0;
 }
 
 .profileInitials { 
@@ -49,9 +188,18 @@
   display: flex !important;
   width: 100% !important;
   margin-bottom: 20px;
-  padding: 0 8px;
+  padding: 0 24px; /* Default padding */
   flex-direction: row;
   align-items: flex-start;
+}
+
+/* Adjust avatar padding for full width headers */
+.fullWidth .avatarContainer {
+  padding: 0 104px; /* Large screens: 80px compensation + 24px original */
+}
+
+.contained .avatarContainer {
+  padding: 0 24px; /* Normal padding for contained headers */
 }
 
 /* Avatar Styles */
@@ -92,8 +240,17 @@
 
 /* Profile Info */
 .profileInfo { 
-  padding: 0 24px;
+  padding: 0 24px; /* Default padding */
   margin-top: 0;
+}
+
+/* Adjust text padding for full width headers */
+.fullWidth .profileInfo {
+  padding: 0 104px; /* Large screens: 80px compensation + 24px original */
+}
+
+.contained .profileInfo {
+  padding: 0 24px; /* Normal padding for contained headers */
 }
 
 .name { 
@@ -119,53 +276,4 @@
   font-size: 15px; 
   line-height: 1.6; 
   max-width: 500px; 
-}
-
-@media (max-width: 600px) {
-  .profileSection {
-    max-width: 100%; /* Use full card width, not viewport */
-    margin: 0 auto;
-  }
-  
-  .profileCoverContainer { 
-    height: 200px; /* Smaller height on mobile */
-    border-radius: 12px 12px 0 0; /* Smaller radius on mobile, top corners only */
-    margin-bottom: 0;
-  }
-  
-  .profileCoverImage, .profileCoverPlaceholder { 
-    border-radius: 12px 12px 0 0; /* Smaller radius on mobile, top corners only */
-  }
-  
-  .profileInitials { 
-    font-size: 32px; 
-  }
-  
-  .profileInfo { 
-    padding: 0 20px;
-    margin-top: 20px;
-  }
-  
-  .name { 
-    font-size: 24px; 
-    margin-bottom: 6px; 
-  }
-  
-  .headline { 
-    font-size: 16px; 
-    margin-bottom: 8px; 
-  }
-  
-  .bio { 
-    font-size: 14px; 
-  }
-  
-  .avatarContainer {
-    margin-bottom: 16px;
-    padding: 0 20px;
-  }
-
-  .avatar, .avatarPlaceholder {
-    border-width: 3px;
-  }
-}
+} 

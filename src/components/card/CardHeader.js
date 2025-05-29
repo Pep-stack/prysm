@@ -21,6 +21,10 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Display type from profile (header or avatar)
   const displayType = profile?.display_type || 'avatar';
 
+  // Context detection for header width behavior
+  const isDashboard = !isPublicView;
+  const shouldUseFullWidth = isDashboard; // Dashboard always full width, public profile responsive
+
   // Avatar settings uit profiel
   const avatarSize = profile?.avatar_size || 'medium';
   const avatarShape = profile?.avatar_shape || 'circle';
@@ -32,9 +36,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Debug logging
   console.log('CardHeader Debug:', {
     displayType,
-    avatarSize,
-    avatarShape,
-    avatarPosition,
+    isDashboard,
+    shouldUseFullWidth,
+    isPublicView,
     header_url: profile?.header_url,
     avatar_url: profile?.avatar_url,
     textColor
@@ -72,7 +76,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   const avatarJustification = getAvatarJustification(avatarPosition);
 
   return (
-    <div className={styles.profileSection}>
+    <div className={`${styles.profileSection} ${shouldUseFullWidth ? styles.fullWidth : styles.contained}`}>
       {/* Header afbeelding (alleen tonen als display_type = 'header') */}
       {displayType === 'header' && (
         <div className={styles.profileCoverContainer}>
@@ -154,7 +158,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
         </div>
       )}
 
-      {/* Profiel informatie */}
+      {/* Profiel informatie - show for both header and avatar mode */}
       <div 
         className={styles.profileInfo}
         style={{ 

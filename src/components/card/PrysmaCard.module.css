@@ -4,23 +4,25 @@
   margin: 0 auto;
   width: 100%;
   position: relative;
-  background: white; /* Add white background for header effect */
+  background: transparent; /* Keep transparent */
   overflow: hidden;
-  border-radius: 16px; /* Add border radius to card */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+  border-radius: 16px; /* Card border radius */
+  /* Ensure no internal spacing affects header */
+  padding: 0;
 }
 
 /* Card body for main sections */
 .cardBody {
-  padding: 0 24px 24px 24px;
+  padding: 24px 24px 24px 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  background: transparent; /* Remove white background */
 }
 
-/* When header is present, remove top padding from first content */
+/* When header is present, remove top padding and top border radius */
 .cardBody.hasHeader {
-  padding-top: 0;
+  padding-top: 24px; /* Keep normal padding */
 }
 
 /* Placeholder when card is empty */
@@ -100,11 +102,12 @@
   }
 
   .cardBody {
-    padding: 0 16px 16px 16px;
+    padding: 16px 16px 16px 16px;
+    background: transparent; /* Keep transparent */
   }
 
   .cardBody.hasHeader {
-    padding-top: 0;
+    padding-top: 16px; /* Smaller padding on mobile */
   }
 
   .contentArea {
