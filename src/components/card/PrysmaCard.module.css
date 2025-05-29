@@ -4,8 +4,10 @@
   margin: 0 auto;
   width: 100%;
   position: relative;
-  background: transparent;
+  background: white; /* Add white background for header effect */
   overflow: hidden;
+  border-radius: 16px; /* Add border radius to card */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
 }
 
 /* Card body for main sections */
@@ -14,6 +16,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+/* When header is present, remove top padding from first content */
+.cardBody.hasHeader {
+  padding-top: 0;
 }
 
 /* Placeholder when card is empty */
@@ -86,24 +93,25 @@
 
 @media (max-width: 600px) {
   .prysmaCard {
-    margin: 0 auto; /* Center the card but allow header to overflow */
-    border-radius: 12px; /* Keep border radius for the card content */
-    max-width: 100%; /* Allow full width */
+    margin: 0 auto;
+    border-radius: 12px; /* Smaller radius on mobile */
+    max-width: 100%;
     width: 100%;
-    overflow: visible; /* Allow header to overflow */
   }
 
   .cardBody {
     padding: 0 16px 16px 16px;
-    max-width: 600px; /* Limit content width for readability */
-    margin: 0 auto; /* Center the content */
+  }
+
+  .cardBody.hasHeader {
+    padding-top: 0;
   }
 
   .contentArea {
     width: 100%;
-    max-width: 600px; /* Limit content width for readability */
+    max-width: 100%;
     padding: 0 16px 16px 16px;
-    margin: 0 auto; /* Center the content */
+    margin: 0 auto;
   }
 
   .placeholder {

@@ -33,6 +33,9 @@ export default function PrysmaCard({
   const { settings } = useDesignSettings();
   const displayUserId = user?.id || profile?.id;
   const profileUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${displayUserId}`;
+  
+  // Check if header is present
+  const hasHeader = profile?.display_type === 'header';
 
   return (
     <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}>
@@ -52,7 +55,7 @@ export default function PrysmaCard({
       />
 
       {/* Main Sections */}
-      <div className={styles.cardBody}>
+      <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
         {cardSections && cardSections.length > 0 && (
           cardSections.map((section) => (
             <CardSectionRenderer

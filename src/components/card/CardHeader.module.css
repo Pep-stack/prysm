@@ -10,7 +10,7 @@
 .profileCoverContainer {
   width: 100%;
   height: 300px;
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0; /* Only round top corners */
   overflow: hidden;
   margin-bottom: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -19,12 +19,12 @@
 .profileCoverImage {
   width: 100%; 
   height: 100%; 
-  border-radius: 16px;
-  transition: transform 0.3s ease;
+  border-radius: 16px 16px 0 0; /* Only round top corners */
+  transition: none; /* Remove zoom transition */
 }
 
 .profileCoverImage:hover {
-  transform: scale(1.02);
+  transform: none; /* Remove zoom effect */
 }
 
 .profileCoverPlaceholder { 
@@ -34,7 +34,7 @@
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  border-radius: 16px; 
+  border-radius: 16px 16px 0 0; /* Only round top corners */
 }
 
 .profileInitials { 
@@ -123,27 +123,18 @@
 
 @media (max-width: 600px) {
   .profileSection {
-    max-width: none;
-    margin: 0;
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    max-width: 100%; /* Use full card width, not viewport */
+    margin: 0 auto;
   }
   
   .profileCoverContainer { 
-    height: 200px; 
-    border-radius: 0;
+    height: 200px; /* Smaller height on mobile */
+    border-radius: 12px 12px 0 0; /* Smaller radius on mobile, top corners only */
     margin-bottom: 0;
-    margin-left: 0;
-    margin-right: 0;
-    width: 100%;
   }
   
   .profileCoverImage, .profileCoverPlaceholder { 
-    border-radius: 0;
+    border-radius: 12px 12px 0 0; /* Smaller radius on mobile, top corners only */
   }
   
   .profileInitials { 
@@ -152,13 +143,7 @@
   
   .profileInfo { 
     padding: 0 20px;
-    max-width: 600px;
-    margin: 20px auto 0 auto;
-    position: relative;
-    left: auto;
-    right: auto;
-    margin-left: auto;
-    margin-right: auto;
+    margin-top: 20px;
   }
   
   .name { 
@@ -178,12 +163,6 @@
   .avatarContainer {
     margin-bottom: 16px;
     padding: 0 20px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    left: auto;
-    right: auto;
   }
 
   .avatar, .avatarPlaceholder {
