@@ -42,16 +42,16 @@
 
 @media (max-width: 767px) {
   .fullWidth {
-    width: calc(100% + 128px); /* Mobile: (24+24+16)*2 = 128px */
-    margin-left: -64px; /* Mobile: -(24+24+16) = -64px */
-    margin-right: -64px;
+    width: 100%; /* Simple full width on mobile, no complex calculations */
+    margin-left: 0; /* Remove negative margin that pushes content right */
+    margin-right: 0; /* Remove negative margin that pushes content right */
   }
   
   /* Public profile on mobile should also be full width */
   .contained {
-    width: calc(100% + 128px);
-    margin-left: -64px;
-    margin-right: -64px;
+    width: 100%; /* Simple full width on mobile */
+    margin-left: 0; /* Remove negative margin */
+    margin-right: 0; /* Remove negative margin */
   }
   
   .profileSection {
@@ -75,22 +75,22 @@
   
   /* Mobile text padding adjustments */
   .fullWidth .profileInfo {
-    padding: 0 40px; /* Mobile dashboard: reduced from 84px to 40px */
+    padding: 0 20px; /* Mobile dashboard: normal mobile padding, no compensation */
     margin-top: 20px;
   }
   
   .contained .profileInfo {
-    padding: 0 40px; /* Mobile public: same as dashboard */
+    padding: 0 20px; /* Mobile public: normal mobile padding */
     margin-top: 20px;
   }
   
   .fullWidth .avatarContainer {
-    padding: 0 40px; /* Mobile dashboard: reduced from 84px to 40px */
+    padding: 0 20px; /* Mobile dashboard: normal mobile padding, no compensation */
     margin-bottom: 16px;
   }
   
   .contained .avatarContainer {
-    padding: 0 40px; /* Mobile public: same as dashboard */
+    padding: 0 20px; /* Mobile public: normal mobile padding */
     margin-bottom: 16px;
   }
 
