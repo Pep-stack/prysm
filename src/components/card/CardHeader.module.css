@@ -23,6 +23,17 @@
   margin: 0;
 }
 
+/* Large screens (1024px and up) - default fullWidth padding */
+@media (min-width: 1024px) {
+  .fullWidth .avatarContainer {
+    padding: 0 104px; /* Large screens: 80px compensation + 24px original */
+  }
+  
+  .fullWidth .profileInfo {
+    padding: 0 104px; /* Large screens: 80px compensation + 24px original */
+  }
+}
+
 /* Responsive adjustments for full width */
 @media (max-width: 1023px) and (min-width: 768px) {
   .fullWidth {
@@ -193,11 +204,6 @@
   align-items: flex-start;
 }
 
-/* Adjust avatar padding for full width headers */
-.fullWidth .avatarContainer {
-  padding: 0 104px; /* Large screens: 80px compensation + 24px original */
-}
-
 .contained .avatarContainer {
   padding: 0 24px; /* Normal padding for contained headers */
 }
@@ -242,11 +248,6 @@
 .profileInfo { 
   padding: 0 24px; /* Default padding */
   margin-top: 0;
-}
-
-/* Adjust text padding for full width headers */
-.fullWidth .profileInfo {
-  padding: 0 104px; /* Large screens: 80px compensation + 24px original */
 }
 
 .contained .profileInfo {
