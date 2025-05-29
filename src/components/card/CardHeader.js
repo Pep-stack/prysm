@@ -26,6 +26,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   const avatarShape = profile?.avatar_shape || 'circle';
   const avatarPosition = profile?.avatar_position || 'left';
 
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
+
   // Debug logging
   console.log('CardHeader Debug:', {
     displayType,
@@ -33,7 +36,8 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
     avatarShape,
     avatarPosition,
     header_url: profile?.header_url,
-    avatar_url: profile?.avatar_url
+    avatar_url: profile?.avatar_url,
+    textColor
   });
 
   // Avatar grootte bepalen
@@ -159,12 +163,12 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
           marginTop: displayType === 'header' ? '20px' : '16px'
         }}
       >
-        <h2 className={styles.name}>{profile?.name || 'Your Name'}</h2>
+        <h2 className={styles.name} style={{ color: textColor }}>{profile?.name || 'Your Name'}</h2>
         {profile?.headline && (
-          <p className={styles.headline}>{profile.headline}</p>
+          <p className={styles.headline} style={{ color: textColor, opacity: 0.8 }}>{profile.headline}</p>
         )}
         {profile?.bio && (
-          <p className={styles.bio}>{profile.bio}</p>
+          <p className={styles.bio} style={{ color: textColor, opacity: 0.7 }}>{profile.bio}</p>
         )}
       </div>
     </div>

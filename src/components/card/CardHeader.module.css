@@ -122,14 +122,28 @@
 }
 
 @media (max-width: 600px) {
+  .profileSection {
+    max-width: none;
+    margin: 0;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+  }
+  
   .profileCoverContainer { 
     height: 200px; 
-    border-radius: 12px; 
-    margin-bottom: 0; 
+    border-radius: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
   }
   
   .profileCoverImage, .profileCoverPlaceholder { 
-    border-radius: 12px; 
+    border-radius: 0;
   }
   
   .profileInitials { 
@@ -137,7 +151,14 @@
   }
   
   .profileInfo { 
-    padding: 0 20px; 
+    padding: 0 20px;
+    max-width: 600px;
+    margin: 20px auto 0 auto;
+    position: relative;
+    left: auto;
+    right: auto;
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .name { 
@@ -156,7 +177,13 @@
   
   .avatarContainer {
     margin-bottom: 16px;
-    padding: 0 4px;
+    padding: 0 20px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    left: auto;
+    right: auto;
   }
 
   .avatar, .avatarPlaceholder {

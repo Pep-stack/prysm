@@ -6,11 +6,9 @@ export const DesignSettingsContext = createContext({ settings: {}, setSettings: 
 
 export function DesignSettingsProvider({ initial, children }) {
   const [settings, setSettings] = useState({
-    avatar_size: initial?.avatar_size || 'medium',
-    avatar_position: initial?.avatar_position || 'left',
-    avatar_shape: initial?.avatar_shape || 'circle',
-    card_color: initial?.card_color || '#ffffff',
     background_color: initial?.background_color || '#f8f9fa',
+    font_family: initial?.font_family || 'Inter, sans-serif',
+    text_color: initial?.text_color || '#000000',
     ...initial
   });
 
@@ -20,7 +18,7 @@ export function DesignSettingsProvider({ initial, children }) {
       if (initial?.id) {
         const { data, error } = await supabase
           .from('profiles')
-          .select('button_color, button_shape, font_family, icon_pack, avatar_size, avatar_position, avatar_shape, card_color, background_color')
+          .select('font_family, background_color, text_color')
           .eq('id', initial.id)
           .single();
 

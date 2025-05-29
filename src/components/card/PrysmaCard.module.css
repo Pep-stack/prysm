@@ -86,18 +86,24 @@
 
 @media (max-width: 600px) {
   .prysmaCard {
-    margin: 0 10px;
-    border-radius: 12px;
+    margin: 0 auto; /* Center the card but allow header to overflow */
+    border-radius: 12px; /* Keep border radius for the card content */
+    max-width: 100%; /* Allow full width */
+    width: 100%;
+    overflow: visible; /* Allow header to overflow */
   }
 
   .cardBody {
     padding: 0 16px 16px 16px;
+    max-width: 600px; /* Limit content width for readability */
+    margin: 0 auto; /* Center the content */
   }
 
   .contentArea {
     width: 100%;
-    max-width: 100%;
+    max-width: 600px; /* Limit content width for readability */
     padding: 0 16px 16px 16px;
+    margin: 0 auto; /* Center the content */
   }
 
   .placeholder {

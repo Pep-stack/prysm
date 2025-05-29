@@ -12,25 +12,18 @@ export default function CalendarSchedulingSectionContent({ profile, styles, desi
   console.log('designSettings in CalendarSchedulingSectionContent:', designSettings);
   const { sectionStyle } = styles || {};
   const {
-    button_color: buttonColor,
-    button_shape: buttonShape,
-    font_family: fontFamily,
-    icon_pack: iconPack
+    font_family: fontFamily
   } = designSettings || {};
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
 
   const buttonStyle = {
-    backgroundColor: buttonColor || '#2196F3',
-    borderRadius: buttonShape === 'rounded-full' ? '9999px' : 
-                 buttonShape === 'rounded-xl' ? '0.75rem' : '0.375rem',
+    backgroundColor: '#00C896', // Default green color
+    borderRadius: '0.75rem', // Fixed rounded corners
     fontFamily: fontFamily || 'Inter, sans-serif',
   };
 
   const renderIcon = () => {
-    if (iconPack === 'emoji') {
-      return '📅';
-    }
     return <FaCalendar className="w-5 h-5" />;
   };
 

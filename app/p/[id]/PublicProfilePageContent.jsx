@@ -20,7 +20,15 @@ export default function PublicProfilePageContent({ profile, cardSections }) {
   );
   
   return (
-    <div className="min-h-screen" style={{ backgroundColor: settings.background_color || '#f8f9fa' }}>
+    <div 
+      className="min-h-screen" 
+      style={{ 
+        ...(settings.background_color?.includes('linear-gradient')
+          ? { backgroundImage: settings.background_color || 'linear-gradient(135deg, #f8f9fa 0%, #f8f9fa 100%)' }
+          : { backgroundColor: settings.background_color || '#f8f9fa' }
+        )
+      }}
+    >
       <div className="max-w-3xl mx-auto px-4 py-6">
         <PrysmaCard 
           profile={profile} 

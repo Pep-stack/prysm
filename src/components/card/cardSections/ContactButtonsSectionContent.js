@@ -11,7 +11,7 @@ export default function ContactButtonsSectionContent({ profile, user, styles, de
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   
   const {
-    buttonColor = designSettings?.buttonColor || '#00C48C',
+    buttonColor = '#00C896', // Default green color
     buttonShape = designSettings?.buttonShape || 'rounded-full',
     fontFamily = designSettings?.fontFamily || 'Inter, sans-serif',
     iconPack = designSettings?.iconPack || 'lucide'

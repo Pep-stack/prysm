@@ -32,22 +32,8 @@ import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../components/dashboard/DesignToolbar';
 import { DesignSettingsProvider, useDesignSettings } from '../../components/dashboard/DesignSettingsContext';
 
-const FONT_OPTIONS = [
-  { label: 'Inter', value: 'Inter, sans-serif' },
-  { label: 'Poppins', value: 'Poppins, sans-serif' },
-  { label: 'Roboto', value: 'Roboto, sans-serif' },
-  { label: 'DM Sans', value: 'DM Sans, sans-serif' },
-];
-const ICON_PACKS = [
-  { label: 'Lucide', value: 'lucide' },
-  { label: 'FontAwesome', value: 'fa' },
-  { label: 'Material', value: 'material' },
-];
-const BUTTON_SHAPES = [
-  { label: 'Rounded', value: 'rounded-full' },
-  { label: 'Pill', value: 'rounded-xl' },
-  { label: 'Square', value: 'rounded-md' },
-];
+
+
 
 export default function DashboardPageContent() {
   const { user, loading: sessionLoading } = useSession();
@@ -61,7 +47,7 @@ export default function DashboardPageContent() {
     updatingLayout,
     layoutError,
     languagesError,
-    updateProfile: handleProfileUpdate,
+    handleProfileUpdate,
   } = useUserProfile(user);
 
   // Use the new social bar hook
@@ -79,11 +65,7 @@ export default function DashboardPageContent() {
   const [hasInitializedSections, setHasInitializedSections] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  // Design state
-  const [buttonColor, setButtonColor] = useState('#00C48C');
-  const [buttonShape, setButtonShape] = useState('rounded-full');
-  const [fontFamily, setFontFamily] = useState('Inter, sans-serif');
-  const [iconPack, setIconPack] = useState('lucide');
+  // Design state (now handled by DesignToolbar)
   const [savingAppearance, setSavingAppearance] = useState(false);
   const [appearanceSaved, setAppearanceSaved] = useState(false);
 
@@ -91,14 +73,7 @@ export default function DashboardPageContent() {
     console.log('Avatar updated:', newAvatarUrl);
   };
 
-  useEffect(() => {
-    if (profile) {
-      setButtonColor(profile.button_color || '#00C48C');
-      setButtonShape(profile.button_shape || 'rounded-full');
-      setFontFamily(profile.font_family || 'Inter, sans-serif');
-      setIconPack(profile.icon_pack || 'lucide');
-    }
-  }, [profile]);
+
 
   const {
     isModalOpen: isEditModalOpen,
@@ -131,18 +106,7 @@ export default function DashboardPageContent() {
     }
   }, [sessionLoading, user, router]);
 
-  async function handleSaveAppearance() {
-    setSavingAppearance(true);
-    setAppearanceSaved(false);
-    const { error } = await supabase.from('profiles').update({
-      button_color: buttonColor,
-      button_shape: buttonShape,
-      font_family: fontFamily,
-      icon_pack: iconPack,
-    }).eq('id', user.id);
-    setSavingAppearance(false);
-    setAppearanceSaved(!error);
-  }
+
 
   if (sessionLoading || profileLoading) {
     return <div>Loading Dashboard Content...</div>;
@@ -276,7 +240,17 @@ export default function DashboardPageContent() {
 function DashboardMainWithBg({ profile, user, cardSections, socialBarSections }) {
   const { settings } = useDesignSettings();
   return (
-    <main className="flex-1 flex justify-center items-start" style={{ backgroundColor: settings.background_color || '#f8f9fa', minHeight: '100vh', borderRadius: '15px' }}>
+    <main 
+      className="flex-1 flex justify-center items-start" 
+      style={{ 
+        ...(settings.background_color?.includes('linear-gradient')
+          ? { backgroundImage: settings.background_color || 'linear-gradient(135deg, #f8f9fa 0%, #f8f9fa 100%)' }
+          : { backgroundColor: settings.background_color || '#f8f9fa' }
+        ),
+        minHeight: '100vh', 
+        borderRadius: '15px' 
+      }}
+    >
       <div className="w-full max-w-3xl px-4 py-6">
         <PrysmaCard
           profile={profile}

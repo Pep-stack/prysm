@@ -11,6 +11,9 @@ export default function SocialBar({ sections = [], profile, user }) {
     return null;
   }
 
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
+
   return (
     <div className="w-full px-4 py-3 mb-4 rounded-lg">
       <div className="flex flex-wrap items-center justify-center gap-3">
@@ -34,7 +37,7 @@ export default function SocialBar({ sections = [], profile, user }) {
               boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
               transition: 'all 0.2s ease',
               textDecoration: 'none',
-              color: 'inherit',
+              color: textColor,
               minWidth: '48px',
               minHeight: '48px',
               position: 'relative',

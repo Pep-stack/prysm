@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../src/lib/supabase';
-import { FaRegStar, FaFont, FaRegSave, FaTimes, FaStar } from 'react-icons/fa';
-import { MdStarBorder, MdSettings } from 'react-icons/md';
-import { BsCircle, BsCapsule, BsSquare } from 'react-icons/bs';
+import { FaFont, FaTimes } from 'react-icons/fa';
+import { MdSettings } from 'react-icons/md';
 import { useDesignSettings } from './DesignSettingsContext';
 
 const FONT_OPTIONS = [
@@ -11,63 +10,63 @@ const FONT_OPTIONS = [
   { label: 'Roboto', value: 'Roboto, sans-serif' },
   { label: 'DM Sans', value: 'DM Sans, sans-serif' },
 ];
-const ICON_PACKS = [
-  { label: 'Icon', value: 'lucide', icon: <FaStar size={18} /> },
-  { label: 'Emoji', value: 'emoji', icon: <span style={{ fontSize: 20, lineHeight: 1 }}>⭐️</span> },
+
+const TEXT_COLOR_OPTIONS = [
+  { label: 'Black', value: '#000000', name: 'Zwart' },
+  { label: 'Gray', value: '#6b7280', name: 'Grijs' },
+  { label: 'White', value: '#ffffff', name: 'Wit' }
 ];
-const BUTTON_SHAPES = [
-  { label: 'Rounded', value: 'rounded-full', icon: <BsCircle size={20} /> },
-  { label: 'Pill', value: 'rounded-xl', icon: <BsCapsule size={28} /> },
-  { label: 'Square', value: 'rounded-md', icon: <BsSquare size={20} /> },
-];
-const COLOR_PALETTE = [
-  '#00C48C', '#F87171', '#FBBF24', '#60A5FA', '#A78BFA', '#F472B6', '#374151', '#F3F4F6'
+
+const BACKGROUND_COLOR_OPTIONS = [
+  { label: 'Pure White', value: '#ffffff', name: 'Zuiver Wit' },
+  { label: 'Light Gray', value: '#f8f9fa', name: 'Licht Grijs' },
+  { label: 'Soft Cream', value: '#fafaf9', name: 'Zachte Crème' },
+  { label: 'Mint Fresh', value: '#f0fdfa', name: 'Mint Fris' },
+  { label: 'Light Blue', value: '#f0f9ff', name: 'Licht Blauw' },
+  { label: 'Warm Gradient', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', name: 'Warme Gradient', isGradient: true },
+  { label: 'Ocean Gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', name: 'Oceaan Gradient', isGradient: true },
+  { label: 'Mint Gradient', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', name: 'Mint Gradient', isGradient: true },
+  { label: 'Professional Dark', value: '#1f2937', name: 'Professioneel Donker' },
+  { label: 'Sunset Gradient', value: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', name: 'Zonsondergang Gradient', isGradient: true },
+  { label: 'Dark Ocean', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)', name: 'Donkere Oceaan', isGradient: true },
+  { label: 'Midnight Purple', value: 'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)', name: 'Middernacht Paars', isGradient: true },
+  { label: 'Dark Emerald', value: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', name: 'Donkere Smaragd', isGradient: true },
+  { label: 'Charcoal Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Houtskool Lei', isGradient: true },
+  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Donker Koninklijk', isGradient: true }
 ];
 
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const { settings, setSettings } = useDesignSettings();
-  const [buttonColor, setButtonColor] = useState(initial?.button_color || '#00C48C');
-  const [buttonShape, setButtonShape] = useState(initial?.button_shape || 'rounded-full');
   const [fontFamily, setFontFamily] = useState(initial?.font_family || 'Inter, sans-serif');
-  const [iconPack, setIconPack] = useState(initial?.icon_pack || 'lucide');
-  const [avatarSize, setAvatarSize] = useState(initial?.avatar_size || 'medium');
-  const [avatarPosition, setAvatarPosition] = useState(initial?.avatar_position || 'left');
-  const [avatarShape, setAvatarShape] = useState(initial?.avatar_shape || 'circle');
-  const [cardColor, setCardColor] = useState(initial?.card_color || '#ffffff');
+  const [textColor, setTextColor] = useState(initial?.text_color || '#000000');
   const [backgroundColor, setBackgroundColor] = useState(initial?.background_color || '#f8f9fa');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
-  const [showIconDropdown, setShowIconDropdown] = useState(false);
-  const [showColorPalette, setShowColorPalette] = useState(false);
+  const [showTextColorDropdown, setShowTextColorDropdown] = useState(false);
+  const [showBackgroundColorDropdown, setShowBackgroundColorDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
-  const iconDropdownRef = useRef(null);
-  const colorPaletteRef = useRef(null);
+  const textColorDropdownRef = useRef(null);
+  const backgroundColorDropdownRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (showMenu && menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false);
       if (showFontDropdown && fontDropdownRef.current && !fontDropdownRef.current.contains(e.target)) setShowFontDropdown(false);
-      if (showIconDropdown && iconDropdownRef.current && !iconDropdownRef.current.contains(e.target)) setShowIconDropdown(false);
-      if (showColorPalette && colorPaletteRef.current && !colorPaletteRef.current.contains(e.target) && e.target.id !== 'color-palette-btn') setShowColorPalette(false);
+      if (showTextColorDropdown && textColorDropdownRef.current && !textColorDropdownRef.current.contains(e.target)) setShowTextColorDropdown(false);
+      if (showBackgroundColorDropdown && backgroundColorDropdownRef.current && !backgroundColorDropdownRef.current.contains(e.target)) setShowBackgroundColorDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showIconDropdown, showColorPalette]);
+  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown]);
 
   // Synchroniseer lokale state met initial prop als deze verandert
   useEffect(() => {
-    setButtonColor(initial?.button_color || '#00C48C');
-    setButtonShape(initial?.button_shape || 'rounded-full');
     setFontFamily(initial?.font_family || 'Inter, sans-serif');
-    setIconPack(initial?.icon_pack || 'lucide');
-    setAvatarSize(initial?.avatar_size || 'medium');
-    setAvatarPosition(initial?.avatar_position || 'left');
-    setAvatarShape(initial?.avatar_shape || 'circle');
-    setCardColor(initial?.card_color || '#ffffff');
+    setTextColor(initial?.text_color || '#000000');
     setBackgroundColor(initial?.background_color || '#f8f9fa');
   }, [initial]);
 
@@ -76,14 +75,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setError(null);
     
     const payload = {
-      button_color: buttonColor,
-      button_shape: buttonShape,
       font_family: fontFamily,
-      icon_pack: iconPack,
-      avatar_size: avatarSize,
-      avatar_position: avatarPosition,
-      avatar_shape: avatarShape,
-      card_color: cardColor,
+      text_color: textColor,
       background_color: backgroundColor
     };
 
@@ -152,27 +145,22 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     }
   };
 
-  const handleColorSelect = (color) => {
-    setSettings(prev => ({ ...prev, buttonColor: color }));
-    setButtonColor(color);
-    setShowColorPalette(false);
-  };
-
-  const handleShapeSelect = (shape) => {
-    setSettings(prev => ({ ...prev, buttonShape: shape }));
-    setButtonShape(shape);
-  };
-
   const handleFontSelect = (font) => {
-    setSettings(prev => ({ ...prev, fontFamily: font }));
+    setSettings(prev => ({ ...prev, font_family: font }));
     setFontFamily(font);
     setShowFontDropdown(false);
   };
 
-  const handleIconSelect = (iconPack) => {
-    setSettings(prev => ({ ...prev, iconPack: iconPack }));
-    setIconPack(iconPack);
-    setShowIconDropdown(false);
+  const handleTextColorSelect = (color) => {
+    setSettings(prev => ({ ...prev, text_color: color }));
+    setTextColor(color);
+    setShowTextColorDropdown(false);
+  };
+
+  const handleBackgroundColorSelect = (color) => {
+    setSettings(prev => ({ ...prev, background_color: color }));
+    setBackgroundColor(color);
+    setShowBackgroundColorDropdown(false);
   };
 
   return (
@@ -207,25 +195,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
             >
               <FaTimes size={18} />
             </button>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Button Shape</span>
-              <div className="flex gap-2">
-                {BUTTON_SHAPES.map(({ value, icon }) => (
-                  <label key={value} className={`w-9 h-9 flex items-center justify-center cursor-pointer border ${buttonShape === value ? 'bg-emerald-100 border-emerald-400' : 'bg-white border-gray-200'} rounded-full shadow-sm hover:ring-2 hover:ring-emerald-200 transition`}>
-                    <input
-                      type="radio"
-                      name="shape"
-                      value={value}
-                      checked={buttonShape === value}
-                      onChange={() => handleShapeSelect(value)}
-                      className="hidden"
-                      aria-label={value}
-                    />
-                    {icon}
-                  </label>
-                ))}
-              </div>
-            </div>
+            
+            {/* Font Family */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-semibold text-gray-500 mb-1">Font Family</span>
               <div className="relative" ref={fontDropdownRef}>
@@ -256,119 +227,84 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                 )}
               </div>
             </div>
+
+            {/* Text Color */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Button Color</span>
-              <div className="relative">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Text Color</span>
+              <div className="relative" ref={textColorDropdownRef}>
                 <button
-                  id="color-palette-btn"
-                  aria-label="Button Color"
+                  aria-label="Text Color"
                   className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
-                  style={{ backgroundColor: buttonColor }}
-                  onClick={() => setShowColorPalette(v => !v)}
+                  style={{ backgroundColor: textColor }}
+                  onClick={() => setShowTextColorDropdown(!showTextColorDropdown)}
                   type="button"
                 />
-                {showColorPalette && (
-                  <div ref={colorPaletteRef} className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-2 flex gap-2 z-30 flex-col items-center min-w-[180px]">
+                {showTextColorDropdown && (
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-2 flex gap-2 z-30 flex-col items-center min-w-[180px]">
                     <div className="flex gap-2 mb-2">
-                      {COLOR_PALETTE.map(color => (
+                      {TEXT_COLOR_OPTIONS.map(opt => (
                         <button
-                          key={color}
+                          key={opt.value}
                           className="w-6 h-6 rounded-full border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition"
-                          style={{ backgroundColor: color }}
-                          onClick={() => handleColorSelect(color)}
-                          aria-label={color}
+                          style={{ backgroundColor: opt.value, border: opt.value === '#ffffff' ? '2px solid #e5e7eb' : '1px solid #d1d5db' }}
+                          onClick={() => handleTextColorSelect(opt.value)}
+                          aria-label={opt.name}
+                          title={opt.name}
                         />
                       ))}
                     </div>
-                    <input
-                      type="color"
-                      value={buttonColor}
-                      onChange={e => { setButtonColor(e.target.value); setShowColorPalette(false); }}
-                      className="w-8 h-8 border-none bg-transparent cursor-pointer"
-                      aria-label="Custom color"
-                    />
                   </div>
                 )}
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Icon Style</span>
-              <div className="relative" ref={iconDropdownRef}>
-                <button
-                  aria-label="Icon Style"
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
-                  onClick={() => setShowIconDropdown(!showIconDropdown)}
-                  type="button"
-                >
-                  {ICON_PACKS.find(opt => opt.value === iconPack)?.icon}
-                </button>
-                {showIconDropdown && (
-                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[120px] z-30">
-                    {ICON_PACKS.map(opt => (
-                      <button
-                        key={opt.value}
-                        className={`flex gap-2 items-center w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${iconPack === opt.value ? 'bg-emerald-100' : ''}`}
-                        onClick={() => handleIconSelect(opt.value)}
-                        type="button"
-                        aria-label={opt.label}
-                      >
-                        {opt.icon} {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Size</span>
-              <select value={avatarSize} onChange={e => setAvatarSize(e.target.value)} className="rounded border px-2 py-1 text-sm">
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Position</span>
-              <select value={avatarPosition} onChange={e => setAvatarPosition(e.target.value)} className="rounded border px-2 py-1 text-sm">
-                <option value="left">Left</option>
-                <option value="center">Center</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Avatar Shape</span>
-              <select value={avatarShape} onChange={e => setAvatarShape(e.target.value)} className="rounded border px-2 py-1 text-sm">
-                <option value="circle">Circle</option>
-                <option value="rounded">Rounded</option>
-                <option value="square">Square</option>
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Card Color</span>
-              <input
-                type="color"
-                value={cardColor}
-                onChange={e => setCardColor(e.target.value)}
-                className="w-8 h-8 border-none bg-transparent cursor-pointer"
-                aria-label="Card color"
-              />
-            </div>
+
+            {/* Background Color */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-semibold text-gray-500 mb-1">Background Color</span>
-              <input
-                type="color"
-                value={backgroundColor}
-                onChange={e => setBackgroundColor(e.target.value)}
-                className="w-8 h-8 border-none bg-transparent cursor-pointer"
-                aria-label="Background color"
-              />
+              <div className="relative" ref={backgroundColorDropdownRef}>
+                <button
+                  aria-label="Background Color"
+                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
+                  style={{ 
+                    ...(backgroundColor.includes('linear-gradient') 
+                      ? { backgroundImage: backgroundColor }
+                      : { backgroundColor: backgroundColor }
+                    )
+                  }}
+                  onClick={() => setShowBackgroundColorDropdown(!showBackgroundColorDropdown)}
+                  type="button"
+                />
+                {showBackgroundColorDropdown && (
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-3 z-30 flex-col items-center min-w-[240px]">
+                    <div className="grid grid-cols-5 gap-2 mb-2">
+                      {BACKGROUND_COLOR_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value}
+                          className="w-8 h-8 rounded-lg border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition relative overflow-hidden"
+                          style={{ 
+                            ...(opt.isGradient 
+                              ? { backgroundImage: opt.value }
+                              : { backgroundColor: opt.value }
+                            ),
+                            border: opt.value === '#ffffff' || opt.value === '#fafaf9' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
+                          }}
+                          onClick={() => handleBackgroundColorSelect(opt.value)}
+                          aria-label={opt.name}
+                          title={opt.name}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
+
+            {/* Save Button */}
             <button
               aria-label="Save Appearance"
               onClick={handleSave}
               disabled={saving}
               className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-2 text-base font-semibold"
-              style={{ backgroundColor: buttonColor }}
               type="button"
             >
               {saving ? 'Saving...' : 'Save'}

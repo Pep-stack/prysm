@@ -110,10 +110,45 @@ export default function CardSectionRenderer({
   const Component = sectionComponentMap[section.type];
   if (!Component) return null;
 
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
+
+  // Create default styles with text color applied
+  const defaultSectionStyle = {
+    color: textColor,
+    fontFamily: settings.font_family || 'Inter, sans-serif',
+    padding: '16px',
+    borderRadius: '8px',
+    backgroundColor: 'white',
+    border: '1px solid #e5e7eb',
+    marginBottom: '16px',
+    ...sectionStyle
+  };
+
+  const defaultSectionTitleStyle = {
+    color: textColor,
+    fontSize: '18px',
+    fontWeight: '600',
+    marginBottom: '8px',
+    ...sectionTitleStyle
+  };
+
+  const defaultPlaceholderStyle = {
+    color: textColor,
+    opacity: 0.6,
+    fontStyle: 'italic',
+    ...placeholderStyle
+  };
+
   const sectionProps = { 
     profile, 
     user, 
-    styles: { sectionStyle, sectionTitleStyle, placeholderStyle, tagStyle }, 
+    styles: { 
+      sectionStyle: defaultSectionStyle, 
+      sectionTitleStyle: defaultSectionTitleStyle, 
+      placeholderStyle: defaultPlaceholderStyle, 
+      tagStyle 
+    }, 
     designSettings: settings 
   };
 
