@@ -22,8 +22,63 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   avatar_position TEXT DEFAULT 'left',
   avatar_shape TEXT DEFAULT 'circle',
   card_color TEXT DEFAULT '#ffffff',
-  background_color TEXT DEFAULT '#f8f9fa'
+  background_color TEXT DEFAULT '#f8f9fa',
+  text_color TEXT DEFAULT '#000000',
+  icon_size TEXT DEFAULT '24px',
+  icon_color TEXT DEFAULT 'auto',
+  -- Social media columns
+  linkedin TEXT,
+  x_profile TEXT,
+  instagram TEXT,
+  facebook TEXT,
+  youtube_channel TEXT,
+  tiktok TEXT,
+  github_gitlab TEXT,
+  dribbble_behance TEXT,
+  stackoverflow TEXT,
+  -- Additional profile columns  
+  card_sections JSONB DEFAULT '[]'::jsonb,
+  languages TEXT,
+  contact TEXT,
+  experience TEXT,
+  education TEXT,
+  certifications TEXT,
+  projects TEXT,
+  publications TEXT,
+  events TEXT,
+  awards TEXT,
+  testimonials TEXT,
+  services TEXT
 );
+
+-- Add the new columns if they don't exist (for existing tables)
+ALTER TABLE public.profiles 
+ADD COLUMN IF NOT EXISTS text_color TEXT DEFAULT '#000000',
+ADD COLUMN IF NOT EXISTS icon_size TEXT DEFAULT '24px',
+ADD COLUMN IF NOT EXISTS icon_color TEXT DEFAULT 'auto',
+-- Social media columns
+ADD COLUMN IF NOT EXISTS linkedin TEXT,
+ADD COLUMN IF NOT EXISTS x_profile TEXT,
+ADD COLUMN IF NOT EXISTS instagram TEXT,
+ADD COLUMN IF NOT EXISTS facebook TEXT,
+ADD COLUMN IF NOT EXISTS youtube_channel TEXT,
+ADD COLUMN IF NOT EXISTS tiktok TEXT,
+ADD COLUMN IF NOT EXISTS github_gitlab TEXT,
+ADD COLUMN IF NOT EXISTS dribbble_behance TEXT,
+ADD COLUMN IF NOT EXISTS stackoverflow TEXT,
+-- Additional profile columns
+ADD COLUMN IF NOT EXISTS card_sections JSONB DEFAULT '[]'::jsonb,
+ADD COLUMN IF NOT EXISTS languages TEXT,
+ADD COLUMN IF NOT EXISTS contact TEXT,
+ADD COLUMN IF NOT EXISTS experience TEXT,
+ADD COLUMN IF NOT EXISTS education TEXT,
+ADD COLUMN IF NOT EXISTS certifications TEXT,
+ADD COLUMN IF NOT EXISTS projects TEXT,
+ADD COLUMN IF NOT EXISTS publications TEXT,
+ADD COLUMN IF NOT EXISTS events TEXT,
+ADD COLUMN IF NOT EXISTS awards TEXT,
+ADD COLUMN IF NOT EXISTS testimonials TEXT,
+ADD COLUMN IF NOT EXISTS services TEXT;
 
 -- Set up Row Level Security (RLS)
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
@@ -65,6 +120,9 @@ BEGIN
     button_shape,
     font_family,
     icon_pack,
+    text_color,
+    icon_size,
+    icon_color,
     updated_at
   )
   VALUES (
@@ -75,6 +133,9 @@ BEGIN
     'rounded-full',
     'Inter, sans-serif',
     'lucide',
+    '#000000',
+    '24px',
+    'auto',
     NOW()
   );
   RETURN NEW;

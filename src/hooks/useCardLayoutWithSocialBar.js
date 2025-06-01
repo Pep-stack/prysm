@@ -8,7 +8,8 @@ import { getDefaultSectionProps } from '../lib/sectionOptions';
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
   'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
-  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons'
+  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
+  'email', 'whatsapp'
 ];
 
 // Helper function to create proper default sections

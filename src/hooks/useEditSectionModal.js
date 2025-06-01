@@ -13,7 +13,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const openModal = useCallback((section) => {
     if (!initialProfileData) return; // Need initial data to populate
     setEditingSection(section);
-    setInputValue(initialProfileData[section.id] || ''); 
+    // Use section.type instead of section.id for database column lookup
+    setInputValue(initialProfileData[section.type] || ''); 
     setIsModalOpen(true);
     setError(null); // Clear previous errors
   }, [initialProfileData]);
@@ -28,10 +29,12 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const handleSave = useCallback(async () => {
     if (!editingSection || !user) return;
     
-    const sectionId = editingSection.id;
+    // Use section.type as the database column name instead of section.id
+    const sectionType = editingSection.type;
+    
     // Process value BEFORE sending to Supabase
     let valueToSave = inputValue;
-    if (sectionId === 'languages' && Array.isArray(inputValue)) {
+    if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
     }
     
@@ -40,7 +43,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     try {
        const { data, error: updateError } = await supabase
         .from('profiles')
-        .update({ [sectionId]: valueToSave, updated_at: new Date().toISOString() }) // Use processed value
+        .update({ [sectionType]: valueToSave, updated_at: new Date().toISOString() }) // Use sectionType as column name
         .eq('id', user.id)
         .select() // Select the updated row
         .single(); 
@@ -55,8 +58,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // so the parent state (and LanguageSelector) gets the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionId === 'languages') {
-            updatedProfileData[sectionId] = inputValue; // Restore the array format for local state
+         if (sectionType === 'languages') {
+            updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
          }
          onProfileUpdate(updatedProfileData); 
       }

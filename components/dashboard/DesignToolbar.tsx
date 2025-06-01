@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../src/lib/supabase';
 import { FaFont, FaTimes } from 'react-icons/fa';
-import { MdSettings } from 'react-icons/md';
+import { MdSettings, MdViewModule } from 'react-icons/md';
 import { useDesignSettings } from './DesignSettingsContext';
 
 const FONT_OPTIONS = [
@@ -12,27 +12,41 @@ const FONT_OPTIONS = [
 ];
 
 const TEXT_COLOR_OPTIONS = [
-  { label: 'Black', value: '#000000', name: 'Zwart' },
-  { label: 'Gray', value: '#6b7280', name: 'Grijs' },
-  { label: 'White', value: '#ffffff', name: 'Wit' }
+  { label: 'Black', value: '#000000', name: 'Black' },
+  { label: 'Gray', value: '#6b7280', name: 'Gray' },
+  { label: 'White', value: '#ffffff', name: 'White' }
+];
+
+const ICON_SIZE_OPTIONS = [
+  { label: 'Medium', value: '24px', name: 'Medium' },
+  { label: 'Large', value: '28px', name: 'Large' },
+  { label: 'X-Large', value: '32px', name: 'X-Large' },
+  { label: 'XX-Large', value: '36px', name: 'XX-Large' }
+];
+
+const ICON_COLOR_OPTIONS = [
+  { label: 'Auto', value: 'auto', name: 'Auto' },
+  { label: 'Black', value: 'black', name: 'Black' },
+  { label: 'White', value: 'white', name: 'White' },
+  { label: 'Gray', value: '#6b7280', name: 'Gray' }
 ];
 
 const BACKGROUND_COLOR_OPTIONS = [
-  { label: 'Pure White', value: '#ffffff', name: 'Zuiver Wit' },
-  { label: 'Light Gray', value: '#f8f9fa', name: 'Licht Grijs' },
-  { label: 'Soft Cream', value: '#fafaf9', name: 'Zachte Crème' },
-  { label: 'Mint Fresh', value: '#f0fdfa', name: 'Mint Fris' },
-  { label: 'Light Blue', value: '#f0f9ff', name: 'Licht Blauw' },
-  { label: 'Warm Gradient', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', name: 'Warme Gradient', isGradient: true },
-  { label: 'Ocean Gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', name: 'Oceaan Gradient', isGradient: true },
+  { label: 'Pure White', value: '#ffffff', name: 'Pure White' },
+  { label: 'Light Gray', value: '#f8f9fa', name: 'Light Gray' },
+  { label: 'Soft Cream', value: '#fafaf9', name: 'Soft Cream' },
+  { label: 'Mint Fresh', value: '#f0fdfa', name: 'Mint Fresh' },
+  { label: 'Light Blue', value: '#f0f9ff', name: 'Light Blue' },
+  { label: 'Warm Gradient', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', name: 'Warm Gradient', isGradient: true },
+  { label: 'Ocean Gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', name: 'Ocean Gradient', isGradient: true },
   { label: 'Mint Gradient', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', name: 'Mint Gradient', isGradient: true },
-  { label: 'Professional Dark', value: '#1f2937', name: 'Professioneel Donker' },
-  { label: 'Sunset Gradient', value: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', name: 'Zonsondergang Gradient', isGradient: true },
-  { label: 'Dark Ocean', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)', name: 'Donkere Oceaan', isGradient: true },
-  { label: 'Midnight Purple', value: 'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)', name: 'Middernacht Paars', isGradient: true },
-  { label: 'Dark Emerald', value: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', name: 'Donkere Smaragd', isGradient: true },
-  { label: 'Charcoal Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Houtskool Lei', isGradient: true },
-  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Donker Koninklijk', isGradient: true }
+  { label: 'Professional Dark', value: '#1f2937', name: 'Professional Dark' },
+  { label: 'Sunset Gradient', value: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', name: 'Sunset Gradient', isGradient: true },
+  { label: 'Dark Ocean', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)', name: 'Dark Ocean', isGradient: true },
+  { label: 'Midnight Purple', value: 'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)', name: 'Midnight Purple', isGradient: true },
+  { label: 'Dark Emerald', value: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', name: 'Dark Emerald', isGradient: true },
+  { label: 'Charcoal Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Charcoal Slate', isGradient: true },
+  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Dark Royal', isGradient: true }
 ];
 
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
@@ -40,6 +54,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [fontFamily, setFontFamily] = useState(initial?.font_family || 'Inter, sans-serif');
   const [textColor, setTextColor] = useState(initial?.text_color || '#000000');
   const [backgroundColor, setBackgroundColor] = useState(initial?.background_color || '#f8f9fa');
+  const [iconSize, setIconSize] = useState(initial?.icon_size || '24px');
+  const [iconColor, setIconColor] = useState(initial?.icon_color || 'auto');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -47,9 +63,13 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showTextColorDropdown, setShowTextColorDropdown] = useState(false);
   const [showBackgroundColorDropdown, setShowBackgroundColorDropdown] = useState(false);
+  const [showIconSizeDropdown, setShowIconSizeDropdown] = useState(false);
+  const [showIconColorDropdown, setShowIconColorDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
   const textColorDropdownRef = useRef(null);
   const backgroundColorDropdownRef = useRef(null);
+  const iconSizeDropdownRef = useRef(null);
+  const iconColorDropdownRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -58,16 +78,20 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       if (showFontDropdown && fontDropdownRef.current && !fontDropdownRef.current.contains(e.target)) setShowFontDropdown(false);
       if (showTextColorDropdown && textColorDropdownRef.current && !textColorDropdownRef.current.contains(e.target)) setShowTextColorDropdown(false);
       if (showBackgroundColorDropdown && backgroundColorDropdownRef.current && !backgroundColorDropdownRef.current.contains(e.target)) setShowBackgroundColorDropdown(false);
+      if (showIconSizeDropdown && iconSizeDropdownRef.current && !iconSizeDropdownRef.current.contains(e.target)) setShowIconSizeDropdown(false);
+      if (showIconColorDropdown && iconColorDropdownRef.current && !iconColorDropdownRef.current.contains(e.target)) setShowIconColorDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown]);
+  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconSizeDropdown, showIconColorDropdown]);
 
   // Synchroniseer lokale state met initial prop als deze verandert
   useEffect(() => {
     setFontFamily(initial?.font_family || 'Inter, sans-serif');
     setTextColor(initial?.text_color || '#000000');
     setBackgroundColor(initial?.background_color || '#f8f9fa');
+    setIconSize(initial?.icon_size || '24px');
+    setIconColor(initial?.icon_color || 'auto');
   }, [initial]);
 
   const handleSave = async () => {
@@ -77,7 +101,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     const payload = {
       font_family: fontFamily,
       text_color: textColor,
-      background_color: backgroundColor
+      background_color: backgroundColor,
+      icon_size: iconSize,
+      icon_color: iconColor
     };
 
     console.log('Attempting to save settings:', {
@@ -161,6 +187,18 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setSettings(prev => ({ ...prev, background_color: color }));
     setBackgroundColor(color);
     setShowBackgroundColorDropdown(false);
+  };
+
+  const handleIconSizeSelect = (size) => {
+    setSettings(prev => ({ ...prev, icon_size: size }));
+    setIconSize(size);
+    setShowIconSizeDropdown(false);
+  };
+
+  const handleIconColorSelect = (color) => {
+    setSettings(prev => ({ ...prev, icon_color: color }));
+    setIconColor(color);
+    setShowIconColorDropdown(false);
   };
 
   return (
@@ -258,17 +296,84 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               </div>
             </div>
 
+            {/* Icon Size */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Icon Size</span>
+              <div className="relative" ref={iconSizeDropdownRef}>
+                <button
+                  aria-label="Icon Size"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
+                  onClick={() => setShowIconSizeDropdown(!showIconSizeDropdown)}
+                  type="button"
+                >
+                  <MdViewModule size={18} />
+                </button>
+                {showIconSizeDropdown && (
+                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[120px] z-30">
+                    {ICON_SIZE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${iconSize === opt.value ? 'bg-emerald-100' : ''}`}
+                        onClick={() => handleIconSizeSelect(opt.value)}
+                        type="button"
+                        aria-label={opt.name}
+                      >
+                        {opt.name} ({opt.value})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Icon Color */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Icon Color</span>
+              <div className="relative" ref={iconColorDropdownRef}>
+                <button
+                  aria-label="Icon Color"
+                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
+                  style={{ backgroundColor: iconColor === 'auto' ? '#e5e7eb' : iconColor }}
+                  onClick={() => setShowIconColorDropdown(!showIconColorDropdown)}
+                  type="button"
+                >
+                  {iconColor === 'auto' && <span className="text-xs font-bold">A</span>}
+                </button>
+                {showIconColorDropdown && (
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-2 flex gap-2 z-30 flex-col items-center min-w-[180px]">
+                    <div className="flex gap-2 mb-2">
+                      {ICON_COLOR_OPTIONS.map(opt => (
+                        <button
+                          key={opt.value}
+                          className="w-6 h-6 rounded-full border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition flex items-center justify-center"
+                          style={{ 
+                            backgroundColor: opt.value === 'auto' ? '#e5e7eb' : opt.value,
+                            border: opt.value === 'white' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
+                          }}
+                          onClick={() => handleIconColorSelect(opt.value)}
+                          aria-label={opt.name}
+                          title={opt.name}
+                        >
+                          {opt.value === 'auto' && <span className="text-xs font-bold">A</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Background Color */}
             <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Background Color</span>
+              <span className="text-xs font-semibold text-gray-500 mb-1">Background</span>
               <div className="relative" ref={backgroundColorDropdownRef}>
                 <button
                   aria-label="Background Color"
-                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
+                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm relative hover:ring-2 hover:ring-emerald-200 transition overflow-hidden"
                   style={{ 
-                    ...(backgroundColor.includes('linear-gradient') 
+                    ...(backgroundColor?.includes('linear-gradient')
                       ? { backgroundImage: backgroundColor }
-                      : { backgroundColor: backgroundColor }
+                      : { backgroundColor }
                     )
                   }}
                   onClick={() => setShowBackgroundColorDropdown(!showBackgroundColorDropdown)}

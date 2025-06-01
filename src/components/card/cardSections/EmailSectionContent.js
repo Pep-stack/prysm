@@ -3,22 +3,22 @@
 import React from 'react';
 import { useDesignSettings } from '../../../../components/dashboard/DesignSettingsContext';
 
-// Simple clean Facebook icon with dynamic size and color
-const FacebookIcon = ({ color = 'white', size = '24px' }) => (
+// Simple clean Email icon with dynamic size and color
+const EmailIcon = ({ color = 'white', size = '24px' }) => (
   <svg 
      xmlns="http://www.w3.org/2000/svg" 
      viewBox="0 0 24 24" 
      fill={color} 
      style={{ width: size, height: size }}
   >
-    <path d="M12 2.04c-5.5 0-10 4.49-10 10s4.5 10 10 10 10-4.49 10-10-4.5-10-10-10zm4.5 10h-3v7h-4v-7h-2v-4h2V8.12c0-1.68 1.19-3.12 2.81-3.12h2.19v4h-1.94c-.31 0-.56.25-.56.56V12h2.5l-.5 4z"/>
+    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
   </svg>
 );
 
-export default function FacebookSectionContent({ profile, styles, isCompact = false }) {
+export default function EmailSectionContent({ profile, styles, isCompact = false }) {
   const { settings } = useDesignSettings();
   const { sectionStyle, placeholderStyle } = styles || {};
-  const facebookUrl = profile?.facebook;
+  const emailAddress = profile?.email;
 
   // Get icon settings from design settings
   const iconSize = settings?.icon_size || '24px';
@@ -62,43 +62,37 @@ export default function FacebookSectionContent({ profile, styles, isCompact = fa
 
   const iconColor = getIconColor();
 
-  const isValidUrl = (url) => {
-    if (!url) return false;
-    try { 
-      new URL(url); 
-      return url.includes('facebook.com') || url.includes('fb.com'); 
-    } catch (_) { 
-      return false; 
-    }
+  // Basic validation: check if it looks like an email
+  const isValidEmail = (email) => {
+    if (!email) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const hasValidUrl = isValidUrl(facebookUrl);
-  const fullUrl = hasValidUrl && !facebookUrl.startsWith('http') ? `https://${facebookUrl}` : facebookUrl;
+  const hasValidEmail = isValidEmail(emailAddress);
 
-  // Always show the icon, whether there's a URL or not
+  // Always show the icon, whether there's an email or not
   return (
     <a 
-       href={hasValidUrl ? fullUrl : '#'} 
-       target="_blank" 
-       rel="noopener noreferrer" 
+       href={hasValidEmail ? `mailto:${emailAddress}` : '#'} 
        style={{ 
          display: 'inline-block', 
          textDecoration: 'none',
          transition: 'opacity 0.2s ease',
-         opacity: hasValidUrl ? '1' : '0.4',
-         cursor: hasValidUrl ? 'pointer' : 'default'
+         opacity: hasValidEmail ? '1' : '0.4',
+         cursor: hasValidEmail ? 'pointer' : 'default'
        }}
-       title={hasValidUrl ? `Visit ${profile?.name || 'user'}'s Facebook Profile` : 'Add Facebook Profile URL'}
+       title={hasValidEmail ? `Send email to ${emailAddress}` : 'Add email address'}
        onMouseEnter={(e) => e.target.style.opacity = '0.7'}
-       onMouseLeave={(e) => e.target.style.opacity = hasValidUrl ? '1' : '0.4'}
+       onMouseLeave={(e) => e.target.style.opacity = hasValidEmail ? '1' : '0.4'}
        onClick={(e) => {
-         if (!hasValidUrl) {
+         if (!hasValidEmail) {
            e.preventDefault();
            // Could trigger edit mode or show a modal here
          }
        }}
     >
-      <FacebookIcon color={iconColor} size={iconSize} />
+      <EmailIcon color={iconColor} size={iconSize} />
     </a>
   );
 } 

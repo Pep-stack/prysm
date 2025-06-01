@@ -5,7 +5,8 @@ import PrysmaCard from '../../../src/components/card/PrysmaCard';
 // Define which section types are considered social media (same as in the hook)
 const SOCIAL_MEDIA_TYPES = [
   'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
-  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons'
+  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
+  'email', 'whatsapp'
 ];
 
 export default function PublicProfilePageContent({ profile, cardSections }) {

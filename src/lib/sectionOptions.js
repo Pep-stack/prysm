@@ -2,7 +2,7 @@
 import {
   LuHeading1, LuText, LuLink, LuImage, LuGithub, LuLinkedin, LuTwitter,
   LuQrCode, LuLanguages, LuYoutube, LuUser, LuSettings, LuMail,
-  LuMousePointerClick, LuCalendar, LuMapPin, // Voeg alle benodigde iconen toe
+  LuMousePointerClick, LuCalendar, LuMapPin, LuPhone, // Voeg alle benodigde iconen toe
   LuStar, // Voor Essentials
   LuShare2, // Voor Social & Links
   LuPlay, // Voor Media & Content
@@ -48,12 +48,15 @@ export const SECTION_OPTIONS = [
   // Social & Links
   { id: 'links', type: 'links', name: 'Link Collection', icon: LuLink, category: CATEGORIES.SOCIAL },
   { id: 'button', type: 'button', name: 'Custom Button', icon: LuMousePointerClick, category: CATEGORIES.SOCIAL },
+  { id: 'email', type: 'email', name: 'Email', icon: LuMail, category: CATEGORIES.SOCIAL },
+  { id: 'whatsapp', type: 'whatsapp', name: 'WhatsApp', icon: LuPhone, category: CATEGORIES.SOCIAL },
   { id: 'github', type: 'github', name: 'GitHub Profile Link', icon: LuGithub, category: CATEGORIES.SOCIAL },
   { id: 'linkedin', type: 'linkedin', name: 'LinkedIn Profile Link', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
-  { id: 'twitter', type: 'twitter', name: 'X (Twitter) Profile Link', icon: LuTwitter, category: CATEGORIES.SOCIAL },
-  // { id: 'instagram', type: 'instagram', name: 'Instagram Profile Link', icon: FaInstagram, category: CATEGORIES.SOCIAL }, // Voorbeeld Fa
+  { id: 'x_profile', type: 'x_profile', name: 'X (Twitter) Profile Link', icon: LuTwitter, category: CATEGORIES.SOCIAL },
+  { id: 'instagram', type: 'instagram', name: 'Instagram Profile Link', icon: LuUser, category: CATEGORIES.SOCIAL },
   { id: 'github_gitlab', type: 'github_gitlab', name: 'GitHub/GitLab', icon: LuGithub, category: CATEGORIES.SOCIAL },
   { id: 'dribbble_behance', type: 'dribbble_behance', name: 'Dribbble/Behance', icon: LuPalette, category: CATEGORIES.SOCIAL },
+  { id: 'youtube_channel', type: 'youtube_channel', name: 'YouTube Channel', icon: LuYoutube, category: CATEGORIES.SOCIAL },
   { id: 'tiktok', type: 'tiktok', name: 'TikTok', icon: LuMusic, category: CATEGORIES.SOCIAL },
   { id: 'facebook', type: 'facebook', name: 'Facebook', icon: LuUser, category: CATEGORIES.SOCIAL },
   { id: 'stackoverflow', type: 'stackoverflow', name: 'Stack Overflow', icon: LuCode, category: CATEGORIES.SOCIAL },
@@ -82,7 +85,6 @@ export const SECTION_OPTIONS = [
   { id: 'contact_buttons', type: 'contact_buttons', name: 'Contact Buttons', icon: LuMousePointerClick, category: CATEGORIES.ESSENTIALS },
   { id: 'contact_form', type: 'contact_form', name: 'Contact Form', icon: LuMail, category: CATEGORIES.ESSENTIALS },
   { id: 'newsletter_signup', type: 'newsletter_signup', name: 'Newsletter Signup', icon: LuMail, category: CATEGORIES.ESSENTIALS },
-  { id: 'youtube_channel', type: 'youtube_channel', name: 'YouTube Channel', icon: LuYoutube, category: CATEGORIES.MEDIA },
 
   // Zorg ervoor dat ALLE component-types uit app/components/card/cardsections hier een entry hebben
 ];
@@ -141,6 +143,8 @@ export const getDefaultSectionProps = (type) => {
         case 'links': return { title: defaultTitle, value: [] };
         case 'image': return { title: defaultTitle, value: null };
         case 'button': return { title: 'Button Text', value: { url: '', text: 'Click Me' } }; // Voorbeeld voor complexere waarde
+        case 'email': return { title: defaultTitle, value: '' };
+        case 'whatsapp': return { title: defaultTitle, value: '' };
         // ... defaults voor andere types ...
         default: return { title: defaultTitle, value: '' };
     }

@@ -14,6 +14,8 @@ import WebsiteSectionContent from './cardSections/WebsiteSectionContent';
 import LinkedInSectionContent from './cardSections/LinkedInSectionContent';
 import XSectionContent from './cardSections/XSectionContent';
 import InstagramSectionContent from './cardSections/InstagramSectionContent';
+import EmailSectionContent from './cardSections/EmailSectionContent';
+import WhatsappSectionContent from './cardSections/WhatsappSectionContent';
 import ExperienceSectionContent from './cardSections/ExperienceSectionContent';
 import EducationSectionContent from './cardSections/EducationSectionContent';
 import CertificationsSectionContent from './cardSections/CertificationsSectionContent';
@@ -53,6 +55,8 @@ export const sectionComponentMap = {
   'linkedin': LinkedInSectionContent,
   'x_profile': XSectionContent,
   'instagram': InstagramSectionContent,
+  'email': EmailSectionContent,
+  'whatsapp': WhatsappSectionContent,
   'experience': ExperienceSectionContent,
   'education': EducationSectionContent,
   'certifications': CertificationsSectionContent,
