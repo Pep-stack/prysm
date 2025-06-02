@@ -2,6 +2,7 @@
 
 import React from 'react';
 import LanguageSelector from '../shared/LanguageSelector';
+import EducationSelector from '../shared/EducationSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave }) {
   // Note: Removed the console.log from here during cleanup
@@ -25,8 +26,10 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     padding: '30px',
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
-     width: '100%',
-     maxWidth: '400px'
+    width: '100%',
+    maxWidth: section?.editorComponent === 'EducationSelector' ? '800px' : '400px',
+    maxHeight: '90vh',
+    overflowY: 'auto'
   };
 
   const inputStyle = {
@@ -59,6 +62,17 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <LanguageSelector 
           value={selectedLanguageCodes} // Pass current codes
           onChange={onChange} // onChange should expect an array of codes
+        />
+      );
+    }
+
+    if (section.editorComponent === 'EducationSelector') {
+      // Ensure 'value' passed to EducationSelector is an array of education objects
+      const selectedEducationEntries = Array.isArray(value) ? value : [];
+      return (
+        <EducationSelector 
+          value={selectedEducationEntries} // Pass current education entries
+          onChange={onChange} // onChange should expect an array of education objects
         />
       );
     }

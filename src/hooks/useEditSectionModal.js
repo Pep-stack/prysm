@@ -13,8 +13,43 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const openModal = useCallback((section) => {
     if (!initialProfileData) return; // Need initial data to populate
     setEditingSection(section);
-    // Use section.type instead of section.id for database column lookup
-    setInputValue(initialProfileData[section.type] || ''); 
+    
+    // Special handling for languages section
+    if (section.type === 'languages') {
+      const languagesData = initialProfileData[section.type];
+      
+      // Safe parsing for languages data
+      let languagesArray = [];
+      if (typeof languagesData === 'string' && languagesData.trim()) {
+        languagesArray = languagesData.split(',').map(lang => lang.trim()).filter(lang => lang);
+      } else if (Array.isArray(languagesData)) {
+        languagesArray = languagesData;
+      }
+      
+      setInputValue(languagesArray);
+    } else if (section.type === 'education') {
+      // Special handling for education section (array of objects)
+      const educationData = initialProfileData[section.type];
+      
+      // Safe parsing for education data
+      let educationArray = [];
+      if (typeof educationData === 'string' && educationData.trim()) {
+        try {
+          educationArray = JSON.parse(educationData);
+          if (!Array.isArray(educationArray)) educationArray = [];
+        } catch (e) {
+          educationArray = [];
+        }
+      } else if (Array.isArray(educationData)) {
+        educationArray = educationData;
+      }
+      
+      setInputValue(educationArray);
+    } else {
+      // Use section.type instead of section.id for database column lookup
+      setInputValue(initialProfileData[section.type] || ''); 
+    }
+    
     setIsModalOpen(true);
     setError(null); // Clear previous errors
   }, [initialProfileData]);
@@ -29,6 +64,12 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const handleSave = useCallback(async () => {
     if (!editingSection || !user) return;
     
+    console.log('🔄 Saving education section:', {
+      sectionType: editingSection.type,
+      inputValue: inputValue,
+      isArray: Array.isArray(inputValue)
+    });
+    
     // Use section.type as the database column name instead of section.id
     const sectionType = editingSection.type;
     
@@ -36,6 +77,9 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     let valueToSave = inputValue;
     if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
+    } else if (sectionType === 'education' && Array.isArray(inputValue)) {
+      valueToSave = JSON.stringify(inputValue); // Serialize education array to JSON string
+      console.log('📝 Serialized education data:', valueToSave);
     }
     
     setIsLoading(true); 
@@ -49,17 +93,25 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
         .single(); 
 
       if (updateError) {
+        console.error('❌ Supabase update error:', updateError);
         throw updateError;
       }
+      
+      console.log('✅ Supabase update successful:', data);
       
       // Call the callback passed from the parent to update its profile state
       if (onProfileUpdate) {
          // IMPORTANT: Pass back the *original* input value if it was an array,
-         // so the parent state (and LanguageSelector) gets the correct format.
+         // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages') {
+         if (sectionType === 'languages' || sectionType === 'education') {
             updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
+            console.log('🔄 Restoring array format for local state:', {
+              sectionType,
+              originalArray: inputValue,
+              updatedProfileData: updatedProfileData[sectionType]
+            });
          }
          onProfileUpdate(updatedProfileData); 
       }

@@ -41,7 +41,7 @@ export const SECTION_OPTIONS = [
   // { id: 'avatar', type: 'avatar', name: 'Avatar', icon: LuUserCircle, category: CATEGORIES.ESSENTIALS }, // Meestal onderdeel van Header/Profile?
   { id: 'contact', type: 'contact', name: 'Contact Details', icon: LuMail, category: CATEGORIES.ESSENTIALS },
   { id: 'experience', type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS },
-  { id: 'education', type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS },
+  { id: 'education', type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'EducationSelector' },
   { id: 'certifications', type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS },
   { id: 'awards', type: 'awards', name: 'Awards', icon: LuAward, category: CATEGORIES.ESSENTIALS },
 
@@ -79,7 +79,7 @@ export const SECTION_OPTIONS = [
   { id: 'google_maps', type: 'google_maps', name: 'Google Maps', icon: LuMapPin, category: CATEGORIES.TOOLS },
   { id: 'event', type: 'event', name: 'Event / Calendar', icon: LuCalendar, category: CATEGORIES.TOOLS },
   { id: 'calendar_scheduling', type: 'calendar_scheduling', name: 'Calendar Scheduling', icon: LuCalendar, category: CATEGORIES.TOOLS },
-  { id: 'languages', type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS },
+  { id: 'languages', type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },
   { id: 'timezone_hours', type: 'timezone_hours', name: 'Timezone/Hours', icon: LuClock, category: CATEGORIES.TOOLS },
   { id: 'download_cv', type: 'download_cv', name: 'Download CV', icon: LuDownload, category: CATEGORIES.TOOLS },
   { id: 'contact_buttons', type: 'contact_buttons', name: 'Contact Buttons', icon: LuMousePointerClick, category: CATEGORIES.ESSENTIALS },
@@ -145,6 +145,8 @@ export const getDefaultSectionProps = (type) => {
         case 'button': return { title: 'Button Text', value: { url: '', text: 'Click Me' } }; // Voorbeeld voor complexere waarde
         case 'email': return { title: defaultTitle, value: '' };
         case 'whatsapp': return { title: defaultTitle, value: '' };
+        case 'languages': return { title: defaultTitle, value: [], editorComponent: 'LanguageSelector' };
+        case 'education': return { title: defaultTitle, value: [], editorComponent: 'EducationSelector' };
         // ... defaults voor andere types ...
         default: return { title: defaultTitle, value: '' };
     }

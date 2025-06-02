@@ -23,6 +23,16 @@ const createDefaultSections = () => [
     id: uuidv4(), 
     type: 'contact',
     ...getDefaultSectionProps('contact')
+  },
+  {
+    id: uuidv4(),
+    type: 'languages',
+    ...getDefaultSectionProps('languages')
+  },
+  {
+    id: uuidv4(),
+    type: 'education',
+    ...getDefaultSectionProps('education')
   }
 ];
 

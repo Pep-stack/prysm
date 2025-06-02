@@ -59,15 +59,17 @@ export default function PrysmaCard({
       {/* Main Sections */}
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
         {cardSections && cardSections.length > 0 && (
-          cardSections.map((section) => (
-            <CardSectionRenderer
-              key={section.id}
-              section={section}
-              profile={profile}
-              user={user}
-              isPublicView={isPublicView}
-            />
-          ))
+          cardSections.map((section) => {
+            return (
+              <CardSectionRenderer
+                key={section.id}
+                section={section}
+                profile={profile}
+                user={user}
+                isPublicView={isPublicView}
+              />
+            );
+          })
         )}
       </div>
     </div>
