@@ -45,6 +45,24 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(educationArray);
+    } else if (section.type === 'experience') {
+      // Special handling for experience section (array of objects)
+      const experienceData = initialProfileData[section.type];
+      
+      // Safe parsing for experience data
+      let experienceArray = [];
+      if (typeof experienceData === 'string' && experienceData.trim()) {
+        try {
+          experienceArray = JSON.parse(experienceData);
+          if (!Array.isArray(experienceArray)) experienceArray = [];
+        } catch (e) {
+          experienceArray = [];
+        }
+      } else if (Array.isArray(experienceData)) {
+        experienceArray = experienceData;
+      }
+      
+      setInputValue(experienceArray);
     } else {
       // Use section.type instead of section.id for database column lookup
       setInputValue(initialProfileData[section.type] || ''); 
@@ -80,6 +98,9 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     } else if (sectionType === 'education' && Array.isArray(inputValue)) {
       valueToSave = JSON.stringify(inputValue); // Serialize education array to JSON string
       console.log('📝 Serialized education data:', valueToSave);
+    } else if (sectionType === 'experience' && Array.isArray(inputValue)) {
+      valueToSave = JSON.stringify(inputValue); // Serialize experience array to JSON string
+      console.log('📝 Serialized experience data:', valueToSave);
     }
     
     setIsLoading(true); 
@@ -105,7 +126,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience') {
             updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,

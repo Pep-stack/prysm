@@ -26,7 +26,7 @@ import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { useCardLayoutWithSocialBar } from '../../src/hooks/useCardLayoutWithSocialBar';
 
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps } from '../../src/lib/sectionOptions';
+import { getDefaultSectionProps, SECTION_OPTIONS } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../components/dashboard/DesignToolbar';
@@ -131,10 +131,15 @@ export default function DashboardPageContent() {
 
   const handleAddSection = (sectionType) => {
     const defaultProps = getDefaultSectionProps(sectionType);
+    // Get the section option to include editorComponent if available
+    const sectionOption = SECTION_OPTIONS.find(option => option.type === sectionType);
+    
     const newSection = {
       id: uuidv4(),
       type: sectionType,
       ...defaultProps,
+      // Include editorComponent if it exists in the section option
+      ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent })
     };
     
     // Check if it's a social media type and add to appropriate area

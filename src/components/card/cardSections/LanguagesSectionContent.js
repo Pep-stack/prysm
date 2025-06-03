@@ -132,8 +132,33 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
           onChange={setCurrentSelection} // Update local state
         />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-          <button onClick={onCancel} style={{ padding: '5px 10px' }}>Cancel</button>
-          <button onClick={handleSave} style={{ padding: '5px 10px', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '4px' }}>Save Languages</button>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#10b981', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px',
+              fontSize: '14px',
+              cursor: 'pointer'
+            }}
+          >
+            Save Languages
+          </button>
         </div>
       </div>
     );

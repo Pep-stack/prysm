@@ -40,7 +40,7 @@ export const SECTION_OPTIONS = [
   { id: 'bio', type: 'bio', name: 'Bio / Text Block', icon: LuText, category: CATEGORIES.ESSENTIALS },
   // { id: 'avatar', type: 'avatar', name: 'Avatar', icon: LuUserCircle, category: CATEGORIES.ESSENTIALS }, // Meestal onderdeel van Header/Profile?
   { id: 'contact', type: 'contact', name: 'Contact Details', icon: LuMail, category: CATEGORIES.ESSENTIALS },
-  { id: 'experience', type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS },
+  { id: 'experience', type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS, editorComponent: 'ExperienceSelector' },
   { id: 'education', type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'EducationSelector' },
   { id: 'certifications', type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS },
   { id: 'awards', type: 'awards', name: 'Awards', icon: LuAward, category: CATEGORIES.ESSENTIALS },
@@ -147,6 +147,7 @@ export const getDefaultSectionProps = (type) => {
         case 'whatsapp': return { title: defaultTitle, value: '' };
         case 'languages': return { title: defaultTitle, value: [], editorComponent: 'LanguageSelector' };
         case 'education': return { title: defaultTitle, value: [], editorComponent: 'EducationSelector' };
+        case 'experience': return { title: defaultTitle, value: [], editorComponent: 'ExperienceSelector' };
         // ... defaults voor andere types ...
         default: return { title: defaultTitle, value: '' };
     }

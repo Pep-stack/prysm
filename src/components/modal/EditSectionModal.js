@@ -3,6 +3,7 @@
 import React from 'react';
 import LanguageSelector from '../shared/LanguageSelector';
 import EducationSelector from '../shared/EducationSelector';
+import ExperienceSelector from '../shared/ExperienceSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave }) {
   // Note: Removed the console.log from here during cleanup
@@ -27,7 +28,7 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
     width: '100%',
-    maxWidth: section?.editorComponent === 'EducationSelector' ? '800px' : '400px',
+    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector') ? '800px' : '400px',
     maxHeight: '90vh',
     overflowY: 'auto'
   };
@@ -73,6 +74,17 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <EducationSelector 
           value={selectedEducationEntries} // Pass current education entries
           onChange={onChange} // onChange should expect an array of education objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'ExperienceSelector') {
+      // Ensure 'value' passed to ExperienceSelector is an array of experience objects
+      const selectedExperienceEntries = Array.isArray(value) ? value : [];
+      return (
+        <ExperienceSelector 
+          value={selectedExperienceEntries} // Pass current experience entries
+          onChange={onChange} // onChange should expect an array of experience objects
         />
       );
     }

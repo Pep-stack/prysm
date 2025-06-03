@@ -14,6 +14,18 @@ export default function EducationSelector({ value = [], onChange }) {
     description: ''
   });
 
+  // Extract carousel preference from the first entry or default to false
+  const carouselPreference = value.length > 0 && value[0].useCarousel !== undefined ? value[0].useCarousel : false;
+
+  const handleCarouselToggle = (useCarousel) => {
+    // Update all entries to include the carousel preference
+    const updatedEducation = value.map(entry => ({
+      ...entry,
+      useCarousel
+    }));
+    onChange(updatedEducation);
+  };
+
   const handleAddNew = () => {
     setEditingIndex('new');
     setNewEntry({
@@ -23,7 +35,8 @@ export default function EducationSelector({ value = [], onChange }) {
       startDate: '',
       endDate: '',
       current: false,
-      description: ''
+      description: '',
+      useCarousel: carouselPreference // Inherit current preference
     });
   };
 
@@ -39,7 +52,8 @@ export default function EducationSelector({ value = [], onChange }) {
         startDate: '',
         endDate: '',
         current: false,
-        description: ''
+        description: '',
+        useCarousel: carouselPreference
       });
     }
   };
@@ -69,6 +83,43 @@ export default function EducationSelector({ value = [], onChange }) {
       <label style={{ display: 'block', marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}>
         Education History:
       </label>
+
+      {/* Display Preference Setting - only show if multiple entries exist or will exist */}
+      {value.length > 1 && (
+        <div style={{
+          padding: '12px 16px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          marginBottom: '16px'
+        }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>
+            Display Style:
+          </label>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="displayStyle"
+                checked={!carouselPreference}
+                onChange={() => handleCarouselToggle(false)}
+                style={{ margin: 0 }}
+              />
+              <span>List View (all entries visible)</span>
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', cursor: 'pointer' }}>
+              <input
+                type="radio"
+                name="displayStyle"
+                checked={carouselPreference}
+                onChange={() => handleCarouselToggle(true)}
+                style={{ margin: 0 }}
+              />
+              <span>Carousel View (one at a time)</span>
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Existing Education Entries */}
       {value.map((entry, index) => (

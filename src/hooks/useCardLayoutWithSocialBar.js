@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps } from '../lib/sectionOptions';
+import { getDefaultSectionProps, SECTION_OPTIONS } from '../lib/sectionOptions';
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
@@ -11,6 +11,16 @@ const SOCIAL_MEDIA_TYPES = [
   'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
   'email', 'whatsapp'
 ];
+
+// Helper function to enhance sections with properties from SECTION_OPTIONS
+const enhanceSectionWithDefaults = (section) => {
+  const sectionOption = SECTION_OPTIONS.find(option => option.type === section.type);
+  return {
+    ...section,
+    // Add editorComponent if it exists in SECTION_OPTIONS
+    ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent })
+  };
+};
 
 // Helper function to create proper default sections
 const createDefaultSections = () => [
@@ -27,12 +37,14 @@ const createDefaultSections = () => [
   {
     id: uuidv4(),
     type: 'languages',
-    ...getDefaultSectionProps('languages')
+    ...getDefaultSectionProps('languages'),
+    editorComponent: 'LanguageSelector'
   },
   {
     id: uuidv4(),
     type: 'education',
-    ...getDefaultSectionProps('education')
+    ...getDefaultSectionProps('education'),
+    editorComponent: 'EducationSelector'
   }
 ];
 
@@ -41,7 +53,9 @@ export function useCardLayoutWithSocialBar(profile) {
   const [cardSections, setCardSections] = useState(() => {
     const initial = profile?.card_sections;
     if (Array.isArray(initial) && initial.length > 0) {
-      return initial.filter(section => !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar');
+      return initial
+        .filter(section => !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar')
+        .map(enhanceSectionWithDefaults);
     }
     // Only create default sections if we have no profile data yet
     // This prevents adding defaults when user has an empty profile
@@ -54,7 +68,9 @@ export function useCardLayoutWithSocialBar(profile) {
   const [socialBarSections, setSocialBarSections] = useState(() => {
     const initial = profile?.card_sections;
     if (Array.isArray(initial) && initial.length > 0) {
-      return initial.filter(section => SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar');
+      return initial
+        .filter(section => SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar')
+        .map(enhanceSectionWithDefaults);
     }
     return [];
   });
@@ -74,14 +90,14 @@ export function useCardLayoutWithSocialBar(profile) {
       const currentRegularIds = cardSections.map(s => s.id).join(',');
       const profileRegularIds = regularSections.map(s => s.id).join(',');
       if (profileRegularIds !== currentRegularIds) {
-        setCardSections(regularSections);
+        setCardSections(regularSections.map(enhanceSectionWithDefaults));
       }
 
       // Update social bar sections
       const currentSocialIds = socialBarSections.map(s => s.id).join(',');
       const profileSocialIds = socialSections.map(s => s.id).join(',');
       if (profileSocialIds !== currentSocialIds) {
-        setSocialBarSections(socialSections);
+        setSocialBarSections(socialSections.map(enhanceSectionWithDefaults));
       }
     }
   }, [profile?.card_sections]);

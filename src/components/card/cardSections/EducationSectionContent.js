@@ -1,72 +1,53 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { LuGraduationCap, LuCalendar, LuMapPin, LuClock, LuChevronLeft, LuChevronRight, LuList, LuGrid3X3 } from 'react-icons/lu';
+import React, { useState, useEffect, useMemo } from 'react';
+import { LuGraduationCap, LuCalendar, LuMapPin, LuClock } from 'react-icons/lu';
 import EducationSelector from '../../shared/EducationSelector';
 
 export default function EducationSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   
-  // State to hold the selected education during editing
   const [currentSelection, setCurrentSelection] = useState([]);
-  // New state for view mode (list or carousel)
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'carousel'
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(0);
 
-  // Parse initial education data from profile
+  // Parse and memoize education data to prevent unnecessary recalculations
   const parseEducationData = (educationData) => {
-    console.log('🔍 Parsing education data:', {
-      type: typeof educationData,
-      data: educationData,
-      isArray: Array.isArray(educationData)
-    });
-    
-    // Handle different data types safely
     if (Array.isArray(educationData)) {
-      console.log('✅ Education data is already an array');
       return educationData.filter(entry => entry && typeof entry === 'object');
     }
     
     if (typeof educationData === 'string' && educationData.trim()) {
       try {
         const parsed = JSON.parse(educationData);
-        console.log('✅ Successfully parsed education JSON:', parsed);
         return Array.isArray(parsed) ? parsed : [];
       } catch (e) {
-        console.error('❌ Failed to parse education JSON:', e);
         return [];
       }
     }
     
-    // Handle null, undefined, or other types
-    console.log('ℹ️ Education data is null/undefined or other type');
     return [];
   };
 
-  const initialEducationData = parseEducationData(profile?.education);
+  const initialEducationData = useMemo(() => {
+    return parseEducationData(profile?.education);
+  }, [profile?.education]);
   
-  // Initialize local state when editing starts
+  // Initialize selection state for editing
   useEffect(() => {
-    console.log('🔄 EducationSectionContent useEffect triggered:', {
-      isEditing,
-      initialEducationData,
-      currentSelection
-    });
-    
     if (isEditing) {
       setCurrentSelection(initialEducationData);
-      console.log('📝 Set currentSelection to:', initialEducationData);
     }
-  }, [isEditing]);
+  }, [isEditing, initialEducationData]);
 
-  // Reset carousel index when data changes
+  // Reset carousel index when data length changes
   useEffect(() => {
     setCurrentIndex(0);
-  }, [initialEducationData]);
+  }, [initialEducationData.length]);
 
   const handleSave = () => {
     if (onSave) {
-      onSave(currentSelection); // Pass the array of education entries
+      onSave(currentSelection);
     }
   };
 
@@ -80,16 +61,38 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
   };
 
   // Carousel navigation functions
-  const nextSlide = () => {
+  const goToNext = () => {
     setCurrentIndex((prev) => (prev + 1) % initialEducationData.length);
   };
 
-  const prevSlide = () => {
+  const goToPrev = () => {
     setCurrentIndex((prev) => (prev - 1 + initialEducationData.length) % initialEducationData.length);
   };
 
-  // Render single education card (reusable for both views)
-  const renderEducationCard = (entry, index, isCarousel = false) => (
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  // Touch handling for swipe gestures
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > 50) { // Minimum swipe distance
+      if (diff > 0) {
+        goToNext(); // Swipe left = next
+      } else {
+        goToPrev(); // Swipe right = previous
+      }
+    }
+  };
+
+  // Render single education card
+  const renderEducationCard = (entry, index) => (
     <div 
       key={entry.id || index} 
       style={{
@@ -98,21 +101,9 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
         backgroundColor: 'white',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
-        transition: 'all 0.2s ease',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-        cursor: 'pointer',
-        ...(isCarousel && {
-          minHeight: '200px',
-          width: '100%'
-        })
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
-        e.currentTarget.style.borderColor = '#cbd5e1';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.04)';
-        e.currentTarget.style.borderColor = '#e2e8f0';
+        minHeight: '200px',
+        width: '100%'
       }}
     >
       {/* Current Education Badge */}
@@ -217,8 +208,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             margin: 0, 
             fontSize: '14px', 
             color: '#475569', 
-            lineHeight: '1.6',
-            fontStyle: 'normal'
+            lineHeight: '1.6'
           }}>
             {entry.description}
           </p>
@@ -234,7 +224,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
         <h3 style={sectionTitleStyle}>Edit Education</h3>
         <EducationSelector 
           value={currentSelection}
-          onChange={setCurrentSelection} // Update local state
+          onChange={setCurrentSelection}
         />
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
           <button 
@@ -254,7 +244,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             onClick={handleSave} 
             style={{ 
               padding: '8px 16px', 
-              backgroundColor: '#3b82f6', 
+              backgroundColor: '#10b981', 
               color: 'white', 
               border: 'none', 
               borderRadius: '6px',
@@ -269,172 +259,64 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     );
   }
 
-  // Render display UI (education entries)
+  // Render display UI
   if (initialEducationData.length > 0) {
+    const useCarousel = initialEducationData.length > 1 && initialEducationData[0]?.useCarousel;
+    
     return (
       <div style={sectionStyle} title="Click to edit education">
-        {/* Header with title and view toggle */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={sectionTitleStyle}>Education</h3>
-          {initialEducationData.length > 1 && (
+        <h3 style={sectionTitleStyle}>Education</h3>
+
+        {useCarousel ? (
+          // Carousel View
+          <div>
+            <div 
+              style={{ 
+                touchAction: 'pan-y',
+                userSelect: 'none'
+              }}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {initialEducationData[currentIndex] && 
+                renderEducationCard(initialEducationData[currentIndex], currentIndex)
+              }
+            </div>
+
+            {/* Navigation dots */}
             <div style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '4px',
-              backgroundColor: '#f1f5f9',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0'
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '20px'
             }}>
-              <button
-                onClick={() => setViewMode('list')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '6px 8px',
-                  backgroundColor: viewMode === 'list' ? '#3b82f6' : 'transparent',
-                  color: viewMode === 'list' ? 'white' : '#64748b',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <LuList size={14} />
-              </button>
-              <button
-                onClick={() => setViewMode('carousel')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '6px 8px',
-                  backgroundColor: viewMode === 'carousel' ? '#3b82f6' : 'transparent',
-                  color: viewMode === 'carousel' ? 'white' : '#64748b',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-              >
-                <LuGrid3X3 size={14} />
-              </button>
+              {initialEducationData.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    backgroundColor: index === currentIndex ? '#3b82f6' : '#cbd5e1',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                />
+              ))}
             </div>
-          )}
-        </div>
-
-        {/* List View */}
-        {viewMode === 'list' && (
+          </div>
+        ) : (
+          // List View
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {initialEducationData.map((entry, index) => renderEducationCard(entry, index))}
-          </div>
-        )}
-
-        {/* Carousel View */}
-        {viewMode === 'carousel' && (
-          <div style={{ position: 'relative' }}>
-            {/* Navigation buttons */}
-            {initialEducationData.length > 1 && (
-              <>
-                <button
-                  onClick={prevSlide}
-                  style={{
-                    position: 'absolute',
-                    left: '-12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 2,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f8fafc';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }}
-                >
-                  <LuChevronLeft size={16} style={{ color: '#64748b' }} />
-                </button>
-
-                <button
-                  onClick={nextSlide}
-                  style={{
-                    position: 'absolute',
-                    right: '-12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 2,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#f8fafc';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'white';
-                  }}
-                >
-                  <LuChevronRight size={16} style={{ color: '#64748b' }} />
-                </button>
-              </>
-            )}
-
-            {/* Carousel content */}
-            <div style={{ padding: '0 16px' }}>
-              {renderEducationCard(initialEducationData[currentIndex], currentIndex, true)}
-            </div>
-
-            {/* Carousel indicators */}
-            {initialEducationData.length > 1 && (
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '6px',
-                marginTop: '16px'
-              }}>
-                {initialEducationData.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      border: 'none',
-                      backgroundColor: index === currentIndex ? '#3b82f6' : '#cbd5e1',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         )}
       </div>
     );
   } else {
-    // Show placeholder if no education entries
+    // Empty state
     return (
       <div style={placeholderStyle} title="Click to edit education">
         <div style={{
