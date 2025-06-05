@@ -123,17 +123,17 @@ export default function CardSectionRenderer({
     fontFamily: settings.font_family || 'Inter, sans-serif',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: (section.type === 'languages' || section.type === 'education') ? 'transparent' : 'white',
-    border: (section.type === 'languages' || section.type === 'education') ? 'none' : '1px solid #e5e7eb',
+    backgroundColor: 'transparent',
+    border: 'none',
     marginBottom: '16px',
     ...sectionStyle
   };
 
   const defaultSectionTitleStyle = {
     color: textColor,
-    fontSize: (section.type === 'languages' || section.type === 'education') ? '22px' : '18px',
+    fontSize: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects') ? '22px' : '18px',
     fontWeight: '600',
-    marginBottom: (section.type === 'languages' || section.type === 'education') ? '16px' : '8px',
+    marginBottom: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects') ? '16px' : '8px',
     ...sectionTitleStyle
   };
 

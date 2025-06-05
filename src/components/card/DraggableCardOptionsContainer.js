@@ -19,8 +19,8 @@ const categorizedOptions = [
     options: [
       { id: 'experience', name: 'Experience / Work History', inputType: 'none' },
       { id: 'education', name: 'Education', inputType: 'none' },
-      { id: 'certifications', name: 'Certifications & Licenses', inputType: 'textarea' },
-      { id: 'projects', name: 'Projects / Portfolio', inputType: 'none' },
+      { id: 'certifications', name: 'Certifications & Licenses', inputType: 'none', editorComponent: 'CertificationSelector' },
+      { id: 'projects', name: 'Projects & Portfolio', inputType: 'none', editorComponent: 'ProjectSelector' },
       { id: 'publications', name: 'Publications / Media', inputType: 'textarea' },
       { id: 'events', name: 'Events', inputType: 'textarea' },
       { id: 'awards', name: 'Awards & Achievements', inputType: 'textarea' },

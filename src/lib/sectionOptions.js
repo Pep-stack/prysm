@@ -42,7 +42,7 @@ export const SECTION_OPTIONS = [
   { id: 'contact', type: 'contact', name: 'Contact Details', icon: LuMail, category: CATEGORIES.ESSENTIALS },
   { id: 'experience', type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS, editorComponent: 'ExperienceSelector' },
   { id: 'education', type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'EducationSelector' },
-  { id: 'certifications', type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS },
+  { id: 'certifications', type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS, editorComponent: 'CertificationSelector' },
   { id: 'awards', type: 'awards', name: 'Awards', icon: LuAward, category: CATEGORIES.ESSENTIALS },
 
   // Social & Links
@@ -64,7 +64,7 @@ export const SECTION_OPTIONS = [
   // Media & Content
   { id: 'image', type: 'image', name: 'Image', icon: LuImage, category: CATEGORIES.MEDIA },
   { id: 'youtube', type: 'youtube', name: 'YouTube Video', icon: LuYoutube, category: CATEGORIES.MEDIA },
-  { id: 'projects', type: 'projects', name: 'Projects', icon: LuFolderOpen, category: CATEGORIES.MEDIA },
+  { id: 'projects', type: 'projects', name: 'Projects & Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
   { id: 'publications', type: 'publications', name: 'Publications', icon: LuBook, category: CATEGORIES.MEDIA },
   { id: 'events', type: 'events', name: 'Events', icon: LuCalendar, category: CATEGORIES.MEDIA },
   { id: 'testimonials', type: 'testimonials', name: 'Testimonials', icon: LuMessageCircle, category: CATEGORIES.MEDIA },
@@ -148,6 +148,8 @@ export const getDefaultSectionProps = (type) => {
         case 'languages': return { title: defaultTitle, value: [], editorComponent: 'LanguageSelector' };
         case 'education': return { title: defaultTitle, value: [], editorComponent: 'EducationSelector' };
         case 'experience': return { title: defaultTitle, value: [], editorComponent: 'ExperienceSelector' };
+        case 'certifications': return { title: defaultTitle, value: [], editorComponent: 'CertificationSelector' };
+        case 'projects': return { title: defaultTitle, value: [], editorComponent: 'ProjectSelector' };
         // ... defaults voor andere types ...
         default: return { title: defaultTitle, value: '' };
     }

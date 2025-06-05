@@ -4,6 +4,8 @@ import React from 'react';
 import LanguageSelector from '../shared/LanguageSelector';
 import EducationSelector from '../shared/EducationSelector';
 import ExperienceSelector from '../shared/ExperienceSelector';
+import CertificationSelector from '../shared/CertificationSelector';
+import ProjectSelector from '../shared/ProjectSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave }) {
   // Note: Removed the console.log from here during cleanup
@@ -28,7 +30,7 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
     width: '100%',
-    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector') ? '800px' : '400px',
+    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector') ? '800px' : '400px',
     maxHeight: '90vh',
     overflowY: 'auto'
   };
@@ -85,6 +87,28 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <ExperienceSelector 
           value={selectedExperienceEntries} // Pass current experience entries
           onChange={onChange} // onChange should expect an array of experience objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'CertificationSelector') {
+      // Ensure 'value' passed to CertificationSelector is an array of certification objects
+      const selectedCertificationEntries = Array.isArray(value) ? value : [];
+      return (
+        <CertificationSelector 
+          value={selectedCertificationEntries} // Pass current certification entries
+          onChange={onChange} // onChange should expect an array of certification objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'ProjectSelector') {
+      // Ensure 'value' passed to ProjectSelector is an array of project objects
+      const selectedProjectEntries = Array.isArray(value) ? value : [];
+      return (
+        <ProjectSelector 
+          value={selectedProjectEntries} // Pass current project entries
+          onChange={onChange} // onChange should expect an array of project objects
         />
       );
     }

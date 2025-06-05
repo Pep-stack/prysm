@@ -27,42 +27,26 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(languagesArray);
-    } else if (section.type === 'education') {
-      // Special handling for education section (array of objects)
-      const educationData = initialProfileData[section.type];
+    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects') {
+      // Special handling for education, experience, certifications and projects sections
+      const sectionData = initialProfileData[section.type];
       
-      // Safe parsing for education data
-      let educationArray = [];
-      if (typeof educationData === 'string' && educationData.trim()) {
+      // Safe parsing for array data
+      let sectionArray = [];
+      if (typeof sectionData === 'string' && sectionData.trim()) {
         try {
-          educationArray = JSON.parse(educationData);
-          if (!Array.isArray(educationArray)) educationArray = [];
+          sectionArray = JSON.parse(sectionData);
+          if (!Array.isArray(sectionArray)) {
+            sectionArray = [];
+          }
         } catch (e) {
-          educationArray = [];
+          sectionArray = [];
         }
-      } else if (Array.isArray(educationData)) {
-        educationArray = educationData;
+      } else if (Array.isArray(sectionData)) {
+        sectionArray = sectionData;
       }
       
-      setInputValue(educationArray);
-    } else if (section.type === 'experience') {
-      // Special handling for experience section (array of objects)
-      const experienceData = initialProfileData[section.type];
-      
-      // Safe parsing for experience data
-      let experienceArray = [];
-      if (typeof experienceData === 'string' && experienceData.trim()) {
-        try {
-          experienceArray = JSON.parse(experienceData);
-          if (!Array.isArray(experienceArray)) experienceArray = [];
-        } catch (e) {
-          experienceArray = [];
-        }
-      } else if (Array.isArray(experienceData)) {
-        experienceArray = experienceData;
-      }
-      
-      setInputValue(experienceArray);
+      setInputValue(sectionArray);
     } else {
       // Use section.type instead of section.id for database column lookup
       setInputValue(initialProfileData[section.type] || ''); 
@@ -95,12 +79,9 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     let valueToSave = inputValue;
     if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
-    } else if (sectionType === 'education' && Array.isArray(inputValue)) {
-      valueToSave = JSON.stringify(inputValue); // Serialize education array to JSON string
-      console.log('📝 Serialized education data:', valueToSave);
-    } else if (sectionType === 'experience' && Array.isArray(inputValue)) {
-      valueToSave = JSON.stringify(inputValue); // Serialize experience array to JSON string
-      console.log('📝 Serialized experience data:', valueToSave);
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects') && Array.isArray(inputValue)) {
+      valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
+      console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
     }
     
     setIsLoading(true); 
@@ -126,7 +107,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects') {
             updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,
