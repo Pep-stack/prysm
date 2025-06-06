@@ -1,7 +1,6 @@
 /* Main card container */
 .prysmaCard {
-  max-width: 600px;
-  margin: 0 auto;
+  /* Remove hard max-width so card can fill full column */
   width: 100%;
   position: relative;
   background: transparent; /* Keep transparent */

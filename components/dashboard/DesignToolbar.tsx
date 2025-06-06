@@ -32,21 +32,35 @@ const ICON_COLOR_OPTIONS = [
 ];
 
 const BACKGROUND_COLOR_OPTIONS = [
+  // Clean solids (keep these)
   { label: 'Pure White', value: '#ffffff', name: 'Pure White' },
   { label: 'Light Gray', value: '#f8f9fa', name: 'Light Gray' },
   { label: 'Soft Cream', value: '#fafaf9', name: 'Soft Cream' },
-  { label: 'Mint Fresh', value: '#f0fdfa', name: 'Mint Fresh' },
-  { label: 'Light Blue', value: '#f0f9ff', name: 'Light Blue' },
-  { label: 'Warm Gradient', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', name: 'Warm Gradient', isGradient: true },
+  { label: 'Professional Dark', value: '#1f2937', name: 'Professional Dark' },
+  
+  // Modern neutrals (new)
+  { label: 'Warm White', value: '#fdfdfd', name: 'Warm White' },
+  { label: 'Cool Gray', value: '#f1f5f9', name: 'Cool Gray' },
+  { label: 'Slate Blue', value: '#f8fafc', name: 'Slate Blue' },
+  
+  // Subtle professional gradients (refined existing)
   { label: 'Ocean Gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', name: 'Ocean Gradient', isGradient: true },
   { label: 'Mint Gradient', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', name: 'Mint Gradient', isGradient: true },
-  { label: 'Professional Dark', value: '#1f2937', name: 'Professional Dark' },
-  { label: 'Sunset Gradient', value: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', name: 'Sunset Gradient', isGradient: true },
   { label: 'Dark Ocean', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)', name: 'Dark Ocean', isGradient: true },
-  { label: 'Midnight Purple', value: 'linear-gradient(135deg, #2d1b69 0%, #11998e 100%)', name: 'Midnight Purple', isGradient: true },
   { label: 'Dark Emerald', value: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', name: 'Dark Emerald', isGradient: true },
-  { label: 'Charcoal Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Charcoal Slate', isGradient: true },
-  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Dark Royal', isGradient: true }
+  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Dark Royal', isGradient: true },
+  
+  // Modern 2024 gradients (new)
+  { label: 'Soft Glassmorphism', value: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 100%)', name: 'Soft Glassmorphism', isGradient: true },
+  { label: 'Professional Blue', value: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)', name: 'Professional Blue', isGradient: true },
+  { label: 'Warm Neutral', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #f8f9fa 100%)', name: 'Warm Neutral', isGradient: true },
+  { label: 'Modern Mesh', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)', name: 'Modern Mesh', isGradient: true },
+  { label: 'Platinum Shine', value: 'linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%)', name: 'Platinum Shine', isGradient: true },
+  { label: 'Arctic Mist', value: 'linear-gradient(135deg, #f7f8f8 0%, #acbb78 100%)', name: 'Arctic Mist', isGradient: true },
+  { label: 'Digital Dawn', value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)', name: 'Digital Dawn', isGradient: true },
+  { label: 'Clean Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Clean Slate', isGradient: true },
+  { label: 'Emerald Professional', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', name: 'Emerald Professional', isGradient: true },
+  { label: 'Cosmic Latte', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff8c94 100%)', name: 'Cosmic Latte', isGradient: true }
 ];
 
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {

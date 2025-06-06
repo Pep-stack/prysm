@@ -257,7 +257,7 @@ function DashboardMainWithBg({ profile, user, cardSections, socialBarSections })
         borderRadius: '15px' 
       }}
     >
-      <div className="w-full max-w-3xl px-4 py-6">
+      <div className="w-full max-w-3xl px-0 py-0">
         <PrysmaCard
           profile={profile}
           user={user}

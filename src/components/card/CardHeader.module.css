@@ -11,10 +11,10 @@
 
 /* Full width header - breaks out of all container padding */
 .fullWidth {
-  /* Break out of all container layers: layout p-6/p-8/p-10 + page px-6 + container px-4 */
-  width: calc(100% + 160px); /* Large screens: (40+24+16)*2 = 160px */
-  margin-left: -80px; /* Large screens: -(40+24+16) = -80px */
-  margin-right: -80px;
+  /* Break out to full viewport width while staying centered */
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
 }
 
 /* Contained header - stays within card bounds */
@@ -23,46 +23,21 @@
   margin: 0;
 }
 
-/* Large screens (1024px and up) - default fullWidth padding */
-@media (min-width: 1024px) {
-  .fullWidth .avatarContainer {
-    padding: 0 104px; /* Large screens: 80px compensation + 24px original */
-  }
-  
+/* Optional: Constrain text padding inside full-width mode */
+@media (min-width: 768px) {
+  .fullWidth .avatarContainer,
   .fullWidth .profileInfo {
-    padding: 0 104px; /* Large screens: 80px compensation + 24px original */
-  }
-}
-
-/* Responsive adjustments for full width */
-@media (max-width: 1023px) and (min-width: 768px) {
-  .fullWidth {
-    width: calc(100% + 144px); /* Medium screens: (32+24+16)*2 = 144px */
-    margin-left: -72px; /* Medium screens: -(32+24+16) = -72px */
-    margin-right: -72px;
-  }
-  
-  .fullWidth .profileInfo {
-    padding: 0 96px; /* Medium screens: 72px compensation + 24px original */
-  }
-  
-  .fullWidth .avatarContainer {
-    padding: 0 96px; /* Medium screens: 72px compensation + 24px original */
+    padding-left: 40px;
+    padding-right: 40px;
   }
 }
 
 @media (max-width: 767px) {
-  .fullWidth {
-    width: 100%; /* Simple full width on mobile, no complex calculations */
-    margin-left: 0; /* Remove negative margin that pushes content right */
-    margin-right: 0; /* Remove negative margin that pushes content right */
-  }
-  
-  /* Public profile on mobile should also be full width */
-  .contained {
-    width: 100%; /* Simple full width on mobile */
-    margin-left: 0; /* Remove negative margin */
-    margin-right: 0; /* Remove negative margin */
+  /* Make header break out to full viewport on mobile */
+  .fullWidth, .contained {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    margin-right: calc(-50vw + 50%);
   }
   
   .profileSection {
@@ -72,12 +47,12 @@
   
   .profileCoverContainer { 
     height: 200px; /* Smaller height on mobile */
-    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+    border-radius: 0; /* No border radius for edge-to-edge look */
     margin: 0;
   }
   
   .profileCoverImage, .profileCoverPlaceholder { 
-    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
+    border-radius: 0; /* No border radius for edge-to-edge look */
   }
   
   .profileInitials { 
@@ -108,26 +83,6 @@
   .avatar, .avatarPlaceholder {
     border-width: 3px;
   }
-
-  /* Mobile specific styles */
-  .profileSection {
-    width: 100%;
-    margin: 0;
-  }
-  
-  .profileCoverContainer { 
-    height: 200px; /* Smaller height on mobile */
-    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
-    margin: 0;
-  }
-  
-  .profileCoverImage, .profileCoverPlaceholder { 
-    border-radius: 12px 12px 0 0; /* Only top corners on mobile */
-  }
-  
-  .profileInitials { 
-    font-size: 32px; 
-  }
   
   .name { 
     font-size: 24px; 
@@ -141,6 +96,10 @@
   
   .bio { 
     font-size: 14px; 
+  }
+
+  .avatarRow {
+    padding: 0 20px;
   }
 } 
 
@@ -199,13 +158,13 @@
   display: flex !important;
   width: 100% !important;
   margin-bottom: 20px;
-  padding: 0 24px; /* Default padding */
+  padding: 0; /* padding moved to avatarRow */
   flex-direction: row;
   align-items: flex-start;
 }
 
 .contained .avatarContainer {
-  padding: 0 24px; /* Normal padding for contained headers */
+  padding: 0;
 }
 
 /* Avatar Styles */
@@ -246,12 +205,12 @@
 
 /* Profile Info */
 .profileInfo { 
-  padding: 0 24px; /* Default padding */
+  padding: 0; /* padding moved to avatarRow */
   margin-top: 0;
 }
 
 .contained .profileInfo {
-  padding: 0 24px; /* Normal padding for contained headers */
+  padding: 0;
 }
 
 .name { 
@@ -277,4 +236,18 @@
   font-size: 15px; 
   line-height: 1.6; 
   max-width: 500px; 
+}
+
+/* Avatar Row wrapper */
+.avatarRow {
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .avatarRow {
+    padding: 0 20px;
+  }
 } 

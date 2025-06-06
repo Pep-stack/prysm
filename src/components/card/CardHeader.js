@@ -22,8 +22,8 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   const displayType = profile?.display_type || 'avatar';
 
   // Context detection for header width behavior
-  const isDashboard = !isPublicView;
-  const shouldUseFullWidth = isDashboard; // Dashboard always full width, public profile responsive
+  // We force contained mode for all views to ensure the header image aligns exactly with card edges
+  const shouldUseFullWidth = false;
 
   // Avatar settings uit profiel
   const avatarSize = profile?.avatar_size || 'medium';
@@ -36,7 +36,6 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Debug logging
   console.log('CardHeader Debug:', {
     displayType,
-    isDashboard,
     shouldUseFullWidth,
     isPublicView,
     header_url: profile?.header_url,
@@ -113,67 +112,69 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
         </div>
       )}
       
-      {/* Avatar sectie (alleen tonen als display_type = 'avatar') */}
-      {displayType === 'avatar' && (
+      {/* Avatar + profile info wrapper (ensures padding does not affect header image) */}
+      <div className={styles.avatarRow}>
+        {displayType === 'avatar' && (
+          <div 
+            className={styles.avatarContainer}
+            style={{ 
+              justifyContent: avatarJustification,
+              marginTop: '0px',
+              display: 'flex',
+              width: '100%'
+            }}
+          >
+            {profile?.avatar_url ? (
+              <Image
+                src={profile.avatar_url}
+                alt={profile?.name || user?.email || 'Profile Avatar'}
+                width={avatarSizePx}
+                height={avatarSizePx}
+                className={styles.avatar}
+                style={{ 
+                  objectFit: 'cover',
+                  borderRadius: avatarBorderRadius,
+                  width: `${avatarSizePx}px`,
+                  height: `${avatarSizePx}px`,
+                  flexShrink: 0
+                }}
+              />
+            ) : (
+              <div 
+                className={styles.avatarPlaceholder}
+                style={{
+                  width: `${avatarSizePx}px`,
+                  height: `${avatarSizePx}px`,
+                  borderRadius: avatarBorderRadius,
+                  fontSize: `${avatarSizePx * 0.4}px`,
+                  flexShrink: 0
+                }}
+              >
+                <span className={styles.avatarInitials}>
+                  {getInitials(profile?.name)}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Profiel informatie */}
         <div 
-          className={styles.avatarContainer}
+          className={styles.profileInfo}
           style={{ 
-            justifyContent: avatarJustification,
-            marginTop: '0px',
-            display: 'flex',
-            width: '100%'
+            textAlign: displayType === 'avatar' && avatarPosition === 'center' ? 'center' : 
+                      displayType === 'avatar' && avatarPosition === 'right' ? 'right' : 'left',
+            marginTop: displayType === 'header' ? '20px' : '16px'
           }}
         >
-          {profile?.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={profile?.name || user?.email || 'Profile Avatar'}
-              width={avatarSizePx}
-              height={avatarSizePx}
-              className={styles.avatar}
-              style={{ 
-                objectFit: 'cover',
-                borderRadius: avatarBorderRadius,
-                width: `${avatarSizePx}px`,
-                height: `${avatarSizePx}px`,
-                flexShrink: 0
-              }}
-            />
-          ) : (
-            <div 
-              className={styles.avatarPlaceholder}
-              style={{
-                width: `${avatarSizePx}px`,
-                height: `${avatarSizePx}px`,
-                borderRadius: avatarBorderRadius,
-                fontSize: `${avatarSizePx * 0.4}px`,
-                flexShrink: 0
-              }}
-            >
-              <span className={styles.avatarInitials}>
-                {getInitials(profile?.name)}
-              </span>
-            </div>
+          <h2 className={styles.name} style={{ color: textColor }}>{profile?.name || 'Your Name'}</h2>
+          {profile?.headline && (
+            <p className={styles.headline} style={{ color: textColor, opacity: 0.8 }}>{profile.headline}</p>
+          )}
+          {profile?.bio && (
+            <p className={styles.bio} style={{ color: textColor, opacity: 0.7 }}>{profile.bio}</p>
           )}
         </div>
-      )}
-
-      {/* Profiel informatie - show for both header and avatar mode */}
-      <div 
-        className={styles.profileInfo}
-        style={{ 
-          textAlign: displayType === 'avatar' && avatarPosition === 'center' ? 'center' : 
-                    displayType === 'avatar' && avatarPosition === 'right' ? 'right' : 'left',
-          marginTop: displayType === 'header' ? '20px' : '16px'
-        }}
-      >
-        <h2 className={styles.name} style={{ color: textColor }}>{profile?.name || 'Your Name'}</h2>
-        {profile?.headline && (
-          <p className={styles.headline} style={{ color: textColor, opacity: 0.8 }}>{profile.headline}</p>
-        )}
-        {profile?.bio && (
-          <p className={styles.bio} style={{ color: textColor, opacity: 0.7 }}>{profile.bio}</p>
-        )}
       </div>
     </div>
   );

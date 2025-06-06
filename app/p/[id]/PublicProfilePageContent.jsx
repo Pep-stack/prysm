@@ -30,7 +30,7 @@ export default function PublicProfilePageContent({ profile, cardSections }) {
         )
       }}
     >
-      <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="max-w-3xl mx-auto px-0 py-0">
         <PrysmaCard 
           profile={profile} 
           user={null}
