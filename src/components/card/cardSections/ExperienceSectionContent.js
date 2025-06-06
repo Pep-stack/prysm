@@ -121,13 +121,15 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
       key={entry.id || index} 
       style={{
         position: 'relative',
-        padding: '20px',
+        padding: window.innerWidth <= 768 ? '16px' : '20px',
         backgroundColor: 'white',
         border: '1px solid #e2e8f0',
         borderRadius: '12px',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-        minHeight: '200px',
-        width: '100%'
+        minHeight: window.innerWidth <= 768 ? '160px' : '200px',
+        width: '100%',
+        overflow: 'hidden',
+        boxSizing: 'border-box'
       }}
     >
       {/* Current Job Badge */}
@@ -297,7 +299,9 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '6px'
+            gap: '6px',
+            overflow: 'hidden',
+            maxWidth: '100%'
           }}>
             {entry.skills.slice(0, 6).map((skill, idx) => (
               <span
@@ -382,7 +386,13 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
     const useCarousel = initialExperienceData.length > 1 && initialExperienceData[0]?.useCarousel;
     
     return (
-      <div style={sectionStyle} title="Click to edit work experience">
+      <div style={{
+        ...sectionStyle,
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} title="Click to edit work experience">
         <h3 style={sectionTitleStyle}>Work Experience</h3>
 
         {useCarousel ? (
@@ -391,7 +401,9 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
             <div 
               style={{ 
                 touchAction: 'pan-y',
-                userSelect: 'none'
+                userSelect: 'none',
+                overflow: 'hidden',
+                width: '100%'
               }}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
@@ -428,7 +440,13 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
           </div>
         ) : (
           // List View
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '12px',
+            overflow: 'hidden',
+            width: '100%'
+          }}>
             {initialExperienceData.map((entry, index) => renderExperienceCard(entry, index))}
           </div>
         )}

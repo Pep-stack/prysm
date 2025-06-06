@@ -142,7 +142,10 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
           display: 'flex',
           flexDirection: 'column',
           transition: 'all 0.3s ease',
-          cursor: entry.demoUrl ? 'pointer' : 'default'
+          cursor: entry.demoUrl ? 'pointer' : 'default',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
         onClick={() => entry.demoUrl && window.open(entry.demoUrl, '_blank')}
         onMouseEnter={(e) => {
@@ -312,7 +315,9 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: '4px',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                overflow: 'hidden',
+                maxWidth: '100%'
               }}>
                 {entry.technologies.slice(0, 4).map((tech, idx) => (
                   <span
@@ -468,7 +473,13 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
     const gridColumns = getGridColumns(visibleProjects.length);
     
     return (
-      <div style={sectionStyle} title="Click to edit projects">
+      <div style={{
+        ...sectionStyle,
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} title="Click to edit projects">
         <h3 style={sectionTitleStyle}>Projects & Portfolio</h3>
 
         <div style={{ position: 'relative' }}>
@@ -478,14 +489,14 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
               onClick={goToPrev}
               style={{
                 position: 'absolute',
-                left: '-16px',
+                left: '8px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
                 border: '1px solid #e2e8f0',
-                backgroundColor: 'transparent',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 color: '#64748b',
                 cursor: 'pointer',
                 display: 'flex',
@@ -500,7 +511,7 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                 e.target.style.color = '#3b82f6';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
                 e.target.style.color = '#64748b';
               }}
             >
@@ -512,10 +523,12 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
           <div 
             style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
-              gap: '20px',
+              gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : `repeat(${gridColumns}, 1fr)`,
+              gap: window.innerWidth <= 768 ? '16px' : '20px',
               touchAction: 'pan-y',
-              userSelect: 'none'
+              userSelect: 'none',
+              padding: window.innerWidth <= 768 ? '0 8px' : '0',
+              overflow: 'hidden'
             }}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
@@ -531,14 +544,14 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
               onClick={goToNext}
               style={{
                 position: 'absolute',
-                right: '-16px',
+                right: '8px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
                 border: '1px solid #e2e8f0',
-                backgroundColor: 'transparent',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
                 color: '#64748b',
                 cursor: 'pointer',
                 display: 'flex',
@@ -553,7 +566,7 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                 e.target.style.color = '#3b82f6';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
                 e.target.style.color = '#64748b';
               }}
             >
