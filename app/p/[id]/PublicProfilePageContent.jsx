@@ -1,5 +1,5 @@
 "use client";
-import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
+import { useDesignSettings } from '../../../src/components/dashboard/DesignSettingsContext';
 import PrysmaCard from '../../../src/components/card/PrysmaCard';
 
 // Define which section types are considered social media (same as in the hook)

@@ -6,21 +6,9 @@ import CardSectionRenderer from './CardSectionRenderer';
 import SocialBar from './SocialBar';
 import styles from './PrysmaCard.module.css';
 import { supabase } from '@/lib/supabase';
-import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
+import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 
-// Section content component imports
-import GithubGitlabSectionContent from './cardSections/GithubGitlabSectionContent';
-import DribbbleBehanceSectionContent from './cardSections/DribbbleBehanceSectionContent';
-import YoutubeChannelSectionContent from './cardSections/YoutubeChannelSectionContent';
-import TiktokSectionContent from './cardSections/TiktokSectionContent';
-import FacebookSectionContent from './cardSections/FacebookSectionContent';
-import StackoverflowSectionContent from './cardSections/StackoverflowSectionContent';
-import GoogleMapsSectionContent from './cardSections/GoogleMapsSectionContent';
-import TimezoneHoursSectionContent from './cardSections/TimezoneHoursSectionContent';
-import DownloadCvSectionContent from './cardSections/DownloadCvSectionContent';
-import StatisticsProofSectionContent from './cardSections/StatisticsProofSectionContent';
-import BlogArticlesSectionContent from './cardSections/BlogArticlesSectionContent';
-import VideoBannerSectionContent from './cardSections/VideoBannerSectionContent';
+// Section rendering is handled by CardSectionRenderer
 
 export default function PrysmaCard({
   profile,
@@ -55,7 +43,7 @@ export default function PrysmaCard({
         profile={profile}
         user={user}
       />
-
+      
       {/* Main Sections */}
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
         {cardSections && cardSections.length > 0 && (

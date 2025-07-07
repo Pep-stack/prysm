@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { sectionComponentMap } from './CardSectionRenderer';
-import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
+import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 
 export default function SocialBar({ sections = [], profile, user }) {
   const { settings } = useDesignSettings();
@@ -47,6 +47,7 @@ export default function SocialBar({ sections = [], profile, user }) {
                 section={section}
                 profile={profile}
                 user={user}
+                isPublicView={true}
                 styles={socialBarStyles}
                 designSettings={settings}
                 isCompact={true}

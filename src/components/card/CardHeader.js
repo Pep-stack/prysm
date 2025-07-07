@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
-import { useDesignSettings } from '../../../components/dashboard/DesignSettingsContext';
+import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 
 // Helper functie voor initialen
 const getInitials = (name) => {

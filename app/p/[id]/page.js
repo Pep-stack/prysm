@@ -4,7 +4,7 @@ import React from 'react';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'; // Use server client
 import { cookies } from 'next/headers';
 import PrysmaCard from '../../../src/components/card/PrysmaCard'; // Adjust path if needed
-import DesignSettingsClientProvider from '../../../components/dashboard/DesignSettingsClientProvider';
+import DesignSettingsClientProvider from '../../../src/components/dashboard/DesignSettingsClientProvider';
 import PublicProfilePageContent from './PublicProfilePageContent';
 
 // Function to fetch profile data on the server

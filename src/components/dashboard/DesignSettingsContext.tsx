@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../../src/lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 export const DesignSettingsContext = createContext({ settings: {}, setSettings: (_:any) => {} });
 

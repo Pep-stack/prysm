@@ -23,14 +23,14 @@ import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
 import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
 import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
-import { useCardLayoutWithSocialBar } from '../../src/hooks/useCardLayoutWithSocialBar';
+import { useCardLayout } from '../../src/hooks/useCardLayout';
 
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps, SECTION_OPTIONS } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
-import DesignToolbar from '../../components/dashboard/DesignToolbar';
-import { DesignSettingsProvider, useDesignSettings } from '../../components/dashboard/DesignSettingsContext';
+import DesignToolbar from '../../src/components/dashboard/DesignToolbar';
+import { DesignSettingsProvider, useDesignSettings } from '../../src/components/dashboard/DesignSettingsContext';
 
 
 
@@ -50,7 +50,7 @@ export default function DashboardPageContent() {
     handleProfileUpdate,
   } = useUserProfile(user);
 
-  // Use the new social bar hook
+  // Use the consolidated card layout hook
   const {
     cardSections,
     socialBarSections,
@@ -59,7 +59,7 @@ export default function DashboardPageContent() {
     handleRemoveSection,
     handleDragEnd,
     getAllSections,
-  } = useCardLayoutWithSocialBar(profile);
+  } = useCardLayout(profile);
 
   const [activeId, setActiveId] = useState(null);
   const [hasInitializedSections, setHasInitializedSections] = useState(false);

@@ -2,105 +2,238 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
+import { v4 as uuidv4 } from 'uuid';
+import { getDefaultSectionProps, SECTION_OPTIONS } from '../lib/sectionOptions';
 
-// Default initial state if profile is null or has no sections
-const DEFAULT_SECTIONS = [{ id: 'bio' }, { id: 'contact' }]; 
+// Define which section types are considered social media
+const SOCIAL_MEDIA_TYPES = [
+  'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
+  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
+  'email', 'whatsapp'
+];
 
-export function useCardLayout(profile) { // Accept profile object
-  // Initialize state based on profile?.card_sections or default
+// Helper function to enhance sections with properties from SECTION_OPTIONS
+const enhanceSectionWithDefaults = (section) => {
+  const sectionOption = SECTION_OPTIONS.find(option => option.type === section.type);
+  return {
+    ...section,
+    ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent })
+  };
+};
+
+// Helper function to create proper default sections
+const createDefaultSections = () => [
+  {
+    id: uuidv4(),
+    type: 'bio',
+    ...getDefaultSectionProps('bio')
+  },
+  {
+    id: uuidv4(), 
+    type: 'contact',
+    ...getDefaultSectionProps('contact')
+  },
+  {
+    id: uuidv4(),
+    type: 'languages',
+    ...getDefaultSectionProps('languages'),
+    editorComponent: 'LanguageSelector'
+  },
+  {
+    id: uuidv4(),
+    type: 'education',
+    ...getDefaultSectionProps('education'),
+    editorComponent: 'EducationSelector'
+  }
+];
+
+export function useCardLayout(profile) {
+  // Initialize state based on profile sections, separating social and regular sections
   const [cardSections, setCardSections] = useState(() => {
     const initial = profile?.card_sections;
-    // Ensure it's a valid array, otherwise use default
-    return Array.isArray(initial) && initial.length > 0 ? initial : DEFAULT_SECTIONS;
+    if (Array.isArray(initial) && initial.length > 0) {
+      return initial
+        .filter(section => !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar')
+        .map(enhanceSectionWithDefaults);
+    }
+    // Only create default sections if we have no profile data yet
+    if (!profile) {
+      return createDefaultSections();
+    }
+    return [];
+  });
+
+  const [socialBarSections, setSocialBarSections] = useState(() => {
+    const initial = profile?.card_sections;
+    if (Array.isArray(initial) && initial.length > 0) {
+      return initial
+        .filter(section => SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar')
+        .map(enhanceSectionWithDefaults);
+    }
+    return [];
   });
 
   // Effect to update local state if profile data changes externally
   useEffect(() => {
     const sectionsFromProfile = profile?.card_sections;
     if (Array.isArray(sectionsFromProfile)) {
-        // Vereenvoudigde check: update alleen als de string-representatie anders is
-        // Je kunt dit verfijnen indien nodig
-        const currentIds = cardSections.map(s => s.id).join(',');
-        const profileIds = sectionsFromProfile.map(s => s.id).join(',');
-        if (profileIds !== currentIds) {
-             console.log('Syncing local state FROM profile sections'); // Log voor debuggen
-             setCardSections(sectionsFromProfile.length > 0 ? sectionsFromProfile : DEFAULT_SECTIONS);
-        }
-    } else {
-        // Als profile geen sections heeft, zet default (tenzij al default)
-        const defaultIds = DEFAULT_SECTIONS.map(s => s.id).join(',');
-        const currentIds = cardSections.map(s => s.id).join(',');
-        if (currentIds !== defaultIds) {
-            console.log('Syncing local state TO default sections (profile empty)'); // Log voor debuggen
-            setCardSections(DEFAULT_SECTIONS);
-        }
-    }
-  }, [profile?.card_sections]); // <-- ALLEEN AFHANKELIJK VAN PROFILE DATA
+      const regularSections = sectionsFromProfile.filter(section => 
+        !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar'
+      );
+      const socialSections = sectionsFromProfile.filter(section => 
+        SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar'
+      );
 
-  // Handler to remove a section from the card (only updates local state)
+      // Update regular sections
+      const currentRegularIds = cardSections.map(s => s.id).join(',');
+      const profileRegularIds = regularSections.map(s => s.id).join(',');
+      if (profileRegularIds !== currentRegularIds) {
+        setCardSections(regularSections.map(enhanceSectionWithDefaults));
+      }
+
+      // Update social bar sections
+      const currentSocialIds = socialBarSections.map(s => s.id).join(',');
+      const profileSocialIds = socialSections.map(s => s.id).join(',');
+      if (profileSocialIds !== currentSocialIds) {
+        setSocialBarSections(socialSections.map(enhanceSectionWithDefaults));
+      }
+    }
+  }, [profile?.card_sections]);
+
+  // Handler to remove a section from either area
   const handleRemoveSection = useCallback((idToRemove) => {
     console.log(`Attempting to remove section with ID: ${idToRemove}`);
+    
+    // Try removing from regular sections first
     setCardSections((prevSections) => {
       const newSections = prevSections.filter((section) => section.id !== idToRemove);
-      console.log('New sections after filter:', newSections);
-      return newSections;
+      if (newSections.length !== prevSections.length) {
+        console.log('Removed from regular sections:', newSections);
+        return newSections;
+      }
+      return prevSections;
+    });
+
+    // Try removing from social bar sections
+    setSocialBarSections((prevSections) => {
+      const newSections = prevSections.filter((section) => section.id !== idToRemove);
+      if (newSections.length !== prevSections.length) {
+        console.log('Removed from social bar sections:', newSections);
+        return newSections;
+      }
+      return prevSections;
     });
   }, []);
 
-  // Handler for drag end (only updates local state)
+  // Enhanced drag end handler with social bar support
   const handleDragEnd = useCallback((event) => {
     const { active, over } = event;
     
     if (!over) return;
     
     const droppingOnCard = over.id === 'prysma-card-dropzone';
+    const droppingOnSocialBar = over.id === 'social-bar-dropzone';
     const isActiveOption = active.data.current?.type === 'card-option';
 
-    // Case 1: Dropping a new section from the right column onto the card
-    if (isActiveOption && droppingOnCard) {
+    // Case 1: Dropping a new section from the available sections
+    if (isActiveOption && (droppingOnCard || droppingOnSocialBar)) {
       const droppedOption = active.data.current.option;
-      setCardSections((prevSections) => {
-        const isAlreadyAdded = prevSections.some(section => section.id === droppedOption.id);
-        if (!isAlreadyAdded) {
-          // Add only the ID (or necessary data) to the layout state
-          const newSections = [...prevSections, { id: droppedOption.id }]; 
-          // NO DB save here
-          return newSections;
-        } else {
+      const isSocialType = SOCIAL_MEDIA_TYPES.includes(droppedOption.type);
+      
+      // If dropping on social bar, only allow social types
+      if (droppingOnSocialBar && !isSocialType) {
+        console.log('Non-social section dropped on social bar, ignoring');
+        return;
+      }
+
+      // If dropping a social type on main card, redirect to social bar
+      if (droppingOnCard && isSocialType) {
+        setSocialBarSections((prevSections) => {
+          const isAlreadyAdded = prevSections.some(section => section.id === droppedOption.id);
+          if (!isAlreadyAdded) {
+            const newSection = { 
+              ...droppedOption, 
+              id: droppedOption.id,
+              area: 'social_bar'
+            };
+            return [...prevSections, newSection];
+          }
           return prevSections;
-        }
-      });
-      return;
+        });
+        return;
+      }
+
+      // Normal drop on main card for non-social types
+      if (droppingOnCard && !isSocialType) {
+        setCardSections((prevSections) => {
+          const isAlreadyAdded = prevSections.some(section => section.id === droppedOption.id);
+          if (!isAlreadyAdded) {
+            return [...prevSections, { id: droppedOption.id }];
+          }
+          return prevSections;
+        });
+        return;
+      }
+
+      // Drop on social bar for social types
+      if (droppingOnSocialBar && isSocialType) {
+        setSocialBarSections((prevSections) => {
+          const isAlreadyAdded = prevSections.some(section => section.id === droppedOption.id);
+          if (!isAlreadyAdded) {
+            const newSection = { 
+              ...droppedOption, 
+              id: droppedOption.id,
+              area: 'social_bar'
+            };
+            return [...prevSections, newSection];
+          }
+          return prevSections;
+        });
+        return;
+      }
     }
     
-    // Case 2: Sorting sections already within the card
-    setCardSections((prevSections) => {
-        const isActiveSection = prevSections.some(section => section.id === active.id);
-        const isOverCardArea = over.id === 'prysma-card-dropzone' || prevSections.some(section => section.id === over.id);
-        
-        if (isActiveSection && isOverCardArea && active.id !== over.id) {
-            const oldIndex = prevSections.findIndex((item) => item.id === active.id);
-            const overIsSection = prevSections.some(section => section.id === over.id);
+    // Case 2: Sorting sections within the same area
+    if (active.id !== over.id) {
+      // Check if we're sorting in social bar
+      const isActiveSocial = socialBarSections.some(section => section.id === active.id);
+      const isOverSocial = socialBarSections.some(section => section.id === over.id);
+      
+      if (isActiveSocial && isOverSocial) {
+        setSocialBarSections((prevSections) => {
+          const oldIndex = prevSections.findIndex((item) => item.id === active.id);
+          const newIndex = prevSections.findIndex((item) => item.id === over.id);
+          if (oldIndex !== -1 && newIndex !== -1) {
+            return arrayMove(prevSections, oldIndex, newIndex);
+          }
+          return prevSections;
+        });
+      } else {
+        // Sorting in main card area
+        setCardSections((prevSections) => {
+          const oldIndex = prevSections.findIndex((item) => item.id === active.id);
+          const newIndex = prevSections.findIndex((item) => item.id === over.id);
+          if (oldIndex !== -1 && newIndex !== -1) {
+            return arrayMove(prevSections, oldIndex, newIndex);
+          }
+          return prevSections;
+        });
+      }
+    }
+  }, [socialBarSections]);
 
-            if (oldIndex !== -1 && overIsSection) { 
-                const newIndex = prevSections.findIndex((item) => item.id === over.id);
-                if (newIndex !== -1) {
-                   const newSections = arrayMove(prevSections, oldIndex, newIndex);
-                   // NO DB save here
-                   return newSections;
-                }
-            }
-        }
-        return prevSections; 
-    });
+  // Helper function to get all sections for saving
+  const getAllSections = useCallback(() => {
+    return [...cardSections, ...socialBarSections];
+  }, [cardSections, socialBarSections]);
 
-  }, []);
-
-  // Return the state and the handlers
   return {
-    cardSections, // The current layout state
+    cardSections,
+    socialBarSections,
     setCardSections,
+    setSocialBarSections,
     handleRemoveSection,
     handleDragEnd,
+    getAllSections,
   };
 } 

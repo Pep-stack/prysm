@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../src/lib/supabase';
+import { supabase } from '../../lib/supabase';
 import { FaFont, FaTimes } from 'react-icons/fa';
 import { MdSettings, MdViewModule } from 'react-icons/md';
 import { useDesignSettings } from './DesignSettingsContext';
@@ -443,4 +443,4 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       )}
     </div>
   );
-}
+} 
