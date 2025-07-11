@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   stackoverflow TEXT,
   -- Additional profile columns  
   card_sections JSONB DEFAULT '[]'::jsonb,
+  card_type TEXT DEFAULT 'pro',
   languages TEXT,
   contact TEXT,
   experience TEXT,
@@ -68,6 +69,7 @@ ADD COLUMN IF NOT EXISTS dribbble_behance TEXT,
 ADD COLUMN IF NOT EXISTS stackoverflow TEXT,
 -- Additional profile columns
 ADD COLUMN IF NOT EXISTS card_sections JSONB DEFAULT '[]'::jsonb,
+ADD COLUMN IF NOT EXISTS card_type TEXT DEFAULT 'pro',
 ADD COLUMN IF NOT EXISTS languages TEXT,
 ADD COLUMN IF NOT EXISTS contact TEXT,
 ADD COLUMN IF NOT EXISTS experience TEXT,

@@ -26,7 +26,7 @@ import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { useCardLayout } from '../../src/hooks/useCardLayout';
 
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps, SECTION_OPTIONS } from '../../src/lib/sectionOptions';
+import { getDefaultSectionProps, getSectionOptionsByCardType, CARD_TYPES } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../src/components/dashboard/DesignToolbar';
@@ -49,6 +49,8 @@ export default function DashboardPageContent() {
     languagesError,
     handleProfileUpdate,
   } = useUserProfile(user);
+
+
 
   // Use the consolidated card layout hook
   const {
@@ -130,9 +132,13 @@ export default function DashboardPageContent() {
   };
 
   const handleAddSection = (sectionType) => {
-    const defaultProps = getDefaultSectionProps(sectionType);
+    // Get card type from profile, default to PRO
+    const currentCardType = profile?.card_type || CARD_TYPES.PRO;
+    const defaultProps = getDefaultSectionProps(sectionType, currentCardType);
+    
     // Get the section option to include editorComponent if available
-    const sectionOption = SECTION_OPTIONS.find(option => option.type === sectionType);
+    const sectionOptions = getSectionOptionsByCardType(currentCardType);
+    const sectionOption = sectionOptions.find(option => option.type === sectionType);
     
     const newSection = {
       id: uuidv4(),
@@ -158,6 +164,8 @@ export default function DashboardPageContent() {
 
   const existingSectionTypes = [...cardSections, ...socialBarSections].map((s) => s.type);
 
+
+
   // Callback om profiel te updaten na opslaan van design settings
   const handleProfileUpdateFromToolbar = (updatedProfile) => {
     if (updatedProfile) {
@@ -178,6 +186,7 @@ export default function DashboardPageContent() {
           <AvailableSectionList
             onAddSection={handleAddSection}
             existingSectionTypes={existingSectionTypes}
+            cardType={profile?.card_type || CARD_TYPES.PRO}
           />
           <DndContext
             sensors={sensors}

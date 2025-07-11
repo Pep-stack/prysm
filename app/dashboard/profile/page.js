@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../../src/components/auth/SessionProvider';
 import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
-import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor } from 'react-icons/lu';
+import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor, LuBriefcase, LuBuilding2 } from 'react-icons/lu';
 import { useFileUpload } from '../../../src/hooks/useFileUpload';
 import { supabase } from '../../../src/lib/supabase';
 
@@ -20,7 +20,8 @@ export default function ProfilePage() {
     message,
     handleChange,
     saveProfileDetails,
-    handleAvatarUploadSuccess
+    handleAvatarUploadSuccess,
+    updateProfileField
   } = useProfileEditor(user);
 
   // File upload states
@@ -38,6 +39,10 @@ export default function ProfilePage() {
   const [avatarPosition, setAvatarPosition] = useState('left');
   const [savingSettings, setSavingSettings] = useState(false);
 
+  // Card type settings
+  const [cardType, setCardType] = useState('pro');
+  const [savingCardType, setSavingCardType] = useState(false);
+
   useEffect(() => {
     if (!sessionLoading && !user) {
       router.push('/login');
@@ -51,6 +56,7 @@ export default function ProfilePage() {
       setAvatarSize(profile.avatar_size || 'medium');
       setAvatarShape(profile.avatar_shape || 'circle');
       setAvatarPosition(profile.avatar_position || 'left');
+      setCardType(profile.card_type || 'pro');
     }
   }, [profile]);
 
@@ -200,6 +206,37 @@ export default function ProfilePage() {
     }
   };
 
+  // Save card type settings
+  const handleSaveCardType = async () => {
+    if (!user) return;
+
+    setSavingCardType(true);
+    setUploadError(null);
+    setUploadSuccess(null);
+
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          card_type: cardType,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      // Update local profile state to reflect the change
+      updateProfileField('card_type', cardType);
+
+      setUploadSuccess('Card type updated successfully!');
+      setTimeout(() => setUploadSuccess(null), 3000);
+    } catch (err) {
+      setUploadError(err.message || 'Failed to update card type');
+    } finally {
+      setSavingCardType(false);
+    }
+  };
+
   if (sessionLoading || loading) {
     return (
       <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
@@ -249,6 +286,136 @@ export default function ProfilePage() {
             <p className="text-red-700 text-sm">{uploadError || error}</p>
           </div>
         )}
+
+        {/* Card Type Selection Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-4 sm:p-6">
+            <div className="flex items-center gap-3 mb-4 text-gray-700">
+              <LuSettings className="w-5 h-5 flex-shrink-0" />
+              <h2 className="text-base font-medium text-black">Card Type</h2>
+            </div>
+            
+            <div className="space-y-6 sm:pl-8">
+              {/* Card Type Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Choose Your Card Type
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
+                    cardType === 'pro' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="cardType"
+                      value="pro"
+                      checked={cardType === 'pro'}
+                      onChange={(e) => setCardType(e.target.value)}
+                      className="sr-only"
+                    />
+                    <div className="text-center">
+                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
+                        cardType === 'pro' 
+                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
+                          : 'bg-gray-100'
+                      }`}>
+                        <LuUser className={`w-8 h-8 ${
+                          cardType === 'pro' ? 'text-white' : 'text-gray-400'
+                        }`} />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Prysma Pro</h3>
+                      <p className="text-xs text-gray-500 mt-1">Freelancers, creators, consultants</p>
+                    </div>
+                    {cardType === 'pro' && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <LuSave className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                  </label>
+
+                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
+                    cardType === 'career' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="cardType"
+                      value="career"
+                      checked={cardType === 'career'}
+                      onChange={(e) => setCardType(e.target.value)}
+                      className="sr-only"
+                    />
+                    <div className="text-center">
+                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
+                        cardType === 'career' 
+                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
+                          : 'bg-gray-100'
+                      }`}>
+                        <LuBriefcase className={`w-8 h-8 ${
+                          cardType === 'career' ? 'text-white' : 'text-gray-400'
+                        }`} />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Prysma Career</h3>
+                      <p className="text-xs text-gray-500 mt-1">Job seekers, career changers, graduates</p>
+                    </div>
+                    {cardType === 'career' && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <LuSave className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                  </label>
+
+                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
+                    cardType === 'business' 
+                      ? 'border-emerald-500 bg-emerald-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <input
+                      type="radio"
+                      name="cardType"
+                      value="business"
+                      checked={cardType === 'business'}
+                      onChange={(e) => setCardType(e.target.value)}
+                      className="sr-only"
+                    />
+                    <div className="text-center">
+                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
+                        cardType === 'business' 
+                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
+                          : 'bg-gray-100'
+                      }`}>
+                        <LuBuilding2 className={`w-8 h-8 ${
+                          cardType === 'business' ? 'text-white' : 'text-gray-400'
+                        }`} />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Prysma Business</h3>
+                      <p className="text-xs text-gray-500 mt-1">Companies, agencies, stores</p>
+                    </div>
+                    {cardType === 'business' && (
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <LuSave className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={handleSaveCardType}
+                  disabled={savingCardType}
+                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-md shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <LuSave className="w-4 h-4" />
+                  {savingCardType ? 'Saving...' : 'Save Card Type'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Profile Information Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">

@@ -17,6 +17,7 @@ const initialProfileState = {
   avatar_size: 'medium',
   avatar_shape: 'circle',
   avatar_position: 'left',
+  card_type: 'pro',
 };
 
 export function useProfileEditor(user) {
@@ -70,6 +71,7 @@ export function useProfileEditor(user) {
             avatar_size: data.avatar_size || 'medium',
             avatar_shape: data.avatar_shape || 'circle',
             avatar_position: data.avatar_position || 'left',
+            card_type: data.card_type || 'pro',
           });
         }
       } catch (err) {
@@ -144,6 +146,11 @@ export function useProfileEditor(user) {
     setError(null); 
   }, []);
 
+  // Update profile state directly (for card type changes)
+  const updateProfileField = useCallback((field, value) => {
+    setProfile(prev => ({ ...prev, [field]: value }));
+  }, []);
+
   // Return values needed by the component
   return {
     profile,
@@ -155,5 +162,6 @@ export function useProfileEditor(user) {
     saveProfileDetails,
     handleAvatarUploadSuccess,
     handleHeaderUploadSuccess, // Return the new handler
+    updateProfileField, // Return the new update function
   };
 } 

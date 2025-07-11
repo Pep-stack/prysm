@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps, SECTION_OPTIONS } from '../lib/sectionOptions';
+import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES } from '../lib/sectionOptions';
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
@@ -21,31 +21,93 @@ const enhanceSectionWithDefaults = (section) => {
   };
 };
 
-// Helper function to create proper default sections
-const createDefaultSections = () => [
-  {
-    id: uuidv4(),
-    type: 'bio',
-    ...getDefaultSectionProps('bio')
-  },
-  {
-    id: uuidv4(), 
-    type: 'contact',
-    ...getDefaultSectionProps('contact')
-  },
-  {
-    id: uuidv4(),
-    type: 'languages',
-    ...getDefaultSectionProps('languages'),
-    editorComponent: 'LanguageSelector'
-  },
-  {
-    id: uuidv4(),
-    type: 'education',
-    ...getDefaultSectionProps('education'),
-    editorComponent: 'EducationSelector'
+// Helper function to create proper default sections based on card type
+const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
+  if (cardType === CARD_TYPES.PRO) {
+    return [
+      {
+        id: uuidv4(),
+        type: 'portfolio',
+        ...getDefaultSectionProps('portfolio', cardType),
+        editorComponent: 'ProjectSelector'
+      },
+      {
+        id: uuidv4(),
+        type: 'services',
+        ...getDefaultSectionProps('services', cardType)
+      },
+      {
+        id: uuidv4(),
+        type: 'skills',
+        ...getDefaultSectionProps('skills', cardType)
+      }
+    ];
+  } else if (cardType === CARD_TYPES.CAREER) {
+    return [
+      {
+        id: uuidv4(),
+        type: 'experience',
+        ...getDefaultSectionProps('experience', cardType),
+        editorComponent: 'ExperienceSelector'
+      },
+      {
+        id: uuidv4(),
+        type: 'education',
+        ...getDefaultSectionProps('education', cardType),
+        editorComponent: 'EducationSelector'
+      },
+      {
+        id: uuidv4(),
+        type: 'skills',
+        ...getDefaultSectionProps('skills', cardType)
+      }
+    ];
+  } else if (cardType === CARD_TYPES.BUSINESS) {
+    return [
+      {
+        id: uuidv4(),
+        type: 'company_info',
+        ...getDefaultSectionProps('company_info', cardType)
+      },
+      {
+        id: uuidv4(),
+        type: 'contact',
+        ...getDefaultSectionProps('contact', cardType)
+      },
+      {
+        id: uuidv4(),
+        type: 'services_products',
+        ...getDefaultSectionProps('services_products', cardType)
+      }
+    ];
   }
-];
+  
+  // Fallback to original defaults
+  return [
+    {
+      id: uuidv4(),
+      type: 'bio',
+      ...getDefaultSectionProps('bio')
+    },
+    {
+      id: uuidv4(), 
+      type: 'contact',
+      ...getDefaultSectionProps('contact')
+    },
+    {
+      id: uuidv4(),
+      type: 'languages',
+      ...getDefaultSectionProps('languages'),
+      editorComponent: 'LanguageSelector'
+    },
+    {
+      id: uuidv4(),
+      type: 'education',
+      ...getDefaultSectionProps('education'),
+      editorComponent: 'EducationSelector'
+    }
+  ];
+};
 
 export function useCardLayout(profile) {
   // Initialize state based on profile sections, separating social and regular sections
@@ -58,7 +120,7 @@ export function useCardLayout(profile) {
     }
     // Only create default sections if we have no profile data yet
     if (!profile) {
-      return createDefaultSections();
+      return createDefaultSections(profile?.card_type || CARD_TYPES.PRO);
     }
     return [];
   });

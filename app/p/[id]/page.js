@@ -4,7 +4,7 @@ import React from 'react';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'; // Use server client
 import { cookies } from 'next/headers';
 import PrysmaCard from '../../../src/components/card/PrysmaCard'; // Adjust path if needed
-import DesignSettingsClientProvider from '../../../src/components/dashboard/DesignSettingsClientProvider';
+import { DesignSettingsProvider } from '../../../src/components/dashboard/DesignSettingsContext';
 import PublicProfilePageContent from './PublicProfilePageContent';
 
 // Function to fetch profile data on the server
@@ -55,8 +55,8 @@ export default async function PublicProfilePage({ params }) {
   const cardSections = Array.isArray(profile.card_sections) ? profile.card_sections : [];
 
   return (
-    <DesignSettingsClientProvider initial={profile}>
+    <DesignSettingsProvider initial={profile}>
       <PublicProfilePageContent profile={profile} cardSections={cardSections} />
-    </DesignSettingsClientProvider>
+    </DesignSettingsProvider>
   );
 } 

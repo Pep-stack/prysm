@@ -3,17 +3,17 @@
 import React from 'react';
 import { useOpenCategories } from '../../hooks/useOpenCategories';
 // Importeer de opties en de grouping functie (of alleen options als je niet groepeert)
-import { SECTION_OPTIONS, getGroupedSectionOptions, CATEGORY_ICONS } from '../../lib/sectionOptions';
+import { getGroupedSectionOptions, CATEGORY_ICONS, CARD_TYPES } from '../../lib/sectionOptions';
 // Iconen worden nu hier direct gebruikt
 // import { getIconForSection } from '../../lib/sectionIcons'; // Niet meer nodig als icon in options zit
 import { LuChevronDown } from "react-icons/lu";
 
-export default function AvailableSectionList({ onAddSection, existingSectionTypes = [] }) {
+export default function AvailableSectionList({ onAddSection, existingSectionTypes = [], cardType = CARD_TYPES.PRO }) {
   const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
   // console.log("Initial openCategories:", openCategories); // Vorige debug log
 
-  // Gebruik de grouping functie (of filter SECTION_OPTIONS direct)
-  const groupedAvailableOptions = getGroupedSectionOptions(existingSectionTypes);
+  // Gebruik de grouping functie met card type
+  const groupedAvailableOptions = getGroupedSectionOptions(existingSectionTypes, cardType);
   const categories = Object.keys(groupedAvailableOptions);
 
   if (categories.length === 0) {

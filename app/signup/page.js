@@ -6,26 +6,50 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 
+function slugify(str) {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/--+/g, '-');
+}
+
+async function getUniqueSlug(baseSlug) {
+  let slug = baseSlug;
+  let counter = 1;
+  while (true) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('custom_slug', slug)
+      .single();
+    if (!data || error) break;
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+  return slug;
+}
+
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
     }
-    
     setLoading(true);
     setError(null);
-    
     try {
+      // 1. Signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -33,7 +57,6 @@ export default function SignupPage() {
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       });
-      
       if (error) {
         if (error.message.includes("User already registered")) {
           setError("This email is already registered. Try logging in.");
@@ -43,7 +66,23 @@ export default function SignupPage() {
           setError(error.message);
         }
         console.error("Signup error details:", error);
-      } else if (data.user && data.session === null) {
+        setLoading(false);
+        return;
+      }
+      // 2. Genereer slug en update profiel
+      if (data.user) {
+        const baseSlug = slugify(`${firstName}-${lastName}`);
+        const uniqueSlug = await getUniqueSlug(baseSlug);
+        await supabase
+          .from('profiles')
+          .update({
+            name: `${firstName} ${lastName}`,
+            custom_slug: uniqueSlug,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', data.user.id);
+      }
+      if (data.user && data.session === null) {
         router.push('/signup-success');
       } else {
         setError("Signup attempt finished with unclear result.");
@@ -57,95 +96,67 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-xl shadow-lg">
-        <div className="flex justify-center mb-6">
-          <Link href="/">
-            <Image
-              src="/images/logo.png"
-              alt="Prysma Home"
-              width={120}
-              height={40}
-              priority
-            />
-          </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <form onSubmit={handleSignup} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md space-y-6">
+        <div className="flex justify-center mb-4">
+          <Image src="/images/logo.png" alt="Prysma Logo" width={110} height={36} />
         </div>
-
-        <div>
-          <h2 className="text-center text-3xl font-bold text-black">
-            Create your Prysma account
-          </h2>
+        <h2 className="text-2xl font-bold text-center mb-2">Create your account</h2>
+        <div className="space-y-2">
+          <input
+            type="text"
+            placeholder="First name"
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
+          <input
+            type="text"
+            placeholder="Last name"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
+          <input
+            type="password"
+            placeholder="Confirm password"
+            value={confirmPassword}
+            onChange={e => setConfirmPassword(e.target.value)}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00C896]"
+          />
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSignup}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-1 focus:ring-[#00C896] focus:border-[#00C896] sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-1 focus:ring-[#00C896] focus:border-[#00C896] sm:text-sm"
-                placeholder="Password (min. 6 characters)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">Confirm Password</label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-1 focus:ring-[#00C896] focus:border-[#00C896] sm:text-sm"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600 text-center mt-2">
-              {error}
-            </p>
-          )}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-md text-white bg-[#00C896] hover:bg-[#00a078] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00C896] disabled:opacity-60 disabled:cursor-not-allowed transition duration-150 ease-in-out"
-            >
-              {loading ? 'Creating account...' : 'Sign Up'}
-            </button>
-          </div>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
+        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 px-4 bg-[#00C896] text-white rounded-md hover:bg-[#00A078] transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Signing up...' : 'Sign Up'}
+        </button>
+        <p className="text-center text-sm text-gray-500 mt-2">
           Already have an account?{' '}
-          <Link href="/login" className="font-medium text-[#00C896] hover:text-[#00a078]">
-            Log In
-          </Link>
+          <Link href="/login" className="text-[#00C896] hover:underline">Log in</Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 } 
