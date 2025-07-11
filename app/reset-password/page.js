@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '../../src/lib/supabase';
 
 export default function ResetPasswordPage() {
@@ -63,7 +64,7 @@ export default function ResetPasswordPage() {
       </form>
       
       <p style={{ marginTop: '15px' }}>
-        Remember your password? <a href="/login">Back to Login</a>
+        Remember your password? <Link href="/login">Back to Login</Link>
       </p>
     </div>
   );

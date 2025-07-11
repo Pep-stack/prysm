@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 export default function SignupSuccessPage() {
   return (
@@ -12,7 +13,7 @@ export default function SignupSuccessPage() {
       
       <p style={{ marginTop: '30px' }}>
         Once verified, you can{' '}
-        <a 
+        <Link 
           href="/login" 
           style={{ 
             color: '#0070f3',
@@ -21,7 +22,7 @@ export default function SignupSuccessPage() {
           }}
         >
           log in to your account
-        </a>.
+        </Link>.
       </p>
       
       <div style={{ marginTop: '40px', fontSize: '14px', color: '#666' }}>
