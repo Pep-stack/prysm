@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase'; // Adjusted path
+import { getSectionsKey } from '../lib/sectionOptions';
 
 export function useUserProfile(user) {
   const [profile, setProfile] = useState(null);
@@ -65,20 +66,21 @@ export function useUserProfile(user) {
   }, []);
 
   // ADDED: Function to save only the card sections layout
-  const saveCardLayout = useCallback(async (newLayout) => {
+  const saveCardLayout = useCallback(async (newLayout, cardType) => {
     if (!user) return;
 
     setUpdatingLayout(true);
     setLayoutError(null);
 
     try {
-      // Sla de volledige sectie-objecten op
+      // Sla de volledige sectie-objecten op in de juiste kolom
       const validLayout = Array.isArray(newLayout) ? newLayout : [];
+      const key = getSectionsKey(cardType);
 
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-            card_sections: validLayout,
+            [key]: validLayout,
             updated_at: new Date().toISOString() 
          })
         .eq('id', user.id);
@@ -87,7 +89,7 @@ export function useUserProfile(user) {
         throw updateError;
       }
       // Update local profile state immediately after successful save
-      setProfile(prev => prev ? { ...prev, card_sections: validLayout } : null);
+      setProfile(prev => prev ? { ...prev, [key]: validLayout } : null);
       // Optionally set a success message here if needed
 
     } catch (err) {

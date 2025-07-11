@@ -7,6 +7,8 @@ import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
 import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor, LuBriefcase, LuBuilding2 } from 'react-icons/lu';
 import { useFileUpload } from '../../../src/hooks/useFileUpload';
 import { supabase } from '../../../src/lib/supabase';
+import { v4 as uuidv4 } from 'uuid';
+import { getDefaultSectionProps, CARD_TYPES } from '../../../src/lib/sectionOptions';
 
 export default function ProfilePage() {
   const { user, loading: sessionLoading } = useSession();
@@ -42,6 +44,23 @@ export default function ProfilePage() {
   // Card type settings
   const [cardType, setCardType] = useState('pro');
   const [savingCardType, setSavingCardType] = useState(false);
+
+  // Helper om de juiste card_profiles subobject te krijgen
+  const getCardProfile = (type) => profile.card_profiles?.[type] || {};
+  const cardProfile = getCardProfile(cardType);
+
+  // Helper om een veld in card_profiles te updaten
+  const handleCardProfileChange = (e) => {
+    const { name, value } = e.target;
+    const updatedProfiles = {
+      ...profile.card_profiles,
+      [cardType]: {
+        ...getCardProfile(cardType),
+        [name]: value,
+      },
+    };
+    updateProfileField('card_profiles', updatedProfiles);
+  };
 
   useEffect(() => {
     if (!sessionLoading && !user) {
@@ -434,8 +453,8 @@ export default function ProfilePage() {
                   type="text"
                   id="name"
                   name="name"
-                  value={profile.name || ''}
-                  onChange={handleChange}
+                  value={cardProfile.name || ''}
+                  onChange={handleCardProfileChange}
                   placeholder="Enter your name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
                   maxLength={40}
@@ -451,8 +470,8 @@ export default function ProfilePage() {
                   type="text"
                   id="headline"
                   name="headline"
-                  value={profile.headline || ''}
-                  onChange={handleChange}
+                  value={cardProfile.headline || ''}
+                  onChange={handleCardProfileChange}
                   placeholder="e.g., Full Stack Developer"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
                   maxLength={60}
@@ -466,17 +485,106 @@ export default function ProfilePage() {
                 <textarea
                   id="bio"
                   name="bio"
-                  value={profile.bio || ''}
-                  onChange={handleChange}
+                  value={cardProfile.bio || ''}
+                  onChange={handleCardProfileChange}
                   placeholder="Tell us about yourself..."
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500 resize-none"
                   maxLength={200}
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {(profile.bio || '').length}/200 characters
+                  {(cardProfile.bio || '').length}/200 characters
                 </p>
               </div>
+
+              {/* Extra profielvelden per card type */}
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                  Location
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={cardProfile.location || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="e.g., Amsterdam, NL"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  maxLength={60}
+                />
+              </div>
+
+              {(cardType === 'pro' || cardType === 'business') && (
+                <div>
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    id="website"
+                    name="website"
+                    value={cardProfile.website || ''}
+                    onChange={handleCardProfileChange}
+                    placeholder="https://example.com"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                    maxLength={100}
+                  />
+                </div>
+              )}
+
+              {cardType === 'career' && (
+                <div>
+                  <label htmlFor="desired_role" className="block text-sm font-medium text-gray-700 mb-1">
+                    Desired Role
+                  </label>
+                  <input
+                    type="text"
+                    id="desired_role"
+                    name="desired_role"
+                    value={cardProfile.desired_role || ''}
+                    onChange={handleCardProfileChange}
+                    placeholder="e.g., Frontend Developer"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                    maxLength={60}
+                  />
+                </div>
+              )}
+
+              {cardType === 'business' && (
+                <div>
+                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
+                    Industry
+                  </label>
+                  <input
+                    type="text"
+                    id="industry"
+                    name="industry"
+                    value={cardProfile.industry || ''}
+                    onChange={handleCardProfileChange}
+                    placeholder="e.g., Marketing, SaaS, Retail"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                    maxLength={60}
+                  />
+                </div>
+              )}
+
+              {cardType === 'business' && (
+                <div>
+                  <label htmlFor="company_size" className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Size
+                  </label>
+                  <input
+                    type="text"
+                    id="company_size"
+                    name="company_size"
+                    value={cardProfile.company_size || ''}
+                    onChange={handleCardProfileChange}
+                    placeholder="e.g., 1-10, 11-50, 51-200, 200+"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                    maxLength={30}
+                  />
+                </div>
+              )}
 
               <div className="pt-2">
                 <button

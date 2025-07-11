@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES } from '../lib/sectionOptions';
+import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES, getSectionsKey } from '../lib/sectionOptions';
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
@@ -109,58 +109,18 @@ const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
   ];
 };
 
-export function useCardLayout(profile) {
-  // Initialize state based on profile sections, separating social and regular sections
-  const [cardSections, setCardSections] = useState(() => {
-    const initial = profile?.card_sections;
-    if (Array.isArray(initial) && initial.length > 0) {
-      return initial
-        .filter(section => !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar')
-        .map(enhanceSectionWithDefaults);
-    }
-    // Only create default sections if we have no profile data yet
-    if (!profile) {
-      return createDefaultSections(profile?.card_type || CARD_TYPES.PRO);
-    }
-    return [];
-  });
+export function useCardLayout(profile, cardType) {
+  const [cardSections, setCardSections] = useState([]);
+  const [socialBarSections, setSocialBarSections] = useState([]);
 
-  const [socialBarSections, setSocialBarSections] = useState(() => {
-    const initial = profile?.card_sections;
-    if (Array.isArray(initial) && initial.length > 0) {
-      return initial
-        .filter(section => SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar')
-        .map(enhanceSectionWithDefaults);
-    }
-    return [];
-  });
-
-  // Effect to update local state if profile data changes externally
   useEffect(() => {
-    const sectionsFromProfile = profile?.card_sections;
-    if (Array.isArray(sectionsFromProfile)) {
-      const regularSections = sectionsFromProfile.filter(section => 
-        !SOCIAL_MEDIA_TYPES.includes(section.type) && section.area !== 'social_bar'
-      );
-      const socialSections = sectionsFromProfile.filter(section => 
-        SOCIAL_MEDIA_TYPES.includes(section.type) || section.area === 'social_bar'
-      );
-
-      // Update regular sections
-      const currentRegularIds = cardSections.map(s => s.id).join(',');
-      const profileRegularIds = regularSections.map(s => s.id).join(',');
-      if (profileRegularIds !== currentRegularIds) {
-        setCardSections(regularSections.map(enhanceSectionWithDefaults));
-      }
-
-      // Update social bar sections
-      const currentSocialIds = socialBarSections.map(s => s.id).join(',');
-      const profileSocialIds = socialSections.map(s => s.id).join(',');
-      if (profileSocialIds !== currentSocialIds) {
-        setSocialBarSections(socialSections.map(enhanceSectionWithDefaults));
-      }
+    if (profile && cardType) {
+      const key = getSectionsKey(cardType);
+      const allSections = Array.isArray(profile[key]) ? profile[key] : [];
+      setCardSections(allSections.filter(s => !s.area || s.area !== 'social_bar'));
+      setSocialBarSections(allSections.filter(s => s.area === 'social_bar'));
     }
-  }, [profile?.card_sections]);
+  }, [profile, cardType]);
 
   // Handler to remove a section from either area
   const handleRemoveSection = useCallback((idToRemove) => {

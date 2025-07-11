@@ -53,6 +53,7 @@ export default function DashboardPageContent() {
 
 
   // Use the consolidated card layout hook
+  const cardType = profile?.card_type || CARD_TYPES.PRO;
   const {
     cardSections,
     socialBarSections,
@@ -61,7 +62,7 @@ export default function DashboardPageContent() {
     handleRemoveSection,
     handleDragEnd,
     getAllSections,
-  } = useCardLayout(profile);
+  } = useCardLayout(profile, cardType);
 
   const [activeId, setActiveId] = useState(null);
   const [hasInitializedSections, setHasInitializedSections] = useState(false);
@@ -121,8 +122,7 @@ export default function DashboardPageContent() {
   const handleSaveLayoutClick = async () => {
     setSaveMessage('');
     const allSections = getAllSections();
-    console.log('Saving layout with social bar:', allSections);
-    await saveCardLayout(allSections);
+    await saveCardLayout(allSections, cardType);
     if (layoutError) {
       setSaveMessage('Error saving layout.');
     } else {

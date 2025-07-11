@@ -55,6 +55,10 @@
     border-radius: 0; /* No border radius for edge-to-edge look */
   }
   
+  .headerGradientOverlay {
+    height: 60px; /* Kleinere gradient op mobile */
+  }
+  
   .profileInitials { 
     font-size: 32px; 
   }
@@ -131,6 +135,24 @@
 
 .profileCoverImage:hover {
   transform: none;
+}
+
+/* Gradient overlay voor header image */
+.headerGradientOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px; /* Hoogte van de gradient */
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0,0,0,0.1) 30%,
+    rgba(0,0,0,0.2) 60%,
+    var(--card-bg-color, #fff) 100%
+  );
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .profileCoverPlaceholder { 

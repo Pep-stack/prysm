@@ -206,3 +206,10 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
 
   return defaults[type] || { title: defaultTitle, value: '' };
 }; 
+
+export function getSectionsKey(cardType) {
+  if (cardType === 'pro') return 'card_sections_pro';
+  if (cardType === 'career') return 'card_sections_career';
+  if (cardType === 'business') return 'card_sections_business';
+  return 'card_sections_pro'; // fallback
+} 

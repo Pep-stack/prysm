@@ -106,11 +106,9 @@ export function useProfileEditor(user) {
     setMessage(null);
 
     try {
-      // Only include fields that exist in the database
+      // Sla de hele card_profiles JSON op
       const profileUpdates = {
-        name: profile.name,
-        headline: profile.headline,
-        bio: profile.bio,
+        card_profiles: profile.card_profiles,
         updated_at: new Date().toISOString(),
       };
 
