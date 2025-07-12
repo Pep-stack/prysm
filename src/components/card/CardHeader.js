@@ -90,6 +90,11 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   const cardProfiles = profile?.card_profiles || {};
   const personalInfo = cardProfiles[cardType] || {};
 
+  // Haal de juiste images per card type
+  const cardImages = profile?.card_images?.[cardType] || {};
+  const headerUrl = cardImages.header_url || '';
+  const avatarUrl = cardImages.avatar_url || '';
+
   const fieldsToShow = PERSONAL_INFO_FIELDS[cardType] || PERSONAL_INFO_FIELDS['pro'];
 
   // Check of er daadwerkelijk personal info is ingevuld
@@ -112,16 +117,16 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
       {/* Header afbeelding (alleen tonen als display_type = 'header') */}
       {displayType === 'header' && (
         <div className={styles.profileCoverContainer}>
-          {profile?.header_url ? (
+          {headerUrl ? (
             <div style={{ position: 'relative', width: '100%', height: '300px' }}>
               <Image
-                src={profile.header_url}
+                src={headerUrl}
                 alt="Profile Header"
                 fill
                 className={styles.profileCoverImage}
                 style={{ objectFit: 'cover' }}
                 onError={(e) => {
-                  console.error('Header image failed to load:', profile.header_url);
+                  console.error('Header image failed to load:', headerUrl);
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
                 }}
@@ -131,7 +136,6 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 className={styles.headerGradientOverlay}
                 style={{ '--card-bg-color': cardBgColor }}
               ></div>
-              {(() => { console.log('[CardHeader overlay]', { displayType, header_url: profile?.header_url, cardBgColor, isPublicView }); return null; })()}
               <div 
                 className={styles.profileCoverPlaceholder}
                 style={{ display: 'none' }}
@@ -163,9 +167,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               width: '100%'
             }}
           >
-            {profile?.avatar_url ? (
+            {avatarUrl ? (
               <Image
-                src={profile.avatar_url}
+                src={avatarUrl}
                 alt={personalInfo?.name || user?.email || 'Profile Avatar'}
                 width={avatarSizePx}
                 height={avatarSizePx}

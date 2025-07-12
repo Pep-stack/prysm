@@ -59,19 +59,9 @@ export function useProfileEditor(user) {
         } else if (data) {
           // Initialize state with fetched data or defaults
           setProfile({
-            name: data.name || '',
-            headline: data.headline || '',
-            bio: data.bio || '',
-            skills: data.skills || '',
-            location: data.location || '',
-            website: data.website || '',
-            avatar_url: data.avatar_url || '',
-            header_url: data.header_url || '', // Initialize header_url
-            display_type: data.display_type || 'avatar',
-            avatar_size: data.avatar_size || 'medium',
-            avatar_shape: data.avatar_shape || 'circle',
-            avatar_position: data.avatar_position || 'left',
-            card_type: data.card_type || 'pro',
+            ...initialProfileState,
+            ...data,
+            card_profiles: data.card_profiles || {},
           });
         }
       } catch (err) {

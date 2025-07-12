@@ -45,6 +45,19 @@ export default function ProfilePage() {
   const [cardType, setCardType] = useState('pro');
   const [savingCardType, setSavingCardType] = useState(false);
 
+  // Card display settings per card type
+  const getCardDisplaySettings = (type) => profile.card_display_settings?.[type] || {
+    displayType: 'avatar',
+    avatarSize: 'medium',
+    avatarShape: 'circle',
+    avatarPosition: 'left',
+  };
+  const [cardDisplaySettings, setCardDisplaySettings] = useState(getCardDisplaySettings(cardType));
+
+  // Card images per card type
+  const getCardImages = (type) => profile.card_images?.[type] || { avatar_url: '', header_url: '' };
+  const [cardImages, setCardImages] = useState(getCardImages(cardType));
+
   // Helper om de juiste card_profiles subobject te krijgen
   const getCardProfile = (type) => profile.card_profiles?.[type] || {};
   const cardProfile = getCardProfile(cardType);
@@ -62,24 +75,54 @@ export default function ProfilePage() {
     updateProfileField('card_profiles', updatedProfiles);
   };
 
+  // Sync cardDisplaySettings bij cardType of profile change
+  useEffect(() => {
+    setCardDisplaySettings(getCardDisplaySettings(cardType));
+  }, [cardType, profile]);
+
+  // Sync cardImages bij cardType of profile change
+  useEffect(() => {
+    setCardImages(getCardImages(cardType));
+  }, [cardType, profile]);
+
+  // Handler voor wijzigen van display settings
+  const handleCardDisplaySettingChange = (field, value) => {
+    const updatedSettings = {
+      ...cardDisplaySettings,
+      [field]: value,
+    };
+    setCardDisplaySettings(updatedSettings);
+    // Update in profile state direct
+    updateProfileField('card_display_settings', {
+      ...profile.card_display_settings,
+      [cardType]: updatedSettings,
+    });
+  };
+
   useEffect(() => {
     if (!sessionLoading && !user) {
       router.push('/login');
     }
   }, [sessionLoading, user, router]);
 
-  // Sync settings with profile data
+  // Sync display settings with profile data (zonder cardType)
   useEffect(() => {
     if (profile) {
       setDisplayType(profile.display_type || 'avatar');
       setAvatarSize(profile.avatar_size || 'medium');
       setAvatarShape(profile.avatar_shape || 'circle');
       setAvatarPosition(profile.avatar_position || 'left');
-      setCardType(profile.card_type || 'pro');
     }
   }, [profile]);
 
-  // Avatar upload handler
+  // Card type alleen bij eerste load/profile.card_type change uit profiel halen
+  useEffect(() => {
+    if (profile && profile.card_type) {
+      setCardType(profile.card_type);
+    }
+  }, [profile?.card_type]);
+
+  // Avatar upload handler per card type
   const handleAvatarUpload = async () => {
     if (!avatarFile || !user) return;
     
@@ -89,7 +132,7 @@ export default function ProfilePage() {
 
     try {
       const fileExt = avatarFile.name.split('.').pop();
-      const fileName = `${user.id}-avatar-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}-${cardType}-avatar-${Date.now()}.${fileExt}`;
       
       const { data, error: uploadError } = await supabase.storage
         .from('avatars')
@@ -101,10 +144,19 @@ export default function ProfilePage() {
         .from('avatars')
         .getPublicUrl(fileName);
 
+      // Update card_images in profile state
+      const updatedImages = {
+        ...profile.card_images,
+        [cardType]: {
+          ...getCardImages(cardType),
+          avatar_url: urlData.publicUrl,
+        },
+      };
+      updateProfileField('card_images', updatedImages);
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          avatar_url: urlData.publicUrl,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -123,7 +175,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Header upload handler
+  // Header upload handler per card type
   const handleHeaderUpload = async () => {
     if (!headerFile || !user) return;
     
@@ -133,7 +185,7 @@ export default function ProfilePage() {
 
     try {
       const fileExt = headerFile.name.split('.').pop();
-      const fileName = `${user.id}-header-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}-${cardType}-header-${Date.now()}.${fileExt}`;
       
       const { data, error: uploadError } = await supabase.storage
         .from('avatars')
@@ -145,10 +197,19 @@ export default function ProfilePage() {
         .from('avatars')
         .getPublicUrl(fileName);
 
+      // Update card_images in profile state
+      const updatedImages = {
+        ...profile.card_images,
+        [cardType]: {
+          ...getCardImages(cardType),
+          header_url: urlData.publicUrl,
+        },
+      };
+      updateProfileField('card_images', updatedImages);
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          header_url: urlData.publicUrl,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -166,38 +227,7 @@ export default function ProfilePage() {
     }
   };
 
-  // Save display settings
-  const handleSaveDisplaySettings = async () => {
-    if (!user) return;
-
-    setSavingSettings(true);
-    setUploadError(null);
-    setUploadSuccess(null);
-
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          display_type: displayType,
-          avatar_size: avatarSize,
-          avatar_shape: avatarShape,
-          avatar_position: avatarPosition,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      setUploadSuccess('Display settings updated successfully!');
-      setTimeout(() => setUploadSuccess(null), 3000);
-    } catch (err) {
-      setUploadError(err.message || 'Failed to update display settings');
-    } finally {
-      setSavingSettings(false);
-    }
-  };
-
-  // Remove header image function
+  // Remove header image per card type
   const handleRemoveHeaderImage = async () => {
     if (!user) return;
 
@@ -206,10 +236,18 @@ export default function ProfilePage() {
     setUploadSuccess(null);
 
     try {
+      const updatedImages = {
+        ...profile.card_images,
+        [cardType]: {
+          ...getCardImages(cardType),
+          header_url: '',
+        },
+      };
+      updateProfileField('card_images', updatedImages);
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
-          header_url: null,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -222,6 +260,33 @@ export default function ProfilePage() {
       setUploadError(err.message || 'Failed to remove header image');
     } finally {
       setUploadingHeader(false);
+    }
+  };
+
+  // Save display settings per card type
+  const handleSaveDisplaySettings = async () => {
+    if (!user) return;
+    setSavingSettings(true);
+    setUploadError(null);
+    setUploadSuccess(null);
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          card_display_settings: {
+            ...profile.card_display_settings,
+            [cardType]: cardDisplaySettings,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+      if (updateError) throw updateError;
+      setUploadSuccess('Display settings updated successfully!');
+      setTimeout(() => setUploadSuccess(null), 3000);
+    } catch (err) {
+      setUploadError(err.message || 'Failed to update display settings');
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -607,7 +672,6 @@ export default function ProfilePage() {
               <LuMonitor className="w-5 h-5 flex-shrink-0" />
               <h2 className="text-base font-medium text-black">Profile Display</h2>
             </div>
-            
             <div className="space-y-6 sm:pl-8">
               {/* Display Type Selection */}
               <div>
@@ -616,7 +680,7 @@ export default function ProfilePage() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    displayType === 'avatar' 
+                    cardDisplaySettings.displayType === 'avatar' 
                       ? 'border-emerald-500 bg-emerald-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}>
@@ -624,8 +688,8 @@ export default function ProfilePage() {
                       type="radio"
                       name="displayType"
                       value="avatar"
-                      checked={displayType === 'avatar'}
-                      onChange={(e) => setDisplayType(e.target.value)}
+                      checked={cardDisplaySettings.displayType === 'avatar'}
+                      onChange={() => handleCardDisplaySettingChange('displayType', 'avatar')}
                       className="sr-only"
                     />
                     <div className="text-center">
@@ -635,15 +699,14 @@ export default function ProfilePage() {
                       <h3 className="font-medium text-gray-900">Avatar</h3>
                       <p className="text-xs text-gray-500 mt-1">Small circular profile photo</p>
                     </div>
-                    {displayType === 'avatar' && (
+                    {cardDisplaySettings.displayType === 'avatar' && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                         <LuSave className="w-3 h-3 text-white" />
                       </div>
                     )}
                   </label>
-
                   <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    displayType === 'header' 
+                    cardDisplaySettings.displayType === 'header' 
                       ? 'border-emerald-500 bg-emerald-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}>
@@ -651,8 +714,8 @@ export default function ProfilePage() {
                       type="radio"
                       name="displayType"
                       value="header"
-                      checked={displayType === 'header'}
-                      onChange={(e) => setDisplayType(e.target.value)}
+                      checked={cardDisplaySettings.displayType === 'header'}
+                      onChange={() => handleCardDisplaySettingChange('displayType', 'header')}
                       className="sr-only"
                     />
                     <div className="text-center">
@@ -662,7 +725,7 @@ export default function ProfilePage() {
                       <h3 className="font-medium text-gray-900 mt-2">Header Image</h3>
                       <p className="text-xs text-gray-500 mt-1">Large banner image</p>
                     </div>
-                    {displayType === 'header' && (
+                    {cardDisplaySettings.displayType === 'header' && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                         <LuSave className="w-3 h-3 text-white" />
                       </div>
@@ -670,12 +733,35 @@ export default function ProfilePage() {
                   </label>
                 </div>
               </div>
-
-              {/* Avatar Settings (only show when avatar is selected) */}
-              {displayType === 'avatar' && (
+              {/* Avatar Settings (alleen tonen als avatar geselecteerd is) */}
+              {cardDisplaySettings.displayType === 'avatar' && (
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-medium text-gray-900">Avatar Settings</h3>
-                  
+                  {/* Preview + upload */}
+                  <div className="flex items-center gap-4 mb-2">
+                    <img 
+                      src={cardImages.avatar_url || 'https://via.placeholder.com/60x60?text=Avatar'} 
+                      alt="Profile Avatar" 
+                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                    />
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="file"
+                        id="avatar-upload"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={(e) => e.target.files?.[0] && setAvatarFile(e.target.files[0])}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                      />
+                      <button
+                        onClick={handleAvatarUpload}
+                        disabled={!avatarFile || uploadingAvatar}
+                        className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <LuImagePlus className="w-4 h-4" />
+                        {uploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
+                      </button>
+                    </div>
+                  </div>
                   {/* Avatar Size */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
@@ -686,8 +772,8 @@ export default function ProfilePage() {
                             type="radio"
                             name="avatarSize"
                             value={size}
-                            checked={avatarSize === size}
-                            onChange={(e) => setAvatarSize(e.target.value)}
+                            checked={cardDisplaySettings.avatarSize === size}
+                            onChange={() => handleCardDisplaySettingChange('avatarSize', size)}
                             className="mr-2 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-sm capitalize">{size}</span>
@@ -695,7 +781,6 @@ export default function ProfilePage() {
                       ))}
                     </div>
                   </div>
-
                   {/* Avatar Shape */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Shape</label>
@@ -706,8 +791,8 @@ export default function ProfilePage() {
                             type="radio"
                             name="avatarShape"
                             value={shape}
-                            checked={avatarShape === shape}
-                            onChange={(e) => setAvatarShape(e.target.value)}
+                            checked={cardDisplaySettings.avatarShape === shape}
+                            onChange={() => handleCardDisplaySettingChange('avatarShape', shape)}
                             className="mr-2 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-sm capitalize">{shape}</span>
@@ -715,7 +800,6 @@ export default function ProfilePage() {
                       ))}
                     </div>
                   </div>
-
                   {/* Avatar Position */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
@@ -726,8 +810,8 @@ export default function ProfilePage() {
                             type="radio"
                             name="avatarPosition"
                             value={position}
-                            checked={avatarPosition === position}
-                            onChange={(e) => setAvatarPosition(e.target.value)}
+                            checked={cardDisplaySettings.avatarPosition === position}
+                            onChange={() => handleCardDisplaySettingChange('avatarPosition', position)}
                             className="mr-2 text-emerald-500 focus:ring-emerald-500"
                           />
                           <span className="text-sm capitalize">{position}</span>
@@ -737,7 +821,54 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
-
+              {/* Header Settings (alleen tonen als header geselecteerd is) */}
+              {cardDisplaySettings.displayType === 'header' && (
+                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-gray-900">Header Image</h3>
+                  {/* Preview + upload/delete */}
+                  <div className="flex items-center gap-4 mb-2">
+                    {cardImages.header_url ? (
+                      <img 
+                        src={cardImages.header_url} 
+                        alt="Header" 
+                        className="w-40 h-16 object-cover rounded-lg border border-gray-200"
+                      />
+                    ) : (
+                      <div className="w-40 h-16 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 text-gray-400">
+                        No header image
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="file"
+                        id="header-upload"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={(e) => e.target.files?.[0] && setHeaderFile(e.target.files[0])}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleHeaderUpload}
+                          disabled={!headerFile || uploadingHeader}
+                          className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <LuImagePlus className="w-4 h-4" />
+                          {uploadingHeader ? 'Uploading...' : 'Upload Header'}
+                        </button>
+                        {cardImages.header_url && (
+                          <button
+                            onClick={handleRemoveHeaderImage}
+                            disabled={uploadingHeader}
+                            className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Remove Header Image
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="pt-2">
                 <button
                   onClick={handleSaveDisplaySettings}
@@ -746,103 +877,6 @@ export default function ProfilePage() {
                 >
                   <LuSave className="w-4 h-4" />
                   {savingSettings ? 'Saving...' : 'Save Display Settings'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Photo Upload Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6">
-            <div className="flex items-center gap-3 mb-4 text-gray-700">
-              <LuImagePlus className="w-5 h-5 flex-shrink-0" />
-              <h2 className="text-base font-medium text-black">Upload Photos</h2>
-            </div>
-            
-            <div className="space-y-6 sm:pl-8">
-              {/* Avatar Upload */}
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-3">Profile Avatar</h3>
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    <img 
-                      src={profile.avatar_url || 'https://via.placeholder.com/60x60?text=Avatar'} 
-                      alt="Profile Avatar" 
-                      className="w-15 h-15 rounded-full object-cover border-2 border-gray-200"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <input
-                      type="file"
-                      id="avatar-upload"
-                      accept="image/png,image/jpeg,image/jpg"
-                      onChange={(e) => e.target.files?.[0] && setAvatarFile(e.target.files[0])}
-                      className="mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                    />
-                    {avatarFile && (
-                      <p className="text-sm text-gray-600 mb-2">
-                        Selected: {avatarFile.name}
-                      </p>
-                    )}
-                    <button
-                      onClick={handleAvatarUpload}
-                      disabled={!avatarFile || uploadingAvatar}
-                      className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <LuImagePlus className="w-4 h-4" />
-                      {uploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Header Upload */}
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h3 className="font-medium text-gray-900 mb-3">Header Image</h3>
-                {profile.header_url && (
-                  <div className="mb-4">
-                    <img 
-                      src={profile.header_url} 
-                      alt="Header" 
-                      className="w-full h-24 object-cover rounded-lg border border-gray-200"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'block';
-                      }}
-                    />
-                    <div className="w-full h-24 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center" style={{ display: 'none' }}>
-                      <p className="text-red-600 text-sm">Image failed to load</p>
-                    </div>
-                    <button
-                      onClick={handleRemoveHeaderImage}
-                      disabled={uploadingHeader}
-                      className="mt-2 inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {uploadingHeader ? 'Removing...' : 'Remove Header Image'}
-                    </button>
-                  </div>
-                )}
-                
-                <input
-                  type="file"
-                  id="header-upload"
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={(e) => e.target.files?.[0] && setHeaderFile(e.target.files[0])}
-                  className="mb-3 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                />
-                {headerFile && (
-                  <p className="text-sm text-gray-600 mb-2">
-                    Selected: {headerFile.name}
-                  </p>
-                )}
-                <button
-                  onClick={handleHeaderUpload}
-                  disabled={!headerFile || uploadingHeader}
-                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <LuImagePlus className="w-4 h-4" />
-                  {uploadingHeader ? 'Uploading...' : 'Upload Header'}
                 </button>
               </div>
             </div>
