@@ -47,10 +47,10 @@ export default function ProfilePage() {
 
   // Card display settings per card type
   const getCardDisplaySettings = (type) => profile.card_display_settings?.[type] || {
-    displayType: 'avatar',
-    avatarSize: 'medium',
-    avatarShape: 'circle',
-    avatarPosition: 'left',
+    display_type: 'avatar',
+    avatar_size: 'medium',
+    avatar_shape: 'circle',
+    avatar_position: 'left',
   };
   const [cardDisplaySettings, setCardDisplaySettings] = useState(getCardDisplaySettings(cardType));
 
@@ -87,9 +87,17 @@ export default function ProfilePage() {
 
   // Handler voor wijzigen van display settings
   const handleCardDisplaySettingChange = (field, value) => {
+    // Zet camelCase om naar snake_case indien nodig
+    const fieldMap = {
+      displayType: 'display_type',
+      avatarSize: 'avatar_size',
+      avatarShape: 'avatar_shape',
+      avatarPosition: 'avatar_position',
+    };
+    const snakeField = fieldMap[field] || field;
     const updatedSettings = {
       ...cardDisplaySettings,
-      [field]: value,
+      [snakeField]: value,
     };
     setCardDisplaySettings(updatedSettings);
     // Update in profile state direct
@@ -157,6 +165,7 @@ export default function ProfilePage() {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
+          card_images: updatedImages,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -210,6 +219,7 @@ export default function ProfilePage() {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
+          card_images: updatedImages,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -248,6 +258,7 @@ export default function ProfilePage() {
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
+          card_images: updatedImages,
           updated_at: new Date().toISOString() 
         })
         .eq('id', user.id);
@@ -680,7 +691,7 @@ export default function ProfilePage() {
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardDisplaySettings.displayType === 'avatar' 
+                    cardDisplaySettings.display_type === 'avatar' 
                       ? 'border-emerald-500 bg-emerald-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}>
@@ -688,7 +699,7 @@ export default function ProfilePage() {
                       type="radio"
                       name="displayType"
                       value="avatar"
-                      checked={cardDisplaySettings.displayType === 'avatar'}
+                      checked={cardDisplaySettings.display_type === 'avatar'}
                       onChange={() => handleCardDisplaySettingChange('displayType', 'avatar')}
                       className="sr-only"
                     />
@@ -699,14 +710,14 @@ export default function ProfilePage() {
                       <h3 className="font-medium text-gray-900">Avatar</h3>
                       <p className="text-xs text-gray-500 mt-1">Small circular profile photo</p>
                     </div>
-                    {cardDisplaySettings.displayType === 'avatar' && (
+                    {cardDisplaySettings.display_type === 'avatar' && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                         <LuSave className="w-3 h-3 text-white" />
                       </div>
                     )}
                   </label>
                   <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardDisplaySettings.displayType === 'header' 
+                    cardDisplaySettings.display_type === 'header' 
                       ? 'border-emerald-500 bg-emerald-50' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}>
@@ -714,7 +725,7 @@ export default function ProfilePage() {
                       type="radio"
                       name="displayType"
                       value="header"
-                      checked={cardDisplaySettings.displayType === 'header'}
+                      checked={cardDisplaySettings.display_type === 'header'}
                       onChange={() => handleCardDisplaySettingChange('displayType', 'header')}
                       className="sr-only"
                     />
@@ -725,7 +736,7 @@ export default function ProfilePage() {
                       <h3 className="font-medium text-gray-900 mt-2">Header Image</h3>
                       <p className="text-xs text-gray-500 mt-1">Large banner image</p>
                     </div>
-                    {cardDisplaySettings.displayType === 'header' && (
+                    {cardDisplaySettings.display_type === 'header' && (
                       <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                         <LuSave className="w-3 h-3 text-white" />
                       </div>
@@ -734,17 +745,17 @@ export default function ProfilePage() {
                 </div>
               </div>
               {/* Avatar Settings (alleen tonen als avatar geselecteerd is) */}
-              {cardDisplaySettings.displayType === 'avatar' && (
+              {cardDisplaySettings.display_type === 'avatar' && (
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900">Avatar Settings</h3>
+                  <h3 className="font-medium text-gray-900">Avatar</h3>
                   {/* Preview + upload */}
-                  <div className="flex items-center gap-4 mb-2">
+                  <div className="flex flex-col items-center gap-4 mb-2">
                     <img 
-                      src={cardImages.avatar_url || 'https://via.placeholder.com/60x60?text=Avatar'} 
+                      src={cardImages.avatar_url || 'https://via.placeholder.com/220x220?text=Avatar'} 
                       alt="Profile Avatar" 
-                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                      style={{ width: 220, height: 220, objectFit: 'cover', borderRadius: 24, border: 'none', display: 'block' }}
                     />
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 w-full items-center">
                       <input
                         type="file"
                         id="avatar-upload"
@@ -762,67 +773,10 @@ export default function ProfilePage() {
                       </button>
                     </div>
                   </div>
-                  {/* Avatar Size */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
-                    <div className="flex gap-3">
-                      {['small', 'medium', 'large'].map(size => (
-                        <label key={size} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="avatarSize"
-                            value={size}
-                            checked={cardDisplaySettings.avatarSize === size}
-                            onChange={() => handleCardDisplaySettingChange('avatarSize', size)}
-                            className="mr-2 text-emerald-500 focus:ring-emerald-500"
-                          />
-                          <span className="text-sm capitalize">{size}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Avatar Shape */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Shape</label>
-                    <div className="flex gap-3">
-                      {['circle', 'rounded', 'square'].map(shape => (
-                        <label key={shape} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="avatarShape"
-                            value={shape}
-                            checked={cardDisplaySettings.avatarShape === shape}
-                            onChange={() => handleCardDisplaySettingChange('avatarShape', shape)}
-                            className="mr-2 text-emerald-500 focus:ring-emerald-500"
-                          />
-                          <span className="text-sm capitalize">{shape}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  {/* Avatar Position */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
-                    <div className="flex gap-3">
-                      {['left', 'center', 'right'].map(position => (
-                        <label key={position} className="flex items-center">
-                          <input
-                            type="radio"
-                            name="avatarPosition"
-                            value={position}
-                            checked={cardDisplaySettings.avatarPosition === position}
-                            onChange={() => handleCardDisplaySettingChange('avatarPosition', position)}
-                            className="mr-2 text-emerald-500 focus:ring-emerald-500"
-                          />
-                          <span className="text-sm capitalize">{position}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
                 </div>
               )}
               {/* Header Settings (alleen tonen als header geselecteerd is) */}
-              {cardDisplaySettings.displayType === 'header' && (
+              {cardDisplaySettings.display_type === 'header' && (
                 <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-medium text-gray-900">Header Image</h3>
                   {/* Preview + upload/delete */}

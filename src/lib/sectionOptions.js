@@ -7,6 +7,7 @@ import {
   LuFolderOpen, LuBuilding2, LuCalendar, LuMapPin,
   LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp
 } from "react-icons/lu";
+import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaSpotify, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa6';
 
 // Card types
 export const CARD_TYPES = {
@@ -48,13 +49,20 @@ export const SECTION_OPTIONS_BY_CARD_TYPE = {
     { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
     
     // Social & Links for Pro
-    { type: 'linkedin', name: 'LinkedIn', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'github_gitlab', name: 'GitHub/GitLab', icon: LuGithub, category: CATEGORIES.SOCIAL },
-    { type: 'x_profile', name: 'X (Twitter)', icon: LuTwitter, category: CATEGORIES.SOCIAL },
-    { type: 'instagram', name: 'Instagram', icon: LuUser, category: CATEGORIES.SOCIAL },
-    { type: 'youtube_channel', name: 'YouTube', icon: LuYoutube, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: LuMail, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: LuPhone, category: CATEGORIES.SOCIAL },
+    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
+    { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
+    { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
+    { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
+    { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
+    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
+    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
+    { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
+    { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
+    { type: 'dribbble', name: 'Dribbble', icon: FaDribbble, category: CATEGORIES.SOCIAL },
+    { type: 'spotify', name: 'Spotify', icon: FaSpotify, category: CATEGORIES.SOCIAL },
+    { type: 'snapchat', name: 'Snapchat', icon: FaSnapchat, category: CATEGORIES.SOCIAL },
+    { type: 'reddit', name: 'Reddit', icon: FaRedditAlien, category: CATEGORIES.SOCIAL },
+    { type: 'phone', name: 'Phone', icon: FaPhone, category: CATEGORIES.SOCIAL },
   ],
 
   [CARD_TYPES.CAREER]: [
@@ -68,11 +76,11 @@ export const SECTION_OPTIONS_BY_CARD_TYPE = {
     { type: 'contact', name: 'Contact Information', icon: LuMail, category: CATEGORIES.ESSENTIALS },
     
     // Social & Links for Career
-    { type: 'linkedin', name: 'LinkedIn', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'github_gitlab', name: 'GitHub/GitLab', icon: LuGithub, category: CATEGORIES.SOCIAL },
-    { type: 'x_profile', name: 'X (Twitter)', icon: LuTwitter, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: LuMail, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: LuPhone, category: CATEGORIES.SOCIAL },
+    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
+    { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
+    { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
+    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
+    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
   ],
 
   [CARD_TYPES.BUSINESS]: [
@@ -86,12 +94,12 @@ export const SECTION_OPTIONS_BY_CARD_TYPE = {
     { type: 'reviews', name: 'Customer Reviews', icon: LuThumbsUp, category: CATEGORIES.BUSINESS },
     
     // Social & Links for Business
-    { type: 'instagram', name: 'Instagram', icon: LuUser, category: CATEGORIES.SOCIAL },
-    { type: 'facebook', name: 'Facebook', icon: LuUser, category: CATEGORIES.SOCIAL },
-    { type: 'linkedin', name: 'LinkedIn', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'youtube_channel', name: 'YouTube', icon: LuYoutube, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: LuMail, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: LuPhone, category: CATEGORIES.SOCIAL },
+    { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
+    { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
+    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
+    { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
+    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
+    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
   ]
 };
 
@@ -104,15 +112,15 @@ export const SECTION_OPTIONS = [
   { type: 'projects', name: 'Projects', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
 
   // Social & Links
-  { type: 'linkedin', name: 'LinkedIn', icon: LuLinkedin, category: CATEGORIES.SOCIAL },
-  { type: 'github_gitlab', name: 'GitHub/GitLab', icon: LuGithub, category: CATEGORIES.SOCIAL },
-  { type: 'x_profile', name: 'X (Twitter)', icon: LuTwitter, category: CATEGORIES.SOCIAL },
-  { type: 'instagram', name: 'Instagram', icon: LuUser, category: CATEGORIES.SOCIAL },
-  { type: 'youtube_channel', name: 'YouTube', icon: LuYoutube, category: CATEGORIES.SOCIAL },
-  { type: 'tiktok', name: 'TikTok', icon: LuMusic, category: CATEGORIES.SOCIAL },
-  { type: 'facebook', name: 'Facebook', icon: LuUser, category: CATEGORIES.SOCIAL },
-  { type: 'email', name: 'Email', icon: LuMail, category: CATEGORIES.SOCIAL },
-  { type: 'whatsapp', name: 'WhatsApp', icon: LuPhone, category: CATEGORIES.SOCIAL },
+  { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
+  { type: 'github_gitlab', name: 'GitHub/GitLab', icon: FaGithub, category: CATEGORIES.SOCIAL },
+  { type: 'x_profile', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
+  { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
+  { type: 'youtube_channel', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
+  { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
+  { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
+  { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
+  { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
 
   // Tools
   { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },

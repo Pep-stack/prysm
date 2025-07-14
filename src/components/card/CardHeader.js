@@ -18,32 +18,26 @@ const getInitials = (name) => {
 export default function CardHeader({ profile, user, isPublicView = false, backgroundColor }) {
   const { settings } = useDesignSettings();
 
-  // Display type from profile (header or avatar)
-  const displayType = profile?.display_type || 'avatar';
+  // Card type bepalen
+  const cardType = profile?.card_type || 'pro';
+  
+  // Display type per card type uit card_display_settings
+  const cardDisplaySettings = profile?.card_display_settings?.[cardType] || {};
+  const displayType = cardDisplaySettings.display_type || 'avatar';
 
   // Context detection for header width behavior
   // We force contained mode for all views to ensure the header image aligns exactly with card edges
   const shouldUseFullWidth = false;
 
-  // Avatar settings uit profiel
-  const avatarSize = profile?.avatar_size || 'medium';
-  const avatarShape = profile?.avatar_shape || 'circle';
-  const avatarPosition = profile?.avatar_position || 'left';
+  // Avatar settings per card type uit card_display_settings
+  const avatarSize = cardDisplaySettings.avatar_size || 'medium';
+  const avatarShape = cardDisplaySettings.avatar_shape || 'circle';
+  const avatarPosition = cardDisplaySettings.avatar_position || 'left';
 
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   // Get card background color from design settings (fallback op wit)
   const cardBgColor = settings.background_color || '#fff';
-
-  // Debug logging
-  console.log('CardHeader Debug:', {
-    displayType,
-    shouldUseFullWidth,
-    isPublicView,
-    header_url: profile?.header_url,
-    avatar_url: profile?.avatar_url,
-    textColor
-  });
 
   // Avatar grootte bepalen
   const getAvatarSize = (size) => {
@@ -84,8 +78,6 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
     business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size'],
   };
 
-  // Card type bepalen
-  const cardType = profile?.card_type || 'pro';
   // Haal de juiste personal info uit de card_profiles JSON
   const cardProfiles = profile?.card_profiles || {};
   const personalInfo = cardProfiles[cardType] || {};
@@ -146,10 +138,25 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               </div>
             </div>
           ) : (
-            <div className={styles.profileCoverPlaceholder}>
-              <span className={styles.profileInitials}>
-                {getInitials(personalInfo?.name)}
-              </span>
+            <div 
+              className={styles.profileCoverPlaceholder}
+              style={{ background: cardBgColor, position: 'relative' }}
+            >
+              {/* Subtiele wazige overlay */}
+              <div 
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(255,255,255,0.18)',
+                  backdropFilter: 'blur(2px)',
+                  WebkitBackdropFilter: 'blur(2px)',
+                  borderRadius: '16px 16px 0 0',
+                  zIndex: 2
+                }}
+              />
             </div>
           )}
         </div>
@@ -159,10 +166,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
       <div className={styles.avatarRow}>
         {displayType === 'avatar' && (
           <div 
-            className={styles.avatarContainer}
-            style={{ 
-              justifyContent: avatarJustification,
-              marginTop: '0px',
+            style={{
+              justifyContent: 'center',
+              marginTop: '48px', // meer padding van boven
               display: 'flex',
               width: '100%'
             }}
@@ -171,29 +177,36 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               <Image
                 src={avatarUrl}
                 alt={personalInfo?.name || user?.email || 'Profile Avatar'}
-                width={avatarSizePx}
-                height={avatarSizePx}
-                className={styles.avatar}
+                width={320}
+                height={320}
                 style={{ 
                   objectFit: 'cover',
-                  borderRadius: avatarBorderRadius,
-                  width: `${avatarSizePx}px`,
-                  height: `${avatarSizePx}px`,
-                  flexShrink: 0
+                  borderRadius: 24,
+                  width: '320px',
+                  height: '320px',
+                  display: 'block',
+                  border: 'none',
+                  boxShadow: 'none',
                 }}
               />
             ) : (
               <div 
-                className={styles.avatarPlaceholder}
                 style={{
-                  width: `${avatarSizePx}px`,
-                  height: `${avatarSizePx}px`,
-                  borderRadius: avatarBorderRadius,
-                  fontSize: `${avatarSizePx * 0.4}px`,
-                  flexShrink: 0
+                  width: '320px',
+                  height: '320px',
+                  borderRadius: 24,
+                  fontSize: '128px',
+                  flexShrink: 0,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: 'none',
+                  boxShadow: 'none',
                 }}
               >
-                <span className={styles.avatarInitials}>
+                <span>
                   {getInitials(personalInfo?.name)}
                 </span>
               </div>

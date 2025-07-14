@@ -16,17 +16,46 @@ import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 // Voeg hier AL je sectie types toe
 
 // Mapping van sectie type/id naar component (efficiënter dan switch)
-export const sectionComponentMap = {
-  // Social media types use consolidated component
+const proSectionComponentMap = {
   'linkedin': SocialMediaSectionContent,
-  'x_profile': SocialMediaSectionContent,
+  'x': SocialMediaSectionContent,
   'instagram': SocialMediaSectionContent,
   'email': SocialMediaSectionContent,
   'whatsapp': SocialMediaSectionContent,
-  'github_gitlab': SocialMediaSectionContent,
-  'youtube_channel': SocialMediaSectionContent,
+  'github': SocialMediaSectionContent,
+  'youtube': SocialMediaSectionContent,
   'tiktok': SocialMediaSectionContent,
   'facebook': SocialMediaSectionContent,
+  'dribbble': SocialMediaSectionContent,
+  'behance': SocialMediaSectionContent,
+  'spotify': SocialMediaSectionContent,
+  'snapchat': SocialMediaSectionContent,
+  'reddit': SocialMediaSectionContent,
+  'phone': SocialMediaSectionContent,
+  // Other sections
+  'experience': ExperienceSectionContent,
+  'education': EducationSectionContent,
+  'certifications': CertificationsSectionContent,
+  'projects': ProjectsSectionContent,
+  'languages': LanguagesSectionContent,
+};
+
+export const sectionComponentMap = {
+  'linkedin': SocialMediaSectionContent,
+  'x': SocialMediaSectionContent,
+  'instagram': SocialMediaSectionContent,
+  'email': SocialMediaSectionContent,
+  'whatsapp': SocialMediaSectionContent,
+  'github': SocialMediaSectionContent,
+  'youtube': SocialMediaSectionContent,
+  'tiktok': SocialMediaSectionContent,
+  'facebook': SocialMediaSectionContent,
+  'dribbble': SocialMediaSectionContent,
+  'behance': SocialMediaSectionContent,
+  'spotify': SocialMediaSectionContent,
+  'snapchat': SocialMediaSectionContent,
+  'reddit': SocialMediaSectionContent,
+  'phone': SocialMediaSectionContent,
   // Other sections
   'experience': ExperienceSectionContent,
   'education': EducationSectionContent,
@@ -59,8 +88,10 @@ export default function CardSectionRenderer({
   const { settings } = useDesignSettings();
 
   if (!section) return null;
-  
-  const Component = sectionComponentMap[section.type];
+  // Kies mapping op basis van card_type
+  const cardType = profile?.card_type || 'pro';
+  const mapToUse = cardType === 'pro' ? proSectionComponentMap : sectionComponentMap;
+  const Component = mapToUse[section.type];
   if (!Component) return null;
 
   // Get text color from design settings

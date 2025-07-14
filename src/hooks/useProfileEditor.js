@@ -62,6 +62,7 @@ export function useProfileEditor(user) {
             ...initialProfileState,
             ...data,
             card_profiles: data.card_profiles || {},
+            card_images: data.card_images || {},
           });
         }
       } catch (err) {
@@ -96,9 +97,10 @@ export function useProfileEditor(user) {
     setMessage(null);
 
     try {
-      // Sla de hele card_profiles JSON op
+      // Sla de hele card_profiles en card_images JSON op
       const profileUpdates = {
         card_profiles: profile.card_profiles,
+        card_images: profile.card_images,
         updated_at: new Date().toISOString(),
       };
 

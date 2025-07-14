@@ -7,9 +7,7 @@ import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES, getSectionsKey } f
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
-  'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
-  'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
-  'email', 'whatsapp'
+  'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'spotify', 'phone', 'whatsapp', 'email', 'behance'
 ];
 
 // Helper function to enhance sections with properties from SECTION_OPTIONS

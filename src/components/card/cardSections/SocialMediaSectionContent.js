@@ -1,27 +1,30 @@
 import React from 'react';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
-import { LuGithub, LuInstagram, LuLinkedin, LuTwitter, LuYoutube, LuMail, LuPhone } from 'react-icons/lu';
-import { FaSpotify, FaRedditAlien, FaSnapchatGhost } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaTwitter, FaInstagram, FaYoutube, FaSpotify, FaRedditAlien, FaSnapchatGhost, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa';
 
 const SOCIALS = [
-  { type: 'github', name: 'GitHub', icon: LuGithub },
-  { type: 'instagram', name: 'Instagram', icon: LuInstagram },
-  { type: 'linkedin', name: 'LinkedIn', icon: LuLinkedin },
-  { type: 'x', name: 'X', icon: LuTwitter },
-  { type: 'youtube', name: 'YouTube', icon: LuYoutube },
+  { type: 'github', name: 'GitHub', icon: FaGithub },
+  { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin },
+  { type: 'x', name: 'X', icon: FaTwitter },
+  { type: 'instagram', name: 'Instagram', icon: FaInstagram },
+  { type: 'youtube', name: 'YouTube', icon: FaYoutube },
   { type: 'spotify', name: 'Spotify', icon: FaSpotify },
   { type: 'reddit', name: 'Reddit', icon: FaRedditAlien },
   { type: 'snapchat', name: 'Snapchat', icon: FaSnapchatGhost },
-  { type: 'mail', name: 'Mail', icon: LuMail },
-  { type: 'whatsapp', name: 'WhatsApp', icon: LuPhone },
-  { type: 'phone', name: 'Telefoon', icon: LuPhone },
+  { type: 'facebook', name: 'Facebook', icon: FaFacebook },
+  { type: 'dribbble', name: 'Dribbble', icon: FaDribbble },
+  { type: 'behance', name: 'Behance', icon: FaBehance },
+  { type: 'tiktok', name: 'TikTok', icon: FaTiktok },
+  { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp },
+  { type: 'email', name: 'Email', icon: FaEnvelope },
+  { type: 'phone', name: 'Phone', icon: FaPhone },
 ];
 
 export default function SocialMediaSectionContent({ section, profile, user }) {
   // Haal kleur uit design settings (fallback op zwart)
   const { settings } = useDesignSettings();
   const iconColor = settings?.icon_color || '#222';
-  const iconSize = 24;
+  const iconSize = 32;
 
   // section.type bepaalt welk icoon we tonen
   const social = SOCIALS.find(s => s.type === section.type);

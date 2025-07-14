@@ -150,9 +150,7 @@ export default function DashboardPageContent() {
     
     // Check if it's a social media type and add to appropriate area
     const SOCIAL_MEDIA_TYPES = [
-      'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
-      'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
-      'email', 'whatsapp'
+      'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'spotify', 'phone', 'whatsapp', 'email', 'behance'
     ];
     
     if (SOCIAL_MEDIA_TYPES.includes(sectionType)) {
