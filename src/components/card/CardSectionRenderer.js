@@ -12,6 +12,7 @@ import EducationSectionContent from './cardSections/EducationSectionContent';
 import CertificationsSectionContent from './cardSections/CertificationsSectionContent';
 import ProjectsSectionContent from './cardSections/ProjectsSectionContent';
 import LanguagesSectionContent from './cardSections/LanguagesSectionContent';
+import ClientTestimonialsSectionContent from './cardSections/ClientTestimonialsSectionContent';
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 // Voeg hier AL je sectie types toe
 
@@ -38,6 +39,7 @@ const proSectionComponentMap = {
   'certifications': CertificationsSectionContent,
   'projects': ProjectsSectionContent,
   'languages': LanguagesSectionContent,
+  'testimonials': ClientTestimonialsSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -62,6 +64,7 @@ export const sectionComponentMap = {
   'certifications': CertificationsSectionContent,
   'projects': ProjectsSectionContent,
   'languages': LanguagesSectionContent,
+  'testimonials': ClientTestimonialsSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view

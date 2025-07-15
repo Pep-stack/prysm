@@ -6,8 +6,9 @@ import EducationSelector from '../shared/EducationSelector';
 import ExperienceSelector from '../shared/ExperienceSelector';
 import CertificationSelector from '../shared/CertificationSelector';
 import ProjectSelector from '../shared/ProjectSelector';
+import ClientTestimonialSelector from '../shared/ClientTestimonialSelector';
 
-export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave }) {
+export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
   if (!isOpen || !section) return null;
 
@@ -113,6 +114,18 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    if (section.editorComponent === 'ClientTestimonialSelector') {
+      // Ensure 'value' passed to ClientTestimonialSelector is an array of testimonial objects
+      const selectedTestimonialEntries = Array.isArray(value) ? value : [];
+      return (
+        <ClientTestimonialSelector 
+          value={selectedTestimonialEntries} // Pass current testimonial entries
+          onChange={onChange} // onChange should expect an array of testimonial objects
+          userId={user?.id} // Pass user ID for Supabase integration
+        />
+      );
+    }
+
     // Default rendering based on inputType
     if (section.inputType === 'textarea') {
       return (
@@ -145,8 +158,36 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         {renderInput()} {/* Render the correct input or custom component */}
 
         <div style={buttonContainerStyle}>
-          <button onClick={onClose} style={{ padding: '8px 15px' }}>Cancel</button>
-          <button onClick={onSave} style={{ padding: '8px 15px', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '4px' }}>Save</button>
+          <button 
+            onClick={onClose} 
+            style={{ 
+              padding: '8px 16px',
+              backgroundColor: 'transparent',
+              borderColor: '#e2e8f0',
+              color: '#64748b',
+              borderRadius: '25px',
+              fontSize: '14px',
+              fontWeight: '500',
+              border: '1px solid #e2e8f0'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={onSave} 
+            style={{ 
+              padding: '8px 16px', 
+              backgroundColor: '#00C48C', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '25px',
+              fontSize: '14px',
+              fontWeight: '500',
+              boxShadow: '0 2px 8px rgba(0, 196, 140, 0.3)'
+            }}
+          >
+            Save
+          </button>
         </div>
       </div>
     </div>

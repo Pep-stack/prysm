@@ -238,6 +238,7 @@ export default function DashboardPageContent() {
           onChange={setModalInputValue}
           onSave={handleModalSave}
           isLoading={modalLoading}
+          user={user}
         />
         <AvatarUploadModal
           isOpen={isAvatarModalOpen}

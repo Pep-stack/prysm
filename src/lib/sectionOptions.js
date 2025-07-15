@@ -43,7 +43,7 @@ export const SECTION_OPTIONS_BY_CARD_TYPE = {
     // Essentials for Pro (Freelancers, Creators, Consultants)
     { type: 'portfolio', name: 'Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
     { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.ESSENTIALS },
-    { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS },
+    { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS, editorComponent: 'ClientTestimonialSelector' },
     { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS },
     { type: 'availability', name: 'Availability Status', icon: LuCalendar, category: CATEGORIES.ESSENTIALS },
     { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
@@ -179,7 +179,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     // Pro defaults
     portfolio: { title: defaultTitle, value: [], editorComponent: 'ProjectSelector' },
     services: { title: defaultTitle, value: '' },
-    testimonials: { title: defaultTitle, value: '' },
+    testimonials: { title: defaultTitle, value: [], editorComponent: 'ClientTestimonialSelector' },
     skills: { title: defaultTitle, value: '' },
     availability: { title: defaultTitle, value: '' },
     pricing: { title: defaultTitle, value: '' },

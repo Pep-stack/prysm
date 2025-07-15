@@ -20,11 +20,11 @@ const SOCIALS = [
   { type: 'phone', name: 'Phone', icon: FaPhone },
 ];
 
-export default function SocialMediaSectionContent({ section, profile, user }) {
+export default function SocialMediaSectionContent({ section, profile, user, styles = {} }) {
   // Haal kleur uit design settings (fallback op zwart)
   const { settings } = useDesignSettings();
   const iconColor = settings?.icon_color || '#222';
-  const iconSize = 32;
+  const iconSize = styles?.iconSize || 32;
 
   // section.type bepaalt welk icoon we tonen
   const social = SOCIALS.find(s => s.type === section.type);
