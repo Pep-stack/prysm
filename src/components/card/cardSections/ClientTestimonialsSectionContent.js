@@ -230,7 +230,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
             fontStyle: 'italic',
             fontWeight: '500'
           }}>
-            &ldquo;{entry.quote}&rdquo;
+            &quot;{entry.quote}&quot;
           </p>
         </div>
       )}
