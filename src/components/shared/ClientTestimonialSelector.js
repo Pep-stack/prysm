@@ -216,7 +216,7 @@ export default function ClientTestimonialSelector({ value = [], onChange, userId
                     {testimonial.quote && (
                       <div className="bg-gray-50 rounded-lg p-4 mb-3 border-l-4 border-primary/20">
                         <p className="text-gray-700 italic leading-relaxed">
-                          "{testimonial.quote}"
+                          {testimonial.quote}
                         </p>
                       </div>
                     )}
