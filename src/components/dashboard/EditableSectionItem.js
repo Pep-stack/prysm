@@ -59,7 +59,16 @@ export function EditableSectionItem({ id, section, onRemove, onEdit }) {
          <button onClick={() => onEdit(section)} className="text-gray-400 hover:text-[#00C896] p-1" aria-label="Edit section">
              <LuPencil size={16} />
          </button>
-         <button onClick={() => onRemove(section.id)} className="text-gray-400 hover:text-red-500 p-1" aria-label="Remove section">
+         <button onClick={(e) => {
+           console.log('🔴 BUTTON-CLICK: Remove section button clicked for ID:', section.id);
+           console.log('🔴 BUTTON-CLICK: Event target:', e.target);
+           console.log('🔴 BUTTON-CLICK: onRemove function:', onRemove);
+           if (typeof onRemove === 'function') {
+             onRemove(section.id);
+           } else {
+             console.error('🔴 BUTTON-CLICK: onRemove is not a function!');
+           }
+         }} className="text-gray-400 hover:text-red-500 p-1" aria-label="Remove section" style={{ pointerEvents: 'auto', zIndex: 1 }}>
            <LuTrash2 size={16} />
          </button>
       </div>

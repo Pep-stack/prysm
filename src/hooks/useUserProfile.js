@@ -17,13 +17,16 @@ export function useUserProfile(user) {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user) {
+         console.log('🔥 FETCH-PROFILE: No user found, clearing profile state');
          setLoading(false); 
          setProfile(null); // Ensure profile is null if no user
          return;
       }
       
+      console.log('🔥 FETCH-PROFILE: Starting profile fetch for user:', user.id);
       setLoading(true);
       setError(null); // Clear previous errors
+      
       try {
         const { data, error: fetchError } = await supabase
           .from('profiles')
@@ -32,17 +35,29 @@ export function useUserProfile(user) {
           .single();
           
         if (fetchError) {
-           // Handle profile not existing or other errors
-           console.error('Error fetching profile in hook:', fetchError);
+           console.log('❌ FETCH-PROFILE: Database fetch error', {
+             error: fetchError,
+             code: fetchError.code,
+             message: fetchError.message
+           });
            if (fetchError.code !== 'PGRST116') { // Don't set error if profile just doesn't exist
               setError('Could not fetch profile data.');
            }
            setProfile(null); // Set profile to null on error or if not found
         } else {
+          console.log('✅ FETCH-PROFILE: Profile fetched successfully', {
+            profileId: data.id,
+            cardType: data.card_type,
+            cardSections: data.card_sections,
+            cardSectionsLength: Array.isArray(data.card_sections) ? data.card_sections.length : 0
+          });
           setProfile(data); // Set profile data if found
         }
       } catch (err) {
-        console.error('Unexpected error fetching profile in hook:', err);
+        console.error('❌ FETCH-PROFILE: Unexpected error fetching profile', {
+          error: err,
+          message: err.message
+        });
         setError('An unexpected error occurred.');
         setProfile(null);
       } finally {
@@ -67,7 +82,18 @@ export function useUserProfile(user) {
 
   // ADDED: Function to save only the card sections layout
   const saveCardLayout = useCallback(async (newLayout, cardType) => {
-    if (!user) return;
+    console.log('🔥 SAVE-LAYOUT: Starting save operation', { 
+      userId: user?.id,
+      hasUser: !!user, 
+      layoutLength: newLayout?.length, 
+      cardType,
+      sectionsToSave: newLayout
+    });
+    
+    if (!user) {
+      console.log('❌ SAVE-LAYOUT: No user found, aborting save');
+      return;
+    }
 
     setUpdatingLayout(true);
     setLayoutError(null);
@@ -76,26 +102,50 @@ export function useUserProfile(user) {
       // Sla de volledige sectie-objecten op in de juiste kolom
       const validLayout = Array.isArray(newLayout) ? newLayout : [];
       const key = getSectionsKey(cardType);
+      console.log('🔥 SAVE-LAYOUT: Database operation details', {
+        databaseColumn: key,
+        dataToSave: JSON.stringify(validLayout, null, 2),
+        userId: user.id
+      });
 
-      const { error: updateError } = await supabase
+      const { data, error: updateError } = await supabase
         .from('profiles')
         .update({ 
             [key]: validLayout,
             updated_at: new Date().toISOString() 
          })
-        .eq('id', user.id);
+        .eq('id', user.id)
+        .select();
 
       if (updateError) {
+        console.log('❌ SAVE-LAYOUT: Database update failed', updateError);
         throw updateError;
       }
+      
+      console.log('✅ SAVE-LAYOUT: Database update successful', {
+        returnedData: data,
+        savedToColumn: key
+      });
+      
       // Update local profile state immediately after successful save
-      setProfile(prev => prev ? { ...prev, [key]: validLayout } : null);
-      // Optionally set a success message here if needed
+      setProfile(prev => {
+        const updated = prev ? { ...prev, [key]: validLayout, updated_at: new Date().toISOString() } : null;
+        console.log('🔥 SAVE-LAYOUT: Local profile state updated', {
+          previousProfile: prev ? { [key]: prev[key] } : null,
+          newProfile: updated ? { [key]: updated[key] } : null
+        });
+        return updated;
+      });
 
     } catch (err) {
-      console.error('Error updating card layout:', err);
+      console.error('❌ SAVE-LAYOUT: Save operation failed', {
+        error: err,
+        message: err.message,
+        details: err.details || 'No additional details'
+      });
       setLayoutError(`Failed to save card layout: ${err.message}`);
     } finally {
+      console.log('🏁 SAVE-LAYOUT: Save operation completed, setting updatingLayout to false');
       setUpdatingLayout(false);
     }
   }, [user]);

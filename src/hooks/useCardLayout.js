@@ -1,6 +1,6 @@
 'use client'; // Hooks might be used in client components
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES, getSectionsKey } from '../lib/sectionOptions';
@@ -40,44 +40,6 @@ const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
         ...getDefaultSectionProps('skills', cardType)
       }
     ];
-  } else if (cardType === CARD_TYPES.CAREER) {
-    return [
-      {
-        id: uuidv4(),
-        type: 'experience',
-        ...getDefaultSectionProps('experience', cardType),
-        editorComponent: 'ExperienceSelector'
-      },
-      {
-        id: uuidv4(),
-        type: 'education',
-        ...getDefaultSectionProps('education', cardType),
-        editorComponent: 'EducationSelector'
-      },
-      {
-        id: uuidv4(),
-        type: 'skills',
-        ...getDefaultSectionProps('skills', cardType)
-      }
-    ];
-  } else if (cardType === CARD_TYPES.BUSINESS) {
-    return [
-      {
-        id: uuidv4(),
-        type: 'company_info',
-        ...getDefaultSectionProps('company_info', cardType)
-      },
-      {
-        id: uuidv4(),
-        type: 'contact',
-        ...getDefaultSectionProps('contact', cardType)
-      },
-      {
-        id: uuidv4(),
-        type: 'services_products',
-        ...getDefaultSectionProps('services_products', cardType)
-      }
-    ];
   }
   
   // Fallback to original defaults
@@ -110,37 +72,101 @@ const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
 export function useCardLayout(profile, cardType) {
   const [cardSections, setCardSections] = useState([]);
   const [socialBarSections, setSocialBarSections] = useState([]);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const lastSyncedRef = useRef({ profileId: null, updatedAt: null });
 
   useEffect(() => {
-    if (profile && cardType) {
+    const profileId = profile?.id;
+    const updatedAt = profile?.updated_at;
+    
+    // Check for real profile changes and empty local state
+    const hasProfileIdChanged = profileId !== lastSyncedRef.current.profileId;
+    const isInitialLoad = lastSyncedRef.current.profileId === null && profileId;
+    const hasEmptyLocalState = cardSections.length === 0 && socialBarSections.length === 0;
+    const shouldSync = isInitialLoad || hasProfileIdChanged || (hasEmptyLocalState && profileId);
+
+    console.log('🔥 PROFILE-SYNC: useEffect triggered', { 
+      hasProfile: !!profile, 
+      cardType, 
+      isAutoSaving,
+      profileId,
+      updatedAt,
+      hasProfileIdChanged,
+      isInitialLoad,
+      hasEmptyLocalState,
+      shouldSync,
+      lastSynced: lastSyncedRef.current
+    });
+    
+    // Only sync from profile if:
+    // 1. We have a profile and cardType
+    // 2. We're not auto-saving
+    // 3. It's the initial load OR profile ID changed OR local state is empty
+    if (profile && cardType && !isAutoSaving && shouldSync) {
       const key = getSectionsKey(cardType);
       const allSections = Array.isArray(profile[key]) ? profile[key] : [];
-      setCardSections(allSections.filter(s => !s.area || s.area !== 'social_bar'));
-      setSocialBarSections(allSections.filter(s => s.area === 'social_bar'));
+              console.log('🔥 PROFILE-SYNC: Loading sections from database', {
+          databaseColumn: key,
+          rawSectionsFromDB: profile[key],
+          parsedSections: allSections,
+          sectionsCount: allSections.length,
+          syncReason: isInitialLoad ? 'initial load' : hasProfileIdChanged ? 'profile ID changed' : 'empty local state'
+        });
+      
+      const newCardSections = allSections.filter(s => !s.area || s.area !== 'social_bar');
+      const newSocialBarSections = allSections.filter(s => s.area === 'social_bar');
+      
+      console.log('🔥 PROFILE-SYNC: Splitting sections into categories', {
+        cardSections: newCardSections,
+        socialBarSections: newSocialBarSections,
+        cardSectionsCount: newCardSections.length,
+        socialBarSectionsCount: newSocialBarSections.length
+      });
+      
+      setCardSections(newCardSections);
+      setSocialBarSections(newSocialBarSections);
+      lastSyncedRef.current = { profileId, updatedAt };
+      
+      console.log('✅ PROFILE-SYNC: Sections loaded and state updated');
+    } else {
+      console.log('🚫 PROFILE-SYNC: Sync blocked', {
+        hasProfile: !!profile,
+        hasCardType: !!cardType,
+        isAutoSaving,
+        hasProfileIdChanged,
+        isInitialLoad,
+        hasEmptyLocalState,
+        shouldSync,
+        reason: !profile ? 'no profile' : !cardType ? 'no cardType' : isAutoSaving ? 'auto-saving' : !shouldSync ? 'no sync conditions met' : 'unknown'
+      });
     }
-  }, [profile, cardType]);
+  }, [profile?.id, profile?.updated_at, cardType, isAutoSaving]);
 
   // Handler to remove a section from either area
   const handleRemoveSection = useCallback((idToRemove) => {
-    console.log(`Attempting to remove section with ID: ${idToRemove}`);
+    console.log(`🗑️ ORIGINAL-REMOVE: Attempting to remove section with ID: ${idToRemove}`);
     
     // Try removing from regular sections first
     setCardSections((prevSections) => {
+      console.log('🗑️ ORIGINAL-REMOVE: Current card sections:', prevSections);
       const newSections = prevSections.filter((section) => section.id !== idToRemove);
       if (newSections.length !== prevSections.length) {
-        console.log('Removed from regular sections:', newSections);
+        console.log('🗑️ ORIGINAL-REMOVE: Removed from card sections, new sections:', newSections);
         return newSections;
       }
+      console.log('🗑️ ORIGINAL-REMOVE: Section not found in card sections');
       return prevSections;
     });
 
     // Try removing from social bar sections
     setSocialBarSections((prevSections) => {
+      console.log('🗑️ ORIGINAL-REMOVE: Current social bar sections:', prevSections);
       const newSections = prevSections.filter((section) => section.id !== idToRemove);
       if (newSections.length !== prevSections.length) {
-        console.log('Removed from social bar sections:', newSections);
+        console.log('🗑️ ORIGINAL-REMOVE: Removed from social bar sections, new sections:', newSections);
         return newSections;
       }
+      console.log('🗑️ ORIGINAL-REMOVE: Section not found in social bar sections');
       return prevSections;
     });
   }, []);
@@ -255,5 +281,7 @@ export function useCardLayout(profile, cardType) {
     handleRemoveSection,
     handleDragEnd,
     getAllSections,
+    isAutoSaving,
+    setIsAutoSaving,
   };
 } 

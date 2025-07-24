@@ -9,11 +9,9 @@ import {
 } from "react-icons/lu";
 import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaSpotify, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa6';
 
-// Card types
+// Card types - simplified to only PRO
 export const CARD_TYPES = {
-  PRO: 'pro',
-  CAREER: 'career', 
-  BUSINESS: 'business'
+  PRO: 'pro'
 };
 
 // Simplified categories
@@ -37,98 +35,60 @@ export const CATEGORY_ICONS = {
   'Other': LuPackage,
 };
 
-// Card type-specific section options
-export const SECTION_OPTIONS_BY_CARD_TYPE = {
-  [CARD_TYPES.PRO]: [
-    // Essentials for Pro (Freelancers, Creators, Consultants)
-    { type: 'portfolio', name: 'Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
-    { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.ESSENTIALS },
-    { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS, editorComponent: 'ClientTestimonialSelector' },
-    { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS },
-    { type: 'availability', name: 'Availability Status', icon: LuCalendar, category: CATEGORIES.ESSENTIALS },
-    { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
-    
-    // Social & Links for Pro
-    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
-    { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
-    { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
-    { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
-    { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
-    { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
-    { type: 'dribbble', name: 'Dribbble', icon: FaDribbble, category: CATEGORIES.SOCIAL },
-    { type: 'spotify', name: 'Spotify', icon: FaSpotify, category: CATEGORIES.SOCIAL },
-    { type: 'snapchat', name: 'Snapchat', icon: FaSnapchat, category: CATEGORIES.SOCIAL },
-    { type: 'reddit', name: 'Reddit', icon: FaRedditAlien, category: CATEGORIES.SOCIAL },
-    { type: 'phone', name: 'Phone', icon: FaPhone, category: CATEGORIES.SOCIAL },
-  ],
+// All section options - consolidated from previous card types  
+export const ALL_SECTION_OPTIONS = [
+  // Core Essentials (from Pro)
+  { type: 'portfolio', name: 'Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
+  { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.ESSENTIALS },
+  { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS, editorComponent: 'ClientTestimonialSelector' },
+  { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS },
+  { type: 'availability', name: 'Availability Status', icon: LuCalendar, category: CATEGORIES.ESSENTIALS },
+  { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
+  
+  // Career sections (from Career)
+  { type: 'experience', name: 'Work Experience', icon: LuBriefcase, category: CATEGORIES.CAREER, editorComponent: 'ExperienceSelector' },
+  { type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.CAREER, editorComponent: 'EducationSelector' },
+  { type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.CAREER, editorComponent: 'CertificationSelector' },
+  { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },
+  { type: 'resume', name: 'Resume Download', icon: LuFolderOpen, category: CATEGORIES.CAREER },
+  { type: 'contact', name: 'Contact Information', icon: LuMail, category: CATEGORIES.ESSENTIALS },
 
-  [CARD_TYPES.CAREER]: [
-    // Essentials for Career (Job Seekers, Career Changers, Graduates)
-    { type: 'experience', name: 'Work Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS, editorComponent: 'ExperienceSelector' },
-    { type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'EducationSelector' },
-    { type: 'skills', name: 'Skills & Competencies', icon: LuCode, category: CATEGORIES.ESSENTIALS },
-    { type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS, editorComponent: 'CertificationSelector' },
-    { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },
-    { type: 'resume', name: 'Resume Download', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS },
-    { type: 'contact', name: 'Contact Information', icon: LuMail, category: CATEGORIES.ESSENTIALS },
-    
-    // Social & Links for Career
-    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
-    { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
-  ],
-
-  [CARD_TYPES.BUSINESS]: [
-    // Essentials for Business (Companies, Agencies, Stores)
-    { type: 'company_info', name: 'Company Information', icon: LuBuilding2, category: CATEGORIES.BUSINESS },
-    { type: 'services_products', name: 'Services/Products', icon: LuPackage, category: CATEGORIES.BUSINESS },
-    { type: 'team', name: 'Team Members', icon: LuUsers, category: CATEGORIES.BUSINESS },
-    { type: 'contact', name: 'Contact Details', icon: LuMail, category: CATEGORIES.ESSENTIALS },
-    { type: 'business_hours', name: 'Business Hours', icon: LuClock, category: CATEGORIES.BUSINESS },
-    { type: 'location', name: 'Location/Address', icon: LuMapPin, category: CATEGORIES.BUSINESS },
-    { type: 'reviews', name: 'Customer Reviews', icon: LuThumbsUp, category: CATEGORIES.BUSINESS },
-    
-    // Social & Links for Business
-    { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
-    { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
-    { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
-    { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
-    { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
-    { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
-  ]
-};
-
-// Legacy support - keep the old SECTION_OPTIONS for backward compatibility
-export const SECTION_OPTIONS = [
-  // Essentials
-  { type: 'experience', name: 'Experience', icon: LuBriefcase, category: CATEGORIES.ESSENTIALS, editorComponent: 'ExperienceSelector' },
-  { type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'EducationSelector' },
-  { type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.ESSENTIALS, editorComponent: 'CertificationSelector' },
-  { type: 'projects', name: 'Projects', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
-
-  // Social & Links
+  // Business sections (from Business)
+  { type: 'company_info', name: 'Company Information', icon: LuBuilding2, category: CATEGORIES.BUSINESS },
+  { type: 'services_products', name: 'Services/Products', icon: LuPackage, category: CATEGORIES.BUSINESS },
+  { type: 'team', name: 'Team Members', icon: LuUsers, category: CATEGORIES.BUSINESS },
+  { type: 'business_hours', name: 'Business Hours', icon: LuClock, category: CATEGORIES.BUSINESS },
+  { type: 'location', name: 'Location/Address', icon: LuMapPin, category: CATEGORIES.BUSINESS },
+  { type: 'reviews', name: 'Customer Reviews', icon: LuThumbsUp, category: CATEGORIES.BUSINESS },
+  
+  // Social & Links (consolidated from all types)
   { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
-  { type: 'github_gitlab', name: 'GitHub/GitLab', icon: FaGithub, category: CATEGORIES.SOCIAL },
-  { type: 'x_profile', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
+  { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
+  { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
   { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL },
-  { type: 'youtube_channel', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
-  { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
-  { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
+  { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL },
   { type: 'email', name: 'Email', icon: FaEnvelope, category: CATEGORIES.SOCIAL },
   { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL },
-
-  // Tools
-  { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },
+  { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
+  { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
+  { type: 'dribbble', name: 'Dribbble', icon: FaDribbble, category: CATEGORIES.SOCIAL },
+  { type: 'spotify', name: 'Spotify', icon: FaSpotify, category: CATEGORIES.SOCIAL },
+  { type: 'snapchat', name: 'Snapchat', icon: FaSnapchat, category: CATEGORIES.SOCIAL },
+  { type: 'reddit', name: 'Reddit', icon: FaRedditAlien, category: CATEGORIES.SOCIAL },
+  { type: 'phone', name: 'Phone', icon: FaPhone, category: CATEGORIES.SOCIAL },
 ];
 
-// Get section options based on card type
-export const getSectionOptionsByCardType = (cardType) => {
-  return SECTION_OPTIONS_BY_CARD_TYPE[cardType] || SECTION_OPTIONS;
+// Simplified card type structure - only PRO remains
+export const SECTION_OPTIONS_BY_CARD_TYPE = {
+  [CARD_TYPES.PRO]: ALL_SECTION_OPTIONS
+};
+
+// Legacy support - now points to consolidated options
+export const SECTION_OPTIONS = ALL_SECTION_OPTIONS;
+
+// Get section options - simplified since only PRO exists
+export const getSectionOptionsByCardType = (cardType = CARD_TYPES.PRO) => {
+  return ALL_SECTION_OPTIONS;
 };
 
 // Simplified grouping function with card type support
@@ -147,17 +107,16 @@ export const getGroupedSectionOptions = (existingSectionTypes = [], cardType = C
     return acc;
   }, {});
 
-  // Maintain category order based on card type
-  let categoryOrder;
-  if (cardType === CARD_TYPES.PRO) {
-    categoryOrder = [CATEGORIES.ESSENTIALS, CATEGORIES.SOCIAL];
-  } else if (cardType === CARD_TYPES.CAREER) {
-    categoryOrder = [CATEGORIES.ESSENTIALS, CATEGORIES.TOOLS, CATEGORIES.SOCIAL];
-  } else if (cardType === CARD_TYPES.BUSINESS) {
-    categoryOrder = [CATEGORIES.BUSINESS, CATEGORIES.ESSENTIALS, CATEGORIES.SOCIAL];
-  } else {
-    categoryOrder = [CATEGORIES.ESSENTIALS, CATEGORIES.SOCIAL, CATEGORIES.CONTENT, CATEGORIES.TOOLS, 'Other'];
-  }
+  // Category order for all available sections
+  const categoryOrder = [
+    CATEGORIES.ESSENTIALS, 
+    CATEGORIES.CAREER, 
+    CATEGORIES.BUSINESS, 
+    CATEGORIES.TOOLS,
+    CATEGORIES.SOCIAL, 
+    CATEGORIES.CONTENT, 
+    'Other'
+  ];
 
   const sortedGrouped = {};
   categoryOrder.forEach(cat => {
@@ -215,9 +174,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
   return defaults[type] || { title: defaultTitle, value: '' };
 }; 
 
-export function getSectionsKey(cardType) {
-  if (cardType === 'pro') return 'card_sections_pro';
-  if (cardType === 'career') return 'card_sections_career';
-  if (cardType === 'business') return 'card_sections_business';
-  return 'card_sections_pro'; // fallback
+export function getSectionsKey(cardType = 'pro') {
+  // Always return card_sections since we only support pro card type now
+  return 'card_sections';
 } 

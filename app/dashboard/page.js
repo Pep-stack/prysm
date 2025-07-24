@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../src/components/auth/SessionProvider';
 import PrysmaCard from '../../src/components/card/PrysmaCard';
@@ -50,23 +50,31 @@ export default function DashboardPageContent() {
     handleProfileUpdate,
   } = useUserProfile(user);
 
-
+  // Allow dashboard to work even without profile - sections will be empty but buttons should work
+  const workingProfile = useMemo(() => {
+    return profile || {
+      id: user?.id,
+      card_type: 'pro',
+      card_sections: []
+    };
+  }, [profile, user?.id]);
 
   // Use the consolidated card layout hook
-  const cardType = profile?.card_type || CARD_TYPES.PRO;
+  const cardType = workingProfile?.card_type || CARD_TYPES.PRO;
   const {
     cardSections,
     socialBarSections,
     setCardSections,
     setSocialBarSections,
-    handleRemoveSection,
-    handleDragEnd,
+    handleRemoveSection: originalHandleRemoveSection,
+    handleDragEnd: originalHandleDragEnd,
     getAllSections,
-  } = useCardLayout(profile, cardType);
+    isAutoSaving: hookIsAutoSaving,
+    setIsAutoSaving: setHookIsAutoSaving,
+  } = useCardLayout(workingProfile, cardType);
 
   const [activeId, setActiveId] = useState(null);
-  const [hasInitializedSections, setHasInitializedSections] = useState(false);
-  const [saveMessage, setSaveMessage] = useState('');
+  const hasInitialLoad = useRef(false);
 
   // Design state (now handled by DesignToolbar)
   const [savingAppearance, setSavingAppearance] = useState(false);
@@ -86,8 +94,8 @@ export default function DashboardPageContent() {
     openModal: openEditModal,
     closeModal: closeEditModal,
     setInputValue: setModalInputValue,
-    handleSave: handleModalSave,
-  } = useEditSectionModal(user, profile, handleProfileUpdate);
+    handleSave: originalHandleModalSave,
+  } = useEditSectionModal(user, workingProfile, handleProfileUpdate);
 
   const {
     isModalOpen: isAvatarModalOpen,
@@ -103,37 +111,152 @@ export default function DashboardPageContent() {
     })
   );
 
+  // Auto-save function that runs after any change
+  const autoSaveLayout = useCallback(async () => {
+    console.log('🔥 AUTO-SAVE: Starting auto-save operation', { 
+      hasUser: !!user, 
+      userId: user?.id,
+      isCurrentlySaving: hookIsAutoSaving,
+      cardType
+    });
+    
+    if (!user || hookIsAutoSaving) {
+      console.log('🚫 AUTO-SAVE: Save operation blocked', {
+        reason: !user ? 'no user' : 'already saving',
+        hasUser: !!user,
+        isCurrentlySaving: hookIsAutoSaving
+      });
+      return;
+    }
+    
+    setHookIsAutoSaving(true);
+    try {
+      const allSections = getAllSections();
+      console.log('🔥 AUTO-SAVE: Collecting sections for save', {
+        totalSections: allSections.length,
+        sectionsData: allSections,
+        cardType
+      });
+      
+      await saveCardLayout(allSections, cardType);
+      console.log('✅ AUTO-SAVE: Save operation completed successfully');
+    } catch (error) {
+      console.error('❌ AUTO-SAVE: Save operation failed', {
+        error,
+        message: error.message
+      });
+    } finally {
+      // Small delay to show saving state and prevent profile sync conflicts
+      setTimeout(() => {
+        console.log('🏁 AUTO-SAVE: Clearing auto-save state');
+        setHookIsAutoSaving(false);
+      }, 1000);
+    }
+  }, [user, hookIsAutoSaving, getAllSections, saveCardLayout, cardType, setHookIsAutoSaving]);
+
+  // Effect to track initial load completion
+  useEffect(() => {
+    if (profile !== null) { // null means still loading, undefined means no profile found
+      hasInitialLoad.current = true;
+      console.log('🎯 INITIAL-LOAD: Profile load completed, auto-save will now be enabled', {
+        hasProfile: !!profile,
+        profileId: profile?.id,
+        cardSectionsCount: cardSections.length,
+        socialBarSectionsCount: socialBarSections.length
+      });
+    }
+  }, [profile, cardSections, socialBarSections]);
+
+  // Auto-save effect - triggers save when sections change
+  useEffect(() => {
+    // Don't auto-save if we haven't completed initial load or there's no user
+    if (!user || !hasInitialLoad.current) {
+      console.log('🚫 AUTO-SAVE-TRIGGER: Blocked', {
+        hasUser: !!user,
+        hasCompletedInitialLoad: hasInitialLoad.current,
+        reason: !user ? 'no user' : 'initial load not completed'
+      });
+      return;
+    }
+
+    console.log('🔄 AUTO-SAVE-TRIGGER: Sections changed, scheduling auto-save', {
+      cardSectionsCount: cardSections.length,
+      socialBarSectionsCount: socialBarSections.length,
+      totalSections: cardSections.length + socialBarSections.length,
+      hasCompletedInitialLoad: hasInitialLoad.current
+    });
+
+    // Debounce the auto-save to prevent multiple rapid saves
+    const timeoutId = setTimeout(() => {
+      autoSaveLayout();
+    }, 500); // Increased delay for better debouncing
+
+    return () => clearTimeout(timeoutId);
+  }, [cardSections, socialBarSections, user, autoSaveLayout]);
+
+  // Wrapper functions - auto-save is now handled by useEffect
+  const handleRemoveSection = useCallback(async (sectionId) => {
+    console.log('🔥 REMOVE-SECTION: Starting remove section operation', {
+      sectionId,
+      currentCardSections: cardSections.length,
+      currentSocialBarSections: socialBarSections.length
+    });
+    
+    originalHandleRemoveSection(sectionId);
+    console.log('✅ REMOVE-SECTION: Section removed, auto-save will trigger automatically');
+  }, [originalHandleRemoveSection, cardSections.length, socialBarSections.length]);
+
+  const handleDragEnd = useCallback(async (event) => {
+    console.log('🎯 DRAG-END: Handling drag end:', event);
+    originalHandleDragEnd(event);
+    console.log('✅ DRAG-END: Drag completed, auto-save will trigger automatically');
+  }, [originalHandleDragEnd]);
+
+  const handleModalSave = useCallback(async (...args) => {
+    console.log('💾 MODAL-SAVE: Saving with args:', args);
+    await originalHandleModalSave(...args);
+    console.log('✅ MODAL-SAVE: Modal saved, auto-save will trigger automatically');
+  }, [originalHandleModalSave]);
+
   useEffect(() => {
     if (!sessionLoading && !user) {
       router.push('/login');
     }
   }, [sessionLoading, user, router]);
 
-
-
   if (sessionLoading || profileLoading) {
     return <div>Loading Dashboard Content...</div>;
   }
+
+  if (!profile) {
+    console.log('🔥 DASHBOARD: No profile found - using temporary profile');
+  }
+
+  console.log('🔥 DASHBOARD: Component render state', { 
+    sessionLoading, 
+    profileLoading, 
+    hasUser: !!user, 
+    hasProfile: !!profile,
+    hasWorkingProfile: !!workingProfile,
+    profileId: workingProfile?.id,
+    cardSectionsCount: cardSections.length,
+    socialBarSectionsCount: socialBarSections.length,
+    profileCardSections: profile?.card_sections
+  });
 
   function handleDragStart(event) {
     setActiveId(event.active.id);
   }
 
-  const handleSaveLayoutClick = async () => {
-    setSaveMessage('');
-    const allSections = getAllSections();
-    await saveCardLayout(allSections, cardType);
-    if (layoutError) {
-      setSaveMessage('Error saving layout.');
-    } else {
-      setSaveMessage('Layout saved successfully!');
-      setTimeout(() => setSaveMessage(''), 3000);
-    }
-  };
-
   const handleAddSection = (sectionType) => {
+    console.log('🔥 ADD-SECTION: Starting add section operation', {
+      sectionType,
+      currentCardType: workingProfile?.card_type || CARD_TYPES.PRO,
+      workingProfileId: workingProfile?.id
+    });
+    
     // Get card type from profile, default to PRO
-    const currentCardType = profile?.card_type || CARD_TYPES.PRO;
+    const currentCardType = workingProfile?.card_type || CARD_TYPES.PRO;
     const defaultProps = getDefaultSectionProps(sectionType, currentCardType);
     
     // Get the section option to include editorComponent if available
@@ -148,21 +271,50 @@ export default function DashboardPageContent() {
       ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent })
     };
     
+    console.log('🔥 ADD-SECTION: Created new section object', {
+      newSection,
+      sectionId: newSection.id
+    });
+    
     // Check if it's a social media type and add to appropriate area
     const SOCIAL_MEDIA_TYPES = [
       'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'spotify', 'phone', 'whatsapp', 'email', 'behance'
     ];
     
     if (SOCIAL_MEDIA_TYPES.includes(sectionType)) {
-      setSocialBarSections((prev) => [...prev, { ...newSection, area: 'social_bar' }]);
+      console.log('🔥 ADD-SECTION: Adding to social bar sections');
+      setSocialBarSections((prev) => {
+        const newSections = [...prev, { ...newSection, area: 'social_bar' }];
+        console.log('🔥 ADD-SECTION: Social bar sections updated', {
+          previousCount: prev.length,
+          newCount: newSections.length,
+          newSections
+        });
+        return newSections;
+      });
+      console.log('✅ ADD-SECTION: Social section added, auto-save will trigger automatically');
     } else {
-      setCardSections((prev) => [...prev, newSection]);
+      console.log('🔥 ADD-SECTION: Adding to card sections');
+      setCardSections((prev) => {
+        const newSections = [...prev, newSection];
+        console.log('🔥 ADD-SECTION: Card sections updated', {
+          previousCount: prev.length,
+          newCount: newSections.length,
+          newSections
+        });
+        return newSections;
+      });
+      console.log('✅ ADD-SECTION: Card section added, auto-save will trigger automatically');
     }
   };
 
   const existingSectionTypes = [...cardSections, ...socialBarSections].map((s) => s.type);
 
-
+  console.log('🟢 DASHBOARD: All functions defined:', {
+    handleAddSection: typeof handleAddSection,
+    handleRemoveSection: typeof handleRemoveSection,
+    handleDragEnd: typeof handleDragEnd
+  });
 
   // Callback om profiel te updaten na opslaan van design settings
   const handleProfileUpdateFromToolbar = (updatedProfile) => {
@@ -172,9 +324,9 @@ export default function DashboardPageContent() {
   };
 
   return (
-    <DesignSettingsProvider initial={profile}>
+    <DesignSettingsProvider initial={workingProfile}>
       <div className="relative w-full flex justify-end z-40">
-        <DesignToolbar initial={profile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
+        <DesignToolbar initial={workingProfile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
       </div>
       <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
         <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
@@ -184,7 +336,7 @@ export default function DashboardPageContent() {
           <AvailableSectionList
             onAddSection={handleAddSection}
             existingSectionTypes={existingSectionTypes}
-            cardType={profile?.card_type || CARD_TYPES.PRO}
+            cardType={workingProfile?.card_type || CARD_TYPES.PRO}
           />
           <DndContext
             sensors={sensors}
@@ -203,26 +355,7 @@ export default function DashboardPageContent() {
               onEditSection={openEditModal}
             />
           </DndContext>
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={handleSaveLayoutClick}
-              disabled={updatingLayout}
-              className="bg-emerald-500 text-white px-5 py-2 rounded-md text-sm font-medium hover:bg-emerald-600 transition disabled:opacity-50"
-              style={{ backgroundColor: '#00C48C' }}
-            >
-              {updatingLayout ? 'Saving...' : 'Save Layout'}
-            </button>
-            {saveMessage && (
-              <p className={`mt-2 text-sm ${layoutError ? 'text-red-600' : 'text-green-600'}`}>
-                {saveMessage}
-              </p>
-            )}
-            {(layoutError || languagesError) && !saveMessage && (
-              <p className="mt-2 text-sm text-red-600">
-                Error: {layoutError || languagesError || 'Could not save changes.'}
-              </p>
-            )}
-          </div>
+
         </aside>
         <DashboardMainWithBg 
           profile={profile} 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../../src/components/auth/SessionProvider';
 import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
@@ -39,11 +39,13 @@ export default function ProfilePage() {
   const [avatarSize, setAvatarSize] = useState('medium');
   const [avatarShape, setAvatarShape] = useState('circle');
   const [avatarPosition, setAvatarPosition] = useState('left');
-  const [savingSettings, setSavingSettings] = useState(false);
+  
+  // Auto-save tracking
+  const hasInitialLoad = useRef(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
 
-  // Card type settings
-  const [cardType, setCardType] = useState('pro');
-  const [savingCardType, setSavingCardType] = useState(false);
+  // Card type is now always 'pro' - no longer configurable
+  const cardType = 'pro';
 
   // Card display settings per card type
   const getCardDisplaySettings = (type) => profile.card_display_settings?.[type] || {
@@ -73,7 +75,89 @@ export default function ProfilePage() {
       },
     };
     updateProfileField('card_profiles', updatedProfiles);
+    console.log('🔄 PROFILE-FORM: Field changed', { field: name, value, cardType });
   };
+
+  // Auto-save function for profile information
+  const autoSaveProfile = useCallback(async () => {
+    console.log('🔥 AUTO-SAVE-PROFILE: Starting profile auto-save', { 
+      hasUser: !!user,
+      isCurrentlySaving: isAutoSaving,
+      cardType
+    });
+    
+    if (!user || isAutoSaving || updating) {
+      console.log('🚫 AUTO-SAVE-PROFILE: Save blocked', {
+        reason: !user ? 'no user' : isAutoSaving ? 'already auto-saving' : 'manual save in progress'
+      });
+      return;
+    }
+    
+    setIsAutoSaving(true);
+    try {
+      // Call the save function but suppress user-visible messages
+      const profileUpdates = {
+        card_profiles: profile.card_profiles,
+        card_images: profile.card_images,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update(profileUpdates)
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+      
+      console.log('✅ AUTO-SAVE-PROFILE: Profile auto-save completed');
+    } catch (error) {
+      console.error('❌ AUTO-SAVE-PROFILE: Auto-save failed', error);
+    } finally {
+      setTimeout(() => {
+        setIsAutoSaving(false);
+      }, 1000);
+    }
+  }, [user, isAutoSaving, updating, profile.card_profiles, profile.card_images]);
+
+  // Auto-save function for display settings  
+  const autoSaveDisplaySettings = useCallback(async () => {
+    console.log('🔥 AUTO-SAVE-DISPLAY: Starting display settings auto-save', { 
+      hasUser: !!user,
+      isCurrentlySaving: isAutoSaving,
+      cardType,
+      settings: cardDisplaySettings
+    });
+    
+    if (!user || isAutoSaving) {
+      console.log('🚫 AUTO-SAVE-DISPLAY: Save blocked', {
+        reason: !user ? 'no user' : 'already auto-saving'
+      });
+      return;
+    }
+    
+    setIsAutoSaving(true);
+    try {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          card_display_settings: {
+            ...profile.card_display_settings,
+            [cardType]: cardDisplaySettings,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id);
+      
+      if (updateError) throw updateError;
+      console.log('✅ AUTO-SAVE-DISPLAY: Display settings auto-save completed');
+    } catch (error) {
+      console.error('❌ AUTO-SAVE-DISPLAY: Auto-save failed', error);
+    } finally {
+      setTimeout(() => {
+        setIsAutoSaving(false);
+      }, 1000);
+    }
+  }, [user, isAutoSaving, cardDisplaySettings, profile.card_display_settings, cardType]);
 
   // Sync cardDisplaySettings bij cardType of profile change
   useEffect(() => {
@@ -84,6 +168,65 @@ export default function ProfilePage() {
   useEffect(() => {
     setCardImages(getCardImages(cardType));
   }, [cardType, profile]);
+
+  // Effect to track initial load completion
+  useEffect(() => {
+    if (profile && !loading) {
+      hasInitialLoad.current = true;
+      console.log('🎯 PROFILE-INITIAL-LOAD: Profile load completed, auto-save enabled', {
+        hasProfile: !!profile,
+        profileId: profile.id,
+        cardType
+      });
+    }
+  }, [profile, loading, cardType]);
+
+  // Auto-save effect for profile information changes
+  useEffect(() => {
+    if (!user || !hasInitialLoad.current || !profile.card_profiles?.[cardType]) {
+      console.log('🚫 AUTO-SAVE-PROFILE-TRIGGER: Blocked', {
+        hasUser: !!user,
+        hasCompletedInitialLoad: hasInitialLoad.current,
+        hasCardProfile: !!profile.card_profiles?.[cardType],
+        reason: !user ? 'no user' : !hasInitialLoad.current ? 'initial load not completed' : 'no card profile'
+      });
+      return;
+    }
+
+    console.log('🔄 AUTO-SAVE-PROFILE-TRIGGER: Profile fields changed, scheduling auto-save', {
+      cardProfile: profile.card_profiles[cardType],
+      cardType
+    });
+
+    const timeoutId = setTimeout(() => {
+      autoSaveProfile();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [profile.card_profiles, cardType, user, autoSaveProfile]);
+
+  // Auto-save effect for display settings changes
+  useEffect(() => {
+    if (!user || !hasInitialLoad.current) {
+      console.log('🚫 AUTO-SAVE-DISPLAY-TRIGGER: Blocked', {
+        hasUser: !!user,
+        hasCompletedInitialLoad: hasInitialLoad.current,
+        reason: !user ? 'no user' : 'initial load not completed'
+      });
+      return;
+    }
+
+    console.log('🔄 AUTO-SAVE-DISPLAY-TRIGGER: Display settings changed, scheduling auto-save', {
+      cardDisplaySettings,
+      cardType
+    });
+
+    const timeoutId = setTimeout(() => {
+      autoSaveDisplaySettings();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [cardDisplaySettings, cardType, user, autoSaveDisplaySettings]);
 
   // Handler voor wijzigen van display settings
   const handleCardDisplaySettingChange = (field, value) => {
@@ -105,6 +248,7 @@ export default function ProfilePage() {
       ...profile.card_display_settings,
       [cardType]: updatedSettings,
     });
+    console.log('🔄 DISPLAY-SETTINGS: Setting changed', { field: snakeField, value, cardType });
   };
 
   useEffect(() => {
@@ -123,12 +267,7 @@ export default function ProfilePage() {
     }
   }, [profile]);
 
-  // Card type alleen bij eerste load/profile.card_type change uit profiel halen
-  useEffect(() => {
-    if (profile && profile.card_type) {
-      setCardType(profile.card_type);
-    }
-  }, [profile?.card_type]);
+  // Card type is always 'pro' now - no syncing needed
 
   // Avatar upload handler per card type
   const handleAvatarUpload = async () => {
@@ -173,10 +312,8 @@ export default function ProfilePage() {
       if (updateError) throw updateError;
 
       handleAvatarUploadSuccess(urlData.publicUrl);
-      setUploadSuccess('Avatar updated successfully!');
       setAvatarFile(null);
-      
-      setTimeout(() => setUploadSuccess(null), 3000);
+      console.log('✅ AVATAR-UPLOAD: Avatar updated successfully');
     } catch (err) {
       setUploadError(err.message || 'Failed to upload avatar');
     } finally {
@@ -226,10 +363,8 @@ export default function ProfilePage() {
 
       if (updateError) throw updateError;
 
-      setUploadSuccess('Header image updated successfully!');
       setHeaderFile(null);
-      
-      setTimeout(() => setUploadSuccess(null), 3000);
+      console.log('✅ HEADER-UPLOAD: Header image updated successfully');
     } catch (err) {
       setUploadError(err.message || 'Failed to upload header image');
     } finally {
@@ -265,8 +400,7 @@ export default function ProfilePage() {
 
       if (updateError) throw updateError;
 
-      setUploadSuccess('Header image removed successfully!');
-      setTimeout(() => setUploadSuccess(null), 3000);
+      console.log('✅ HEADER-REMOVE: Header image removed successfully');
     } catch (err) {
       setUploadError(err.message || 'Failed to remove header image');
     } finally {
@@ -274,63 +408,9 @@ export default function ProfilePage() {
     }
   };
 
-  // Save display settings per card type
-  const handleSaveDisplaySettings = async () => {
-    if (!user) return;
-    setSavingSettings(true);
-    setUploadError(null);
-    setUploadSuccess(null);
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          card_display_settings: {
-            ...profile.card_display_settings,
-            [cardType]: cardDisplaySettings,
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-      if (updateError) throw updateError;
-      setUploadSuccess('Display settings updated successfully!');
-      setTimeout(() => setUploadSuccess(null), 3000);
-    } catch (err) {
-      setUploadError(err.message || 'Failed to update display settings');
-    } finally {
-      setSavingSettings(false);
-    }
-  };
 
-  // Save card type settings
-  const handleSaveCardType = async () => {
-    if (!user) return;
 
-    setSavingCardType(true);
-    setUploadError(null);
-    setUploadSuccess(null);
 
-    try {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          card_type: cardType,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
-
-      // Update local profile state to reflect the change
-      updateProfileField('card_type', cardType);
-
-      setUploadSuccess('Card type updated successfully!');
-      setTimeout(() => setUploadSuccess(null), 3000);
-    } catch (err) {
-      setUploadError(err.message || 'Failed to update card type');
-    } finally {
-      setSavingCardType(false);
-    }
-  };
 
   if (sessionLoading || loading) {
     return (
@@ -369,148 +449,9 @@ export default function ProfilePage() {
           <h1 className="text-xl font-semibold text-black">Profile Settings</h1>
         </div>
 
-        {/* Global Messages */}
-        {(uploadSuccess || message) && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-700 text-sm">{uploadSuccess || message}</p>
-          </div>
-        )}
-        
-        {(uploadError || error) && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-700 text-sm">{uploadError || error}</p>
-          </div>
-        )}
 
-        {/* Card Type Selection Card */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-4 sm:p-6">
-            <div className="flex items-center gap-3 mb-4 text-gray-700">
-              <LuSettings className="w-5 h-5 flex-shrink-0" />
-              <h2 className="text-base font-medium text-black">Card Type</h2>
-            </div>
-            
-            <div className="space-y-6 sm:pl-8">
-              {/* Card Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Choose Your Card Type
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardType === 'pro' 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="cardType"
-                      value="pro"
-                      checked={cardType === 'pro'}
-                      onChange={(e) => setCardType(e.target.value)}
-                      className="sr-only"
-                    />
-                    <div className="text-center">
-                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
-                        cardType === 'pro' 
-                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
-                          : 'bg-gray-100'
-                      }`}>
-                        <LuUser className={`w-8 h-8 ${
-                          cardType === 'pro' ? 'text-white' : 'text-gray-400'
-                        }`} />
-                      </div>
-                      <h3 className="font-medium text-gray-900">Prysma Pro</h3>
-                      <p className="text-xs text-gray-500 mt-1">Freelancers, creators, consultants</p>
-                    </div>
-                    {cardType === 'pro' && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <LuSave className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                  </label>
 
-                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardType === 'career' 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="cardType"
-                      value="career"
-                      checked={cardType === 'career'}
-                      onChange={(e) => setCardType(e.target.value)}
-                      className="sr-only"
-                    />
-                    <div className="text-center">
-                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
-                        cardType === 'career' 
-                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
-                          : 'bg-gray-100'
-                      }`}>
-                        <LuBriefcase className={`w-8 h-8 ${
-                          cardType === 'career' ? 'text-white' : 'text-gray-400'
-                        }`} />
-                      </div>
-                      <h3 className="font-medium text-gray-900">Prysma Career</h3>
-                      <p className="text-xs text-gray-500 mt-1">Job seekers, career changers, graduates</p>
-                    </div>
-                    {cardType === 'career' && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <LuSave className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                  </label>
 
-                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardType === 'business' 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}>
-                    <input
-                      type="radio"
-                      name="cardType"
-                      value="business"
-                      checked={cardType === 'business'}
-                      onChange={(e) => setCardType(e.target.value)}
-                      className="sr-only"
-                    />
-                    <div className="text-center">
-                      <div className={`w-16 h-16 mx-auto mb-2 rounded-lg flex items-center justify-center ${
-                        cardType === 'business' 
-                          ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' 
-                          : 'bg-gray-100'
-                      }`}>
-                        <LuBuilding2 className={`w-8 h-8 ${
-                          cardType === 'business' ? 'text-white' : 'text-gray-400'
-                        }`} />
-                      </div>
-                      <h3 className="font-medium text-gray-900">Prysma Business</h3>
-                      <p className="text-xs text-gray-500 mt-1">Companies, agencies, stores</p>
-                    </div>
-                    {cardType === 'business' && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <LuSave className="w-3 h-3 text-white" />
-                      </div>
-                    )}
-                  </label>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={handleSaveCardType}
-                  disabled={savingCardType}
-                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-md shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <LuSave className="w-4 h-4" />
-                  {savingCardType ? 'Saving...' : 'Save Card Type'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Profile Information Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -573,7 +514,6 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              {/* Extra profielvelden per card type */}
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                   Location
@@ -590,87 +530,20 @@ export default function ProfilePage() {
                 />
               </div>
 
-              {(cardType === 'pro' || cardType === 'business') && (
-                <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
-                    Website
-                  </label>
-                  <input
-                    type="url"
-                    id="website"
-                    name="website"
-                    value={cardProfile.website || ''}
-                    onChange={handleCardProfileChange}
-                    placeholder="https://example.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
-                    maxLength={100}
-                  />
-                </div>
-              )}
-
-              {cardType === 'career' && (
-                <div>
-                  <label htmlFor="desired_role" className="block text-sm font-medium text-gray-700 mb-1">
-                    Desired Role
-                  </label>
-                  <input
-                    type="text"
-                    id="desired_role"
-                    name="desired_role"
-                    value={cardProfile.desired_role || ''}
-                    onChange={handleCardProfileChange}
-                    placeholder="e.g., Frontend Developer"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
-                    maxLength={60}
-                  />
-                </div>
-              )}
-
-              {cardType === 'business' && (
-                <div>
-                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
-                    Industry
-                  </label>
-                  <input
-                    type="text"
-                    id="industry"
-                    name="industry"
-                    value={cardProfile.industry || ''}
-                    onChange={handleCardProfileChange}
-                    placeholder="e.g., Marketing, SaaS, Retail"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
-                    maxLength={60}
-                  />
-                </div>
-              )}
-
-              {cardType === 'business' && (
-                <div>
-                  <label htmlFor="company_size" className="block text-sm font-medium text-gray-700 mb-1">
-                    Company Size
-                  </label>
-                  <input
-                    type="text"
-                    id="company_size"
-                    name="company_size"
-                    value={cardProfile.company_size || ''}
-                    onChange={handleCardProfileChange}
-                    placeholder="e.g., 1-10, 11-50, 51-200, 200+"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
-                    maxLength={30}
-                  />
-                </div>
-              )}
-
-              <div className="pt-2">
-                <button
-                  onClick={() => saveProfileDetails()}
-                  disabled={updating}
-                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-md shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <LuSave className="w-4 h-4" />
-                  {updating ? 'Saving...' : 'Save Profile'}
-                </button>
+              <div>
+                <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
+                  Website
+                </label>
+                <input
+                  type="url"
+                  id="website"
+                  name="website"
+                  value={cardProfile.website || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  maxLength={100}
+                />
               </div>
             </div>
           </div>
@@ -823,16 +696,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               )}
-              <div className="pt-2">
-                <button
-                  onClick={handleSaveDisplaySettings}
-                  disabled={savingSettings}
-                  className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-4 py-2 rounded-md shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <LuSave className="w-4 h-4" />
-                  {savingSettings ? 'Saving...' : 'Save Display Settings'}
-                </button>
-              </div>
+
             </div>
           </div>
         </div>

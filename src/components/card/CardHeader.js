@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
+import { LuBriefcase, LuMapPin, LuGlobe, LuFileText } from 'react-icons/lu';
 
 // Helper functie voor initialen
 const getInitials = (name) => {
@@ -224,30 +225,273 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               marginTop: displayType === 'header' ? '20px' : '16px'
             }}
           >
-            {fieldsToShow.map((field) => {
-              if (!personalInfo?.[field]) return null;
-              if (field === 'name') {
+            {/* Name - stays the same */}
+            {personalInfo?.name && (
+              <h2 className={styles.name} style={{ color: textColor, marginBottom: '20px' }}>
+                {personalInfo.name}
+              </h2>
+            )}
+
+            {/* Glass containers for other fields */}
+            <div style={{ 
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px',
+              marginTop: '12px'
+            }}>
+              {/* Headline Container */}
+              {personalInfo?.headline && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuBriefcase size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.headline}
+                  </span>
+                </div>
+              )}
+
+              {/* Location Container */}
+              {personalInfo?.location && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuMapPin size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.location}
+                  </span>
+                </div>
+              )}
+
+              {/* Website Container */}
+              {personalInfo?.website && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onClick={() => window.open(personalInfo.website, '_blank')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuGlobe size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9,
+                    textDecoration: 'none'
+                  }}>
+                    {personalInfo.website.replace(/^https?:\/\//, '')}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Bio Container - Full width */}
+            {personalInfo?.bio && (
+              <div style={{
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                background: 'rgba(255, 255, 255, 0.25)',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                borderRadius: '12px',
+                padding: '12px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.3s ease',
+                cursor: 'default',
+                marginTop: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0px)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+              }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    opacity: 0.8,
+                    marginTop: '2px'
+                  }}>
+                    <LuFileText size={12} style={{ color: 'white' }} />
+                  </div>
+                  <p style={{ 
+                    margin: 0, 
+                    fontSize: '12px', 
+                    fontWeight: '500', 
+                    color: textColor,
+                    opacity: 0.8,
+                    lineHeight: '1.4'
+                  }}>
+                    {personalInfo.bio}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Other optional fields in glass containers */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+              {fieldsToShow.map((field) => {
+                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website'].includes(field)) return null;
+                
                 return (
-                  <h2 key={field} className={styles.name} style={{ color: textColor }}>{personalInfo.name}</h2>
+                  <div key={field} style={{
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
+                    background: 'rgba(255, 255, 255, 0.25)',
+                    border: '1px solid rgba(255, 255, 255, 0.4)',
+                    borderRadius: '12px',
+                    padding: '8px 12px',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    transition: 'all 0.3s ease',
+                    cursor: 'default',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0px)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                  }}
+                  >
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      backgroundColor: textColor,
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      opacity: 0.8
+                    }}>
+                      <LuBriefcase size={12} style={{ color: 'white' }} />
+                    </div>
+                    <span style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: textColor,
+                      opacity: 0.9
+                    }}>
+                      <span style={{ fontWeight: 500, opacity: 0.7 }}>{FIELD_LABELS[field]}: </span>
+                      {personalInfo[field]}
+                    </span>
+                  </div>
                 );
-              }
-              if (field === 'headline') {
-                return (
-                  <p key={field} className={styles.headline} style={{ color: textColor, opacity: 0.8 }}>{personalInfo.headline}</p>
-                );
-              }
-              if (field === 'bio') {
-                return (
-                  <p key={field} className={styles.bio} style={{ color: textColor, opacity: 0.7 }}>{personalInfo.bio}</p>
-                );
-              }
-              // Optionele velden met label
-              return (
-                <p key={field} className={styles[field] || styles.bio} style={{ color: textColor, opacity: 0.7 }}>
-                  <span style={{ fontWeight: 500 }}>{FIELD_LABELS[field]}: </span>{personalInfo[field]}
-                </p>
-              );
-            })}
+              })}
+            </div>
           </div>
         )}
       </div>

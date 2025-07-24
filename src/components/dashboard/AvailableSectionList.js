@@ -9,6 +9,7 @@ import { getGroupedSectionOptions, CATEGORY_ICONS, CARD_TYPES } from '../../lib/
 import { LuChevronDown } from "react-icons/lu";
 
 export default function AvailableSectionList({ onAddSection, existingSectionTypes = [], cardType = CARD_TYPES.PRO }) {
+  console.log('🟢 COMPONENT: AvailableSectionList rendered with onAddSection:', typeof onAddSection);
   const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
   // console.log("Initial openCategories:", openCategories); // Vorige debug log
 
@@ -67,11 +68,19 @@ export default function AvailableSectionList({ onAddSection, existingSectionType
                       return (
                         <button
                           key={option.type}
-                          onClick={() => {
-                            onAddSection(option.type);
+                          onClick={(e) => {
+                            console.log('🔴 BUTTON-CLICK: Add section button clicked for type:', option.type);
+                            console.log('🔴 BUTTON-CLICK: Event target:', e.target);
+                            console.log('🔴 BUTTON-CLICK: onAddSection function:', onAddSection);
+                            if (typeof onAddSection === 'function') {
+                              onAddSection(option.type);
+                            } else {
+                              console.error('🔴 BUTTON-CLICK: onAddSection is not a function!');
+                            }
                           }}
                           disabled={existingSectionTypes.includes(option.type)}
                           className="flex flex-col items-center justify-center p-3 text-center rounded-md border border-gray-200 bg-gray-50 hover:bg-gray-100 hover:border-gray-300 transition-colors h-20"
+                          style={{ pointerEvents: 'auto', zIndex: 1 }}
                         >
                           <span className="text-gray-600 mb-1">
                              {SectionIcon && <SectionIcon size={20} />}
