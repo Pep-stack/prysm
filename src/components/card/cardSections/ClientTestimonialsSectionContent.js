@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { LuHeart, LuCalendar, LuBriefcase } from "react-icons/lu";
+import { LuHeart, LuCalendar, LuBriefcase, LuUser, LuQuote } from "react-icons/lu";
 import { supabase } from "../../../lib/supabase";
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 // Parse testimonials data from profile
 const parseTestimonialsData = (testimonialsData) => {
@@ -22,6 +23,10 @@ const parseTestimonialsData = (testimonialsData) => {
 
 const ClientTestimonialsSectionContent = ({ profile, styles }) => {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
   const [testimonialsFromDB, setTestimonialsFromDB] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,22 +73,15 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
     return parsed;
   }, [testimonialsFromDB, profile?.testimonials]);
 
-  // Render single testimonial card
+  // Render single testimonial content
   const renderTestimonialCard = (entry, index) => (
     <div 
       key={entry.id || index} 
       style={{
         position: 'relative',
-        padding: '24px',
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
-        borderRadius: '16px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-        minHeight: '180px',
-        width: '100%',
-        overflow: 'hidden',
-        boxSizing: 'border-box'
+        padding: '20px 0',
+        borderBottom: index < initialTestimonialsData.length - 1 ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+        width: '100%'
       }}
     >
       {/* Header with client info */}
@@ -95,8 +93,8 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
             justifyContent: 'center',
             width: '56px',
             height: '56px',
-            background: 'linear-gradient(135deg, rgba(241, 245, 249, 0.9) 0%, rgba(226, 232, 240, 0.9) 100%)',
-            backdropFilter: 'blur(8px)',
+            backgroundColor: textColor,
+            opacity: 0.8,
             borderRadius: '50%',
             flexShrink: 0,
             border: '3px solid rgba(255, 255, 255, 0.6)',
@@ -104,14 +102,6 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
           }}>
             {(() => {
-              // Debug logging
-              console.log('🔍 Photo data:', {
-                photo_url: entry.photo_url,
-                photo: entry.photo,
-                photo_url_type: typeof entry.photo_url,
-                photo_type: typeof entry.photo
-              });
-              
               let imageUrl = null;
               
               // Handle photo_url (from database)
@@ -122,9 +112,6 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
                   // If it's a Supabase URL object, extract the public URL
                   if (entry.photo_url.publicUrl) {
                     imageUrl = entry.photo_url.publicUrl;
-                  } else {
-                    // If it's a different object format, log it
-                    console.log('⚠️ photo_url is object:', entry.photo_url);
                   }
                 }
               }
@@ -146,16 +133,12 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
                     alt={entry.name} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     onError={(e) => {
-                      console.log('❌ Image failed to load:', e.target.src);
                       e.target.style.display = 'none';
                       // Find the fallback icon and show it
                       const fallbackIcon = e.target.parentElement.querySelector('.fallback-icon');
                       if (fallbackIcon) {
                         fallbackIcon.style.display = 'flex';
                       }
-                    }}
-                    onLoad={(e) => {
-                      console.log('✅ Image loaded successfully:', e.target.src);
                     }}
                   />
                 );
@@ -166,7 +149,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
             <LuHeart 
               size={20} 
               style={{ 
-                color: '#475569',
+                color: 'white',
                 display: 'flex'
               }} 
               className="fallback-icon"
@@ -177,7 +160,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
               margin: 0, 
               fontSize: '18px', 
               fontWeight: '700', 
-              color: '#0f172a',
+              color: textColor,
               lineHeight: '1.3',
               marginBottom: '6px',
               letterSpacing: '-0.01em'
@@ -190,17 +173,30 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
                 alignItems: 'center',
                 gap: '6px',
                 padding: '4px 12px',
-                background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%)',
                 backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                background: 'rgba(255, 255, 255, 0.3)',
                 borderRadius: '20px',
                 border: '1px solid rgba(255, 255, 255, 0.4)',
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
               }}>
-                <LuBriefcase size={12} style={{ color: '#64748b', flexShrink: 0 }} />
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: textColor,
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.8
+                }}>
+                  <LuBriefcase size={12} style={{ color: 'white' }} />
+                </div>
                 <span style={{ 
                   fontSize: '13px', 
-                  color: '#475569',
-                  fontWeight: '500'
+                  color: textColor,
+                  fontWeight: '500',
+                  opacity: 0.9
                 }}>
                   {entry.profession}
                 </span>
@@ -214,10 +210,11 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
       {entry.quote && (
         <div style={{
           padding: '16px',
-          background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%)',
           backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '12px',
-          borderLeft: '4px solid #00C48C',
+          borderLeft: '4px solid ' + textColor,
           marginBottom: '16px',
           boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
           border: '1px solid rgba(255, 255, 255, 0.3)'
@@ -225,10 +222,11 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
           <p style={{ 
             margin: 0, 
             fontSize: '15px', 
-            color: '#374151', 
+            color: textColor, 
             lineHeight: '1.7',
             fontStyle: 'italic',
-            fontWeight: '500'
+            fontWeight: '500',
+            opacity: 0.9
           }}>
             {entry.quote}
           </p>
@@ -242,17 +240,30 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
           alignItems: 'center',
           gap: '8px',
           padding: '10px 14px',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.8) 100%)',
           backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          background: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '10px',
           border: '1px solid rgba(255, 255, 255, 0.4)',
           boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
         }}>
-          <LuCalendar size={14} style={{ color: '#64748b', flexShrink: 0 }} />
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: textColor,
+            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuCalendar size={14} style={{ color: 'white' }} />
+          </div>
           <span style={{
             fontSize: '13px',
-            color: '#475569',
-            fontWeight: '600'
+            color: textColor,
+            fontWeight: '600',
+            opacity: 0.9
           }}>
             {new Date(entry.date).toLocaleDateString('en-US', { 
               year: 'numeric', 
@@ -270,25 +281,66 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
     return (
       <div style={{
         ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
         overflow: 'hidden',
         width: '100%',
         maxWidth: '100%',
         boxSizing: 'border-box'
-      }} title="Click to edit client testimonials">
-        <h3 style={{
-          ...sectionTitleStyle,
-          fontSize: '20px',
-          fontWeight: '700',
-          color: '#0f172a',
-          marginBottom: '20px',
-          letterSpacing: '-0.02em'
+      }} 
+      title="Click to edit client testimonials"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      >
+        {/* Titel bovenaan in de container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
-          Client Testimonials
-        </h3>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: textColor,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuHeart size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Client Testimonials
+          </h3>
+        </div>
+        
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
-          gap: '12px',
           overflow: 'hidden',
           width: '100%'
         }}>
