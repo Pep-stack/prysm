@@ -7,6 +7,7 @@ import ExperienceSelector from '../shared/ExperienceSelector';
 import CertificationSelector from '../shared/CertificationSelector';
 import ProjectSelector from '../shared/ProjectSelector';
 import ClientTestimonialSelector from '../shared/ClientTestimonialSelector';
+import SkillsSelector from '../shared/SkillsSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -31,7 +32,7 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
     width: '100%',
-    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector') ? '800px' : '400px',
+    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector' || section?.editorComponent === 'SkillsSelector') ? '800px' : '400px',
     maxHeight: '90vh',
     overflowY: 'auto'
   };
@@ -58,6 +59,15 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
   };
 
   const renderInput = () => {
+    console.log('🔍 EDIT-MODAL: Rendering input for section:', {
+      sectionType: section.type,
+      sectionName: section.name,
+      editorComponent: section.editorComponent,
+      value: value,
+      valueType: typeof value,
+      isArray: Array.isArray(value)
+    });
+    
     // Check if a custom editor component is specified
     if (section.editorComponent === 'LanguageSelector') {
       // Ensure 'value' passed to LanguageSelector is an array of selected language codes
@@ -154,7 +164,20 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    if (section.editorComponent === 'SkillsSelector') {
+      console.log('🎯 SKILLS-SELECTOR: Rendering SkillsSelector component');
+      // Ensure 'value' passed to SkillsSelector is an array of skill objects
+      const selectedSkillEntries = Array.isArray(value) ? value : [];
+      return (
+        <SkillsSelector 
+          value={selectedSkillEntries} // Pass current skill entries
+          onChange={onChange} // onChange should expect an array of skill objects
+        />
+      );
+    }
+
     // Default rendering based on inputType
+    console.log('⚠️ EDIT-MODAL: No custom editor component found, using default input');
     if (section.inputType === 'textarea') {
       return (
         <textarea

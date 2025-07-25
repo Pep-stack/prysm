@@ -126,7 +126,7 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
   };
 
   // Render single project card
-  const renderProjectCard = (entry, index) => {
+  const renderProjectCard = (entry, index, isCarousel = false) => {
     const statusDisplay = getStatusDisplay(entry.status);
     
     return (
@@ -134,39 +134,78 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
         key={entry.id || index} 
         style={{
           position: 'relative',
-          padding: '20px',
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-          border: '1px solid rgba(0, 0, 0, 0.06)',
-          overflow: 'hidden',
-          cursor: entry.demoUrl ? 'pointer' : 'default',
-          transition: 'all 0.3s ease'
-        }}
-        onClick={() => entry.demoUrl && window.open(entry.demoUrl, '_blank')}
-        onMouseEnter={(e) => {
-          if (entry.demoUrl) {
-            e.target.style.transform = 'translateY(-2px)';
-            e.target.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.12)';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+          padding: isCarousel ? '0' : '20px 0',
+          borderBottom: (!isCarousel && index < initialProjectsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+          width: '100%'
         }}
       >
-        {/* Project Image/Video */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          height: '180px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          marginBottom: '16px'
-        }}>
-          {entry.mediaUrl ? (
-            entry.mediaType === 'video' ? (
+        {/* Header with project title and status */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h4 style={{ 
+                margin: 0, 
+                fontSize: '18px', 
+                fontWeight: '700', 
+                color: textColor,
+                lineHeight: '1.3',
+                marginBottom: '6px',
+                letterSpacing: '-0.01em'
+              }}>
+                {entry.title || 'Untitled Project'}
+              </h4>
+              <div style={{ 
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 8px',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                background: 'rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+                marginRight: '8px'
+              }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: statusDisplay.color,
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.8
+                }}>
+                  <span style={{ fontSize: '8px', color: 'white' }}>{statusDisplay.icon}</span>
+                </div>
+                <span style={{
+                  fontSize: '12px',
+                  color: textColor,
+                  fontWeight: '600',
+                  opacity: 0.9
+                }}>
+                  {statusDisplay.label}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Project Image/Video - Large display */}
+        {entry.mediaUrl && (
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '240px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '12px',
+            overflow: 'hidden',
+            marginBottom: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}>
+            {entry.mediaType === 'video' ? (
               <video
                 src={entry.mediaUrl}
                 style={{
@@ -189,105 +228,83 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                   objectFit: 'cover'
                 }}
               />
-            )
-          ) : (
-            // Placeholder
-            <div style={{
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#f1f5f9',
-              border: '2px dashed #cbd5e1'
-            }}>
-              <div style={{ textAlign: 'center', color: '#64748b' }}>
-                <LuImage size={32} style={{ marginBottom: '8px' }} />
-                <p style={{ margin: 0, fontSize: '12px', fontWeight: '500' }}>No Image</p>
+            )}
+            
+            {/* Media Type Indicator */}
+            {entry.mediaType === 'video' && (
+              <div style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 8px',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: 'white',
+                fontSize: '10px',
+                fontWeight: '600',
+                borderRadius: '12px',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)'
+              }}>
+                <LuPlay size={10} />
+                VIDEO
               </div>
-            </div>
-          )}
-          
-          {/* Media Type Indicator */}
-          {entry.mediaType === 'video' && (
-            <div style={{
-              position: 'absolute',
-              top: '8px',
-              right: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '4px 8px',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              fontSize: '10px',
-              fontWeight: '600',
-              borderRadius: '12px'
-            }}>
-              <LuPlay size={10} />
-              VIDEO
-            </div>
-          )}
-
-          {/* Status Badge */}
-          <div style={{
-            position: 'absolute',
-            top: '8px',
-            left: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '4px 8px',
-            backgroundColor: statusDisplay.bgColor,
-            color: statusDisplay.color,
-            fontSize: '10px',
-            fontWeight: '600',
-            borderRadius: '12px',
-            border: `1px solid ${statusDisplay.color}20`
-          }}>
-            <span>{statusDisplay.icon}</span>
-            {statusDisplay.label}
+            )}
           </div>
-        </div>
+        )}
 
-        {/* Project Content */}
-        <div>
-          {/* Project Title */}
-          <h4 style={{ 
-            margin: '0 0 8px 0', 
-            fontSize: '18px', 
-            fontWeight: '700', 
-            color: '#1e293b',
-            lineHeight: '1.4'
-          }}>
-            {entry.title || 'Untitled Project'}
-          </h4>
-
-          {/* Project Description */}
-          {entry.description && (
+        {/* Project Description */}
+        {entry.description && (
+          <div style={{ marginBottom: '16px' }}>
             <p style={{ 
-              margin: '0 0 12px 0', 
+              margin: 0, 
               fontSize: '14px', 
-              color: '#64748b',
-              lineHeight: '1.5'
+              color: textColor,
+              lineHeight: '1.6',
+              opacity: 0.9
             }}>
               {entry.description}
             </p>
-          )}
+          </div>
+        )}
 
+        {/* Project Details */}
+        <div style={{ marginBottom: '16px' }}>
           {/* Project Date */}
           {(entry.startDate || entry.endDate) && (
             <div style={{
-              display: 'flex',
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              marginBottom: '12px'
+              padding: '4px 8px',
+              marginRight: '8px',
+              marginBottom: '8px',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
             }}>
-              <LuCalendar size={14} style={{ color: '#64748b', flexShrink: 0 }} />
+              <div style={{
+                width: '16px',
+                height: '16px',
+                backgroundColor: textColor,
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                opacity: 0.8
+              }}>
+                <LuCalendar size={10} style={{ color: 'white' }} />
+              </div>
               <span style={{
-                fontSize: '13px',
-                color: '#64748b',
-                fontWeight: '500'
+                fontSize: '12px',
+                color: textColor,
+                fontWeight: '500',
+                opacity: 0.9
               }}>
                 {entry.startDate && formatDate(entry.startDate)}
                 {entry.startDate && entry.endDate && ' - '}
@@ -302,19 +319,21 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
               display: 'flex',
               flexWrap: 'wrap',
               gap: '6px',
-              marginBottom: '12px'
+              marginTop: '8px'
             }}>
               {entry.technologies.slice(0, 4).map((tech, idx) => (
                 <span
                   key={idx}
                   style={{
                     padding: '4px 8px',
-                    backgroundColor: '#f3f4f6',
-                    color: '#374151',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    color: textColor,
                     fontSize: '11px',
                     fontWeight: '500',
                     borderRadius: '6px',
-                    border: '1px solid #e5e7eb'
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    backdropFilter: 'blur(6px)',
+                    WebkitBackdropFilter: 'blur(6px)'
                   }}
                 >
                   {tech}
@@ -323,20 +342,23 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
               {entry.technologies.length > 4 && (
                 <span style={{
                   fontSize: '11px',
-                  color: '#6b7280',
-                  padding: '4px 8px'
+                  color: textColor,
+                  padding: '4px 8px',
+                  opacity: 0.7
                 }}>
                   +{entry.technologies.length - 4}
                 </span>
               )}
             </div>
           )}
+        </div>
 
-          {/* Action Links */}
+        {/* Action Links */}
+        {(entry.demoUrl || entry.codeUrl) && (
           <div style={{
             display: 'flex',
             gap: '8px',
-            marginTop: '8px'
+            marginTop: '12px'
           }}>
             {entry.demoUrl && (
               <a
@@ -347,21 +369,24 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: '6px',
                   padding: '6px 12px',
-                  backgroundColor: '#dbeafe',
-                  color: '#1d4ed8',
+                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                  color: textColor,
                   fontSize: '12px',
                   fontWeight: '500',
                   borderRadius: '8px',
                   textDecoration: 'none',
+                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#bfdbfe';
+                  e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#dbeafe';
+                  e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
                 }}
               >
                 <LuExternalLink size={12} />
@@ -377,21 +402,24 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: '6px',
                   padding: '6px 12px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  color: textColor,
                   fontSize: '12px',
                   fontWeight: '500',
                   borderRadius: '8px',
                   textDecoration: 'none',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#e5e7eb';
+                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#f3f4f6';
+                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 }}
               >
                 <LuGithub size={12} />
@@ -399,7 +427,7 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
               </a>
             )}
           </div>
-        </div>
+        )}
       </div>
     );
   };
@@ -454,13 +482,39 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
   // Render display UI
   if (initialProjectsData.length > 0) {
     return (
-      <div style={sectionStyle} title="Click to edit projects">
-        {/* Section Header */}
+      <div style={{
+        ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} 
+      title="Click to edit projects"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      >
+        {/* Title at the top of the container */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          marginBottom: '20px'
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
           <div style={{
             width: '24px',
@@ -494,7 +548,7 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
             overflow: 'hidden',
             width: '100%'
           }}>
-            {renderProjectCard(initialProjectsData[currentIndex], currentIndex)}
+            {renderProjectCard(initialProjectsData[currentIndex], currentIndex, true)}
           </div>
 
           {/* Dots indicator - Only show if more than 1 project */}

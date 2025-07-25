@@ -164,6 +164,23 @@ export default function DashboardPageContent() {
         cardSectionsCount: cardSections.length,
         socialBarSectionsCount: socialBarSections.length
       });
+      
+      // Fix any portfolio sections by converting them to projects
+      if (profile?.card_sections) {
+        const hasPortfolioSections = profile.card_sections.some(section => section.type === 'portfolio');
+        if (hasPortfolioSections) {
+          console.log('🔧 FIXING: Found portfolio sections, converting to projects');
+          const fixedSections = profile.card_sections.map(section => 
+            section.type === 'portfolio' ? { ...section, type: 'projects' } : section
+          );
+          
+          // Update the profile with fixed sections
+          const updatedProfile = { ...profile, card_sections: fixedSections };
+          handleProfileUpdate(updatedProfile);
+          
+          console.log('✅ FIXED: Portfolio sections converted to projects');
+        }
+      }
     }
   }, [profile, cardSections, socialBarSections]);
 
@@ -273,7 +290,9 @@ export default function DashboardPageContent() {
     
     console.log('🔥 ADD-SECTION: Created new section object', {
       newSection,
-      sectionId: newSection.id
+      sectionId: newSection.id,
+      editorComponent: newSection.editorComponent,
+      sectionOption: sectionOption
     });
     
     // Check if it's a social media type and add to appropriate area

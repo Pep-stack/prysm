@@ -3,9 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LuAward, LuCalendar, LuBuilding2, LuExternalLink, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
 import CertificationSelector from '../../shared/CertificationSelector';
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function CertificationsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
   
   const [currentSelection, setCurrentSelection] = useState([]);
   const [currentStartIndex, setCurrentStartIndex] = useState(0);
@@ -13,19 +18,36 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
 
   // Parse and memoize certification data
   const parseCertificationData = (certificationData) => {
+    console.log('🔍 Parsing certification data:', {
+      certificationData,
+      type: typeof certificationData,
+      isArray: Array.isArray(certificationData)
+    });
+    
     if (Array.isArray(certificationData)) {
-      return certificationData.filter(entry => entry && typeof entry === 'object');
+      const filtered = certificationData.filter(entry => entry && typeof entry === 'object');
+      console.log('✅ Parsed as array, filtered entries:', filtered.length);
+      return filtered;
     }
     
     if (typeof certificationData === 'string' && certificationData.trim()) {
       try {
         const parsed = JSON.parse(certificationData);
-        return Array.isArray(parsed) ? parsed : [];
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter(entry => entry && typeof entry === 'object');
+          console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
+          return filtered;
+        } else {
+          console.log('⚠️ Parsed JSON but not an array:', parsed);
+          return [];
+        }
       } catch (e) {
+        console.error('❌ Error parsing certification JSON:', e);
         return [];
       }
     }
     
+    console.log('ℹ️ No valid certification data found');
     return [];
   };
 
@@ -123,14 +145,24 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
       style={{
         position: 'relative',
         padding: '16px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
         borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-        backgroundColor: 'white',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         minHeight: '160px',
         display: 'flex',
         flexDirection: 'column',
         transition: 'all 0.2s ease'
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-2px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
       }}
     >
       {/* Certificate Icon */}
@@ -140,12 +172,13 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
         justifyContent: 'center',
         width: '32px',
         height: '32px',
-        backgroundColor: '#f1f5f9',
+        backgroundColor: textColor,
         borderRadius: '8px',
         marginBottom: '12px',
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
+        opacity: 0.8
       }}>
-        <LuAward size={16} style={{ color: '#475569' }} />
+        <LuAward size={16} style={{ color: 'white' }} />
       </div>
 
       {/* Certificate Title */}
@@ -153,13 +186,14 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
         margin: '0 0 8px 0', 
         fontSize: '14px', 
         fontWeight: '600', 
-        color: '#1e293b',
+        color: textColor,
         lineHeight: '1.4',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         display: '-webkit-box',
         WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical'
+        WebkitBoxOrient: 'vertical',
+        opacity: 0.9
       }}>
         {entry.name || entry.title || 'Certificate'}
       </h4>
@@ -172,15 +206,27 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
           gap: '6px',
           marginBottom: '8px'
         }}>
-          <LuBuilding2 size={12} style={{ color: '#64748b', flexShrink: 0 }} />
+          <div style={{
+            width: '12px',
+            height: '12px',
+            backgroundColor: textColor,
+            borderRadius: '3px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.6
+          }}>
+            <LuBuilding2 size={8} style={{ color: 'white' }} />
+          </div>
           <p style={{ 
             margin: 0, 
             fontSize: '12px', 
-            color: '#475569',
+            color: textColor,
             fontWeight: '500',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            opacity: 0.8
           }}>
             {entry.organization}
           </p>
@@ -195,11 +241,23 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
           gap: '6px',
           marginBottom: '8px'
         }}>
-          <LuCalendar size={12} style={{ color: '#64748b', flexShrink: 0 }} />
+          <div style={{
+            width: '12px',
+            height: '12px',
+            backgroundColor: textColor,
+            borderRadius: '3px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.6
+          }}>
+            <LuCalendar size={8} style={{ color: 'white' }} />
+          </div>
           <span style={{
             fontSize: '12px',
-            color: '#64748b',
-            fontWeight: '500'
+            color: textColor,
+            fontWeight: '500',
+            opacity: 0.8
           }}>
             {formatDate(entry.date)}
           </span>
@@ -211,11 +269,15 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
         <div style={{
           marginTop: 'auto',
           padding: '6px 8px',
-          backgroundColor: '#f8fafc',
+          backgroundColor: 'rgba(255, 255, 255, 0.3)',
           borderRadius: '6px',
           fontSize: '11px',
-          color: '#64748b',
-          fontFamily: 'monospace'
+          color: textColor,
+          fontFamily: 'monospace',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          opacity: 0.7
         }}>
           ID: {entry.credentialId}
         </div>
@@ -231,12 +293,19 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
             position: 'absolute',
             top: '12px',
             right: '12px',
-            color: '#64748b',
+            color: textColor,
             textDecoration: 'none',
-            transition: 'color 0.2s ease'
+            transition: 'all 0.2s ease',
+            opacity: 0.6
           }}
-          onMouseEnter={(e) => e.target.style.color = '#3b82f6'}
-          onMouseLeave={(e) => e.target.style.color = '#64748b'}
+          onMouseEnter={(e) => {
+            e.target.style.opacity = '1';
+            e.target.style.transform = 'scale(1.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.opacity = '0.6';
+            e.target.style.transform = 'scale(1)';
+          }}
         >
           <LuExternalLink size={14} />
         </a>
@@ -297,8 +366,64 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
     const gridColumns = getGridColumns(visibleCertifications.length);
     
     return (
-      <div style={sectionStyle} title="Click to edit certifications">
-        <h3 style={sectionTitleStyle}>Certifications & Licenses</h3>
+      <div style={{
+        ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} 
+      title="Click to edit certifications"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      >
+        {/* Title at the top of the container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: textColor,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuAward size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Certifications & Licenses
+          </h3>
+        </div>
 
         <div style={{ position: 'relative' }}>
           {/* Carousel Navigation - Previous */}
@@ -313,24 +438,26 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                border: '1px solid #e2e8f0',
-                backgroundColor: 'transparent',
-                color: '#64748b',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: textColor,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 zIndex: 10,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#f8fafc';
-                e.target.style.color = '#3b82f6';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                e.target.style.transform = 'translateY(-50%) scale(1.1)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = '#64748b';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.transform = 'translateY(-50%) scale(1)';
               }}
             >
               <LuChevronLeft size={16} />
@@ -366,24 +493,26 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
                 width: '32px',
                 height: '32px',
                 borderRadius: '50%',
-                border: '1px solid #e2e8f0',
-                backgroundColor: 'transparent',
-                color: '#64748b',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                color: textColor,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 zIndex: 10,
-                transition: 'all 0.2s ease'
+                transition: 'all 0.2s ease',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#f8fafc';
-                e.target.style.color = '#3b82f6';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                e.target.style.transform = 'translateY(-50%) scale(1.1)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = '#64748b';
+                e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.transform = 'translateY(-50%) scale(1)';
               }}
             >
               <LuChevronRight size={16} />
@@ -397,21 +526,28 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
             display: 'flex',
             justifyContent: 'center',
             gap: '8px',
-            marginTop: '20px'
+            marginTop: '16px',
+            paddingTop: '12px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.3)'
           }}>
             {Array.from({ length: Math.ceil(totalCerts / maxVisibleCerts) }).map((_, groupIndex) => (
-              <button
+              <div
                 key={groupIndex}
                 onClick={() => setCurrentStartIndex(groupIndex * maxVisibleCerts)}
                 style={{
                   width: '8px',
                   height: '8px',
                   borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: Math.floor(currentStartIndex / maxVisibleCerts) === groupIndex ? '#3b82f6' : '#cbd5e1',
+                  backgroundColor: Math.floor(currentStartIndex / maxVisibleCerts) === groupIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
+                  opacity: Math.floor(currentStartIndex / maxVisibleCerts) === groupIndex ? 0.8 : 0.4,
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: Math.floor(currentStartIndex / maxVisibleCerts) === groupIndex ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               />
             ))}

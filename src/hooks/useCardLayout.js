@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps, SECTION_OPTIONS, CARD_TYPES, getSectionsKey } from '../lib/sectionOptions';
+import { supabase } from '../lib/supabase';
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
@@ -76,70 +77,103 @@ export function useCardLayout(profile, cardType) {
   const lastSyncedRef = useRef({ profileId: null, updatedAt: null });
 
   useEffect(() => {
-    const profileId = profile?.id;
-    const updatedAt = profile?.updated_at;
-    
-    // Check for real profile changes and empty local state
-    const hasProfileIdChanged = profileId !== lastSyncedRef.current.profileId;
-    const isInitialLoad = lastSyncedRef.current.profileId === null && profileId;
-    const hasEmptyLocalState = cardSections.length === 0 && socialBarSections.length === 0;
-    const shouldSync = isInitialLoad || hasProfileIdChanged || (hasEmptyLocalState && profileId);
+    const syncProfile = async () => {
+      const profileId = profile?.id;
+      const updatedAt = profile?.updated_at;
+      
+      // Check for real profile changes and empty local state
+      const hasProfileIdChanged = profileId !== lastSyncedRef.current.profileId;
+      const isInitialLoad = lastSyncedRef.current.profileId === null && profileId;
+      const hasEmptyLocalState = cardSections.length === 0 && socialBarSections.length === 0;
+      const shouldSync = isInitialLoad || hasProfileIdChanged || (hasEmptyLocalState && profileId);
 
-    console.log('🔥 PROFILE-SYNC: useEffect triggered', { 
-      hasProfile: !!profile, 
-      cardType, 
-      isAutoSaving,
-      profileId,
-      updatedAt,
-      hasProfileIdChanged,
-      isInitialLoad,
-      hasEmptyLocalState,
-      shouldSync,
-      lastSynced: lastSyncedRef.current
-    });
-    
-    // Only sync from profile if:
-    // 1. We have a profile and cardType
-    // 2. We're not auto-saving
-    // 3. It's the initial load OR profile ID changed OR local state is empty
-    if (profile && cardType && !isAutoSaving && shouldSync) {
-      const key = getSectionsKey(cardType);
-      const allSections = Array.isArray(profile[key]) ? profile[key] : [];
-              console.log('🔥 PROFILE-SYNC: Loading sections from database', {
+      console.log('🔥 PROFILE-SYNC: useEffect triggered', { 
+        hasProfile: !!profile, 
+        cardType, 
+        isAutoSaving,
+        profileId,
+        updatedAt,
+        hasProfileIdChanged,
+        isInitialLoad,
+        hasEmptyLocalState,
+        shouldSync,
+        lastSynced: lastSyncedRef.current
+      });
+      
+      // Only sync from profile if:
+      // 1. We have a profile and cardType
+      // 2. We're not auto-saving
+      // 3. It's the initial load OR profile ID changed OR local state is empty
+      if (profile && cardType && !isAutoSaving && shouldSync) {
+        const key = getSectionsKey(cardType);
+        let allSections = Array.isArray(profile[key]) ? profile[key] : [];
+        
+        // Fix any portfolio sections by converting them to projects
+        const hasPortfolioSections = allSections.some(section => section.type === 'portfolio');
+        if (hasPortfolioSections) {
+          console.log('🔧 FIXING: Found portfolio sections in database, converting to projects');
+          allSections = allSections.map(section => 
+            section.type === 'portfolio' ? { ...section, type: 'projects' } : section
+          );
+          console.log('✅ FIXED: Portfolio sections converted to projects');
+          
+          // Update the database with the fixed sections
+          if (profile?.id) {
+            console.log('💾 UPDATING: Saving fixed sections to database');
+            const { error } = await supabase
+              .from('profiles')
+              .update({ 
+                [key]: allSections,
+                updated_at: new Date().toISOString() 
+              })
+              .eq('id', profile.id);
+            
+            if (error) {
+              console.error('❌ DATABASE-UPDATE: Failed to update fixed sections', error);
+            } else {
+              console.log('✅ DATABASE-UPDATE: Fixed sections saved to database');
+            }
+          }
+        }
+        
+        console.log('🔥 PROFILE-SYNC: Loading sections from database', {
           databaseColumn: key,
           rawSectionsFromDB: profile[key],
           parsedSections: allSections,
           sectionsCount: allSections.length,
           syncReason: isInitialLoad ? 'initial load' : hasProfileIdChanged ? 'profile ID changed' : 'empty local state'
         });
-      
-      const newCardSections = allSections.filter(s => !s.area || s.area !== 'social_bar');
-      const newSocialBarSections = allSections.filter(s => s.area === 'social_bar');
-      
-      console.log('🔥 PROFILE-SYNC: Splitting sections into categories', {
-        cardSections: newCardSections,
-        socialBarSections: newSocialBarSections,
-        cardSectionsCount: newCardSections.length,
-        socialBarSectionsCount: newSocialBarSections.length
-      });
-      
-      setCardSections(newCardSections);
-      setSocialBarSections(newSocialBarSections);
-      lastSyncedRef.current = { profileId, updatedAt };
-      
-      console.log('✅ PROFILE-SYNC: Sections loaded and state updated');
-    } else {
-      console.log('🚫 PROFILE-SYNC: Sync blocked', {
-        hasProfile: !!profile,
-        hasCardType: !!cardType,
-        isAutoSaving,
-        hasProfileIdChanged,
-        isInitialLoad,
-        hasEmptyLocalState,
-        shouldSync,
-        reason: !profile ? 'no profile' : !cardType ? 'no cardType' : isAutoSaving ? 'auto-saving' : !shouldSync ? 'no sync conditions met' : 'unknown'
-      });
-    }
+        
+        const newCardSections = allSections.filter(s => !s.area || s.area !== 'social_bar');
+        const newSocialBarSections = allSections.filter(s => s.area === 'social_bar');
+        
+        console.log('🔥 PROFILE-SYNC: Splitting sections into categories', {
+          cardSections: newCardSections,
+          socialBarSections: newSocialBarSections,
+          cardSectionsCount: newCardSections.length,
+          socialBarSectionsCount: newSocialBarSections.length
+        });
+        
+        setCardSections(newCardSections);
+        setSocialBarSections(newSocialBarSections);
+        lastSyncedRef.current = { profileId, updatedAt };
+        
+        console.log('✅ PROFILE-SYNC: Sections loaded and state updated');
+      } else {
+        console.log('🚫 PROFILE-SYNC: Sync blocked', {
+          hasProfile: !!profile,
+          hasCardType: !!cardType,
+          isAutoSaving,
+          hasProfileIdChanged,
+          isInitialLoad,
+          hasEmptyLocalState,
+          shouldSync,
+          reason: !profile ? 'no profile' : !cardType ? 'no cardType' : isAutoSaving ? 'auto-saving' : !shouldSync ? 'no sync conditions met' : 'unknown'
+        });
+      }
+    };
+    
+    syncProfile();
   }, [profile?.id, profile?.updated_at, cardType, isAutoSaving]);
 
   // Handler to remove a section from either area

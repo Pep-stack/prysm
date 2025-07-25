@@ -41,7 +41,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'projects', name: 'Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
   { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.ESSENTIALS },
   { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS, editorComponent: 'ClientTestimonialSelector' },
-  { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS },
+  { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS, editorComponent: 'SkillsSelector' },
   { type: 'availability', name: 'Availability Status', icon: LuCalendar, category: CATEGORIES.ESSENTIALS },
   { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
   
@@ -139,7 +139,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     projects: { title: defaultTitle, value: [], editorComponent: 'ProjectSelector' },
     services: { title: defaultTitle, value: '' },
     testimonials: { title: defaultTitle, value: [], editorComponent: 'ClientTestimonialSelector' },
-    skills: { title: defaultTitle, value: '' },
+    skills: { title: defaultTitle, value: [], editorComponent: 'SkillsSelector' },
     availability: { title: defaultTitle, value: '' },
     pricing: { title: defaultTitle, value: '' },
     

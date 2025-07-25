@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { LuGraduationCap, LuCalendar, LuMapPin, LuClock } from 'react-icons/lu';
-import EducationSelector from '../../shared/EducationSelector';
+import { LuCode, LuStar, LuClock, LuAward } from 'react-icons/lu';
+import SkillsSelector from '../../shared/SkillsSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
-export default function EducationSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
+export default function SkillsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   const { settings } = useDesignSettings();
   
@@ -16,23 +16,23 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(0);
 
-  // Parse and memoize education data to prevent unnecessary recalculations
-  const parseEducationData = (educationData) => {
-    console.log('🔍 Parsing education data:', {
-      educationData,
-      type: typeof educationData,
-      isArray: Array.isArray(educationData)
+  // Parse and memoize skills data
+  const parseSkillsData = (skillsData) => {
+    console.log('🔍 Parsing skills data:', {
+      skillsData,
+      type: typeof skillsData,
+      isArray: Array.isArray(skillsData)
     });
     
-    if (Array.isArray(educationData)) {
-      const filtered = educationData.filter(entry => entry && typeof entry === 'object');
+    if (Array.isArray(skillsData)) {
+      const filtered = skillsData.filter(entry => entry && typeof entry === 'object');
       console.log('✅ Parsed as array, filtered entries:', filtered.length);
       return filtered;
     }
     
-    if (typeof educationData === 'string' && educationData.trim()) {
+    if (typeof skillsData === 'string' && skillsData.trim()) {
       try {
-        const parsed = JSON.parse(educationData);
+        const parsed = JSON.parse(skillsData);
         if (Array.isArray(parsed)) {
           const filtered = parsed.filter(entry => entry && typeof entry === 'object');
           console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
@@ -42,30 +42,30 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
           return [];
         }
       } catch (e) {
-        console.error('❌ Error parsing education JSON:', e);
+        console.error('❌ Error parsing skills JSON:', e);
         return [];
       }
     }
     
-    console.log('ℹ️ No valid education data found');
+    console.log('ℹ️ No valid skills data found');
     return [];
   };
 
-  const initialEducationData = useMemo(() => {
-    return parseEducationData(profile?.education);
-  }, [profile?.education]);
+  const initialSkillsData = useMemo(() => {
+    return parseSkillsData(profile?.skills);
+  }, [profile?.skills]);
   
   // Initialize selection state for editing
   useEffect(() => {
     if (isEditing) {
-      setCurrentSelection(initialEducationData);
+      setCurrentSelection(initialSkillsData);
     }
-  }, [isEditing, initialEducationData]);
+  }, [isEditing, initialSkillsData]);
 
   // Reset carousel index when data length changes
   useEffect(() => {
     setCurrentIndex(0);
-  }, [initialEducationData.length]);
+  }, [initialSkillsData.length]);
 
   const handleSave = () => {
     if (onSave) {
@@ -73,23 +73,13 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     }
   };
 
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    if (dateString.length === 4) return dateString; // Just year
-    return new Date(dateString + '-01').toLocaleDateString('en-US', { 
-      month: 'short', 
-      year: 'numeric' 
-    });
-  };
-
   // Carousel navigation functions
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % initialEducationData.length);
+    setCurrentIndex((prev) => (prev + 1) % initialSkillsData.length);
   };
 
   const goToPrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + initialEducationData.length) % initialEducationData.length);
+    setCurrentIndex((prev) => (prev - 1 + initialSkillsData.length) % initialSkillsData.length);
   };
 
   const goToSlide = (index) => {
@@ -114,150 +104,161 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     }
   };
 
-  // Render single education card
-  const renderEducationCard = (entry, index, isCarousel = false) => (
-    <div 
-      key={entry.id || index} 
-      style={{
-        position: 'relative',
-        padding: isCarousel ? '0' : '20px 0',
-        borderBottom: (!isCarousel && index < initialEducationData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-        width: '100%'
-      }}
-    >
-      {/* Header with degree and institution */}
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h4 style={{ 
-              margin: 0, 
-              fontSize: '18px', 
-              fontWeight: '700', 
-              color: textColor,
-              lineHeight: '1.3',
-              marginBottom: '6px',
-              letterSpacing: '-0.01em'
-            }}>
-              {entry.degree}{entry.field ? ` in ${entry.field}` : ''}
-            </h4>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '8px'
-            }}>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                backgroundColor: textColor,
-                borderRadius: '4px',
+  // Get proficiency color and icon
+  const getProficiencyDisplay = (proficiency) => {
+    const proficiencyConfig = {
+      'beginner': { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.2)', icon: '⭐', label: 'Beginner' },
+      'intermediate': { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.2)', icon: '⭐⭐', label: 'Intermediate' },
+      'advanced': { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.2)', icon: '⭐⭐⭐', label: 'Advanced' },
+      'expert': { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.2)', icon: '⭐⭐⭐⭐', label: 'Expert' }
+    };
+    return proficiencyConfig[proficiency] || proficiencyConfig['intermediate'];
+  };
+
+  // Render single skill card
+  const renderSkillCard = (entry, index, isCarousel = false) => {
+    const proficiencyDisplay = getProficiencyDisplay(entry.proficiency);
+    
+    return (
+      <div 
+        key={entry.id || index} 
+        style={{
+          position: 'relative',
+          padding: isCarousel ? '0' : '20px 0',
+          borderBottom: (!isCarousel && index < initialSkillsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+          width: '100%'
+        }}
+      >
+        {/* Header with skill name and category */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h4 style={{ 
+                margin: 0, 
+                fontSize: '18px', 
+                fontWeight: '700', 
+                color: textColor,
+                lineHeight: '1.3',
+                marginBottom: '6px',
+                letterSpacing: '-0.01em'
+              }}>
+                {entry.name || 'Untitled Skill'}
+              </h4>
+              <div style={{ 
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0.8
+                gap: '6px',
+                marginBottom: '8px'
               }}>
-                <LuMapPin size={10} style={{ color: 'white' }} />
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: textColor,
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.8
+                }}>
+                  <LuCode size={10} style={{ color: 'white' }} />
+                </div>
+                <span style={{
+                  fontSize: '14px',
+                  color: textColor,
+                  fontWeight: '600',
+                  opacity: 0.9
+                }}>
+                  {entry.category}
+                </span>
               </div>
-              <span style={{
-                fontSize: '14px',
-                color: textColor,
-                fontWeight: '600',
-                opacity: 0.9
-              }}>
-                {entry.institution}
-              </span>
             </div>
-          </div>
-          
-          {/* Current Education Badge */}
-          {entry.current && (
+            
+            {/* Proficiency Badge */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
               padding: '4px 8px',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
+              backgroundColor: proficiencyDisplay.bgColor,
               color: textColor,
               fontSize: '11px',
               fontWeight: '600',
               borderRadius: '8px',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              border: `1px solid ${proficiencyDisplay.color}40`,
               backdropFilter: 'blur(6px)',
               WebkitBackdropFilter: 'blur(6px)',
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
             }}>
-              <LuClock size={10} />
-              Current
+              <span style={{ fontSize: '8px' }}>{proficiencyDisplay.icon}</span>
+              {proficiencyDisplay.label}
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Date range */}
-      {(entry.startDate || entry.endDate || entry.current) && (
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '4px 8px',
-          marginRight: '8px',
-          marginBottom: '12px',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-          background: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-        }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: textColor,
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuCalendar size={10} style={{ color: 'white' }} />
           </div>
-          <span style={{
-            fontSize: '12px',
-            color: textColor,
-            fontWeight: '500',
-            opacity: 0.9
-          }}>
-            {entry.startDate && formatDate(entry.startDate)}
-            {entry.startDate && (entry.endDate || entry.current) && ' — '}
-            {entry.current ? 'Present' : (entry.endDate && formatDate(entry.endDate))}
-          </span>
         </div>
-      )}
 
-      {/* Description */}
-      {entry.description && (
-        <div style={{ marginBottom: '16px' }}>
-          <p style={{ 
-            margin: 0, 
-            fontSize: '14px', 
-            color: textColor,
-            lineHeight: '1.6',
-            opacity: 0.9
+        {/* Years of Experience */}
+        {entry.yearsOfExperience && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 8px',
+            marginRight: '8px',
+            marginBottom: '12px',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
           }}>
-            {entry.description}
-          </p>
-        </div>
-      )}
-    </div>
-  );
+            <div style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: textColor,
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.8
+            }}>
+              <LuClock size={10} style={{ color: 'white' }} />
+            </div>
+            <span style={{
+              fontSize: '12px',
+              color: textColor,
+              fontWeight: '500',
+              opacity: 0.9
+            }}>
+              {entry.yearsOfExperience} year{entry.yearsOfExperience !== '1' ? 's' : ''} experience
+            </span>
+          </div>
+        )}
+
+        {/* Description */}
+        {entry.description && (
+          <div style={{ marginBottom: '16px' }}>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '14px', 
+              color: textColor,
+              lineHeight: '1.6',
+              opacity: 0.9
+            }}>
+              {entry.description}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // Render editing UI
   if (isEditing) {
     return (
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Edit Education</h3>
-        <EducationSelector 
+        <h3 style={sectionTitleStyle}>Edit Skills & Technologies</h3>
+        <SkillsSelector 
           value={currentSelection}
           onChange={setCurrentSelection}
         />
@@ -292,7 +293,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
               transition: 'all 0.2s ease'
             }}
           >
-            Save Education
+            Save Skills
           </button>
         </div>
       </div>
@@ -300,7 +301,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
   }
 
   // Render display UI
-  if (initialEducationData.length > 0) {
+  if (initialSkillsData.length > 0) {
     return (
       <div style={{
         ...sectionStyle,
@@ -317,7 +318,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
         maxWidth: '100%',
         boxSizing: 'border-box'
       }} 
-      title="Click to edit education"
+      title="Click to edit skills"
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-1px)';
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
@@ -346,7 +347,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             justifyContent: 'center',
             opacity: 0.8
           }}>
-            <LuGraduationCap size={14} style={{ color: 'white' }} />
+            <LuCode size={14} style={{ color: 'white' }} />
           </div>
           <h3 style={{
             ...sectionTitleStyle,
@@ -357,22 +358,22 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             letterSpacing: '-0.01em',
             opacity: 0.9
           }}>
-            Education
+            Skills & Technologies
           </h3>
         </div>
 
         {/* Carousel content - Always show carousel for better UX */}
         <div style={{ position: 'relative' }}>
-          {/* Current education */}
+          {/* Current skill */}
           <div style={{ 
             overflow: 'hidden',
             width: '100%'
           }}>
-            {renderEducationCard(initialEducationData[currentIndex], currentIndex, true)}
+            {renderSkillCard(initialSkillsData[currentIndex], currentIndex, true)}
           </div>
 
-          {/* Dots indicator - Only show if more than 1 education entry */}
-          {initialEducationData.length > 1 && (
+          {/* Dots indicator - Only show if more than 1 skill */}
+          {initialSkillsData.length > 1 && (
             <div style={{
               display: 'flex',
               justifyContent: 'center',
@@ -381,7 +382,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
               paddingTop: '12px',
               borderTop: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
-              {initialEducationData.map((_, index) => (
+              {initialSkillsData.map((_, index) => (
                 <div
                   key={index}
                   style={{
@@ -410,7 +411,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
   } else {
     // Empty state
     return (
-      <div style={placeholderStyle} title="Click to add education">
+      <div style={placeholderStyle} title="Click to add skills">
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -433,7 +434,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             borderRadius: '16px',
             marginBottom: '16px'
           }}>
-            <LuGraduationCap size={28} style={{ color: '#94a3b8' }} />
+            <LuCode size={28} style={{ color: '#94a3b8' }} />
           </div>
           <h4 style={{
             margin: '0 0 8px 0',
@@ -441,7 +442,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             fontWeight: '600',
             color: '#475569'
           }}>
-            Add Your Education
+            Showcase Your Skills
           </h4>
           <p style={{
             margin: 0,
@@ -450,7 +451,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
             fontWeight: '500',
             lineHeight: '1.5'
           }}>
-            Click to add your educational background and achievements
+            Click to add your technical skills and proficiency levels
           </p>
         </div>
       </div>
