@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
-import { LuBriefcase, LuMapPin, LuGlobe, LuFileText } from 'react-icons/lu';
+import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock } from 'react-icons/lu';
 
 // Helper functie voor initialen
 const getInitials = (name) => {
@@ -71,12 +71,43 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   const avatarBorderRadius = getAvatarBorderRadius(avatarShape);
   const avatarJustification = getAvatarJustification(avatarPosition);
 
+  // Get availability status display configuration
+  const getAvailabilityStatusDisplay = (status) => {
+    const statusConfig = {
+      'available': { 
+        color: '#059669', 
+        icon: LuCheck, 
+        label: 'Open for work',
+        description: 'Ready for new opportunities'
+      },
+      'busy': { 
+        color: '#d97706', 
+        icon: LuPause, 
+        label: 'Busy',
+        description: 'Limited availability'
+      },
+      'unavailable': { 
+        color: '#dc2626', 
+        icon: LuX, 
+        label: 'Not available for work',
+        description: 'Not taking new work'
+      },
+      'limited': { 
+        color: '#0284c7', 
+        icon: LuClock, 
+        label: 'Selective opportunities',
+        description: 'Open for specific projects'
+      }
+    };
+    return statusConfig[status] || statusConfig['available'];
+  };
+
   // Mapping voor personal info per card type
   // Geen secties die als losse section op de card kunnen verschijnen
   const PERSONAL_INFO_FIELDS = {
-    pro: ['name', 'headline', 'bio', 'location', 'website'],
-    career: ['name', 'headline', 'bio', 'location', 'desired_role'],
-    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size'],
+    pro: ['name', 'headline', 'bio', 'location', 'website', 'availability_status'],
+    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'availability_status'],
+    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'availability_status'],
   };
 
   // Haal de juiste personal info uit de card_profiles JSON
@@ -384,6 +415,62 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   </span>
                 </div>
               )}
+
+              {/* Availability Status Container */}
+              {personalInfo?.show_availability && personalInfo?.availability_status && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  {(() => {
+                    const statusDisplay = getAvailabilityStatusDisplay(personalInfo.availability_status);
+                    const StatusIcon = statusDisplay.icon;
+                    return (
+                      <>
+                        <div style={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: statusDisplay.color,
+                          borderRadius: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: 0.9
+                        }}>
+                          <StatusIcon size={12} style={{ color: 'white' }} />
+                        </div>
+                        <span style={{ 
+                          fontSize: '12px', 
+                          fontWeight: '600', 
+                          color: textColor,
+                          opacity: 0.9
+                        }}>
+                          {statusDisplay.label}
+                        </span>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
 
             {/* Bio Container - Full width */}
@@ -441,7 +528,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             {/* Other optional fields in glass containers */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
               {fieldsToShow.map((field) => {
-                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website'].includes(field)) return null;
+                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'availability_status'].includes(field)) return null;
                 
                 return (
                   <div key={field} style={{

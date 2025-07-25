@@ -3,6 +3,21 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase'; // Adjusted path
 
+// Helper function to get editor component for section type
+const getEditorComponentForSection = (sectionType) => {
+  const editorComponentMap = {
+    'languages': 'LanguageSelector',
+    'education': 'EducationSelector',
+    'experience': 'ExperienceSelector',
+    'certifications': 'CertificationSelector',
+    'projects': 'ProjectSelector',
+    'testimonials': 'ClientTestimonialSelector',
+    'skills': 'SkillsSelector',
+    'services': 'ServicesSelector'
+  };
+  return editorComponentMap[sectionType];
+};
+
 export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSection, setEditingSection] = useState(null); 
@@ -12,7 +27,15 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
 
   const openModal = useCallback((section) => {
     if (!initialProfileData) return; // Need initial data to populate
-    setEditingSection(section);
+    
+    // Add editorComponent based on section type
+    const enhancedSection = {
+      ...section,
+      editorComponent: getEditorComponentForSection(section.type)
+    };
+    
+    console.log('🔥 OPEN-MODAL: Enhanced section with editorComponent:', enhancedSection);
+    setEditingSection(enhancedSection);
     
     // Special handling for languages section
     if (section.type === 'languages') {
@@ -27,7 +50,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(languagesArray);
-    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills') {
+    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services') {
       // Special handling for education, experience, certifications, projects, testimonials and skills sections
       const sectionData = initialProfileData[section.type];
       
@@ -82,7 +105,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     let valueToSave = inputValue;
     if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills') && Array.isArray(inputValue)) {
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services') && Array.isArray(inputValue)) {
       try {
         valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
@@ -123,7 +146,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services') {
             updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from '../../../src/components/auth/SessionProvider';
 import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
-import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor, LuBriefcase, LuBuilding2 } from 'react-icons/lu';
+import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor, LuBriefcase, LuBuilding2, LuCheck, LuX, LuPause, LuClock } from 'react-icons/lu';
 import { useFileUpload } from '../../../src/hooks/useFileUpload';
 import { supabase } from '../../../src/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
@@ -544,6 +544,83 @@ export default function ProfilePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
                   maxLength={100}
                 />
+              </div>
+
+              {/* Availability Status */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Work Availability
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleCardProfileChange({
+                      target: {
+                        name: 'show_availability',
+                        value: !cardProfile.show_availability
+                      }
+                    })}
+                    className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200 ${
+                      cardProfile.show_availability 
+                        ? 'bg-emerald-600 text-black border-emerald-600 hover:bg-emerald-700 shadow-sm' 
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                    }`}
+                  >
+                    {cardProfile.show_availability ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+                
+                {cardProfile.show_availability && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { value: 'available', label: 'Open for work', icon: LuCheck, color: '#059669', bgColor: '#d1fae5' },
+                      { value: 'busy', label: 'Busy', icon: LuPause, color: '#d97706', bgColor: '#fef3c7' },
+                      { value: 'limited', label: 'Selective', icon: LuClock, color: '#0284c7', bgColor: '#dbeafe' },
+                      { value: 'unavailable', label: 'Not available', icon: LuX, color: '#dc2626', bgColor: '#fee2e2' }
+                    ].map((option) => {
+                      const Icon = option.icon;
+                      const isSelected = cardProfile.availability_status === option.value;
+                      return (
+                        <label
+                          key={option.value}
+                          className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+                            isSelected 
+                              ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200' 
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="availability_status"
+                            value={option.value}
+                            checked={isSelected}
+                            onChange={handleCardProfileChange}
+                            className="sr-only"
+                          />
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                              style={{ backgroundColor: option.color }}
+                            >
+                              <Icon size={16} style={{ color: 'white' }} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-medium text-gray-900 text-sm">
+                                {option.label}
+                              </h3>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {option.value === 'available' && 'Ready for new opportunities'}
+                                {option.value === 'busy' && 'Limited availability'}
+                                {option.value === 'limited' && 'Open for specific projects'}
+                                {option.value === 'unavailable' && 'Not taking new work'}
+                              </p>
+                            </div>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>

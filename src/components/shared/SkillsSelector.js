@@ -305,7 +305,7 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           <button
-            onClick={handleCancel}
+            onClick={onCancel}
             style={{
               padding: '6px 12px',
               backgroundColor: '#f3f4f6',

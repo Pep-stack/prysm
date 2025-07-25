@@ -14,6 +14,8 @@ import ProjectsSectionContent from './cardSections/ProjectsSectionContent';
 import LanguagesSectionContent from './cardSections/LanguagesSectionContent';
 import ClientTestimonialsSectionContent from './cardSections/ClientTestimonialsSectionContent';
 import SkillsSectionContent from './cardSections/SkillsSectionContent';
+import ServicesSectionContent from './cardSections/ServicesSectionContent';
+
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 // Voeg hier AL je sectie types toe
 
@@ -42,6 +44,7 @@ const proSectionComponentMap = {
   'languages': LanguagesSectionContent,
   'testimonials': ClientTestimonialsSectionContent,
   'skills': SkillsSectionContent,
+  'services': ServicesSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -68,6 +71,7 @@ export const sectionComponentMap = {
   'languages': LanguagesSectionContent,
   'testimonials': ClientTestimonialsSectionContent,
   'skills': SkillsSectionContent,
+  'services': ServicesSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
@@ -117,9 +121,9 @@ export default function CardSectionRenderer({
 
   const defaultSectionTitleStyle = {
     color: textColor,
-    fontSize: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects') ? '22px' : '18px',
+    fontSize: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'services') ? '22px' : '18px',
     fontWeight: '600',
-    marginBottom: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects') ? '16px' : '8px',
+    marginBottom: (section.type === 'languages' || section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'services') ? '16px' : '8px',
     ...sectionTitleStyle
   };
 

@@ -8,6 +8,7 @@ import CertificationSelector from '../shared/CertificationSelector';
 import ProjectSelector from '../shared/ProjectSelector';
 import ClientTestimonialSelector from '../shared/ClientTestimonialSelector';
 import SkillsSelector from '../shared/SkillsSelector';
+import ServicesSelector from '../shared/ServicesSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -32,7 +33,7 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     borderRadius: '8px',
     boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
     width: '100%',
-    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector' || section?.editorComponent === 'SkillsSelector') ? '800px' : '400px',
+    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector' || section?.editorComponent === 'SkillsSelector' || section?.editorComponent === 'ServicesSelector') ? '800px' : '400px',
     maxHeight: '90vh',
     overflowY: 'auto'
   };
@@ -172,6 +173,18 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <SkillsSelector 
           value={selectedSkillEntries} // Pass current skill entries
           onChange={onChange} // onChange should expect an array of skill objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'ServicesSelector') {
+      console.log('🎯 SERVICES-SELECTOR: Rendering ServicesSelector component');
+      // Ensure 'value' passed to ServicesSelector is an array of service objects
+      const selectedServiceEntries = Array.isArray(value) ? value : [];
+      return (
+        <ServicesSelector 
+          value={selectedServiceEntries} // Pass current service entries
+          onChange={onChange} // onChange should expect an array of service objects
         />
       );
     }
