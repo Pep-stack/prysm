@@ -16,7 +16,18 @@ export default function EditClientTestimonialModal({ isOpen, onClose, onSave, in
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ photo, name, profession, quote, date });
+    
+    // Prepare data with proper date handling
+    const testimonialData = {
+      photo,
+      name: name.trim(),
+      profession: profession.trim(),
+      quote: quote.trim(),
+      date: date && date.trim() !== '' ? date : null
+    };
+    
+    console.log('📝 MODAL-SUBMIT: Sending testimonial data:', testimonialData);
+    onSave(testimonialData);
   };
 
   const handleClose = () => {

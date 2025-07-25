@@ -25,8 +25,8 @@ const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
     return [
       {
         id: uuidv4(),
-        type: 'portfolio',
-        ...getDefaultSectionProps('portfolio', cardType),
+        type: 'projects',
+        ...getDefaultSectionProps('projects', cardType),
         editorComponent: 'ProjectSelector'
       },
       {

@@ -102,23 +102,63 @@ export function useUserProfile(user) {
       // Sla de volledige sectie-objecten op in de juiste kolom
       const validLayout = Array.isArray(newLayout) ? newLayout : [];
       const key = getSectionsKey(cardType);
+      
+      // Validate layout before saving
+      if (!Array.isArray(validLayout)) {
+        throw new Error('Layout must be an array');
+      }
+      
+      // Filter out any invalid sections
+      const cleanLayout = validLayout.filter(section => {
+        if (!section || typeof section !== 'object') {
+          console.warn('⚠️ SAVE-LAYOUT: Invalid section found, filtering out:', section);
+          return false;
+        }
+        if (!section.id || !section.type) {
+          console.warn('⚠️ SAVE-LAYOUT: Section missing required fields, filtering out:', section);
+          return false;
+        }
+        return true;
+      });
+      
+      console.log('🔥 SAVE-LAYOUT: Layout validation complete', {
+        originalLength: validLayout.length,
+        cleanLength: cleanLayout.length,
+        filteredCount: validLayout.length - cleanLayout.length
+      });
+      
+      // Safely serialize the layout to prevent circular references
+      let serializedLayout;
+      try {
+        serializedLayout = JSON.parse(JSON.stringify(cleanLayout));
+      } catch (serializeError) {
+        console.error('❌ SAVE-LAYOUT: Failed to serialize layout', serializeError);
+        throw new Error(`Failed to serialize layout: ${serializeError.message}`);
+      }
+      
       console.log('🔥 SAVE-LAYOUT: Database operation details', {
         databaseColumn: key,
-        dataToSave: JSON.stringify(validLayout, null, 2),
-        userId: user.id
+        dataToSave: JSON.stringify(serializedLayout, null, 2),
+        userId: user.id,
+        updateObject: { [key]: serializedLayout, updated_at: new Date().toISOString() }
       });
 
       const { data, error: updateError } = await supabase
         .from('profiles')
         .update({ 
-            [key]: validLayout,
+            [key]: serializedLayout,
             updated_at: new Date().toISOString() 
          })
         .eq('id', user.id)
         .select();
 
       if (updateError) {
-        console.log('❌ SAVE-LAYOUT: Database update failed', updateError);
+        console.log('❌ SAVE-LAYOUT: Database update failed', {
+          error: updateError,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        });
         throw updateError;
       }
       
@@ -129,7 +169,7 @@ export function useUserProfile(user) {
       
       // Update local profile state immediately after successful save
       setProfile(prev => {
-        const updated = prev ? { ...prev, [key]: validLayout, updated_at: new Date().toISOString() } : null;
+        const updated = prev ? { ...prev, [key]: serializedLayout, updated_at: new Date().toISOString() } : null;
         console.log('🔥 SAVE-LAYOUT: Local profile state updated', {
           previousProfile: prev ? { [key]: prev[key] } : null,
           newProfile: updated ? { [key]: updated[key] } : null
@@ -141,7 +181,9 @@ export function useUserProfile(user) {
       console.error('❌ SAVE-LAYOUT: Save operation failed', {
         error: err,
         message: err.message,
-        details: err.details || 'No additional details'
+        details: err.details || 'No additional details',
+        hint: err.hint,
+        code: err.code
       });
       setLayoutError(`Failed to save card layout: ${err.message}`);
     } finally {

@@ -117,11 +117,39 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     if (section.editorComponent === 'ClientTestimonialSelector') {
       // Ensure 'value' passed to ClientTestimonialSelector is an array of testimonial objects
       const selectedTestimonialEntries = Array.isArray(value) ? value : [];
+      
+      // Get userId with fallback mechanism
+      const userId = user?.id;
+      
+      console.log('🔍 EDIT-MODAL: ClientTestimonialSelector props', {
+        user,
+        userId,
+        value: selectedTestimonialEntries,
+        hasOnChange: !!onChange,
+        sectionTitle: section?.title
+      });
+      
+      if (!userId) {
+        console.error('❌ EDIT-MODAL: No userId available for ClientTestimonialSelector');
+        return (
+          <div style={{ 
+            padding: '20px', 
+            textAlign: 'center', 
+            color: '#dc2626',
+            backgroundColor: '#fef2f2',
+            borderRadius: '8px',
+            border: '1px solid #fecaca'
+          }}>
+            <p>Error: User not authenticated. Please refresh the page and try again.</p>
+          </div>
+        );
+      }
+      
       return (
         <ClientTestimonialSelector 
           value={selectedTestimonialEntries} // Pass current testimonial entries
           onChange={onChange} // onChange should expect an array of testimonial objects
-          userId={user?.id} // Pass user ID for Supabase integration
+          userId={userId} // Pass user ID for Supabase integration
         />
       );
     }

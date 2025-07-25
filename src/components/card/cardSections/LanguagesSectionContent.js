@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import LanguageSelector from '../../shared/LanguageSelector';
+import { LuLanguages } from 'react-icons/lu';
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 // Mapping from common language codes to emoji flags
 // This should match the mapping in LanguageSelector.js
@@ -88,6 +90,10 @@ const langToCountry = {
 
 export default function LanguagesSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
   
   // State to hold the selected languages during editing
   const [currentSelection, setCurrentSelection] = useState([]);
@@ -167,41 +173,130 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
   // Render display UI (flags and/or language codes)
   if (initialLanguageCodes.length > 0) {
     return (
-      <div style={sectionStyle} title="Click to edit languages">
-        <h3 style={sectionTitleStyle}>Languages</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+      <div style={{
+        ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} 
+      title="Click to edit languages"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      >
+        {/* Titel bovenaan in de container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: textColor,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuLanguages size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Languages
+          </h3>
+        </div>
+        
+        {/* Languages display */}
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: '12px', 
+          alignItems: 'center' 
+        }}>
           {initialLanguageCodes.map((code) => {
             const flagEmoji = langToCountry[code];
             
-            // Always show something for each language code
             return (
-              <div key={code} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <div 
+                key={code} 
+                style={{
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default'
+                }}
+                title={`Language: ${code.toUpperCase()}`}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
                 {flagEmoji ? (
-                  <span 
-                    title={`${code} - Language flag`}
-                    style={{ 
-                      fontSize: '32px', 
-                      lineHeight: '1',
-                      cursor: 'default'
-                    }} 
-                  >
+                  <span style={{ 
+                    fontSize: '20px', 
+                    lineHeight: '1'
+                  }}>
                     {flagEmoji}
                   </span>
                 ) : (
-                  <span 
-                    style={{ 
-                      fontSize: '12px', 
-                      backgroundColor: '#f0f0f0', 
-                      padding: '4px 8px', 
-                      borderRadius: '4px',
-                      border: '1px solid #ddd',
-                      fontWeight: '500'
-                    }}
-                    title={`Language: ${code}`}
-                  >
-                    {code.toUpperCase()}
-                  </span>
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuLanguages size={12} style={{ color: 'white' }} />
+                  </div>
                 )}
+                <span style={{
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  color: textColor,
+                  opacity: 0.9
+                }}>
+                  {code.toUpperCase()}
+                </span>
               </div>
             );
           })}

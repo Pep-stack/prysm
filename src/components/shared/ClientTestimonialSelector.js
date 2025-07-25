@@ -31,11 +31,20 @@ export default function ClientTestimonialSelector({ value = [], onChange, userId
   };
 
   const handleSave = async (testimonial) => {
+    console.log('🎯 TESTIMONIAL-SAVE: Starting save process', {
+      testimonial,
+      editIndex,
+      userId,
+      displayTestimonialsLength: displayTestimonials.length
+    });
+
     try {
       if (editIndex !== null) {
         // Edit existing
+        console.log('✏️ TESTIMONIAL-SAVE: Editing existing testimonial');
         const existingTestimonial = displayTestimonials[editIndex];
         if (existingTestimonial.id) {
+          console.log('📝 TESTIMONIAL-SAVE: Updating testimonial with ID:', existingTestimonial.id);
           await updateTestimonial(existingTestimonial.id, testimonial);
         }
         // Update local state
@@ -44,24 +53,47 @@ export default function ClientTestimonialSelector({ value = [], onChange, userId
         onChange(newValue);
       } else {
         // Add new
+        console.log('➕ TESTIMONIAL-SAVE: Adding new testimonial');
+        if (!userId) {
+          throw new Error('No userId provided for adding testimonial');
+        }
         const newTestimonial = await addTestimonial(testimonial);
+        console.log('✅ TESTIMONIAL-SAVE: Successfully added testimonial:', newTestimonial);
+        
+        if (!newTestimonial) {
+          throw new Error('Failed to add testimonial - no data returned');
+        }
+        
         // Update local state
         onChange([...displayTestimonials, newTestimonial]);
       }
+      console.log('🎉 TESTIMONIAL-SAVE: Save completed successfully');
       setModalOpen(false);
       setEditIndex(null);
     } catch (error) {
-      console.error('Error saving testimonial:', error);
-      // Still update local state for immediate feedback
-      const newValue = [...displayTestimonials];
-      if (editIndex !== null) {
-        newValue[editIndex] = testimonial;
-      } else {
-        newValue.push(testimonial);
+      console.error('❌ TESTIMONIAL-SAVE: Error saving testimonial:');
+      console.error('❌ Error object:', error);
+      console.error('❌ Error message:', error?.message || 'No message');
+      console.error('❌ Error stack:', error?.stack || 'No stack');
+      console.error('❌ Error name:', error?.name || 'No name');
+      console.error('❌ Testimonial data:', testimonial);
+      console.error('❌ UserId:', userId);
+      console.error('❌ Is editing:', editIndex !== null);
+      
+      // Try to stringify the error
+      try {
+        console.error('❌ Error JSON:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+      } catch (jsonErr) {
+        console.error('❌ Could not stringify error:', jsonErr);
       }
-      onChange(newValue);
-      setModalOpen(false);
-      setEditIndex(null);
+      
+      // Show error to user
+      const errorMessage = error?.message || error?.toString() || 'Unknown error occurred';
+      alert(`Error saving testimonial: ${errorMessage}`);
+      
+      // Don't close modal on error so user can retry
+      // setModalOpen(false);
+      // setEditIndex(null);
     }
   };
 

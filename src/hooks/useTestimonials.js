@@ -31,12 +31,23 @@ export function useTestimonials(userId) {
 
   // Add testimonial
   const addTestimonial = async (testimonial) => {
-    if (!userId) return;
+    console.log('🎯 ADD-TESTIMONIAL: Starting with', {
+      userId,
+      testimonial,
+      hasUserId: !!userId,
+      testimonialKeys: Object.keys(testimonial || {})
+    });
+
+    if (!userId) {
+      console.error('❌ ADD-TESTIMONIAL: No userId provided');
+      throw new Error('No userId provided to addTestimonial');
+    }
 
     try {
       // Handle photo upload if it's a File
       let photoUrl = testimonial.photo;
       if (testimonial.photo instanceof File) {
+        console.log('📸 ADD-TESTIMONIAL: Uploading photo file');
         const fileExt = testimonial.photo.name.split('.').pop();
         const fileName = `${userId}-${Date.now()}.${fileExt}`;
         const filePath = `testimonials/${fileName}`;
@@ -51,30 +62,73 @@ export function useTestimonials(userId) {
           .from('avatars')
           .getPublicUrl(filePath);
         
-        photoUrl = urlData.publicUrl;
-        console.log('📤 Uploaded photo URL (add):', photoUrl, 'urlData:', urlData);
+        if (urlData && urlData.publicUrl) {
+          photoUrl = urlData.publicUrl;
+          console.log('📤 Uploaded photo URL (add):', photoUrl, 'urlData:', urlData);
+        } else {
+          console.error('❌ Failed to get public URL:', urlData);
+          throw new Error('Failed to get public URL for uploaded photo');
+        }
       }
 
-      console.log('💾 Saving testimonial with photo_url:', photoUrl);
+      const insertData = {
+        user_id: userId,
+        name: testimonial.name,
+        profession: testimonial.profession,
+        quote: testimonial.quote,
+        date: testimonial.date && testimonial.date.trim() !== '' ? testimonial.date : null,
+        photo_url: photoUrl
+      };
+
+      console.log('💾 ADD-TESTIMONIAL: Saving to database with data:', insertData);
+      
+      // First check if table exists by trying a simple query
+      try {
+        const { count } = await supabase
+          .from('testimonials')
+          .select('*', { count: 'exact', head: true });
+        console.log('✅ ADD-TESTIMONIAL: Table accessible, current count:', count);
+      } catch (tableError) {
+        console.error('❌ ADD-TESTIMONIAL: Table access error:', tableError);
+        throw new Error('Testimonials table not accessible. Please check database setup.');
+      }
+      
       const { data, error } = await supabase
         .from('testimonials')
-        .insert([{
-          user_id: userId,
-          name: testimonial.name,
-          profession: testimonial.profession,
-          quote: testimonial.quote,
-          date: testimonial.date,
-          photo_url: photoUrl
-        }])
+        .insert([insertData])
         .select();
 
-      if (error) throw error;
+      console.log('💾 ADD-TESTIMONIAL: Database response:', { data, error });
+
+      if (error) {
+        console.error('❌ ADD-TESTIMONIAL: Database error:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.error('❌ ADD-TESTIMONIAL: No data returned from insert');
+        throw new Error('No data returned from testimonial insert');
+      }
       
+      console.log('✅ ADD-TESTIMONIAL: Successfully saved:', data[0]);
       setTestimonials(prev => [data[0], ...prev]);
       return data[0];
     } catch (err) {
-      console.error('Error adding testimonial:', err);
-      setError(err.message);
+      console.error('❌ ADD-TESTIMONIAL: Error occurred:');
+      console.error('❌ Error object:', err);
+      console.error('❌ Error message:', err?.message || 'No message');
+      console.error('❌ Error stack:', err?.stack || 'No stack');
+      console.error('❌ UserId:', userId);
+      console.error('❌ Testimonial data:', testimonial);
+      
+      // Also try to stringify the error
+      try {
+        console.error('❌ Error JSON:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+      } catch (jsonErr) {
+        console.error('❌ Could not stringify error:', jsonErr);
+      }
+      
+      setError(err?.message || err?.toString() || 'Unknown error occurred');
       throw err;
     }
   };
@@ -101,8 +155,13 @@ export function useTestimonials(userId) {
           .from('avatars')
           .getPublicUrl(filePath);
         
-        photoUrl = urlData.publicUrl;
-        console.log('📤 Uploaded photo URL (update):', photoUrl, 'urlData:', urlData);
+        if (urlData && urlData.publicUrl) {
+          photoUrl = urlData.publicUrl;
+          console.log('📤 Uploaded photo URL (update):', photoUrl, 'urlData:', urlData);
+        } else {
+          console.error('❌ Failed to get public URL:', urlData);
+          throw new Error('Failed to get public URL for uploaded photo');
+        }
       }
 
       const { data, error } = await supabase
@@ -111,7 +170,7 @@ export function useTestimonials(userId) {
           name: testimonial.name,
           profession: testimonial.profession,
           quote: testimonial.quote,
-          date: testimonial.date,
+          date: testimonial.date && testimonial.date.trim() !== '' ? testimonial.date : null,
           photo_url: photoUrl
         })
         .eq('id', id)

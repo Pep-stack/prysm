@@ -3,9 +3,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LuBriefcase, LuCalendar, LuMapPin, LuClock, LuBuilding2 } from 'react-icons/lu';
 import ExperienceSelector from '../../shared/ExperienceSelector';
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function ExperienceSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
   
   const [currentSelection, setCurrentSelection] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -116,102 +121,141 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
   };
 
   // Render single experience card
-  const renderExperienceCard = (entry, index) => (
+  const renderExperienceCard = (entry, index, isCarousel = false) => (
     <div 
       key={entry.id || index} 
       style={{
         position: 'relative',
-        padding: window.innerWidth <= 768 ? '16px' : '20px',
-        backgroundColor: 'white',
-        border: '1px solid #e2e8f0',
-        borderRadius: '12px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-        minHeight: window.innerWidth <= 768 ? '160px' : '200px',
-        width: '100%',
-        overflow: 'hidden',
-        boxSizing: 'border-box'
+        padding: isCarousel ? '0' : '20px 0',
+        borderBottom: (!isCarousel && index < initialExperienceData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+        width: '100%'
       }}
     >
-      {/* Current Job Badge */}
-      {entry.current && (
-        <div style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: '4px 8px',
-          backgroundColor: '#059669',
-          color: 'white',
-          fontSize: '11px',
-          fontWeight: '600',
-          borderRadius: '12px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px',
-          boxShadow: '0 2px 8px rgba(5, 150, 105, 0.2)'
-        }}>
-          <LuClock size={10} />
-          Current
-        </div>
-      )}
-      
-      {/* Header with job title and company */}
-      <div style={{ marginBottom: '16px', paddingRight: entry.current ? '70px' : '0' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '40px',
-            height: '40px',
-            backgroundColor: '#f1f5f9',
-            borderRadius: '10px',
-            flexShrink: 0,
-            border: '2px solid #e2e8f0'
-          }}>
-            <LuBriefcase size={20} style={{ color: '#475569' }} />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h4 style={{ 
-              margin: 0, 
-              fontSize: '16px', 
-              fontWeight: '600', 
-              color: '#1e293b',
-              lineHeight: '1.4',
-              marginBottom: '4px'
-            }}>
-              {entry.title || entry.position}
-            </h4>
-            <p style={{ 
-              margin: 0, 
-              fontSize: '15px', 
-              color: '#475569',
-              fontWeight: '500',
+              {/* Header with job title and company */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              marginBottom: '4px'
+              justifyContent: 'center',
+              width: '56px',
+              height: '56px',
+              backgroundColor: textColor,
+              opacity: 0.8,
+              borderRadius: '50%',
+              flexShrink: 0,
+              border: '3px solid rgba(255, 255, 255, 0.6)',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
             }}>
-              <LuBuilding2 size={14} style={{ color: '#64748b', flexShrink: 0 }} />
-              {entry.company}
-            </p>
-            {entry.location && (
-              <p style={{ 
+              <LuBriefcase size={20} style={{ color: 'white' }} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h4 style={{ 
                 margin: 0, 
-                fontSize: '13px', 
-                color: '#64748b',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
+                fontSize: '18px', 
+                fontWeight: '700', 
+                color: textColor,
+                lineHeight: '1.3',
+                marginBottom: '6px',
+                letterSpacing: '-0.01em'
               }}>
-                <LuMapPin size={14} style={{ color: '#94a3b8', flexShrink: 0 }} />
-                {entry.location}
-              </p>
-            )}
+                {entry.title || entry.position}
+              </h4>
+              <div style={{ 
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 8px',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                background: 'rgba(255, 255, 255, 0.3)',
+                borderRadius: '8px',
+                border: '1px solid rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
+                marginRight: '8px'
+              }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  backgroundColor: textColor,
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.8
+                }}>
+                  <LuBuilding2 size={10} style={{ color: 'white' }} />
+                </div>
+                <span style={{
+                  fontSize: '12px',
+                  color: textColor,
+                  fontWeight: '600',
+                  opacity: 0.9
+                }}>
+                  {entry.company}
+                </span>
+              </div>
+              {entry.location && (
+                <div style={{ 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 8px',
+                  marginTop: '6px',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
+                }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: textColor,
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.6
+                  }}>
+                    <LuMapPin size={10} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{
+                    fontSize: '12px',
+                    color: textColor,
+                    fontWeight: '500',
+                    opacity: 0.8
+                  }}>
+                    {entry.location}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* Current Job Badge */}
+        {entry.current && (
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 12px',
+            backgroundColor: textColor,
+            color: 'white',
+            fontSize: '11px',
+            fontWeight: '600',
+            borderRadius: '12px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            marginBottom: '12px'
+          }}>
+            <LuClock size={10} />
+            Current
+          </div>
+        )}
 
       {/* Date range and duration */}
       {(entry.startDate || entry.endDate || entry.current) && (
@@ -221,21 +265,36 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
           justifyContent: 'space-between',
           gap: '12px',
           marginBottom: entry.description ? '12px' : '0',
-          padding: '8px 12px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '8px',
-          border: '1px solid #e2e8f0'
+          padding: '10px 14px',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          background: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: '10px',
+          border: '1px solid rgba(255, 255, 255, 0.4)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
         }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px'
+            gap: '8px'
           }}>
-            <LuCalendar size={14} style={{ color: '#64748b', flexShrink: 0 }} />
+            <div style={{
+              width: '20px',
+              height: '20px',
+              backgroundColor: textColor,
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              opacity: 0.8
+            }}>
+              <LuCalendar size={14} style={{ color: 'white' }} />
+            </div>
             <span style={{
               fontSize: '13px',
-              color: '#475569',
-              fontWeight: '500'
+              color: textColor,
+              fontWeight: '600',
+              opacity: 0.9
             }}>
               {entry.startDate && formatDate(entry.startDate)}
               {entry.startDate && (entry.endDate || entry.current) && ' — '}
@@ -245,11 +304,15 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
           {entry.startDate && (
             <span style={{
               fontSize: '12px',
-              color: '#64748b',
+              color: textColor,
               fontWeight: '500',
-              padding: '2px 8px',
-              backgroundColor: '#e2e8f0',
-              borderRadius: '6px'
+              padding: '4px 8px',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              background: 'rgba(255, 255, 255, 0.4)',
+              borderRadius: '6px',
+              border: '1px solid rgba(255, 255, 255, 0.5)',
+              opacity: 0.8
             }}>
               {calculateDuration(entry.startDate, entry.endDate, entry.current)}
             </span>
@@ -261,13 +324,18 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
       {entry.type && (
         <div style={{
           display: 'inline-block',
-          padding: '4px 10px',
-          backgroundColor: '#dbeafe',
-          color: '#1e40af',
+          padding: '6px 12px',
+          backdropFilter: 'blur(6px)',
+          WebkitBackdropFilter: 'blur(6px)',
+          background: 'rgba(255, 255, 255, 0.4)',
+          color: textColor,
           fontSize: '12px',
-          fontWeight: '500',
+          fontWeight: '600',
           borderRadius: '8px',
-          marginBottom: entry.description ? '12px' : '0'
+          marginBottom: entry.description ? '12px' : '0',
+          marginTop: '8px',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
         }}>
           {entry.type}
         </div>
@@ -276,17 +344,22 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
       {/* Description */}
       {entry.description && (
         <div style={{
-          padding: '12px',
-          backgroundColor: '#f8fafc',
-          borderRadius: '8px',
-          borderLeft: '3px solid #e2e8f0',
+          padding: '16px 20px',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          background: 'rgba(255, 255, 255, 0.4)',
+          borderRadius: '12px',
+          border: '1px solid rgba(255, 255, 255, 0.5)',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.06)',
           marginTop: '12px'
         }}>
           <p style={{ 
             margin: 0, 
             fontSize: '14px', 
-            color: '#475569', 
-            lineHeight: '1.6'
+            color: textColor, 
+            lineHeight: '1.7',
+            fontWeight: '500',
+            opacity: 0.9
           }}>
             {entry.description}
           </p>
@@ -307,13 +380,16 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
               <span
                 key={idx}
                 style={{
-                  padding: '3px 8px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
+                  padding: '4px 8px',
+                  backdropFilter: 'blur(6px)',
+                  WebkitBackdropFilter: 'blur(6px)',
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  color: textColor,
                   fontSize: '11px',
                   fontWeight: '500',
                   borderRadius: '6px',
-                  border: '1px solid #e5e7eb'
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  opacity: 0.8
                 }}
               >
                 {skill}
@@ -322,8 +398,9 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
             {entry.skills.length > 6 && (
               <span style={{
                 fontSize: '11px',
-                color: '#6b7280',
-                padding: '3px 8px'
+                color: textColor,
+                padding: '4px 8px',
+                opacity: 0.6
               }}>
                 +{entry.skills.length - 6} more
               </span>
@@ -383,73 +460,110 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
 
   // Render display UI
   if (initialExperienceData.length > 0) {
-    const useCarousel = initialExperienceData.length > 1 && initialExperienceData[0]?.useCarousel;
-    
     return (
       <div style={{
         ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
         overflow: 'hidden',
         width: '100%',
         maxWidth: '100%',
         boxSizing: 'border-box'
-      }} title="Click to edit work experience">
-        <h3 style={sectionTitleStyle}>Work Experience</h3>
+      }} 
+      title="Click to edit work experience"
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-1px)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0px)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+      }}
+      >
+        {/* Title at the top of the container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: textColor,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuBriefcase size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Work Experience
+          </h3>
+        </div>
 
-        {useCarousel ? (
-          // Carousel View
-          <div>
-            <div 
-              style={{ 
-                touchAction: 'pan-y',
-                userSelect: 'none',
-                overflow: 'hidden',
-                width: '100%'
-              }}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              {initialExperienceData[currentIndex] && 
-                renderExperienceCard(initialExperienceData[currentIndex], currentIndex)
-              }
-            </div>
+        {/* Carousel content - Always show carousel for better UX */}
+        <div style={{ position: 'relative' }}>
+          {/* Current experience */}
+          <div style={{ 
+            overflow: 'hidden',
+            width: '100%'
+          }}>
+            {renderExperienceCard(initialExperienceData[currentIndex], currentIndex, true)}
+          </div>
 
-            {/* Navigation dots */}
+          {/* Dots indicator - Only show if more than 1 experience */}
+          {initialExperienceData.length > 1 && (
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               gap: '8px',
-              marginTop: '20px'
+              marginTop: '16px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               {initialExperienceData.map((_, index) => (
-                <button
+                <div
                   key={index}
-                  onClick={() => goToSlide(index)}
                   style={{
-                    width: '12px',
-                    height: '12px',
+                    width: '8px',
+                    height: '8px',
                     borderRadius: '50%',
-                    border: 'none',
-                    backgroundColor: index === currentIndex ? '#3b82f6' : '#cbd5e1',
+                    backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
+                    opacity: index === currentIndex ? 0.8 : 0.4,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: index === currentIndex ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none'
+                    transition: 'all 0.3s ease'
+                  }}
+                  onClick={() => goToSlide(index)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
                   }}
                 />
               ))}
             </div>
-          </div>
-        ) : (
-          // List View
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '12px',
-            overflow: 'hidden',
-            width: '100%'
-          }}>
-            {initialExperienceData.map((entry, index) => renderExperienceCard(entry, index))}
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   } else {

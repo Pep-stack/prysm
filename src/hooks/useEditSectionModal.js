@@ -66,10 +66,13 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
   const handleSave = useCallback(async () => {
     if (!editingSection || !user) return;
     
-    console.log('🔄 Saving education section:', {
+    console.log('🔄 Saving section:', {
       sectionType: editingSection.type,
+      sectionName: editingSection.name,
       inputValue: inputValue,
-      isArray: Array.isArray(inputValue)
+      isArray: Array.isArray(inputValue),
+      inputValueType: typeof inputValue,
+      editingSection: editingSection
     });
     
     // Use section.type as the database column name instead of section.id
@@ -80,14 +83,27 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
     } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials') && Array.isArray(inputValue)) {
-      valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
-      console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
+      try {
+        valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
+        console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
+      } catch (serializeError) {
+        console.error('❌ Error serializing data:', serializeError);
+        setError(`Error serializing ${sectionType} data: ${serializeError.message}`);
+        return;
+      }
     }
     
     setIsLoading(true); 
     setError(null);
     try {
-       const { data, error: updateError } = await supabase
+      console.log('💾 Attempting to save to Supabase:', {
+        sectionType,
+        valueToSave,
+        userId: user.id,
+        updateObject: { [sectionType]: valueToSave, updated_at: new Date().toISOString() }
+      });
+      
+      const { data, error: updateError } = await supabase
         .from('profiles')
         .update({ [sectionType]: valueToSave, updated_at: new Date().toISOString() }) // Use sectionType as column name
         .eq('id', user.id)
@@ -135,9 +151,11 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
             errorMsg = err;
         } else if (err?.toString) {
             errorMsg = err.toString();
+        } else if (err) {
+            errorMsg = String(err);
         }
 
-        setError(`Error saving ${editingSection.name}: ${errorMsg}`);
+        setError(`Error saving ${editingSection?.name || 'section'}: ${errorMsg}`);
         // alert might be better handled in the component using the error state
     } finally {
        setIsLoading(false);
