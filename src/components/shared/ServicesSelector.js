@@ -516,7 +516,7 @@ function ServiceEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
               color: '#64748b',
               fontSize: '13px'
             }}>
-              No features added yet. Click "Add Feature" to get started.
+              No features added yet. Click &quot;Add Feature&quot; to get started.
             </div>
           )}
         </div>
