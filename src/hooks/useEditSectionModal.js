@@ -13,7 +13,14 @@ const getEditorComponentForSection = (sectionType) => {
     'projects': 'ProjectSelector',
     'testimonials': 'ClientTestimonialSelector',
     'skills': 'SkillsSelector',
-    'services': 'ServicesSelector'
+    'services': 'ServicesSelector',
+    'gallery': 'GallerySelector',
+    'featured_video': 'VideoSelector',
+    'appointments': 'AppointmentSelector',
+    'publications': 'PublicationSelector',
+    'community': 'CommunitySelector',
+    'events': 'EventSelector',
+    'faq': 'FAQSelector'
   };
   return editorComponentMap[sectionType];
 };
@@ -50,8 +57,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(languagesArray);
-    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services') {
-      // Special handling for education, experience, certifications, projects, testimonials and skills sections
+    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services' || section.type === 'gallery' || section.type === 'publications' || section.type === 'events' || section.type === 'faq') {
+      // Special handling for array-based sections
       const sectionData = initialProfileData[section.type];
       
       // Safe parsing for array data
@@ -70,6 +77,26 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(sectionArray);
+    } else if (section.type === 'featured_video' || section.type === 'appointments' || section.type === 'community') {
+      // Special handling for object-based sections
+      const sectionData = initialProfileData[section.type];
+      
+      // Safe parsing for object data
+      let sectionObject = {};
+      if (typeof sectionData === 'string' && sectionData.trim()) {
+        try {
+          sectionObject = JSON.parse(sectionData);
+          if (typeof sectionObject !== 'object' || Array.isArray(sectionObject)) {
+            sectionObject = {};
+          }
+        } catch (e) {
+          sectionObject = {};
+        }
+      } else if (typeof sectionData === 'object' && !Array.isArray(sectionData)) {
+        sectionObject = sectionData;
+      }
+      
+      setInputValue(sectionObject);
     } else {
       // Use section.type instead of section.id for database column lookup
       setInputValue(initialProfileData[section.type] || ''); 
@@ -105,9 +132,18 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     let valueToSave = inputValue;
     if (sectionType === 'languages' && Array.isArray(inputValue)) {
       valueToSave = inputValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services') && Array.isArray(inputValue)) {
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') && Array.isArray(inputValue)) {
       try {
         valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
+        console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
+      } catch (serializeError) {
+        console.error('❌ Error serializing data:', serializeError);
+        setError(`Error serializing ${sectionType} data: ${serializeError.message}`);
+        return;
+      }
+    } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') && typeof inputValue === 'object' && !Array.isArray(inputValue)) {
+      try {
+        valueToSave = JSON.stringify(inputValue); // Serialize object to JSON string
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
@@ -142,15 +178,22 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       
       // Call the callback passed from the parent to update its profile state
       if (onProfileUpdate) {
-         // IMPORTANT: Pass back the *original* input value if it was an array,
+         // IMPORTANT: Pass back the *original* input value if it was an array or object,
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') {
             updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,
               originalArray: inputValue,
+              updatedProfileData: updatedProfileData[sectionType]
+            });
+         } else if (sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') {
+            updatedProfileData[sectionType] = inputValue; // Restore the object format for local state
+            console.log('🔄 Restoring object format for local state:', {
+              sectionType,
+              originalObject: inputValue,
               updatedProfileData: updatedProfileData[sectionType]
             });
          }

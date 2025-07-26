@@ -70,6 +70,7 @@ profiles (
   background_color TEXT,
   text_color TEXT,
   font_family TEXT,
+  social_bar_position VARCHAR(20) DEFAULT 'top',
   -- Consolidated data
   social_media JSONB DEFAULT '{}',
   sections JSONB DEFAULT '[]'
@@ -100,6 +101,7 @@ profiles (
 2. **Component Unification**: Created reusable components for similar functionality
 3. **Database Optimization**: Simplified schema with JSONB for flexible data storage
 4. **Code Cleanup**: Removed duplicate files and unused directories
+5. **Social Bar Positioning**: Added configurable social bar position (top/bottom)
 
 ### Adding New Sections
 1. Add section type to `src/lib/sectionOptions.js`

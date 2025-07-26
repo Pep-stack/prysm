@@ -11,6 +11,7 @@ export function DesignSettingsProvider({ initial, children }) {
     text_color: initial?.text_color || '#000000',
     icon_size: initial?.icon_size || '24px',
     icon_color: initial?.icon_color || 'auto',
+    social_bar_position: initial?.social_bar_position || 'top',
     ...initial
   });
 
@@ -20,7 +21,7 @@ export function DesignSettingsProvider({ initial, children }) {
       if (initial?.id) {
         const { data, error } = await supabase
           .from('profiles')
-          .select('font_family, background_color, text_color, icon_size, icon_color')
+          .select('font_family, background_color, text_color, icon_size, icon_color, social_bar_position')
           .eq('id', initial.id)
           .single();
 

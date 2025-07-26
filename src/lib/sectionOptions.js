@@ -5,7 +5,8 @@ import {
   LuStar, LuShare2, LuPlay, LuWrench, LuPackage,
   LuBriefcase, LuBookOpen, LuAward, LuMusic, LuCode,
   LuFolderOpen, LuBuilding2, LuCalendar, LuMapPin,
-  LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp
+  LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp,
+  LuImage, LuVideo, LuFileText, LuCircleHelp
 } from "react-icons/lu";
 import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaSpotify, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa6';
 
@@ -14,54 +15,53 @@ export const CARD_TYPES = {
   PRO: 'pro'
 };
 
-// Simplified categories
+// Reorganized categories - more logical grouping
 const CATEGORIES = {
   ESSENTIALS: 'Essentials',
-  SOCIAL: 'Social & Links',
+  CAREER: 'Career',
   CONTENT: 'Content',
-  TOOLS: 'Tools',
   BUSINESS: 'Business',
-  CAREER: 'Career'
+  SOCIAL: 'Social & Links'
 };
 
-// Simplified category icons
+// Updated category icons
 export const CATEGORY_ICONS = {
   [CATEGORIES.ESSENTIALS]: LuStar,
-  [CATEGORIES.SOCIAL]: LuShare2,
-  [CATEGORIES.CONTENT]: LuPlay,
-  [CATEGORIES.TOOLS]: LuWrench,
-  [CATEGORIES.BUSINESS]: LuBuilding2,
   [CATEGORIES.CAREER]: LuBriefcase,
+  [CATEGORIES.CONTENT]: LuPlay,
+  [CATEGORIES.BUSINESS]: LuBuilding2,
+  [CATEGORIES.SOCIAL]: LuShare2,
   'Other': LuPackage,
 };
 
-// All section options - consolidated from previous card types  
+// Reorganized section options with better categorization
 export const ALL_SECTION_OPTIONS = [
-  // Core Essentials (from Pro)
+  // ESSENTIALS - Core professional information
   { type: 'projects', name: 'Portfolio', icon: LuFolderOpen, category: CATEGORIES.ESSENTIALS, editorComponent: 'ProjectSelector' },
   { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.ESSENTIALS, editorComponent: 'ServicesSelector' },
   { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.ESSENTIALS, editorComponent: 'ClientTestimonialSelector' },
   { type: 'skills', name: 'Skills & Technologies', icon: LuCode, category: CATEGORIES.ESSENTIALS, editorComponent: 'SkillsSelector' },
+  { type: 'contact', name: 'Contact Information', icon: LuMail, category: CATEGORIES.ESSENTIALS },
 
-  { type: 'pricing', name: 'Pricing Information', icon: LuDollarSign, category: CATEGORIES.ESSENTIALS },
-  
-  // Career sections (from Career)
+  // CAREER - Professional background and credentials
   { type: 'experience', name: 'Work Experience', icon: LuBriefcase, category: CATEGORIES.CAREER, editorComponent: 'ExperienceSelector' },
   { type: 'education', name: 'Education', icon: LuBookOpen, category: CATEGORIES.CAREER, editorComponent: 'EducationSelector' },
   { type: 'certifications', name: 'Certifications', icon: LuAward, category: CATEGORIES.CAREER, editorComponent: 'CertificationSelector' },
-  { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.TOOLS, editorComponent: 'LanguageSelector' },
+  { type: 'languages', name: 'Languages', icon: LuLanguages, category: CATEGORIES.CAREER, editorComponent: 'LanguageSelector' },
   { type: 'resume', name: 'Resume Download', icon: LuFolderOpen, category: CATEGORIES.CAREER },
-  { type: 'contact', name: 'Contact Information', icon: LuMail, category: CATEGORIES.ESSENTIALS },
 
-  // Business sections (from Business)
-  { type: 'company_info', name: 'Company Information', icon: LuBuilding2, category: CATEGORIES.BUSINESS },
-  { type: 'services_products', name: 'Services/Products', icon: LuPackage, category: CATEGORIES.BUSINESS },
-  { type: 'team', name: 'Team Members', icon: LuUsers, category: CATEGORIES.BUSINESS },
-  { type: 'business_hours', name: 'Business Hours', icon: LuClock, category: CATEGORIES.BUSINESS },
-  { type: 'location', name: 'Location/Address', icon: LuMapPin, category: CATEGORIES.BUSINESS },
-  { type: 'reviews', name: 'Customer Reviews', icon: LuThumbsUp, category: CATEGORIES.BUSINESS },
+  // CONTENT - Media and creative content
+  { type: 'gallery', name: 'Gallery', icon: LuImage, category: CATEGORIES.CONTENT, editorComponent: 'GallerySelector' },
+  { type: 'featured_video', name: 'Featured Video', icon: LuVideo, category: CATEGORIES.CONTENT, editorComponent: 'VideoSelector' },
+  { type: 'publications', name: 'Publications', icon: LuFileText, category: CATEGORIES.CONTENT, editorComponent: 'PublicationSelector' },
+  { type: 'events', name: 'Events', icon: LuCalendar, category: CATEGORIES.CONTENT, editorComponent: 'EventSelector' },
+
+  // BUSINESS - Professional services and engagement
+  { type: 'appointments', name: 'Schedule a Call', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentSelector' },
+  { type: 'community', name: 'Join the Community', icon: LuUsers, category: CATEGORIES.BUSINESS, editorComponent: 'CommunitySelector' },
+  { type: 'faq', name: 'FAQ', icon: LuCircleHelp, category: CATEGORIES.BUSINESS, editorComponent: 'FAQSelector' },
   
-  // Social & Links (consolidated from all types)
+  // SOCIAL & LINKS - Social media and contact links (moved to bottom)
   { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL },
   { type: 'github', name: 'GitHub', icon: FaGithub, category: CATEGORIES.SOCIAL },
   { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL },
@@ -107,14 +107,13 @@ export const getGroupedSectionOptions = (existingSectionTypes = [], cardType = C
     return acc;
   }, {});
 
-  // Category order for all available sections
+  // Category order for all available sections - Social & Links at the bottom
   const categoryOrder = [
     CATEGORIES.ESSENTIALS, 
     CATEGORIES.CAREER, 
-    CATEGORIES.BUSINESS, 
-    CATEGORIES.TOOLS,
-    CATEGORIES.SOCIAL, 
     CATEGORIES.CONTENT, 
+    CATEGORIES.BUSINESS, 
+    CATEGORIES.SOCIAL, 
     'Other'
   ];
 
@@ -140,8 +139,6 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     services: { title: defaultTitle, value: [], editorComponent: 'ServicesSelector' },
     testimonials: { title: defaultTitle, value: [], editorComponent: 'ClientTestimonialSelector' },
     skills: { title: defaultTitle, value: [], editorComponent: 'SkillsSelector' },
-
-    pricing: { title: defaultTitle, value: '' },
     
     // Career defaults
     experience: { title: defaultTitle, value: [], editorComponent: 'ExperienceSelector' },
@@ -151,13 +148,14 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     resume: { title: defaultTitle, value: '' },
     contact: { title: defaultTitle, value: '' },
     
-    // Business defaults
-    company_info: { title: defaultTitle, value: '' },
-    services_products: { title: defaultTitle, value: '' },
-    team: { title: defaultTitle, value: '' },
-    business_hours: { title: defaultTitle, value: '' },
-    location: { title: defaultTitle, value: '' },
-    reviews: { title: defaultTitle, value: '' },
+    // NEW SECTION DEFAULTS
+    gallery: { title: defaultTitle, value: [], editorComponent: 'GallerySelector' },
+    featured_video: { title: defaultTitle, value: '', editorComponent: 'VideoSelector' },
+    appointments: { title: defaultTitle, value: '', editorComponent: 'AppointmentSelector' },
+    publications: { title: defaultTitle, value: [], editorComponent: 'PublicationSelector' },
+    community: { title: defaultTitle, value: '', editorComponent: 'CommunitySelector' },
+    events: { title: defaultTitle, value: [], editorComponent: 'EventSelector' },
+    faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
     
     // Social media defaults (shared across all types)
     linkedin: { title: defaultTitle, value: '' },

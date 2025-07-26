@@ -92,6 +92,28 @@
   margin-top: 0;
 }
 
+/* Social bar styling for different positions */
+.socialBarTop {
+  margin-bottom: 16px;
+}
+
+.socialBarBottom {
+  margin-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 16px;
+}
+
+/* Footer styling */
+.cardFooter {
+  margin-top: 32px; /* More space between last section and footer */
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1); /* Glass background */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 @media (max-width: 600px) {
   .prysmaCard {
     margin: 0 auto;
@@ -119,5 +141,10 @@
   .placeholder {
     margin: 10px;
     padding: 30px 15px;
+  }
+
+  .cardFooter {
+    padding: 12px 16px;
+    margin-top: 24px; /* Slightly less space on mobile but still more than section gaps */
   }
 } 

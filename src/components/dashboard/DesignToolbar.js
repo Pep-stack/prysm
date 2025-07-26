@@ -31,6 +31,11 @@ const ICON_COLOR_OPTIONS = [
   { label: 'Gray', value: '#6b7280', name: 'Gray' }
 ];
 
+const SOCIAL_BAR_POSITION_OPTIONS = [
+  { label: 'Top (Below Header)', value: 'top', name: 'Top' },
+  { label: 'Bottom (Above Footer)', value: 'bottom', name: 'Bottom' }
+];
+
 const BACKGROUND_COLOR_OPTIONS = [
   // Clean solids (keep these)
   { label: 'Pure White', value: '#ffffff', name: 'Pure White' },
@@ -70,6 +75,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [backgroundColor, setBackgroundColor] = useState(initial?.background_color || '#f8f9fa');
   const [iconSize, setIconSize] = useState(initial?.icon_size || '24px');
   const [iconColor, setIconColor] = useState(initial?.icon_color || 'auto');
+  const [socialBarPosition, setSocialBarPosition] = useState(initial?.social_bar_position || 'top');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -79,11 +85,13 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [showBackgroundColorDropdown, setShowBackgroundColorDropdown] = useState(false);
   const [showIconSizeDropdown, setShowIconSizeDropdown] = useState(false);
   const [showIconColorDropdown, setShowIconColorDropdown] = useState(false);
+  const [showSocialBarPositionDropdown, setShowSocialBarPositionDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
   const textColorDropdownRef = useRef(null);
   const backgroundColorDropdownRef = useRef(null);
   const iconSizeDropdownRef = useRef(null);
   const iconColorDropdownRef = useRef(null);
+  const socialBarPositionDropdownRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -94,10 +102,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       if (showBackgroundColorDropdown && backgroundColorDropdownRef.current && !backgroundColorDropdownRef.current.contains(e.target)) setShowBackgroundColorDropdown(false);
       if (showIconSizeDropdown && iconSizeDropdownRef.current && !iconSizeDropdownRef.current.contains(e.target)) setShowIconSizeDropdown(false);
       if (showIconColorDropdown && iconColorDropdownRef.current && !iconColorDropdownRef.current.contains(e.target)) setShowIconColorDropdown(false);
+      if (showSocialBarPositionDropdown && socialBarPositionDropdownRef.current && !socialBarPositionDropdownRef.current.contains(e.target)) setShowSocialBarPositionDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconSizeDropdown, showIconColorDropdown]);
+  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconSizeDropdown, showIconColorDropdown, showSocialBarPositionDropdown]);
 
   // Synchroniseer lokale state met initial prop als deze verandert
   useEffect(() => {
@@ -106,6 +115,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setBackgroundColor(initial?.background_color || '#f8f9fa');
     setIconSize(initial?.icon_size || '24px');
     setIconColor(initial?.icon_color || 'auto');
+    setSocialBarPosition(initial?.social_bar_position || 'top');
   }, [initial]);
 
   const handleSave = async () => {
@@ -117,7 +127,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       text_color: textColor,
       background_color: backgroundColor,
       icon_size: iconSize,
-      icon_color: iconColor
+      icon_color: iconColor,
+      social_bar_position: socialBarPosition
     };
 
     console.log('Attempting to save settings:', {
@@ -213,6 +224,12 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setSettings(prev => ({ ...prev, icon_color: color }));
     setIconColor(color);
     setShowIconColorDropdown(false);
+  };
+
+  const handleSocialBarPositionSelect = (position) => {
+    setSettings(prev => ({ ...prev, social_bar_position: position }));
+    setSocialBarPosition(position);
+    setShowSocialBarPositionDropdown(false);
   };
 
   return (
@@ -413,6 +430,38 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                         />
                       ))}
                     </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Social Bar Position */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Social Bar Position</span>
+              <div className="relative" ref={socialBarPositionDropdownRef}>
+                <button
+                  aria-label="Social Bar Position"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
+                  onClick={() => setShowSocialBarPositionDropdown(!showSocialBarPositionDropdown)}
+                  type="button"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </button>
+                {showSocialBarPositionDropdown && (
+                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[180px] z-30">
+                    {SOCIAL_BAR_POSITION_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${socialBarPosition === opt.value ? 'bg-emerald-100' : ''}`}
+                        onClick={() => handleSocialBarPositionSelect(opt.value)}
+                        type="button"
+                        aria-label={opt.label}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
                   </div>
                 )}
               </div>

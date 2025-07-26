@@ -4,15 +4,20 @@ import React from 'react';
 import { sectionComponentMap } from './CardSectionRenderer';
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 
-export default function SocialBar({ sections = [], profile, user }) {
+export default function SocialBar({ sections = [], profile, user, position = 'top' }) {
   const { settings } = useDesignSettings();
   
   if (!sections || sections.length === 0) {
     return null;
   }
 
+  // Different styling based on position
+  const containerClasses = position === 'bottom' 
+    ? "w-full px-4 py-3 mt-4 rounded-lg" 
+    : "w-full px-4 py-3 mb-4 rounded-lg";
+
   return (
-    <div className="w-full px-4 py-3 mb-4 rounded-lg">
+    <div className={containerClasses}>
       <div
         className="flex flex-wrap items-center justify-center"
         style={{

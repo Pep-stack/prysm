@@ -4,6 +4,7 @@ import React from 'react';
 import CardHeader from './CardHeader';
 import CardSectionRenderer from './CardSectionRenderer';
 import SocialBar from './SocialBar';
+import CardFooter from './CardFooter';
 import styles from './PrysmaCard.module.css';
 import { supabase } from '@/lib/supabase';
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
@@ -27,6 +28,9 @@ export default function PrysmaCard({
   
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
+  
+  // Get social bar position from design settings
+  const socialBarPosition = settings.social_bar_position || 'top';
 
   return (
     <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}>
@@ -37,12 +41,15 @@ export default function PrysmaCard({
         isPublicView={isPublicView}
       />
       
-      {/* Social Bar - Always visible below header when sections exist */}
-      <SocialBar
-        sections={socialBarSections}
-        profile={profile}
-        user={user}
-      />
+      {/* Social Bar - Position based on settings */}
+      {socialBarPosition === 'top' && (
+        <SocialBar
+          sections={socialBarSections}
+          profile={profile}
+          user={user}
+          position="top"
+        />
+      )}
       
       {/* Main Sections */}
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
@@ -60,6 +67,22 @@ export default function PrysmaCard({
           })
         )}
       </div>
+      
+      {/* Social Bar - Bottom position */}
+      {socialBarPosition === 'bottom' && (
+        <SocialBar
+          sections={socialBarSections}
+          profile={profile}
+          user={user}
+          position="bottom"
+        />
+      )}
+      
+      {/* Fixed Footer */}
+      <CardFooter
+        profile={profile}
+        user={user}
+      />
     </div>
   );
 }

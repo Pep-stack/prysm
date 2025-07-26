@@ -9,6 +9,13 @@ import ProjectSelector from '../shared/ProjectSelector';
 import ClientTestimonialSelector from '../shared/ClientTestimonialSelector';
 import SkillsSelector from '../shared/SkillsSelector';
 import ServicesSelector from '../shared/ServicesSelector';
+import GallerySelector from '../shared/GallerySelector';
+import VideoSelector from '../shared/VideoSelector';
+import AppointmentSelector from '../shared/AppointmentSelector';
+import PublicationSelector from '../shared/PublicationSelector';
+import CommunitySelector from '../shared/CommunitySelector';
+import EventSelector from '../shared/EventSelector';
+import FAQSelector from '../shared/FAQSelector';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -185,6 +192,90 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <ServicesSelector 
           value={selectedServiceEntries} // Pass current service entries
           onChange={onChange} // onChange should expect an array of service objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'GallerySelector') {
+      console.log('🎯 GALLERY-SELECTOR: Rendering GallerySelector component');
+      // Ensure 'value' passed to GallerySelector is an array of gallery objects
+      const selectedGalleryEntries = Array.isArray(value) ? value : [];
+      return (
+        <GallerySelector 
+          value={selectedGalleryEntries} // Pass current gallery entries
+          onChange={onChange} // onChange should expect an array of gallery objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'VideoSelector') {
+      console.log('🎯 VIDEO-SELECTOR: Rendering VideoSelector component');
+      // Ensure 'value' passed to VideoSelector is a video object
+      const selectedVideoData = value || {};
+      return (
+        <VideoSelector 
+          value={selectedVideoData} // Pass current video data
+          onChange={onChange} // onChange should expect a video object
+        />
+      );
+    }
+
+    if (section.editorComponent === 'AppointmentSelector') {
+      console.log('🎯 APPOINTMENT-SELECTOR: Rendering AppointmentSelector component');
+      // Ensure 'value' passed to AppointmentSelector is an appointment object
+      const selectedAppointmentData = value || {};
+      return (
+        <AppointmentSelector 
+          value={selectedAppointmentData} // Pass current appointment data
+          onChange={onChange} // onChange should expect an appointment object
+        />
+      );
+    }
+
+    if (section.editorComponent === 'PublicationSelector') {
+      console.log('🎯 PUBLICATION-SELECTOR: Rendering PublicationSelector component');
+      // Ensure 'value' passed to PublicationSelector is an array of publication objects
+      const selectedPublicationEntries = Array.isArray(value) ? value : [];
+      return (
+        <PublicationSelector 
+          value={selectedPublicationEntries} // Pass current publication entries
+          onChange={onChange} // onChange should expect an array of publication objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'CommunitySelector') {
+      console.log('🎯 COMMUNITY-SELECTOR: Rendering CommunitySelector component');
+      // Ensure 'value' passed to CommunitySelector is a community object
+      const selectedCommunityData = value || {};
+      return (
+        <CommunitySelector 
+          value={selectedCommunityData} // Pass current community data
+          onChange={onChange} // onChange should expect a community object
+        />
+      );
+    }
+
+    if (section.editorComponent === 'EventSelector') {
+      console.log('🎯 EVENT-SELECTOR: Rendering EventSelector component');
+      // Ensure 'value' passed to EventSelector is an array of event objects
+      const selectedEventEntries = Array.isArray(value) ? value : [];
+      return (
+        <EventSelector 
+          value={selectedEventEntries} // Pass current event entries
+          onChange={onChange} // onChange should expect an array of event objects
+        />
+      );
+    }
+
+    if (section.editorComponent === 'FAQSelector') {
+      console.log('🎯 FAQ-SELECTOR: Rendering FAQSelector component');
+      // Ensure 'value' passed to FAQSelector is an array of FAQ objects
+      const selectedFAQEntries = Array.isArray(value) ? value : [];
+      return (
+        <FAQSelector 
+          value={selectedFAQEntries} // Pass current FAQ entries
+          onChange={onChange} // onChange should expect an array of FAQ objects
         />
       );
     }
