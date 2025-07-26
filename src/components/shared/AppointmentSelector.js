@@ -166,7 +166,7 @@ export default function AppointmentSelector({ value = '', onChange }) {
         <h4 className="text-sm font-medium text-blue-900 mb-2">How to set up Calendly</h4>
         <ol className="text-sm text-blue-800 space-y-1">
           <li>1. Go to <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" className="underline">calendly.com</a> and create an account</li>
-          <li>2. Create a new event type (e.g., "15 Minute Meeting")</li>
+          <li>2. Create a new event type (e.g., &quot;15 Minute Meeting&quot;)</li>
           <li>3. Copy the share link from your event</li>
           <li>4. Paste it in the Calendly URL field above</li>
         </ol>

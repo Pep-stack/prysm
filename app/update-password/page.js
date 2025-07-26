@@ -32,7 +32,7 @@ export default function UpdatePasswordPage() {
 
     // Basic validation
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError("Passwords don&apos;t match");
       return;
     }
 

@@ -43,7 +43,7 @@ export default function SignupPage() {
   const handleSignup = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError("Passwords don&apos;t match");
       return;
     }
     setLoading(true);
