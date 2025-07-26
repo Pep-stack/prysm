@@ -253,12 +253,12 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             style={{ 
               textAlign: displayType === 'avatar' && avatarPosition === 'center' ? 'center' : 
                         displayType === 'avatar' && avatarPosition === 'right' ? 'right' : 'left',
-              marginTop: displayType === 'header' ? '20px' : '16px'
+              marginTop: displayType === 'header' ? '32px' : '24px' // Increased from 20px/16px to 32px/24px
             }}
           >
             {/* Name - stays the same */}
             {personalInfo?.name && (
-              <h2 className={styles.name} style={{ color: textColor, marginBottom: '20px' }}>
+              <h2 className={styles.name} style={{ color: textColor, marginBottom: '28px' }}> {/* Increased from 20px to 28px */}
                 {personalInfo.name}
               </h2>
             )}
@@ -268,7 +268,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               display: 'flex',
               flexWrap: 'wrap',
               gap: '8px',
-              marginTop: '12px'
+              marginTop: '16px' // Increased from 12px to 16px
             }}>
               {/* Headline Container */}
               {personalInfo?.headline && (
@@ -485,7 +485,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.3s ease',
                 cursor: 'default',
-                marginTop: '8px'
+                marginTop: '16px' // Increased from 8px to 16px
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -526,7 +526,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             )}
 
             {/* Other optional fields in glass containers */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}> {/* Increased from 8px to 16px */}
               {fieldsToShow.map((field) => {
                 if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'availability_status'].includes(field)) return null;
                 

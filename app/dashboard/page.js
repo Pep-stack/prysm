@@ -344,7 +344,7 @@ export default function DashboardPageContent() {
 
   return (
     <DesignSettingsProvider initial={workingProfile}>
-      <div className="relative w-full flex justify-end z-40">
+      <div className="relative w-full flex justify-end z-40 mb-6 px-6">
         <DesignToolbar initial={workingProfile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
       </div>
       <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
@@ -407,7 +407,7 @@ function DashboardMainWithBg({ profile, user, cardSections, socialBarSections })
   const { settings } = useDesignSettings();
   return (
     <main 
-      className="flex-1 flex justify-center items-start" 
+      className="flex-1 flex justify-center items-start pt-6" 
       style={{ 
         ...(settings.background_color?.includes('linear-gradient')
           ? { backgroundImage: settings.background_color || 'linear-gradient(135deg, #f8f9fa 0%, #f8f9fa 100%)' }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { FaFont, FaTimes } from 'react-icons/fa';
-import { MdSettings, MdViewModule } from 'react-icons/md';
+import { MdSettings } from 'react-icons/md';
 import { useDesignSettings } from './DesignSettingsContext';
 
 const FONT_OPTIONS = [
@@ -9,19 +9,18 @@ const FONT_OPTIONS = [
   { label: 'Poppins', value: 'Poppins, sans-serif' },
   { label: 'Roboto', value: 'Roboto, sans-serif' },
   { label: 'DM Sans', value: 'DM Sans, sans-serif' },
+  { label: 'Playfair Display', value: 'Playfair Display, serif' },
+  { label: 'Outfit', value: 'Outfit, sans-serif' },
+  { label: 'Montserrat', value: 'Montserrat, sans-serif' },
+  { label: 'Lora', value: 'Lora, serif' },
+  { label: 'Source Sans 3', value: 'Source Sans 3, sans-serif' },
+  { label: 'Merriweather', value: 'Merriweather, serif' },
 ];
 
 const TEXT_COLOR_OPTIONS = [
   { label: 'Black', value: '#000000', name: 'Black' },
   { label: 'Gray', value: '#6b7280', name: 'Gray' },
   { label: 'White', value: '#ffffff', name: 'White' }
-];
-
-const ICON_SIZE_OPTIONS = [
-  { label: 'Medium', value: '24px', name: 'Medium' },
-  { label: 'Large', value: '28px', name: 'Large' },
-  { label: 'X-Large', value: '32px', name: 'X-Large' },
-  { label: 'XX-Large', value: '36px', name: 'XX-Large' }
 ];
 
 const ICON_COLOR_OPTIONS = [
@@ -69,13 +68,15 @@ const BACKGROUND_COLOR_OPTIONS = [
 ];
 
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
-  const { settings, setSettings } = useDesignSettings();
-  const [fontFamily, setFontFamily] = useState(initial?.font_family || 'Inter, sans-serif');
-  const [textColor, setTextColor] = useState(initial?.text_color || '#000000');
-  const [backgroundColor, setBackgroundColor] = useState(initial?.background_color || '#f8f9fa');
-  const [iconSize, setIconSize] = useState(initial?.icon_size || '24px');
-  const [iconColor, setIconColor] = useState(initial?.icon_color || 'auto');
-  const [socialBarPosition, setSocialBarPosition] = useState(initial?.social_bar_position || 'top');
+  const { settings, setSettings, isLoading } = useDesignSettings();
+  
+  // Use context settings as source of truth, fallback to initial prop
+  const [fontFamily, setFontFamily] = useState(settings.font_family || initial?.font_family || 'Inter, sans-serif');
+  const [textColor, setTextColor] = useState(settings.text_color || initial?.text_color || '#000000');
+  const [backgroundColor, setBackgroundColor] = useState(settings.background_color || initial?.background_color || '#f8f9fa');
+  const [iconColor, setIconColor] = useState(settings.icon_color || initial?.icon_color || 'auto');
+  const [socialBarPosition, setSocialBarPosition] = useState(settings.social_bar_position || initial?.social_bar_position || 'top');
+  
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(null);
@@ -83,13 +84,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showTextColorDropdown, setShowTextColorDropdown] = useState(false);
   const [showBackgroundColorDropdown, setShowBackgroundColorDropdown] = useState(false);
-  const [showIconSizeDropdown, setShowIconSizeDropdown] = useState(false);
   const [showIconColorDropdown, setShowIconColorDropdown] = useState(false);
   const [showSocialBarPositionDropdown, setShowSocialBarPositionDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
   const textColorDropdownRef = useRef(null);
   const backgroundColorDropdownRef = useRef(null);
-  const iconSizeDropdownRef = useRef(null);
   const iconColorDropdownRef = useRef(null);
   const socialBarPositionDropdownRef = useRef(null);
   const menuRef = useRef(null);
@@ -100,41 +99,61 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       if (showFontDropdown && fontDropdownRef.current && !fontDropdownRef.current.contains(e.target)) setShowFontDropdown(false);
       if (showTextColorDropdown && textColorDropdownRef.current && !textColorDropdownRef.current.contains(e.target)) setShowTextColorDropdown(false);
       if (showBackgroundColorDropdown && backgroundColorDropdownRef.current && !backgroundColorDropdownRef.current.contains(e.target)) setShowBackgroundColorDropdown(false);
-      if (showIconSizeDropdown && iconSizeDropdownRef.current && !iconSizeDropdownRef.current.contains(e.target)) setShowIconSizeDropdown(false);
       if (showIconColorDropdown && iconColorDropdownRef.current && !iconColorDropdownRef.current.contains(e.target)) setShowIconColorDropdown(false);
       if (showSocialBarPositionDropdown && socialBarPositionDropdownRef.current && !socialBarPositionDropdownRef.current.contains(e.target)) setShowSocialBarPositionDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconSizeDropdown, showIconColorDropdown, showSocialBarPositionDropdown]);
+  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconColorDropdown, showSocialBarPositionDropdown]);
 
-  // Synchroniseer lokale state met initial prop als deze verandert
+  // Alleen synchroniseren bij eerste load, niet bij elke change
   useEffect(() => {
-    setFontFamily(initial?.font_family || 'Inter, sans-serif');
-    setTextColor(initial?.text_color || '#000000');
-    setBackgroundColor(initial?.background_color || '#f8f9fa');
-    setIconSize(initial?.icon_size || '24px');
-    setIconColor(initial?.icon_color || 'auto');
-    setSocialBarPosition(initial?.social_bar_position || 'top');
-  }, [initial]);
+    if (!isLoading && settings.font_family && !fontFamily) {
+      setFontFamily(settings.font_family);
+      setTextColor(settings.text_color || '#000000');
+      setBackgroundColor(settings.background_color || '#f8f9fa');
+      setIconColor(settings.icon_color || 'auto');
+      setSocialBarPosition(settings.social_bar_position || 'top');
+    }
+  }, [settings, isLoading]);
+
+  // Fallback naar initial prop als context nog niet geladen is
+  useEffect(() => {
+    if (!isLoading && !settings.font_family && initial?.font_family) {
+      console.log('🔄 TOOLBAR: Using initial prop values as fallback');
+      setFontFamily(initial.font_family);
+      setTextColor(initial.text_color || '#000000');
+      setBackgroundColor(initial.background_color || '#f8f9fa');
+      setIconColor(initial.icon_color || 'auto');
+      setSocialBarPosition(initial.social_bar_position || 'top');
+    }
+  }, [initial, settings, isLoading]);
 
   const handleSave = async () => {
+    if (isLoading) {
+      console.log('⚠️ SAVE: Context still loading, skipping save');
+      return;
+    }
+
     setSaving(true);
     setError(null);
     
+    // Gebruik de huidige local state waarden (die zijn up-to-date)
     const payload = {
       font_family: fontFamily,
       text_color: textColor,
       background_color: backgroundColor,
-      icon_size: iconSize,
       icon_color: iconColor,
       social_bar_position: socialBarPosition
     };
 
-    console.log('Attempting to save settings:', {
+    console.log('🔥 SAVE: Attempting to save settings:', {
       userId,
       payload,
-      initial
+      currentSettings: settings,
+      isLoading,
+      fontFamily,
+      settingsFontFamily: settings.font_family
     });
 
     try {
@@ -142,47 +161,37 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
         throw new Error('No user ID provided');
       }
 
-      // Eerst controleren of het profiel bestaat
-      const { data: profile, error: checkError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', userId)
-        .single();
-
-      if (checkError) {
-        console.error('Error checking profile:', checkError);
-        throw new Error('Profile not found');
-      }
-
-      // Dan updaten
-      const { error: updateError } = await supabase
+      // Direct updaten zonder eerst te checken (efficiënter)
+      const { data: updatedProfile, error: updateError } = await supabase
         .from('profiles')
         .update(payload)
-        .eq('id', userId);
+        .eq('id', userId)
+        .select('*')
+        .single();
 
       if (updateError) {
-        console.error('Error updating profile:', updateError);
+        console.error('❌ SAVE: Error updating profile:', updateError);
         throw updateError;
       }
 
-      // Haal het profiel opnieuw op uit Supabase
-      const { data: updatedProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (!fetchError && updatedProfile) {
-        setSettings(updatedProfile); // update context
+      if (updatedProfile) {
+        console.log('✅ SAVE: Successfully updated profile:', updatedProfile);
+        
+        // Update context met nieuwe data
+        setSettings(updatedProfile);
+        
+        // Update parent state
         if (onProfileUpdate) {
-          onProfileUpdate(updatedProfile); // update parent state
+          onProfileUpdate(updatedProfile);
         }
+        
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } else {
+        throw new Error('No profile data returned after update');
       }
-
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      console.error('Error in handleSave:', {
+      console.error('❌ SAVE: Error in handleSave:', {
         name: error.name,
         message: error.message,
         details: error.details,
@@ -197,38 +206,33 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   };
 
   const handleFontSelect = (font) => {
-    setSettings(prev => ({ ...prev, font_family: font }));
+    console.log('🔥 FONT-SELECT: Selected font:', font);
     setFontFamily(font);
+    // NIET automatisch context updaten - alleen bij save
     setShowFontDropdown(false);
   };
 
   const handleTextColorSelect = (color) => {
-    setSettings(prev => ({ ...prev, text_color: color }));
     setTextColor(color);
+    // NIET automatisch context updaten - alleen bij save
     setShowTextColorDropdown(false);
   };
 
   const handleBackgroundColorSelect = (color) => {
-    setSettings(prev => ({ ...prev, background_color: color }));
     setBackgroundColor(color);
+    // NIET automatisch context updaten - alleen bij save
     setShowBackgroundColorDropdown(false);
   };
 
-  const handleIconSizeSelect = (size) => {
-    setSettings(prev => ({ ...prev, icon_size: size }));
-    setIconSize(size);
-    setShowIconSizeDropdown(false);
-  };
-
   const handleIconColorSelect = (color) => {
-    setSettings(prev => ({ ...prev, icon_color: color }));
     setIconColor(color);
+    // NIET automatisch context updaten - alleen bij save
     setShowIconColorDropdown(false);
   };
 
   const handleSocialBarPositionSelect = (position) => {
-    setSettings(prev => ({ ...prev, social_bar_position: position }));
     setSocialBarPosition(position);
+    // NIET automatisch context updaten - alleen bij save
     setShowSocialBarPositionDropdown(false);
   };
 
@@ -322,36 +326,6 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                         />
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Icon Size */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Icon Size</span>
-              <div className="relative" ref={iconSizeDropdownRef}>
-                <button
-                  aria-label="Icon Size"
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
-                  onClick={() => setShowIconSizeDropdown(!showIconSizeDropdown)}
-                  type="button"
-                >
-                  <MdViewModule size={18} />
-                </button>
-                {showIconSizeDropdown && (
-                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[120px] z-30">
-                    {ICON_SIZE_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${iconSize === opt.value ? 'bg-emerald-100' : ''}`}
-                        onClick={() => handleIconSizeSelect(opt.value)}
-                        type="button"
-                        aria-label={opt.name}
-                      >
-                        {opt.name} ({opt.value})
-                      </button>
-                    ))}
                   </div>
                 )}
               </div>
@@ -471,11 +445,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
             <button
               aria-label="Save Appearance"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || isLoading}
               className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-2 text-base font-semibold"
               type="button"
             >
-              {saving ? 'Saving...' : 'Save'}
+              {isLoading ? 'Loading...' : saving ? 'Saving...' : 'Save'}
             </button>
             {error && (
               <p className="text-red-500 text-sm text-center mt-2">
@@ -485,6 +459,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
             {saved && (
               <p className="text-green-500 text-sm text-center mt-2">
                 Settings saved successfully!
+              </p>
+            )}
+            {isLoading && (
+              <p className="text-blue-500 text-sm text-center mt-2">
+                Loading settings...
               </p>
             )}
           </div>

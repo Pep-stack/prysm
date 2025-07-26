@@ -45,7 +45,7 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
             <div
               key={section.id}
               className="hover:scale-110 transition-all duration-200"
-              style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}
+              style={{ fontFamily: settings.font_family || 'Inter, sans-serif' }}
             >
               <SectionComponent
                 section={section}

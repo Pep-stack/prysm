@@ -13,6 +13,18 @@
   --prysma-light-grey: #e2e8f0;
   --prysma-white: #ffffff;
   --prysma-bg-light: #f8f9fa;
+  
+  /* Font variables */
+  --font-inter: 'Inter', sans-serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
+  --font-dm-sans: 'DM Sans', sans-serif;
+  --font-playfair-display: 'Playfair Display', serif;
+  --font-outfit: 'Outfit', sans-serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-lora: 'Lora', serif;
+  --font-source-sans-3: 'Source Sans 3', sans-serif;
+  --font-merriweather: 'Merriweather', serif;
 }
 
 @theme inline {
@@ -32,7 +44,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter);
 }
 
 /* --- Mobiel overflow fix & box-sizing reset --- */

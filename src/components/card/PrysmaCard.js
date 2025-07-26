@@ -32,8 +32,14 @@ export default function PrysmaCard({
   // Get social bar position from design settings
   const socialBarPosition = settings.social_bar_position || 'top';
 
+  // Debug font family
+  console.log('🎨 PRYSMA-CARD: Font family:', {
+    settingsFontFamily: settings.font_family,
+    appliedFont: settings.font_family || 'Inter, sans-serif'
+  });
+
   return (
-    <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.fontFamily || 'Inter, sans-serif' }}>
+    <div className={`${styles.prysmaCard} ${className}`} style={{ fontFamily: settings.font_family || 'Inter, sans-serif' }}>
       {/* Header Section */}
       <CardHeader
         profile={profile}

@@ -12,7 +12,7 @@
 
 /* Card body for main sections */
 .cardBody {
-  padding: 24px 24px 24px 24px;
+  padding: 40px 24px 24px 24px; /* Increased top padding from 24px to 40px */
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -21,7 +21,7 @@
 
 /* When header is present, remove top padding and top border radius */
 .cardBody.hasHeader {
-  padding-top: 24px; /* Keep normal padding */
+  padding-top: 40px; /* Increased from 24px to 40px */
 }
 
 /* Placeholder when card is empty */
@@ -123,12 +123,12 @@
   }
 
   .cardBody {
-    padding: 16px 16px 16px 16px;
+    padding: 32px 16px 16px 16px; /* Increased top padding from 16px to 32px for mobile */
     background: transparent; /* Keep transparent */
   }
 
   .cardBody.hasHeader {
-    padding-top: 16px; /* Smaller padding on mobile */
+    padding-top: 32px; /* Increased from 16px to 32px for mobile */
   }
 
   .contentArea {
