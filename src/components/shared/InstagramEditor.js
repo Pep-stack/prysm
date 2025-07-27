@@ -86,7 +86,7 @@ export default function InstagramEditor({ value = '', onChange, onSave, onCancel
             />
           </div>
           <p className="text-gray-400 text-xs mt-2">
-            We'll automatically create your Instagram profile link
+            We&apos;ll automatically create your Instagram profile link
           </p>
         </div>
 

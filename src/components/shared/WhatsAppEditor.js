@@ -73,7 +73,7 @@ export default function WhatsAppEditor({ value = '', onChange, onSave, onCancel 
               style={{ backgroundColor: '#1a1a1a' }}
             />
           </div>
-          <p className="text-gray-400 text-xs mt-2">We'll create a WhatsApp chat link for easy messaging</p>
+          <p className="text-gray-400 text-xs mt-2">We&apos;ll create a WhatsApp chat link for easy messaging</p>
         </div>
 
         {/* Buttons */}

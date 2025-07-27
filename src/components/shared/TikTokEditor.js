@@ -84,7 +84,7 @@ export default function TikTokEditor({ value = '', onChange, onSave, onCancel })
             />
           </div>
           <p className="text-gray-400 text-xs mt-2">
-            We'll automatically create your TikTok profile link
+            We&apos;ll automatically create your TikTok profile link
           </p>
         </div>
 
