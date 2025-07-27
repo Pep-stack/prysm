@@ -73,7 +73,7 @@ export default function SnapchatEditor({ value = '', onChange, onSave, onCancel 
               style={{ backgroundColor: '#1a1a1a' }}
             />
           </div>
-          <p className="text-gray-400 text-xs mt-2">We'll create a Snapchat add link for easy connection</p>
+          <p className="text-gray-400 text-xs mt-2">We&apos;ll create a Snapchat add link for easy connection</p>
         </div>
 
         {/* Buttons */}
