@@ -8,7 +8,7 @@ import {
   LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp,
   LuImage, LuVideo, LuFileText, LuCircleHelp
 } from "react-icons/lu";
-import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaSpotify, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa6';
+import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa6';
 
 // Card types - simplified to only PRO
 export const CARD_TYPES = {
@@ -72,7 +72,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL },
   { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL },
   { type: 'dribbble', name: 'Dribbble', icon: FaDribbble, category: CATEGORIES.SOCIAL },
-  { type: 'spotify', name: 'Spotify', icon: FaSpotify, category: CATEGORIES.SOCIAL },
+
   { type: 'snapchat', name: 'Snapchat', icon: FaSnapchat, category: CATEGORIES.SOCIAL },
   { type: 'reddit', name: 'Reddit', icon: FaRedditAlien, category: CATEGORIES.SOCIAL },
   { type: 'phone', name: 'Phone', icon: FaPhone, category: CATEGORIES.SOCIAL },

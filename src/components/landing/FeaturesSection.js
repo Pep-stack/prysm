@@ -14,14 +14,12 @@ const supportedLogos = [
   { name: 'Dribbble', src: '/images/logo/dribbble.png' },
   { name: 'youtube', src: '/images/logo/youtube.png' },
   { name: 'shopify', src: '/images/logo/shopify.png' },
-  { name: 'Spotify', src: '/images/logo/spotify.png' },
   { name: 'applepodcast', src: '/images/logo/applepodcast.png' },
   { name: 'tiktok', src: '/images/logo/tiktok.png' },
   { name: 'linkdin', src: '/images/logo/linkdin.png' },
   { name: 'soundcloud', src: '/images/logo/soundcloud.png' },
   { name: 'facebook', src: '/images/logo/facebook.png' },
   { name: 'instagram', src: '/images/logo/instagram.png' },
-  { name: 'Spotify', src: '/images/logo/spotify.png' },
   // Voeg meer logo's toe als nodig
 ];
 

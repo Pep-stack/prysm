@@ -52,7 +52,7 @@ const categorizedOptions = [
       { id: 'facebook', name: 'Facebook Profile', inputType: 'text', placeholder: 'Enter profile URL' },
       { id: 'snapchat', name: 'Snapchat Profile', inputType: 'text', placeholder: 'Enter profile URL' },
       { id: 'reddit', name: 'Reddit Profile', inputType: 'text', placeholder: 'Enter profile URL' },
-      { id: 'spotify', name: 'Spotify Profile', inputType: 'text', placeholder: 'Enter profile URL' },
+  
       { id: 'phone', name: 'Phone Number', inputType: 'text', placeholder: 'Enter phone number' },
       { id: 'whatsapp', name: 'WhatsApp', inputType: 'text', placeholder: 'Enter WhatsApp number' },
       { id: 'email', name: 'Email', inputType: 'text', placeholder: 'Enter email address' },

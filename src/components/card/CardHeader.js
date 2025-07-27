@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
-import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser } from 'react-icons/lu';
+import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser, LuClock3, LuBuilding2 } from 'react-icons/lu';
 
 // Helper functie voor initialen
 const getInitials = (name) => {
@@ -105,9 +105,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Mapping voor personal info per card type
   // Geen secties die als losse section op de card kunnen verschijnen
   const PERSONAL_INFO_FIELDS = {
-    pro: ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status'],
-    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'age', 'availability_status'],
-    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'age', 'availability_status'],
+    pro: ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role'],
+    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'age', 'availability_status', 'timezone', 'current_role'],
+    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'age', 'availability_status', 'timezone', 'current_role'],
   };
 
   // Haal de juiste personal info uit de card_profiles JSON
@@ -135,6 +135,8 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
     desired_role: 'Desired Role',
     industry: 'Industry',
     company_size: 'Company Size',
+    timezone: 'Timezone',
+    current_role: 'Current Role',
   };
 
   return (
@@ -465,6 +467,102 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 </div>
               )}
 
+              {/* Timezone Container */}
+              {personalInfo?.timezone && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuClock3 size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.timezone}
+                  </span>
+                </div>
+              )}
+
+              {/* Current Role Container */}
+              {personalInfo?.current_role && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuBuilding2 size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.current_role}
+                  </span>
+                </div>
+              )}
+
               {/* Availability Status Container */}
               {personalInfo?.show_availability && personalInfo?.availability_status && (
                 <div style={{
@@ -577,7 +675,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             {/* Other optional fields in glass containers */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '0px' }}> {/* Reduced to 0px to test */}
               {fieldsToShow.map((field) => {
-                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status'].includes(field)) return null;
+                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role'].includes(field)) return null;
                 
                 return (
                   <div key={field} style={{

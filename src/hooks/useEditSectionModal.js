@@ -99,7 +99,28 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       setInputValue(sectionObject);
     } else {
       // Use section.type instead of section.id for database column lookup
-      setInputValue(initialProfileData[section.type] || ''); 
+      // Map special cases where section.type doesn't match database column name
+      const getDatabaseColumnName = (sectionType) => {
+        switch (sectionType) {
+          case 'github':
+            return 'github_gitlab';
+          case 'dribbble':
+            return 'dribbble_behance';
+          case 'x':
+            return 'x_profile';
+          case 'youtube':
+            return 'youtube_channel';
+          case 'snapchat':
+            return 'snapchat';
+          case 'reddit':
+            return 'reddit';
+          default:
+            return sectionType;
+        }
+      };
+      
+      const databaseColumnName = getDatabaseColumnName(section.type);
+      setInputValue(initialProfileData[databaseColumnName] || ''); 
     }
     
     setIsModalOpen(true);
@@ -113,37 +134,60 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     setError(null);
   }, []);
 
-  const handleSave = useCallback(async () => {
+  const handleSave = useCallback(async (overrideValue) => {
     if (!editingSection || !user) return;
+    // If overrideValue is provided (e.g., TikTokEditor), use it instead of current inputValue
+    const currentValue = overrideValue !== undefined ? overrideValue : inputValue;
     
     console.log('🔄 Saving section:', {
       sectionType: editingSection.type,
       sectionName: editingSection.name,
-      inputValue: inputValue,
-      isArray: Array.isArray(inputValue),
-      inputValueType: typeof inputValue,
+      inputValue: currentValue,
+      isArray: Array.isArray(currentValue),
+      inputValueType: typeof currentValue,
       editingSection: editingSection
     });
     
     // Use section.type as the database column name instead of section.id
+    // Map special cases where section.type doesn't match database column name
+    const getDatabaseColumnName = (sectionType) => {
+      switch (sectionType) {
+        case 'github':
+          return 'github_gitlab';
+        case 'dribbble':
+          return 'dribbble_behance';
+        case 'x':
+          return 'x_profile';
+        case 'youtube':
+          return 'youtube_channel';
+        case 'snapchat':
+          return 'snapchat';
+        case 'reddit':
+          return 'reddit';
+        default:
+          return sectionType;
+      }
+    };
+    
     const sectionType = editingSection.type;
+    const databaseColumnName = getDatabaseColumnName(sectionType);
     
     // Process value BEFORE sending to Supabase
-    let valueToSave = inputValue;
-    if (sectionType === 'languages' && Array.isArray(inputValue)) {
-      valueToSave = inputValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') && Array.isArray(inputValue)) {
+    let valueToSave = currentValue;
+    if (sectionType === 'languages' && Array.isArray(currentValue)) {
+      valueToSave = currentValue.join(','); // Join array into comma-separated string
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') && Array.isArray(currentValue)) {
       try {
-        valueToSave = JSON.stringify(inputValue); // Serialize array to JSON string
+        valueToSave = JSON.stringify(currentValue); // Serialize array to JSON string
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
         setError(`Error serializing ${sectionType} data: ${serializeError.message}`);
         return;
       }
-    } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') && typeof inputValue === 'object' && !Array.isArray(inputValue)) {
+    } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') && typeof currentValue === 'object' && !Array.isArray(currentValue)) {
       try {
-        valueToSave = JSON.stringify(inputValue); // Serialize object to JSON string
+        valueToSave = JSON.stringify(currentValue); // Serialize object to JSON string
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
@@ -164,7 +208,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       
       const { data, error: updateError } = await supabase
         .from('profiles')
-        .update({ [sectionType]: valueToSave, updated_at: new Date().toISOString() }) // Use sectionType as column name
+        .update({ [databaseColumnName]: valueToSave, updated_at: new Date().toISOString() }) // Use correct database column name
         .eq('id', user.id)
         .select() // Select the updated row
         .single(); 
@@ -183,18 +227,27 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
          if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') {
-            updatedProfileData[sectionType] = inputValue; // Restore the array format for local state
+            updatedProfileData[sectionType] = currentValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,
-              originalArray: inputValue,
+              originalArray: currentValue,
               updatedProfileData: updatedProfileData[sectionType]
             });
          } else if (sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') {
-            updatedProfileData[sectionType] = inputValue; // Restore the object format for local state
+            updatedProfileData[sectionType] = currentValue; // Restore the object format for local state
             console.log('🔄 Restoring object format for local state:', {
               sectionType,
-              originalObject: inputValue,
+              originalObject: currentValue,
               updatedProfileData: updatedProfileData[sectionType]
+            });
+         } else {
+            // For social media sections, use the correct database column name for the update
+            updatedProfileData[databaseColumnName] = currentValue;
+            console.log('🔄 Restoring social media format for local state:', {
+              sectionType,
+              databaseColumnName,
+              originalValue: currentValue,
+              updatedProfileData: updatedProfileData[databaseColumnName]
             });
          }
          onProfileUpdate(updatedProfileData); 

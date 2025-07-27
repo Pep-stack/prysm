@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase';
 
 // Define which section types are considered social media
 const SOCIAL_MEDIA_TYPES = [
-  'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'spotify', 'phone', 'whatsapp', 'email', 'behance'
+  'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'phone', 'whatsapp', 'email', 'behance'
 ];
 
 // Helper function to enhance sections with properties from SECTION_OPTIONS

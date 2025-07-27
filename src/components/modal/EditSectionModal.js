@@ -16,6 +16,19 @@ import PublicationSelector from '../shared/PublicationSelector';
 import CommunitySelector from '../shared/CommunitySelector';
 import EventSelector from '../shared/EventSelector';
 import FAQSelector from '../shared/FAQSelector';
+import TikTokEditor from '../shared/TikTokEditor';
+import InstagramEditor from '../shared/InstagramEditor';
+import LinkedInEditor from '../shared/LinkedInEditor';
+import GitHubEditor from '../shared/GitHubEditor';
+import XEditor from '../shared/XEditor';
+import YouTubeEditor from '../shared/YouTubeEditor';
+import EmailEditor from '../shared/EmailEditor';
+import WhatsAppEditor from '../shared/WhatsAppEditor';
+import FacebookEditor from '../shared/FacebookEditor';
+import DribbbleEditor from '../shared/DribbbleEditor';
+import SnapchatEditor from '../shared/SnapchatEditor';
+import RedditEditor from '../shared/RedditEditor';
+import PhoneEditor from '../shared/PhoneEditor';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -280,6 +293,162 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // TikTok-specific editor
+    if (section.type === 'tiktok') {
+      return (
+        <TikTokEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Instagram-specific editor
+    if (section.type === 'instagram') {
+      return (
+        <InstagramEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // LinkedIn-specific editor
+    if (section.type === 'linkedin') {
+      return (
+        <LinkedInEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // GitHub-specific editor
+    if (section.type === 'github') {
+      return (
+        <GitHubEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // X-specific editor
+    if (section.type === 'x') {
+      return (
+        <XEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // YouTube-specific editor
+    if (section.type === 'youtube') {
+      return (
+        <YouTubeEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Email-specific editor
+    if (section.type === 'email') {
+      return (
+        <EmailEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // WhatsApp-specific editor
+    if (section.type === 'whatsapp') {
+      return (
+        <WhatsAppEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Facebook-specific editor
+    if (section.type === 'facebook') {
+      return (
+        <FacebookEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Dribbble-specific editor
+    if (section.type === 'dribbble') {
+      return (
+        <DribbbleEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Snapchat-specific editor
+    if (section.type === 'snapchat') {
+      return (
+        <SnapchatEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Reddit-specific editor
+    if (section.type === 'reddit') {
+      return (
+        <RedditEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Phone-specific editor
+    if (section.type === 'phone') {
+      return (
+        <PhoneEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // Default rendering based on inputType
     console.log('⚠️ EDIT-MODAL: No custom editor component found, using default input');
     if (section.inputType === 'textarea') {
@@ -304,6 +473,22 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
   };
+
+
+
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, and Phone, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone') {
+    return (
+      <div style={modalOverlayStyle} onClick={onClose}> 
+        <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 
+          {/* Render custom editor directly without extra white background */}
+          <div style={{ padding: 0, backgroundColor: 'transparent' }}>
+            {renderInput()}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={modalOverlayStyle} onClick={onClose}> 

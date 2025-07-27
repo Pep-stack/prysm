@@ -566,6 +566,57 @@ export default function ProfilePage() {
                 </p>
               </div>
 
+              <div>
+                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Timezone
+                </label>
+                <select
+                  id="timezone"
+                  name="timezone"
+                  value={cardProfile.timezone || ''}
+                  onChange={handleCardProfileChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="">Select your timezone</option>
+                  <option value="GMT (UTC+0)">GMT (UTC+0)</option>
+                  <option value="CET (UTC+1)">CET (UTC+1)</option>
+                  <option value="CEST (UTC+2)">CEST (UTC+2)</option>
+                  <option value="EST (UTC-5)">EST (UTC-5)</option>
+                  <option value="EDT (UTC-4)">EDT (UTC-4)</option>
+                  <option value="CST (UTC-6)">CST (UTC-6)</option>
+                  <option value="PST (UTC-8)">PST (UTC-8)</option>
+                  <option value="PDT (UTC-7)">PDT (UTC-7)</option>
+                  <option value="IST (UTC+5:30)">IST (UTC+5:30)</option>
+                  <option value="CST (UTC+8)">CST Asia (UTC+8)</option>
+                  <option value="JST (UTC+9)">JST (UTC+9)</option>
+                  <option value="AEST (UTC+10)">AEST (UTC+10)</option>
+                  <option value="BRT (UTC-3)">BRT (UTC-3)</option>
+                  <option value="WAT (UTC+1)">WAT (UTC+1)</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Your timezone for remote work coordination
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="current_role" className="block text-sm font-medium text-gray-700 mb-1">
+                  Current Role & Company
+                </label>
+                <input
+                  type="text"
+                  id="current_role"
+                  name="current_role"
+                  value={cardProfile.current_role || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="Senior Developer at TechCorp"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  maxLength={100}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your current position and company
+                </p>
+              </div>
+
               {/* Availability Status */}
               <div>
                 <div className="flex items-center justify-between mb-3">
