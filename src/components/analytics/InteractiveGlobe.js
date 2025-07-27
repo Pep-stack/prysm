@@ -4,6 +4,8 @@ import React from 'react';
 import { LuMapPin, LuGlobe } from 'react-icons/lu';
 
 export default function GeographicBreakdown({ geographicData = [] }) {
+  console.log('GeographicBreakdown received data:', geographicData);
+  
   // Process geographic data
   const countryBreakdown = {};
   const cityBreakdown = {};
@@ -16,6 +18,9 @@ export default function GeographicBreakdown({ geographicData = [] }) {
       cityBreakdown[point.city] = (cityBreakdown[point.city] || 0) + 1;
     }
   });
+
+  console.log('Processed country breakdown:', countryBreakdown);
+  console.log('Processed city breakdown:', cityBreakdown);
 
   const topCountries = Object.entries(countryBreakdown)
     .sort(([,a], [,b]) => b - a)
@@ -48,7 +53,9 @@ export default function GeographicBreakdown({ geographicData = [] }) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500">No country data available</p>
+              <p className="text-sm text-gray-500">
+                {geographicData.length === 0 ? 'No geographic data available yet' : 'No country data available'}
+              </p>
             )}
           </div>
         </div>
@@ -68,7 +75,9 @@ export default function GeographicBreakdown({ geographicData = [] }) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500">No city data available</p>
+              <p className="text-sm text-gray-500">
+                {geographicData.length === 0 ? 'No geographic data available yet' : 'No city data available'}
+              </p>
             )}
           </div>
         </div>

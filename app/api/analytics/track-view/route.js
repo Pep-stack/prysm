@@ -56,28 +56,7 @@ export async function POST(request) {
       }
     } catch (geoError) {
       console.log('Geographic data fetch failed:', geoError.message);
-      // Only use mock data if geolocation completely fails
-      if (process.env.NODE_ENV === 'development') {
-        const mockLocations = [
-          { country: 'Netherlands', city: 'Rotterdam', lat: 51.9225, lng: 4.4792 },
-          { country: 'Netherlands', city: 'Amsterdam', lat: 52.3676, lng: 4.9041 },
-          { country: 'Netherlands', city: 'The Hague', lat: 52.0705, lng: 4.3007 },
-          { country: 'Netherlands', city: 'Utrecht', lat: 52.0907, lng: 5.1214 },
-          { country: 'Netherlands', city: 'Eindhoven', lat: 51.4416, lng: 5.4697 },
-          { country: 'United States', city: 'New York', lat: 40.7128, lng: -74.0060 },
-          { country: 'United Kingdom', city: 'London', lat: 51.5074, lng: -0.1278 },
-          { country: 'Germany', city: 'Berlin', lat: 52.5200, lng: 13.4050 },
-          { country: 'France', city: 'Paris', lat: 48.8566, lng: 2.3522 }
-        ];
-        const randomLocation = mockLocations[Math.floor(Math.random() * mockLocations.length)];
-        geographicData = {
-          country: randomLocation.country,
-          city: randomLocation.city,
-          latitude: randomLocation.lat,
-          longitude: randomLocation.lng
-        };
-        console.log('Using mock geographic data:', geographicData);
-      }
+      // No mock data - if geolocation fails, we don't store geographic data
     }
 
     // Insert analytics data with geographic information

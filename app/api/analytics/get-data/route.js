@@ -128,13 +128,16 @@ export async function GET(request) {
       .select('country, city, latitude, longitude')
       .in('profile_id', profileIds)
       .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString())
-      .not('country', 'is', null);
+      .lte('created_at', endDate.toISOString());
 
     console.log('Geographic data query result:', { 
       geographicData: geographicData?.length || 0, 
-      error: geographicError 
+      error: geographicError
     });
+    
+    if (geographicData) {
+      console.log('Raw geographic data:', geographicData);
+    }
 
     // Daily views query
     const { data: dailyViewsData, error: dailyViewsError } = await supabase
@@ -163,10 +166,17 @@ export async function GET(request) {
       browserData.forEach(view => {
         const userAgent = view.user_agent || '';
         let browser = 'unknown';
-        if (userAgent.includes('Chrome')) browser = 'chrome';
+        
+        // Improved browser detection logic
+        if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) browser = 'chrome';
         else if (userAgent.includes('Firefox')) browser = 'firefox';
-        else if (userAgent.includes('Safari')) browser = 'safari';
+        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browser = 'safari';
         else if (userAgent.includes('Edge')) browser = 'edge';
+        else if (userAgent.includes('Opera')) browser = 'opera';
+        else if (userAgent.includes('Brave')) browser = 'brave';
+        else if (userAgent.includes('Internet Explorer') || userAgent.includes('MSIE')) browser = 'ie';
+        else if (userAgent.includes('curl')) browser = 'curl';
+        else if (userAgent.includes('test')) browser = 'test';
         
         browserBreakdown[browser] = (browserBreakdown[browser] || 0) + 1;
       });
@@ -186,49 +196,34 @@ export async function GET(request) {
     const cityBreakdown = {};
     const geographicPoints = [];
     
+    console.log('Processing geographic data:', geographicData);
+    
     if (geographicData) {
-      geographicData.forEach(view => {
+      geographicData.forEach((view, index) => {
+        console.log(`Processing view ${index}:`, view);
+        
         if (view.country) {
           countryBreakdown[view.country] = (countryBreakdown[view.country] || 0) + 1;
+          console.log(`Added country: ${view.country}, count: ${countryBreakdown[view.country]}`);
         }
         if (view.city) {
           cityBreakdown[view.city] = (cityBreakdown[view.city] || 0) + 1;
+          console.log(`Added city: ${view.city}, count: ${cityBreakdown[view.city]}`);
         }
         
-        // Use real coordinates if available, otherwise fall back to mock coordinates
+        // Use real coordinates if available, otherwise skip
         if (view.country && view.city) {
           let coordinates = null;
           
-          // Check if we have real coordinates from the database
+          // Only use real coordinates from the database
           if (view.latitude && view.longitude) {
             coordinates = {
               lat: parseFloat(view.latitude),
               lng: parseFloat(view.longitude)
             };
+            console.log(`Using real coordinates for ${view.city}, ${view.country}:`, coordinates);
           } else {
-            // Fall back to mock coordinates for development
-            const mockCoordinates = {
-              'Netherlands': {
-                'Rotterdam': { lat: 51.9225, lng: 4.4792 },
-                'Amsterdam': { lat: 52.3676, lng: 4.9041 },
-                'The Hague': { lat: 52.0705, lng: 4.3007 },
-                'Utrecht': { lat: 52.0907, lng: 5.1214 },
-                'Eindhoven': { lat: 51.4416, lng: 5.4697 },
-                'default': { lat: 52.3676, lng: 4.9041 }
-              },
-              'United States': { lat: 40.7128, lng: -74.0060 },
-              'United Kingdom': { lat: 51.5074, lng: -0.1278 },
-              'Germany': { lat: 52.5200, lng: 13.4050 },
-              'France': { lat: 48.8566, lng: 2.3522 }
-            };
-            
-            if (mockCoordinates[view.country] && typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country][view.city]) {
-              coordinates = mockCoordinates[view.country][view.city];
-            } else if (mockCoordinates[view.country] && typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country].default) {
-              coordinates = mockCoordinates[view.country].default;
-            } else if (typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country].lat) {
-              coordinates = mockCoordinates[view.country];
-            }
+            console.log(`Skipping ${view.city}, ${view.country} - no real coordinates available`);
           }
           
           if (coordinates) {
@@ -238,10 +233,26 @@ export async function GET(request) {
               country: view.country,
               city: view.city
             });
+            console.log(`Added geographic point:`, {
+              lat: coordinates.lat,
+              lng: coordinates.lng,
+              country: view.country,
+              city: view.city
+            });
           }
         }
       });
     }
+    
+    console.log('Final geographic breakdown:', {
+      countryBreakdown,
+      cityBreakdown,
+      geographicPointsCount: geographicPoints.length
+    });
+
+    // Simple test - return raw geographic data
+    console.log('TEST: Raw geographic data being returned:', geographicData);
+    console.log('TEST: Profile IDs being used:', profileIds);
 
     // Process daily views
     const dailyViews = [];

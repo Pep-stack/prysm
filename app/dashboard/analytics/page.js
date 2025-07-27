@@ -33,6 +33,11 @@ export default function AnalyticsPage() {
         return;
       }
       
+      console.log('Analytics data received:', data);
+      console.log('Geographic points:', data.geographicPoints);
+      console.log('Country breakdown:', data.countryBreakdown);
+      console.log('City breakdown:', data.cityBreakdown);
+      
       setAnalyticsData(data);
     } catch (error) {
       console.error('Analytics fetch error:', error);
@@ -115,6 +120,22 @@ export default function AnalyticsPage() {
   const getSocialIcon = (platform) => {
     const Icon = SOCIAL_ICONS[platform];
     return Icon ? <Icon className="h-4 w-4" /> : <LuShare2 className="h-4 w-4" />;
+  };
+
+  const getBrowserDisplayName = (browserName) => {
+    switch (browserName) {
+      case 'chrome': return 'Chrome';
+      case 'firefox': return 'Firefox';
+      case 'safari': return 'Safari';
+      case 'opera': return 'Opera';
+      case 'edge': return 'Edge';
+      case 'brave': return 'Brave';
+      case 'ie': return 'Internet Explorer';
+      case 'curl': return 'cURL';
+      case 'test': return 'Test';
+      case 'unknown': return 'Unknown';
+      default: return browserName.charAt(0).toUpperCase() + browserName.slice(1);
+    }
   };
 
   if (isLoading) {
@@ -371,7 +392,7 @@ export default function AnalyticsPage() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Browser Breakdown</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={Object.entries(analyticsData.browserBreakdown || {}).map(([browser, count]) => ({
-              name: browser.charAt(0).toUpperCase() + browser.slice(1),
+              name: getBrowserDisplayName(browser),
               views: count
             }))}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -385,11 +406,11 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Geographic Data Section */}
-      {analyticsData.geographicPoints && analyticsData.geographicPoints.length > 0 && (
-        <div className="mb-8">
-          <GeographicBreakdown geographicData={analyticsData.geographicPoints} />
-        </div>
-      )}
+      <div className="mb-8">
+        <GeographicBreakdown 
+          geographicData={analyticsData?.geographicPoints || []} 
+        />
+      </div>
     </div>
   );
 } 
