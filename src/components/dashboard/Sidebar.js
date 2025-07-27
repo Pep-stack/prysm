@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useSession } from '../auth/SessionProvider';
-import { LuLayoutDashboard, LuCircleUser, LuLink, LuQrCode, LuSettings, LuLogOut, LuGlobe } from "react-icons/lu"; // Lucide icons (strak)
+import { LuLayoutDashboard, LuCircleUser, LuLink, LuQrCode, LuSettings, LuLogOut, LuGlobe, LuChartBar } from "react-icons/lu"; // Lucide icons (strak)
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -25,6 +25,7 @@ export default function Sidebar() {
     { href: '/dashboard/profile', label: 'Profile', icon: LuCircleUser },
     { href: '/dashboard/prysma-link', label: 'Prysma Link', icon: LuLink }, // Pas href aan indien nodig
     { href: '/dashboard/qr-code', label: 'QR Code', icon: LuQrCode }, // Pas href aan indien nodig
+    { href: '/dashboard/analytics', label: 'Analytics', icon: LuChartBar }, // Analytics pagina voor alle card data
     { href: '/dashboard/account', label: 'Account Settings', icon: LuSettings }, // Pas href aan indien nodig
   ];
 
