@@ -546,6 +546,26 @@ export default function ProfilePage() {
                 />
               </div>
 
+              <div>
+                <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
+                  Age
+                </label>
+                <input
+                  type="number"
+                  id="age"
+                  name="age"
+                  value={cardProfile.age || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="25"
+                  min="13"
+                  max="120"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your age will be shown on your card
+                </p>
+              </div>
+
               {/* Availability Status */}
               <div>
                 <div className="flex items-center justify-between mb-3">

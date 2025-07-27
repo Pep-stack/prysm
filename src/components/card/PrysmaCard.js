@@ -47,7 +47,7 @@ export default function PrysmaCard({
         isPublicView={isPublicView}
       />
       
-      {/* Social Bar - Position based on settings */}
+      {/* Social Bar - Top position (before separator) */}
       {socialBarPosition === 'top' && (
         <SocialBar
           sections={socialBarSections}
@@ -56,6 +56,18 @@ export default function PrysmaCard({
           position="top"
         />
       )}
+      
+      {/* Separator line */}
+      <div style={{
+        height: '1px',
+        background: 'rgba(0, 0, 0, 0.15)',
+        marginTop: '0px', /* No spacing above separator */
+        marginBottom: '8px', /* Minimal spacing below separator */
+        marginLeft: '24px', /* Indent from left */
+        marginRight: '24px', /* Indent from right */
+        borderRadius: '1px',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
+      }}></div>
       
       {/* Main Sections */}
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>

@@ -103,7 +103,7 @@
   }
 
   .avatarRow {
-    padding: 0 20px 24px 20px; /* Added bottom padding of 24px for mobile */
+    padding: 0 20px 36px 20px; /* Increased bottom padding from 24px to 36px for mobile */
   }
 } 
 
@@ -262,7 +262,7 @@
 
 /* Avatar Row wrapper */
 .avatarRow {
-  padding: 0 24px 32px 24px; /* Added bottom padding of 32px for more space */
+  padding: 0 24px 0px 24px; /* Remove bottom padding to eliminate gap */
   display: flex;
   flex-direction: column;
   width: 100%;

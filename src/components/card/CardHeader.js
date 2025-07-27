@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
-import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock } from 'react-icons/lu';
+import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser } from 'react-icons/lu';
 
 // Helper functie voor initialen
 const getInitials = (name) => {
@@ -105,9 +105,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Mapping voor personal info per card type
   // Geen secties die als losse section op de card kunnen verschijnen
   const PERSONAL_INFO_FIELDS = {
-    pro: ['name', 'headline', 'bio', 'location', 'website', 'availability_status'],
-    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'availability_status'],
-    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'availability_status'],
+    pro: ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status'],
+    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'age', 'availability_status'],
+    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'age', 'availability_status'],
   };
 
   // Haal de juiste personal info uit de card_profiles JSON
@@ -126,14 +126,15 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
 
   // Labels voor optionele velden
   const FIELD_LABELS = {
-    name: cardType === 'business' ? 'Bedrijfsnaam' : 'Naam',
+    name: cardType === 'business' ? 'Company Name' : 'Name',
     headline: cardType === 'business' ? 'Tagline' : 'Headline',
     bio: 'Bio',
-    location: 'Locatie',
+    location: 'Location',
     website: 'Website',
-    desired_role: 'Gewenste functie',
-    industry: 'Branche',
-    company_size: 'Bedrijfsomvang',
+    age: 'Age',
+    desired_role: 'Desired Role',
+    industry: 'Industry',
+    company_size: 'Company Size',
   };
 
   return (
@@ -253,12 +254,12 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             style={{ 
               textAlign: displayType === 'avatar' && avatarPosition === 'center' ? 'center' : 
                         displayType === 'avatar' && avatarPosition === 'right' ? 'right' : 'left',
-              marginTop: displayType === 'header' ? '32px' : '24px' // Increased from 20px/16px to 32px/24px
+              marginTop: displayType === 'header' ? '40px' : '32px' // Increased from 32px/24px to 40px/32px
             }}
           >
             {/* Name - stays the same */}
             {personalInfo?.name && (
-              <h2 className={styles.name} style={{ color: textColor, marginBottom: '28px' }}> {/* Increased from 20px to 28px */}
+              <h2 className={styles.name} style={{ color: textColor, marginBottom: '36px' }}> {/* Increased from 28px to 36px */}
                 {personalInfo.name}
               </h2>
             )}
@@ -268,7 +269,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               display: 'flex',
               flexWrap: 'wrap',
               gap: '8px',
-              marginTop: '16px' // Increased from 12px to 16px
+              marginTop: '20px' // Increased from 16px to 20px
             }}>
               {/* Headline Container */}
               {personalInfo?.headline && (
@@ -416,6 +417,54 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 </div>
               )}
 
+              {/* Age Container */}
+              {personalInfo?.age && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'default',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuUser size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.age} years
+                  </span>
+                </div>
+              )}
+
               {/* Availability Status Container */}
               {personalInfo?.show_availability && personalInfo?.availability_status && (
                 <div style={{
@@ -485,7 +534,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 transition: 'all 0.3s ease',
                 cursor: 'default',
-                marginTop: '16px' // Increased from 8px to 16px
+                marginTop: '20px' // Increased from 16px to 20px
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -526,9 +575,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             )}
 
             {/* Other optional fields in glass containers */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '16px' }}> {/* Increased from 8px to 16px */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '0px' }}> {/* Reduced to 0px to test */}
               {fieldsToShow.map((field) => {
-                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'availability_status'].includes(field)) return null;
+                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status'].includes(field)) return null;
                 
                 return (
                   <div key={field} style={{
@@ -579,6 +628,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 );
               })}
             </div>
+
+            {/* Separator line will be moved to PrysmaCard */}
+            
           </div>
         )}
       </div>

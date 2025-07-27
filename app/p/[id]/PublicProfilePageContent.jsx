@@ -39,7 +39,7 @@ export default function PublicProfilePageContent({ profile }) {
           className="w-full sm:w-full md:max-w-2xl md:rounded-2xl md:shadow-lg md:p-0"
           style={{ background: settings.background_color || '#fff' }}
         >
-          <div className="max-w-3xl mx-auto px-0 py-0">
+          <div className="max-w-3xl mx-auto px-0 py-0 h-full">
             <PrysmaCard 
               profile={profile} 
               user={null}

@@ -13,11 +13,12 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
 
   // Different styling based on position
   const containerClasses = position === 'bottom' 
-    ? "w-full px-4 py-3 mt-4 rounded-lg" 
-    : "w-full px-4 py-3 mb-4 rounded-lg";
+    ? "w-full px-4 py-6 mt-0 rounded-lg" 
+    : "w-full px-4 py-6 mb-0 rounded-lg";
 
   return (
     <div className={containerClasses}>
+      
       <div
         className="flex flex-wrap items-center justify-center"
         style={{
