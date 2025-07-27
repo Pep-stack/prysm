@@ -248,7 +248,7 @@ export default function AnalyticsPage() {
           <div>
             <h3 className="text-lg font-semibold text-blue-900">Advanced Analytics Coming Soon</h3>
             <p className="text-blue-700 mt-1">
-              We're working on detailed analytics including geographic data, time-based trends, conversion tracking, and more detailed insights.
+              We&apos;re working on detailed analytics including geographic data, time-based trends, conversion tracking, and more detailed insights.
             </p>
           </div>
         </div>
