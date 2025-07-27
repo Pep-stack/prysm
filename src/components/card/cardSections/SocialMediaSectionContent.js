@@ -21,7 +21,7 @@ const SOCIALS = [
   { type: 'phone', name: 'Phone', icon: FaPhone },
 ];
 
-export default function SocialMediaSectionContent({ section, profile, user, styles = {} }) {
+export default function SocialMediaSectionContent({ section, profile, user, styles = {}, onSocialClick }) {
   // Haal kleur uit design settings (fallback op zwart)
   const { settings } = useDesignSettings();
   const iconColor = settings?.icon_color || '#222';
@@ -69,6 +69,14 @@ export default function SocialMediaSectionContent({ section, profile, user, styl
 
   const socialUrl = getSocialUrl();
 
+  // Handle social click tracking
+  const handleClick = () => {
+    // Track social clicks for all platforms
+    if (onSocialClick) {
+      onSocialClick();
+    }
+  };
+
   // If no URL, just show the icon without click functionality
   if (!socialUrl) {
     return (
@@ -94,6 +102,7 @@ export default function SocialMediaSectionContent({ section, profile, user, styl
         className="flex items-center justify-center rounded-full hover:scale-110 transition-all duration-200 cursor-pointer"
         style={{ color: iconColor, width: iconSize, height: iconSize }}
         title={`Visit ${social.name}`}
+        onClick={handleClick}
       >
         <Icon size={iconSize} />
       </a>

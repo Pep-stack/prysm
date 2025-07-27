@@ -18,6 +18,7 @@ import ServicesSectionContent from './cardSections/ServicesSectionContent';
 import GallerySectionContent from './cardSections/GallerySectionContent';
 
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
+import { useContactTracking } from '../../hooks/useContactTracking';
 // Voeg hier AL je sectie types toe
 
 // Mapping van sectie type/id naar component (efficiënter dan switch)
@@ -99,6 +100,7 @@ export default function CardSectionRenderer({
   onReorder
 }) {
   const { settings } = useDesignSettings();
+  const { trackSocialClick } = useContactTracking(profile?.id);
 
   if (!section) return null;
   // Kies mapping op basis van card_type
@@ -137,6 +139,35 @@ export default function CardSectionRenderer({
     ...placeholderStyle
   };
 
+  // Determine platform based on section type
+  const getPlatform = (sectionType) => {
+    switch (sectionType) {
+      case 'email': return 'email';
+      case 'phone': return 'phone';
+      case 'whatsapp': return 'whatsapp';
+      case 'linkedin': return 'linkedin';
+      case 'instagram': return 'instagram';
+      case 'github': return 'github';
+      case 'youtube': return 'youtube';
+      case 'tiktok': return 'tiktok';
+      case 'facebook': return 'facebook';
+      case 'dribbble': return 'dribbble';
+      case 'behance': return 'behance';
+      case 'snapchat': return 'snapchat';
+      case 'reddit': return 'reddit';
+      case 'x': return 'x';
+      default: return null;
+    }
+  };
+
+  const platform = getPlatform(section.type);
+
+  const handleSocialClick = () => {
+    if (platform && trackSocialClick) {
+      trackSocialClick(platform, 'main_section');
+    }
+  };
+
   const sectionProps = { 
     section, // Add the section prop
     profile, 
@@ -148,10 +179,9 @@ export default function CardSectionRenderer({
       placeholderStyle: defaultPlaceholderStyle, 
       tagStyle 
     }, 
-    designSettings: settings 
+    designSettings: settings,
+    onSocialClick: handleSocialClick // Add social tracking callback
   };
-
-
 
   // Voor een pure preview, geen editing props nodig:
   const finalContentComponent = <Component {...sectionProps} />;

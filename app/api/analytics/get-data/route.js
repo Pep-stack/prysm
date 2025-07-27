@@ -1,0 +1,289 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const period = searchParams.get('period') || '7d';
+
+    if (!userId) {
+      return Response.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    switch (period) {
+      case '7d':
+        startDate.setDate(endDate.getDate() - 7);
+        break;
+      case '30d':
+        startDate.setDate(endDate.getDate() - 30);
+        break;
+      case '90d':
+        startDate.setDate(endDate.getDate() - 90);
+        break;
+      default:
+        startDate.setDate(endDate.getDate() - 7);
+    }
+
+    // Get profile IDs for the user
+    let profileIds = [];
+    
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('user_id', userId);
+
+    if (profilesError || !profiles || profiles.length === 0) {
+      // Try using the userId as a profile ID directly
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      if (profileError || !profile) {
+        return Response.json({ error: 'No profiles found' }, { status: 404 });
+      }
+      
+      profileIds = [profile.id];
+    } else {
+      profileIds = profiles.map(p => p.id);
+    }
+
+    // Total views query
+    const { data: totalViewsData, error: totalViewsError } = await supabase
+      .from('analytics_views')
+      .select('id')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    console.log('Total views query result:', { 
+      totalViews: totalViewsData?.length || 0, 
+      error: totalViewsError 
+    });
+
+    // Unique visitors query
+    const { data: uniqueVisitorsData, error: uniqueVisitorsError } = await supabase
+      .from('analytics_views')
+      .select('viewer_ip')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    console.log('Unique visitors query result:', { 
+      uniqueVisitors: uniqueVisitorsData ? new Set(uniqueVisitorsData.map(v => v.viewer_ip)).size : 0, 
+      error: uniqueVisitorsError 
+    });
+
+    // Device breakdown query
+    const { data: deviceData, error: deviceError } = await supabase
+      .from('analytics_views')
+      .select('user_agent')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    console.log('Device data query result:', { 
+      deviceData: deviceData?.length || 0, 
+      error: deviceError 
+    });
+
+    // Browser breakdown query
+    const { data: browserData, error: browserError } = await supabase
+      .from('analytics_views')
+      .select('user_agent')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    console.log('Browser data query result:', { 
+      browserData: browserData?.length || 0, 
+      error: browserError 
+    });
+
+    // Social clicks query
+    const { data: socialData, error: socialError } = await supabase
+      .from('analytics_social_clicks')
+      .select('platform')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    console.log('Social data query result:', { 
+      socialData: socialData?.length || 0, 
+      error: socialError 
+    });
+
+    // Geographic data query
+    const { data: geographicData, error: geographicError } = await supabase
+      .from('analytics_views')
+      .select('country, city, latitude, longitude')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString())
+      .not('country', 'is', null);
+
+    console.log('Geographic data query result:', { 
+      geographicData: geographicData?.length || 0, 
+      error: geographicError 
+    });
+
+    // Daily views query
+    const { data: dailyViewsData, error: dailyViewsError } = await supabase
+      .from('analytics_views')
+      .select('created_at')
+      .in('profile_id', profileIds)
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+
+    // Process device breakdown
+    const deviceBreakdown = {};
+    if (deviceData) {
+      deviceData.forEach(view => {
+        const userAgent = view.user_agent || '';
+        let deviceType = 'desktop';
+        if (userAgent.includes('Mobile')) deviceType = 'mobile';
+        else if (userAgent.includes('Tablet')) deviceType = 'tablet';
+        
+        deviceBreakdown[deviceType] = (deviceBreakdown[deviceType] || 0) + 1;
+      });
+    }
+
+    // Process browser breakdown
+    const browserBreakdown = {};
+    if (browserData) {
+      browserData.forEach(view => {
+        const userAgent = view.user_agent || '';
+        let browser = 'unknown';
+        if (userAgent.includes('Chrome')) browser = 'chrome';
+        else if (userAgent.includes('Firefox')) browser = 'firefox';
+        else if (userAgent.includes('Safari')) browser = 'safari';
+        else if (userAgent.includes('Edge')) browser = 'edge';
+        
+        browserBreakdown[browser] = (browserBreakdown[browser] || 0) + 1;
+      });
+    }
+
+    // Process social breakdown
+    const socialBreakdown = {};
+    if (socialData) {
+      socialData.forEach(click => {
+        const platform = click.platform;
+        socialBreakdown[platform] = (socialBreakdown[platform] || 0) + 1;
+      });
+    }
+
+    // Process geographic breakdown
+    const countryBreakdown = {};
+    const cityBreakdown = {};
+    const geographicPoints = [];
+    
+    if (geographicData) {
+      geographicData.forEach(view => {
+        if (view.country) {
+          countryBreakdown[view.country] = (countryBreakdown[view.country] || 0) + 1;
+        }
+        if (view.city) {
+          cityBreakdown[view.city] = (cityBreakdown[view.city] || 0) + 1;
+        }
+        
+        // Use real coordinates if available, otherwise fall back to mock coordinates
+        if (view.country && view.city) {
+          let coordinates = null;
+          
+          // Check if we have real coordinates from the database
+          if (view.latitude && view.longitude) {
+            coordinates = {
+              lat: parseFloat(view.latitude),
+              lng: parseFloat(view.longitude)
+            };
+          } else {
+            // Fall back to mock coordinates for development
+            const mockCoordinates = {
+              'Netherlands': {
+                'Rotterdam': { lat: 51.9225, lng: 4.4792 },
+                'Amsterdam': { lat: 52.3676, lng: 4.9041 },
+                'The Hague': { lat: 52.0705, lng: 4.3007 },
+                'Utrecht': { lat: 52.0907, lng: 5.1214 },
+                'Eindhoven': { lat: 51.4416, lng: 5.4697 },
+                'default': { lat: 52.3676, lng: 4.9041 }
+              },
+              'United States': { lat: 40.7128, lng: -74.0060 },
+              'United Kingdom': { lat: 51.5074, lng: -0.1278 },
+              'Germany': { lat: 52.5200, lng: 13.4050 },
+              'France': { lat: 48.8566, lng: 2.3522 }
+            };
+            
+            if (mockCoordinates[view.country] && typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country][view.city]) {
+              coordinates = mockCoordinates[view.country][view.city];
+            } else if (mockCoordinates[view.country] && typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country].default) {
+              coordinates = mockCoordinates[view.country].default;
+            } else if (typeof mockCoordinates[view.country] === 'object' && mockCoordinates[view.country].lat) {
+              coordinates = mockCoordinates[view.country];
+            }
+          }
+          
+          if (coordinates) {
+            geographicPoints.push({
+              lat: coordinates.lat,
+              lng: coordinates.lng,
+              country: view.country,
+              city: view.city
+            });
+          }
+        }
+      });
+    }
+
+    // Process daily views
+    const dailyViews = [];
+    if (dailyViewsData) {
+      const viewsByDate = {};
+      dailyViewsData.forEach(view => {
+        const date = new Date(view.created_at).toISOString().split('T')[0];
+        viewsByDate[date] = (viewsByDate[date] || 0) + 1;
+      });
+      
+      Object.entries(viewsByDate).forEach(([date, views]) => {
+        dailyViews.push({ date, views });
+      });
+    }
+
+    // Calculate totals and rates
+    const totalViews = totalViewsData?.length || 0;
+    const uniqueVisitors = uniqueVisitorsData ? new Set(uniqueVisitorsData.map(v => v.viewer_ip)).size : 0;
+    const totalSocialClicks = socialData?.length || 0;
+    const socialConversionRate = totalViews > 0 ? Math.round((totalSocialClicks / totalViews) * 100) : 0;
+
+    const result = {
+      totalViews,
+      uniqueVisitors,
+      deviceBreakdown,
+      browserBreakdown,
+      socialBreakdown,
+      totalSocialClicks,
+      socialConversionRate,
+      dailyViews,
+      // Geographic data
+      countryBreakdown,
+      cityBreakdown,
+      geographicPoints,
+      period
+    };
+
+    console.log('Final result:', result);
+    return Response.json(result);
+
+  } catch (error) {
+    console.error('Analytics data fetch error:', error);
+    return Response.json({ error: 'Failed to fetch analytics data' }, { status: 500 });
+  }
+} 
