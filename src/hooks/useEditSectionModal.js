@@ -23,7 +23,9 @@ const getEditorComponentForSection = (sectionType) => {
     'faq': 'FAQSelector',
     'x_highlights': 'XHighlightsEditor',
     'youtube_highlights': 'YouTubeHighlightsEditor',
-    'linkedin_highlights': 'LinkedInHighlightsEditor'
+    'linkedin_highlights': 'LinkedInHighlightsEditor',
+          'tiktok_highlights': 'TikTokHighlightsEditor',
+      'github_highlights': 'GitHubHighlightsEditor'
   };
   return editorComponentMap[sectionType];
 };
@@ -60,7 +62,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(languagesArray);
-    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services' || section.type === 'gallery' || section.type === 'publications' || section.type === 'events' || section.type === 'faq') {
+    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services' || section.type === 'gallery' || section.type === 'publications' || section.type === 'events' || section.type === 'faq' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'github_highlights') {
       // Special handling for array-based sections
       const sectionData = initialProfileData[section.type];
       
@@ -150,6 +152,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       inputValueType: typeof currentValue,
       editingSection: editingSection
     });
+
+
     
 
     
@@ -169,6 +173,12 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           return 'snapchat';
         case 'reddit':
           return 'reddit';
+        case 'linkedin_highlights':
+          return 'linkedin_highlights';
+        case 'youtube_highlights':
+          return 'youtube_highlights';
+        case 'x_highlights':
+          return 'x_highlights';
         default:
           return sectionType;
       }
@@ -181,7 +191,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     let valueToSave = currentValue;
     if (sectionType === 'languages' && Array.isArray(currentValue)) {
       valueToSave = currentValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') && Array.isArray(currentValue)) {
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') && Array.isArray(currentValue)) {
       try {
         valueToSave = JSON.stringify(currentValue); // Serialize array to JSON string
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
@@ -231,7 +241,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') {
             updatedProfileData[sectionType] = currentValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
               sectionType,

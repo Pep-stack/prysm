@@ -18,6 +18,8 @@ import GallerySectionContent from './cardSections/GallerySectionContent';
 import XHighlightsSectionContent from './cardSections/XHighlightsSectionContent';
 import YouTubeHighlightsSectionContent from './cardSections/YouTubeHighlightsSectionContent';
 import LinkedInHighlightsSectionContent from './cardSections/LinkedInHighlightsSectionContent';
+import TikTokHighlightsSectionContent from './cardSections/TikTokHighlightsSectionContent';
+import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
 const ServicesSectionContent = lazy(() => import('./cardSections/ServicesSectionContent'));
@@ -57,6 +59,8 @@ const proSectionComponentMap = {
   'x_highlights': XHighlightsSectionContent,
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
+  'tiktok_highlights': TikTokHighlightsSectionContent,
+  'github_highlights': GitHubHighlightsSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -88,6 +92,8 @@ export const sectionComponentMap = {
   'x_highlights': XHighlightsSectionContent,
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
+  'tiktok_highlights': TikTokHighlightsSectionContent,
+  'github_highlights': GitHubHighlightsSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
@@ -126,6 +132,8 @@ export default function CardSectionRenderer({
     console.warn(`No component found for section type: ${section.type}`);
     return null;
   }
+
+
 
 
 

@@ -177,11 +177,23 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
 
   // Generate a more descriptive title based on the URL
   const generatePostTitle = (url, entry) => {
+    if (entry.title && entry.title !== 'LinkedIn Post') {
+      return entry.title;
+    }
+    
     const linkedinInfo = extractLinkedInInfo(url);
-    if (linkedinInfo) {
+    if (linkedinInfo?.postId) {
       return `LinkedIn Post (${linkedinInfo.postId})`;
     }
-    return entry.title || 'LinkedIn Post';
+    
+    // Extract author from URL if available
+    const authorMatch = url.match(/posts\/([^_]+)/);
+    if (authorMatch) {
+      const author = authorMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return `LinkedIn Post by ${author}`;
+    }
+    
+    return 'LinkedIn Post';
   };
 
   // Generate a more descriptive description
@@ -263,26 +275,29 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
                 lineHeight: '1.4',
                 marginBottom: '12px'
               }}>
-                {/* Post title from oEmbed API */}
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '8px',
-                  color: '#ffffff'
-                }}>
-                  {postDataForUrl.title || postTitle}
-                </div>
+                                     {/* Post title from oEmbed API */}
+                     <div style={{
+                       fontSize: '16px',
+                       fontWeight: '600',
+                       marginBottom: '8px',
+                       color: '#ffffff'
+                     }}>
+                       {postDataForUrl.title && postDataForUrl.title !== 'LinkedIn Post' ? 
+                         postDataForUrl.title : 
+                         postTitle
+                       }
+                     </div>
                 
-                {/* Post author */}
-                {postDataForUrl.author_name && (
-                  <div style={{
-                    fontSize: '14px',
-                    color: '#888888',
-                    marginBottom: '8px'
-                  }}>
-                    by {postDataForUrl.author_name}
-                  </div>
-                )}
+                                     {/* Post author */}
+                     {postDataForUrl.author_name && postDataForUrl.author_name !== 'LinkedIn User' && (
+                       <div style={{
+                         fontSize: '14px',
+                         color: '#888888',
+                         marginBottom: '8px'
+                       }}>
+                         by {postDataForUrl.author_name}
+                       </div>
+                     )}
               </div>
             ) : (
               <div style={{
@@ -318,50 +333,93 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
               padding: '16px',
               border: '1px solid #e0e0e0'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                marginBottom: '8px'
-              }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: '#0077B5',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <FaLinkedin style={{ color: '#ffffff', fontSize: '16px' }} />
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: '#000000'
-                  }}>
-                    LinkedIn Post
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: '#666666'
-                  }}>
-                    Professional content
-                  </div>
-                </div>
-              </div>
-              <div style={{
-                fontSize: '14px',
-                color: '#000000',
-                lineHeight: '1.4'
-              }}>
-                {postDataForUrl?.html ? (
-                  <div dangerouslySetInnerHTML={{ __html: postDataForUrl.html }} />
-                ) : (
-                  'Professional LinkedIn post content'
-                )}
-              </div>
+                                 <div style={{
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '12px',
+                     marginBottom: '8px'
+                   }}>
+                     <div style={{
+                       width: '40px',
+                       height: '40px',
+                       backgroundColor: '#0077B5',
+                       borderRadius: '50%',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       position: 'relative'
+                     }}>
+                       <FaLinkedin style={{ color: '#ffffff', fontSize: '16px' }} />
+                       {/* LinkedIn verification badge */}
+                       <div style={{
+                         position: 'absolute',
+                         bottom: '-2px',
+                         right: '-2px',
+                         width: '12px',
+                         height: '12px',
+                         backgroundColor: '#0077B5',
+                         borderRadius: '50%',
+                         border: '2px solid #ffffff',
+                         display: 'flex',
+                         alignItems: 'center',
+                         justifyContent: 'center'
+                       }}>
+                         <div style={{
+                           width: '4px',
+                           height: '4px',
+                           backgroundColor: '#ffffff',
+                           borderRadius: '50%'
+                         }} />
+                       </div>
+                     </div>
+                     <div>
+                       <div style={{
+                         fontSize: '14px',
+                         fontWeight: '600',
+                         color: '#000000'
+                       }}>
+                         {postDataForUrl?.author_name || 'LinkedIn Post'}
+                       </div>
+                       <div style={{
+                         fontSize: '12px',
+                         color: '#666666'
+                       }}>
+                         {postDataForUrl?.provider_name || 'Professional content'}
+                       </div>
+                     </div>
+                   </div>
+                                 <div style={{
+                     fontSize: '14px',
+                     color: '#000000',
+                     lineHeight: '1.4'
+                   }}>
+                     {postDataForUrl?.html ? (
+                       <div dangerouslySetInnerHTML={{ __html: postDataForUrl.html }} />
+                     ) : postDataForUrl?.title ? (
+                       <div style={{ fontWeight: '500', marginBottom: '8px' }}>
+                         {postDataForUrl.title}
+                       </div>
+                     ) : (
+                       <div>
+                         <div style={{ 
+                           color: '#000000', 
+                           fontWeight: '500', 
+                           marginBottom: '8px',
+                           lineHeight: '1.4'
+                         }}>
+                           {entry.description || 'Professional LinkedIn post'}
+                         </div>
+                         <div style={{ 
+                           color: '#666666', 
+                           fontSize: '12px',
+                           fontStyle: 'italic',
+                           marginTop: '4px'
+                         }}>
+                           Click to view the full post on LinkedIn
+                         </div>
+                       </div>
+                     )}
+                   </div>
             </div>
             
             {/* External link button */}

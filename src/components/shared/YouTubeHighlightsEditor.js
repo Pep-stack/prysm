@@ -5,7 +5,7 @@ import { FaYoutube } from 'react-icons/fa';
 export default function YouTubeHighlightsEditor({ value = '', onChange, onSave, onCancel }) {
   const [highlights, setHighlights] = useState([]);
   const [newUrl, setNewUrl] = useState('');
-  const [newDescription, setNewDescription] = useState('');
+
 
   useEffect(() => {
     if (value) {
@@ -56,11 +56,11 @@ export default function YouTubeHighlightsEditor({ value = '', onChange, onSave, 
         id: Date.now(),
         url: newUrl.trim(),
         title: generateDefaultTitle(newUrl.trim()),
-        description: newDescription.trim() || 'Check out this YouTube video!'
+        description: 'Check out this YouTube video!'
       };
       setHighlights([...highlights, newHighlight]);
       setNewUrl('');
-      setNewDescription('');
+
     }
   };
 
@@ -117,16 +117,6 @@ export default function YouTubeHighlightsEditor({ value = '', onChange, onSave, 
             style={{ backgroundColor: '#1a1a1a' }}
           />
           
-          <label className="block text-white font-medium mb-2 text-sm">Description (optional)</label>
-          <textarea
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Add a custom description for this video..."
-            rows={3}
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent mb-3"
-            style={{ backgroundColor: '#1a1a1a', resize: 'vertical' }}
-          />
-          
           <button
             onClick={handleAddHighlight}
             disabled={!newUrl.trim()}
@@ -168,11 +158,7 @@ export default function YouTubeHighlightsEditor({ value = '', onChange, onSave, 
                         Remove
                       </button>
                     </div>
-                    {highlight.description && (
-                      <div className="text-gray-400 text-xs mb-1">
-                        &quot;{highlight.description}&quot;
-                      </div>
-                    )}
+
                     <div className="text-gray-500 text-xs truncate">
                       {highlight.url}
                     </div>

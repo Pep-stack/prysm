@@ -475,8 +475,6 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
                   gap: '8px',
                   marginBottom: '8px'
                 }}>
-                  <span>Post ID: {xInfo.postId}</span>
-                  <span>•</span>
                   <span>@{xInfo.username}</span>
                 </div>
               )}

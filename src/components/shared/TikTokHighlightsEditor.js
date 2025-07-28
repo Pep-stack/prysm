@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaTiktok } from 'react-icons/fa';
 
-export default function XHighlightsEditor({ value = '', onChange, onSave, onCancel }) {
+export default function TikTokHighlightsEditor({ value = '', onChange, onSave, onCancel }) {
   const [highlights, setHighlights] = useState([]);
   const [newUrl, setNewUrl] = useState('');
 
@@ -15,7 +15,7 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
       } catch (e) {
         // If it's a single URL string, convert to array
         if (typeof value === 'string' && value.trim()) {
-          setHighlights([{ url: value.trim(), title: 'X Post', description: 'Check out this X post!' }]);
+          setHighlights([{ url: value.trim(), title: 'TikTok Video', description: 'Check out this TikTok video!' }]);
         } else {
           setHighlights([]);
         }
@@ -25,34 +25,43 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
     }
   }, [value]);
 
-  const extractXInfo = (url) => {
-    // Extract username and post ID from X URL
-    const xMatch = url.match(/x\.com\/([^\/]+)\/status\/(\d+)/);
-    if (xMatch) {
+  const extractTikTokInfo = (url) => {
+    // Extract username and video ID from TikTok URL
+    const tiktokMatch = url.match(/tiktok\.com\/@([^\/]+)\/video\/(\d+)/);
+    const vmMatch = url.match(/vm\.tiktok\.com\/([^&\s]+)/);
+    
+    if (tiktokMatch) {
       return {
-        username: xMatch[1],
-        postId: xMatch[2]
+        username: tiktokMatch[1],
+        videoId: tiktokMatch[2]
+      };
+    } else if (vmMatch) {
+      return {
+        videoId: vmMatch[1]
       };
     }
     return null;
   };
 
   const generateDefaultTitle = (url) => {
-    const xInfo = extractXInfo(url);
-    if (xInfo) {
-      return `@${xInfo.username}'s post`;
+    const tiktokInfo = extractTikTokInfo(url);
+    if (tiktokInfo) {
+      if (tiktokInfo.username) {
+        return `@${tiktokInfo.username}'s TikTok`;
+      }
+      return `TikTok Video (${tiktokInfo.videoId})`;
     }
-    return 'X Post';
+    return 'TikTok Video';
   };
 
   const handleAddHighlight = () => {
     if (newUrl.trim()) {
-      const xInfo = extractXInfo(newUrl.trim());
+      const tiktokInfo = extractTikTokInfo(newUrl.trim());
       const newHighlight = {
         id: Date.now(),
         url: newUrl.trim(),
         title: generateDefaultTitle(newUrl.trim()),
-        description: 'Check out this X post!'
+        description: 'Check out this TikTok video!'
       };
       setHighlights([...highlights, newHighlight]);
       setNewUrl('');
@@ -85,17 +94,17 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
         overflow: 'hidden'
       }}
     >
-      {/* X Header with logo and text */}
+      {/* TikTok Header with logo and text */}
       <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
             backgroundColor: '#ffffff'
           }}>
-            <FaXTwitter className="text-black text-xl" />
+            <FaTiktok className="text-black text-xl" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg">X Highlights</h3>
-            <p className="text-gray-400 text-sm">Add your best X posts</p>
+            <h3 className="text-white font-semibold text-lg">TikTok Highlights</h3>
+            <p className="text-gray-400 text-sm">Add your best TikTok videos</p>
           </div>
         </div>
       </div>
@@ -103,13 +112,13 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
       {/* Content with URL input */}
       <div className="p-6 pt-4">
         <div className="mb-6">
-          <label className="block text-white font-medium mb-2 text-sm">X Post URL</label>
+          <label className="block text-white font-medium mb-2 text-sm">TikTok Video URL</label>
           <input
             type="text"
             value={newUrl}
             onChange={(e) => setNewUrl(e.target.value)}
-            placeholder="https://x.com/username/status/123456789"
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent mb-3"
+            placeholder="https://www.tiktok.com/@username/video/1234567890123456789"
+            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent mb-3"
             style={{ backgroundColor: '#1a1a1a' }}
           />
           
@@ -118,14 +127,14 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
             disabled={!newUrl.trim()}
             className="w-full px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: '#ffffff',
-              color: '#000000'
+              backgroundColor: '#fe2c55',
+              color: '#ffffff'
             }}
           >
-            Add X Post
+            Add TikTok Video
           </button>
           
-          <p className="text-gray-400 text-xs mt-2">Paste X post URLs to showcase your best content</p>
+          <p className="text-gray-400 text-xs mt-2">Paste TikTok video URLs to showcase your best content</p>
         </div>
 
         {/* Current highlights */}
@@ -134,7 +143,7 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
             <h4 className="text-white font-medium mb-3 text-sm">Added Highlights</h4>
             <div className="space-y-2">
               {highlights.map((highlight) => {
-                const xInfo = extractXInfo(highlight.url);
+                const tiktokInfo = extractTikTokInfo(highlight.url);
                 return (
                   <div 
                     key={highlight.id}
@@ -142,9 +151,9 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <FaXTwitter className="text-white text-sm" />
+                        <FaTiktok className="text-pink-500 text-sm" />
                         <div className="text-white text-sm">
-                          {xInfo ? `@${xInfo.username}` : 'X Post'}
+                          {tiktokInfo?.username ? `@${tiktokInfo.username}` : 'TikTok Video'}
                         </div>
                       </div>
                       <button
@@ -177,8 +186,8 @@ export default function XHighlightsEditor({ value = '', onChange, onSave, onCanc
             onClick={handleSave}
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
             style={{
-              backgroundColor: '#ffffff',
-              color: '#000000'
+              backgroundColor: '#fe2c55',
+              color: '#ffffff'
             }}
           >
             Save

@@ -6,7 +6,7 @@ import { FaLinkedin, FaPlus, FaTrash, FaExternalLinkAlt } from 'react-icons/fa';
 export default function LinkedInHighlightsEditor({ value = '', onChange, onSave, onCancel }) {
   const [highlights, setHighlights] = useState([]);
   const [newUrl, setNewUrl] = useState('');
-  const [newDescription, setNewDescription] = useState('');
+
   const [isLoading, setIsLoading] = useState(false);
 
   // Parse existing highlights on mount
@@ -64,7 +64,7 @@ export default function LinkedInHighlightsEditor({ value = '', onChange, onSave,
       id: Date.now(),
       url: newUrl.trim(),
       title: generateDefaultTitle(newUrl.trim()),
-      description: newDescription.trim() || 'Check out this LinkedIn post!'
+      description: 'Check out this LinkedIn post!'
     };
 
     const updatedHighlights = [...highlights, newHighlight];
@@ -73,7 +73,7 @@ export default function LinkedInHighlightsEditor({ value = '', onChange, onSave,
 
     // Reset form
     setNewUrl('');
-    setNewDescription('');
+
   };
 
   const handleRemoveHighlight = (id) => {
@@ -131,18 +131,6 @@ export default function LinkedInHighlightsEditor({ value = '', onChange, onSave,
             style={{ backgroundColor: '#1a1a1a' }}
           />
           
-          <label className="block text-white font-medium mb-2 text-sm">
-            Description (optional)
-          </label>
-          <textarea
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Add a description for this post..."
-            rows="2"
-            className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
-            style={{ backgroundColor: '#1a1a1a' }}
-          />
-          
           <button
             onClick={handleAddHighlight}
             disabled={!newUrl.trim() || isLoading}
@@ -167,35 +155,33 @@ export default function LinkedInHighlightsEditor({ value = '', onChange, onSave,
                   key={highlight.id}
                   className="p-4 bg-gray-800 rounded-lg border border-gray-700"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2">
-                        <FaLinkedin className="text-blue-500" />
-                        <span className="text-white font-medium text-sm">
+                        <FaLinkedin className="text-blue-500 flex-shrink-0" />
+                        <span className="text-white font-medium text-sm truncate">
                           {highlight.title}
                         </span>
                       </div>
-                      {highlight.description && (
-                        <div className="text-gray-400 text-xs mb-1">
-                          &quot;{highlight.description}&quot;
-                        </div>
-                      )}
+
                       <div className="text-gray-500 text-xs truncate">
                         {highlight.url}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <a
                         href={highlight.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 text-sm"
+                        className="text-blue-400 hover:text-blue-300 text-sm p-1 rounded hover:bg-gray-700 transition-colors"
+                        title="Open in LinkedIn"
                       >
                         <FaExternalLinkAlt />
                       </a>
                       <button
                         onClick={() => handleRemoveHighlight(highlight.id)}
-                        className="text-red-400 hover:text-red-300 text-sm"
+                        className="text-red-400 hover:text-red-300 text-sm p-1 rounded hover:bg-gray-700 transition-colors"
+                        title="Remove post"
                       >
                         <FaTrash />
                       </button>
