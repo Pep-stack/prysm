@@ -20,7 +20,10 @@ const getEditorComponentForSection = (sectionType) => {
     'publications': 'PublicationSelector',
     'community': 'CommunitySelector',
     'events': 'EventSelector',
-    'faq': 'FAQSelector'
+    'faq': 'FAQSelector',
+    'x_highlights': 'XHighlightsEditor',
+    'youtube_highlights': 'YouTubeHighlightsEditor',
+    'linkedin_highlights': 'LinkedInHighlightsEditor'
   };
   return editorComponentMap[sectionType];
 };
@@ -147,6 +150,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       inputValueType: typeof currentValue,
       editingSection: editingSection
     });
+    
+
     
     // Use section.type as the database column name instead of section.id
     // Map special cases where section.type doesn't match database column name

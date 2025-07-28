@@ -29,6 +29,9 @@ import DribbbleEditor from '../shared/DribbbleEditor';
 import SnapchatEditor from '../shared/SnapchatEditor';
 import RedditEditor from '../shared/RedditEditor';
 import PhoneEditor from '../shared/PhoneEditor';
+import XHighlightsEditor from '../shared/XHighlightsEditor';
+import YouTubeHighlightsEditor from '../shared/YouTubeHighlightsEditor';
+import LinkedInHighlightsEditor from '../shared/LinkedInHighlightsEditor';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -449,6 +452,42 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // X Highlights-specific editor
+    if (section.type === 'x_highlights') {
+      return (
+        <XHighlightsEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+        // YouTube Highlights-specific editor
+    if (section.type === 'youtube_highlights') {
+      return (
+        <YouTubeHighlightsEditor
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // LinkedIn Highlights-specific editor
+    if (section.type === 'linkedin_highlights') {
+      return (
+        <LinkedInHighlightsEditor
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // Default rendering based on inputType
     console.log('⚠️ EDIT-MODAL: No custom editor component found, using default input');
     if (section.inputType === 'textarea') {
@@ -476,8 +515,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
 
-  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, and Phone, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone') {
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, and YouTube Highlights, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 

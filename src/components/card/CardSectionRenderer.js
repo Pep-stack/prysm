@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 // import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 // import { SortableContext, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 // import SortableSection from './SortableSection';
@@ -14,11 +14,17 @@ import ProjectsSectionContent from './cardSections/ProjectsSectionContent';
 import LanguagesSectionContent from './cardSections/LanguagesSectionContent';
 import ClientTestimonialsSectionContent from './cardSections/ClientTestimonialsSectionContent';
 import SkillsSectionContent from './cardSections/SkillsSectionContent';
-import ServicesSectionContent from './cardSections/ServicesSectionContent';
 import GallerySectionContent from './cardSections/GallerySectionContent';
+import XHighlightsSectionContent from './cardSections/XHighlightsSectionContent';
+import YouTubeHighlightsSectionContent from './cardSections/YouTubeHighlightsSectionContent';
+import LinkedInHighlightsSectionContent from './cardSections/LinkedInHighlightsSectionContent';
+
+// Lazy import for ServicesSectionContent to avoid circular dependency
+const ServicesSectionContent = lazy(() => import('./cardSections/ServicesSectionContent'));
 
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
 import { useContactTracking } from '../../hooks/useContactTracking';
+
 // Voeg hier AL je sectie types toe
 
 // Mapping van sectie type/id naar component (efficiënter dan switch)
@@ -48,6 +54,9 @@ const proSectionComponentMap = {
   'services': ServicesSectionContent,
   // New sections
   'gallery': GallerySectionContent,
+  'x_highlights': XHighlightsSectionContent,
+  'youtube_highlights': YouTubeHighlightsSectionContent,
+  'linkedin_highlights': LinkedInHighlightsSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -76,6 +85,9 @@ export const sectionComponentMap = {
   'services': ServicesSectionContent,
   // New sections
   'gallery': GallerySectionContent,
+  'x_highlights': XHighlightsSectionContent,
+  'youtube_highlights': YouTubeHighlightsSectionContent,
+  'linkedin_highlights': LinkedInHighlightsSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
@@ -103,11 +115,19 @@ export default function CardSectionRenderer({
   const { trackSocialClick } = useContactTracking(profile?.id);
 
   if (!section) return null;
+  
   // Kies mapping op basis van card_type
   const cardType = profile?.card_type || 'pro';
   const mapToUse = cardType === 'pro' ? proSectionComponentMap : sectionComponentMap;
+  
+  // Add error handling for component mapping
   const Component = mapToUse[section.type];
-  if (!Component) return null;
+  if (!Component) {
+    console.warn(`No component found for section type: ${section.type}`);
+    return null;
+  }
+
+
 
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
@@ -184,7 +204,11 @@ export default function CardSectionRenderer({
   };
 
   // Voor een pure preview, geen editing props nodig:
-  const finalContentComponent = <Component {...sectionProps} />;
+  const finalContentComponent = (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Component {...sectionProps} />
+    </Suspense>
+  );
 
   // Render altijd de statische div
   return (

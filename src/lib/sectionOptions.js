@@ -55,6 +55,9 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'featured_video', name: 'Featured Video', icon: LuVideo, category: CATEGORIES.CONTENT, editorComponent: 'VideoSelector' },
   { type: 'publications', name: 'Publications', icon: LuFileText, category: CATEGORIES.CONTENT, editorComponent: 'PublicationSelector' },
   { type: 'events', name: 'Events', icon: LuCalendar, category: CATEGORIES.CONTENT, editorComponent: 'EventSelector' },
+  { type: 'x_highlights', name: 'X Highlights', icon: FaXTwitter, category: CATEGORIES.CONTENT, editorComponent: 'XHighlightsEditor' },
+  { type: 'youtube_highlights', name: 'YouTube Highlights', icon: FaYoutube, category: CATEGORIES.CONTENT, editorComponent: 'YouTubeHighlightsEditor' },
+  { type: 'linkedin_highlights', name: 'LinkedIn Highlights', icon: FaLinkedin, category: CATEGORIES.CONTENT, editorComponent: 'LinkedInHighlightsEditor' },
 
   // BUSINESS - Professional services and engagement
   { type: 'appointments', name: 'Schedule a Call', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentSelector' },
@@ -156,6 +159,9 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     community: { title: defaultTitle, value: '', editorComponent: 'CommunitySelector' },
     events: { title: defaultTitle, value: [], editorComponent: 'EventSelector' },
     faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
+    x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },
+    youtube_highlights: { title: defaultTitle, value: [], editorComponent: 'YouTubeHighlightsEditor' },
+    linkedin_highlights: { title: defaultTitle, value: [], editorComponent: 'LinkedInHighlightsEditor' },
     
     // Social media defaults (shared across all types)
     linkedin: { title: defaultTitle, value: '' },
