@@ -19,6 +19,7 @@ import XHighlightsSectionContent from './cardSections/XHighlightsSectionContent'
 import YouTubeHighlightsSectionContent from './cardSections/YouTubeHighlightsSectionContent';
 import LinkedInHighlightsSectionContent from './cardSections/LinkedInHighlightsSectionContent';
 import TikTokHighlightsSectionContent from './cardSections/TikTokHighlightsSectionContent';
+import InstagramProfileSectionContent from './cardSections/InstagramHighlightsSectionContent';
 import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
@@ -60,6 +61,7 @@ const proSectionComponentMap = {
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
   'tiktok_highlights': TikTokHighlightsSectionContent,
+  'instagram_profile': InstagramProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
 };
 
@@ -93,6 +95,7 @@ export const sectionComponentMap = {
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
   'tiktok_highlights': TikTokHighlightsSectionContent,
+  'instagram_profile': InstagramProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
 };
 

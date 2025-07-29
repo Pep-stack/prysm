@@ -59,6 +59,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'youtube_highlights', name: 'YouTube Highlights', icon: FaYoutube, category: CATEGORIES.CONTENT, editorComponent: 'YouTubeHighlightsEditor' },
   { type: 'linkedin_highlights', name: 'LinkedIn Highlights', icon: FaLinkedin, category: CATEGORIES.CONTENT, editorComponent: 'LinkedInHighlightsEditor' },
   { type: 'tiktok_highlights', name: 'TikTok Highlights', icon: FaTiktok, category: CATEGORIES.CONTENT, editorComponent: 'TikHubHighlightsEditor' },
+  { type: 'instagram_profile', name: 'Instagram Profile', icon: FaInstagram, category: CATEGORIES.CONTENT, editorComponent: 'InstagramProfileEditor' },
   { type: 'github_highlights', name: 'GitHub Highlights', icon: FaGithub, category: CATEGORIES.CONTENT, editorComponent: 'GitHubHighlightsEditor' },
 
   // BUSINESS - Professional services and engagement

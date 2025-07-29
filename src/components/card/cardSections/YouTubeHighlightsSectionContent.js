@@ -39,12 +39,16 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
     console.log('🔍 Parsing YouTube highlights data:', {
       highlightsData,
       type: typeof highlightsData,
-      isArray: Array.isArray(highlightsData)
+      isArray: Array.isArray(highlightsData),
+      isNull: highlightsData === null,
+      isUndefined: highlightsData === undefined,
+      stringLength: typeof highlightsData === 'string' ? highlightsData.length : 'N/A'
     });
     
     if (Array.isArray(highlightsData)) {
       const filtered = highlightsData.filter(entry => entry && typeof entry === 'object' && entry.url);
       console.log('✅ Parsed as array, filtered entries:', filtered.length);
+      console.log('📋 Filtered entries:', filtered.map(entry => ({ url: entry.url, title: entry.title })));
       return filtered;
     }
     
@@ -54,6 +58,7 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
         if (Array.isArray(parsed)) {
           const filtered = parsed.filter(entry => entry && typeof entry === 'object' && entry.url);
           console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
+          console.log('📋 Filtered entries:', filtered.map(entry => ({ url: entry.url, title: entry.title })));
           return filtered;
         } else {
           console.log('⚠️ Parsed JSON but not an array:', parsed);
@@ -61,6 +66,7 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
         }
       } catch (e) {
         console.error('❌ Error parsing YouTube highlights JSON:', e);
+        console.error('❌ Raw data that failed to parse:', highlightsData);
         return [];
       }
     }
@@ -78,23 +84,47 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
   // Fetch video data using our server-side proxy
   const fetchVideoData = async (url) => {
     try {
+      console.log('🎬 Fetching YouTube video data for URL:', url);
+      
       const response = await fetch(`/api/youtube-oembed?url=${encodeURIComponent(url)}`);
       
+      console.log('📡 YouTube oEmbed API response status:', response.status);
+      
       if (!response.ok) {
-        console.error('Failed to fetch video data:', response.status);
+        const errorData = await response.json().catch(() => ({ error: 'Failed to parse error response' }));
+        console.error('❌ Failed to fetch video data:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: url,
+          errorData: errorData
+        });
         return null;
       }
       
       const data = await response.json();
       
       if (data.error) {
-        console.error('Video data error:', data.error);
+        console.error('❌ Video data error:', {
+          error: data.error,
+          url: url,
+          details: data.details
+        });
         return null;
       }
       
+      console.log('✅ Successfully fetched video data:', {
+        title: data.title,
+        author_name: data.author_name,
+        video_id: data.video_id
+      });
+      
       return data;
     } catch (error) {
-      console.error('Error fetching video data:', error);
+      console.error('💥 Error fetching video data:', {
+        error: error.message,
+        url: url,
+        stack: error.stack
+      });
       return null;
     }
   };
@@ -140,28 +170,51 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
   // Fetch video data for all highlights
   useEffect(() => {
     const fetchAllVideoData = async () => {
-      if (initialYouTubeHighlightsData.length === 0) return;
+      if (initialYouTubeHighlightsData.length === 0) {
+        console.log('ℹ️ No YouTube highlights to fetch data for');
+        return;
+      }
+      
+      console.log('🎬 Starting to fetch video data for', initialYouTubeHighlightsData.length, 'highlights');
       
       setLoadingVideos(true);
       const newVideoData = {};
       
       try {
         for (const highlight of initialYouTubeHighlightsData) {
+          console.log('🎬 Processing highlight:', {
+            id: highlight.id,
+            url: highlight.url,
+            title: highlight.title
+          });
+          
           if (highlight.url && !videoData[highlight.url]) {
+            console.log('🎬 Fetching data for URL:', highlight.url);
             const data = await fetchVideoData(highlight.url);
             if (data) {
               newVideoData[highlight.url] = data;
+              console.log('✅ Successfully fetched data for:', highlight.url);
+            } else {
+              console.log('❌ Failed to fetch data for:', highlight.url);
             }
+          } else if (videoData[highlight.url]) {
+            console.log('ℹ️ Already have data for:', highlight.url);
+          } else {
+            console.log('⚠️ No URL found for highlight:', highlight);
           }
         }
         
         if (Object.keys(newVideoData).length > 0) {
+          console.log('✅ Setting new video data:', Object.keys(newVideoData));
           setVideoData(prev => ({ ...prev, ...newVideoData }));
+        } else {
+          console.log('ℹ️ No new video data to set');
         }
       } catch (error) {
-        console.error('Error fetching video data:', error);
+        console.error('💥 Error fetching video data:', error);
       } finally {
         setLoadingVideos(false);
+        console.log('🏁 Finished fetching video data');
       }
     };
 

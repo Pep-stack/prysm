@@ -49,7 +49,9 @@ export function useUserProfile(user) {
             profileId: data.id,
             cardType: data.card_type,
             cardSections: data.card_sections,
-            cardSectionsLength: Array.isArray(data.card_sections) ? data.card_sections.length : 0
+            cardSectionsLength: Array.isArray(data.card_sections) ? data.card_sections.length : 0,
+            instagramProfile: data.instagram_profile,
+            hasInstagramProfile: !!data.instagram_profile
           });
           setProfile(data); // Set profile data if found
         }

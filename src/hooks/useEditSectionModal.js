@@ -187,6 +187,14 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     const sectionType = editingSection.type;
     const databaseColumnName = getDatabaseColumnName(sectionType);
     
+    console.log('🔍 DEBUG: Instagram profile save process:', {
+      sectionType,
+      databaseColumnName,
+      currentValue,
+      valueToSave,
+      user: user?.id
+    });
+    
     // Process value BEFORE sending to Supabase
     let valueToSave = currentValue;
     if (sectionType === 'languages' && Array.isArray(currentValue)) {

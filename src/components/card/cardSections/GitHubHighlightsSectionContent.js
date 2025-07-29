@@ -384,24 +384,35 @@ export default function GitHubHighlightsSectionContent({ profile, styles, isEdit
                   )}
                 </div>
 
-                {/* External link */}
+                {/* External link button */}
                 <a 
-                  href={githubDataForUrl.html_url} 
-                  target="_blank" 
+                  href={githubDataForUrl.html_url}
+                  target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: 'inline-flex',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    color: '#58a6ff',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    backgroundColor: '#ffffff',
+                    color: '#000000',
                     textDecoration: 'none',
+                    borderRadius: '8px',
                     fontSize: '14px',
-                    fontWeight: '500',
-                    transition: 'color 0.2s ease'
+                    fontWeight: '600',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#f0f0f0';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#ffffff';
                   }}
                 >
+                  <FaExternalLinkAlt style={{ fontSize: '12px' }} />
                   View on GitHub
-                  <FaExternalLinkAlt />
                 </a>
               </div>
             ) : loadingGithub ? (
@@ -588,107 +599,150 @@ export default function GitHubHighlightsSectionContent({ profile, styles, isEdit
     );
   };
 
-  // If no highlights, show placeholder
-  if (!initialGitHubHighlightsData || initialGitHubHighlightsData.length === 0) {
-    return (
-      <div style={{
-        padding: '20px',
-        textAlign: 'center',
-        color: textColor,
-        opacity: 0.6,
-        fontStyle: 'italic',
-        ...placeholderStyle
-      }}>
-        No GitHub highlights added yet
-      </div>
-    );
-  }
-
-  // If only one highlight, show it directly
-  if (initialGitHubHighlightsData.length === 1) {
-    return (
-      <div style={{ ...sectionStyle }}>
-        {renderGitHubHighlightCard(initialGitHubHighlightsData[0], 0)}
-      </div>
-    );
-  }
-
-  // Multiple highlights - show carousel
-  return (
-    <div style={{ ...sectionStyle }}>
-      {/* Carousel container */}
-      <div style={{ position: 'relative' }}>
-        {renderGitHubHighlightCard(initialGitHubHighlightsData[currentIndex], currentIndex, true)}
-        
-        {/* Navigation arrows */}
-        <button
-          onClick={prevHighlight}
-          style={{
-            position: 'absolute',
-            left: '10px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'rgba(0, 0, 0, 0.7)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            color: '#ffffff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px'
-          }}
-        >
-          ‹
-        </button>
-        
-        <button
-          onClick={nextHighlight}
-          style={{
-            position: 'absolute',
-            right: '10px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            background: 'rgba(0, 0, 0, 0.7)',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            color: '#ffffff',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '14px'
-          }}
-        >
-          ›
-        </button>
-        
-        {/* Dots indicator */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '8px',
-          marginTop: '16px'
-        }}>
-          {initialGitHubHighlightsData.map((_, index) => (
-            <div
-              key={index}
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: index === currentIndex ? '#58a6ff' : '#30363d',
-                cursor: 'pointer'
-              }}
-              onClick={() => setCurrentIndex(index)}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+           // If no highlights, show placeholder
+         if (!initialGitHubHighlightsData || initialGitHubHighlightsData.length === 0) {
+           return (
+             <div style={{
+               ...sectionStyle,
+               backdropFilter: 'blur(12px)',
+               WebkitBackdropFilter: 'blur(12px)',
+               background: 'rgba(255, 255, 255, 0.25)',
+               border: '1px solid rgba(255, 255, 255, 0.4)',
+               borderRadius: '16px',
+               padding: '20px',
+               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+               transition: 'all 0.3s ease',
+               overflow: 'hidden',
+               width: '100%',
+               fontFamily: settings.font_family || 'Inter, sans-serif'
+             }}>
+               <div style={{
+                 ...sectionTitleStyle,
+                 marginBottom: '16px',
+                 display: 'flex',
+                 alignItems: 'center',
+                 gap: '8px'
+               }}>
+                 <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
+                 <span>GitHub Highlights</span>
+               </div>
+               
+               <div style={{
+                 ...placeholderStyle,
+                 textAlign: 'center',
+                 padding: '40px 20px'
+               }}>
+                 <FaGithub style={{ 
+                   fontSize: '48px', 
+                   color: '#ffffff', 
+                   marginBottom: '16px',
+                   opacity: 0.5
+                 }} />
+                 <div style={{ fontSize: '16px', marginBottom: '8px' }}>
+                   No GitHub highlights yet
+                 </div>
+                 <div style={{ fontSize: '14px', opacity: 0.7 }}>
+                   Add your best GitHub content to showcase your work
+                 </div>
+               </div>
+             </div>
+           );
+         }
+       
+         // If only one highlight, show it directly
+         if (initialGitHubHighlightsData.length === 1) {
+           return (
+             <div style={{
+               ...sectionStyle,
+               backdropFilter: 'blur(12px)',
+               WebkitBackdropFilter: 'blur(12px)',
+               background: 'rgba(255, 255, 255, 0.25)',
+               border: '1px solid rgba(255, 255, 255, 0.4)',
+               borderRadius: '16px',
+               padding: '20px',
+               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+               transition: 'all 0.3s ease',
+               overflow: 'hidden',
+               width: '100%',
+               fontFamily: settings.font_family || 'Inter, sans-serif'
+             }}
+             onTouchStart={handleTouchStart}
+             onTouchEnd={handleTouchEnd}
+             >
+               <div style={{
+                 ...sectionTitleStyle,
+                 marginBottom: '16px',
+                 display: 'flex',
+                 alignItems: 'center',
+                 gap: '8px'
+               }}>
+                 <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
+                 <span>GitHub Highlights</span>
+               </div>
+               
+               {renderGitHubHighlightCard(initialGitHubHighlightsData[0], 0)}
+             </div>
+           );
+         }
+       
+         // Multiple highlights - show carousel
+         return (
+           <div style={{
+             ...sectionStyle,
+             backdropFilter: 'blur(12px)',
+             WebkitBackdropFilter: 'blur(12px)',
+             background: 'rgba(255, 255, 255, 0.25)',
+             border: '1px solid rgba(255, 255, 255, 0.4)',
+             borderRadius: '16px',
+             padding: '20px',
+             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+             transition: 'all 0.3s ease',
+             overflow: 'hidden',
+             width: '100%',
+             fontFamily: settings.font_family || 'Inter, sans-serif'
+           }}
+           onTouchStart={handleTouchStart}
+           onTouchEnd={handleTouchEnd}
+           >
+             <div style={{
+               ...sectionTitleStyle,
+               marginBottom: '16px',
+               display: 'flex',
+               alignItems: 'center',
+               gap: '8px'
+             }}>
+               <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
+               <span>GitHub Highlights</span>
+             </div>
+             
+             {/* Carousel container */}
+             <div style={{ position: 'relative' }}>
+               {renderGitHubHighlightCard(initialGitHubHighlightsData[currentIndex], currentIndex, true)}
+               
+               {/* Dots indicator */}
+               <div style={{
+                 display: 'flex',
+                 justifyContent: 'center',
+                 gap: '6px',
+                 marginTop: '12px'
+               }}>
+                 {initialGitHubHighlightsData.map((_, index) => (
+                   <button
+                     key={index}
+                     onClick={() => setCurrentIndex(index)}
+                     style={{
+                       width: '8px',
+                       height: '8px',
+                       borderRadius: '50%',
+                       border: 'none',
+                       background: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.3)',
+                       cursor: 'pointer',
+                       transition: 'all 0.2s ease'
+                     }}
+                   />
+                 ))}
+               </div>
+             </div>
+           </div>
+         );
 } 
