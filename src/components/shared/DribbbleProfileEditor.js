@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FaInstagram } from 'react-icons/fa';
+import { FaDribbble } from 'react-icons/fa';
 
-export default function InstagramProfileEditor({ value = '', onChange, onSave, onCancel }) {
+export default function DribbbleProfileEditor({ value = '', onChange, onSave, onCancel }) {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
@@ -21,24 +21,22 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
 
   const extractUsername = (url) => {
     if (!url) return '';
-    // Remove @ symbol if present
-    const cleanUrl = url.replace(/^@/, '');
-    const match = cleanUrl.match(/instagram\.com\/([^\/\?]+)/);
-    return match ? match[1] : cleanUrl;
+    // Handle dribbble.com/username format
+    const match = url.match(/dribbble\.com\/([^\/\?]+)/);
+    return match ? match[1] : '';
   };
 
-  const constructInstagramUrl = (username) => {
+  const constructDribbbleUrl = (username) => {
     if (!username) return '';
-    // Remove @ symbol if present and clean the username
-    const cleanUsername = username.replace(/^@/, '').trim();
-    return cleanUsername ? `https://www.instagram.com/${cleanUsername}/` : '';
+    const cleanUsername = username.trim();
+    return cleanUsername ? `https://dribbble.com/${cleanUsername}` : '';
   };
 
   const handleSave = () => {
     const cleanUsername = username.trim();
-    const fullUrl = constructInstagramUrl(cleanUsername);
+    const fullUrl = constructDribbbleUrl(cleanUsername);
     
-    console.log('💾 INSTAGRAM-PROFILE-EDITOR: Saving data:', {
+    console.log('💾 DRIBBBLE-PROFILE-EDITOR: Saving data:', {
       username: cleanUsername,
       fullUrl: fullUrl
     });
@@ -62,17 +60,17 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
         overflow: 'hidden'
       }}
     >
-      {/* Instagram Header with logo and text */}
+      {/* Dribbble Header with logo and text */}
       <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-            background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'
+            background: 'linear-gradient(45deg, #EA4C89 0%, #D63384 100%)'
           }}>
-            <FaInstagram className="text-white text-xl" />
+            <FaDribbble className="text-white text-xl" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg">Instagram Profile</h3>
-            <p className="text-gray-400 text-sm">Add your Instagram username</p>
+            <h3 className="text-white font-semibold text-lg">Dribbble Profile</h3>
+            <p className="text-gray-400 text-sm">Add your Dribbble username</p>
           </div>
         </div>
       </div>
@@ -80,7 +78,7 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
       {/* Content with username input */}
       <div className="p-6 pt-4">
         <div className="mb-6">
-          <label className="block text-white font-medium mb-2 text-sm">Instagram Username</label>
+          <label className="block text-white font-medium mb-2 text-sm">Dribbble Username</label>
           <div className="relative">
             <input
               type="text"
@@ -92,7 +90,7 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
             />
           </div>
           
-          <p className="text-gray-400 text-xs mt-2">Enter your Instagram username (without @ symbol)</p>
+          <p className="text-gray-400 text-xs mt-2">Enter your Dribbble username</p>
         </div>
 
         {/* Profile preview */}
@@ -102,13 +100,13 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-                  background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'
+                  background: 'linear-gradient(45deg, #EA4C89 0%, #D63384 100%)'
                 }}>
-                  <FaInstagram className="text-white text-sm" />
+                  <FaDribbble className="text-white text-sm" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-white text-sm font-medium">@{username.replace(/^@/, '')}</div>
-                  <div className="text-gray-400 text-xs">Instagram User</div>
+                  <div className="text-white text-sm font-medium">@{username}</div>
+                  <div className="text-gray-400 text-xs">Dribbble User</div>
                 </div>
               </div>
             </div>
@@ -129,7 +127,7 @@ export default function InstagramProfileEditor({ value = '', onChange, onSave, o
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: username.trim() 
-                ? 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'
+                ? 'linear-gradient(45deg, #EA4C89 0%, #D63384 100%)'
                 : '#333',
               color: '#ffffff'
             }}

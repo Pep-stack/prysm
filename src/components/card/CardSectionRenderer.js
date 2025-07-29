@@ -20,6 +20,12 @@ import YouTubeHighlightsSectionContent from './cardSections/YouTubeHighlightsSec
 import LinkedInHighlightsSectionContent from './cardSections/LinkedInHighlightsSectionContent';
 import TikTokHighlightsSectionContent from './cardSections/TikTokHighlightsSectionContent';
 import InstagramProfileSectionContent from './cardSections/InstagramHighlightsSectionContent';
+import LinkedInProfileSectionContent from './cardSections/LinkedInProfileSectionContent';
+import XProfileSectionContent from './cardSections/XProfileSectionContent';
+import SnapchatProfileSectionContent from './cardSections/SnapchatProfileSectionContent';
+import TikTokProfileSectionContent from './cardSections/TikTokProfileSectionContent';
+import BehanceProfileSectionContent from './cardSections/BehanceProfileSectionContent';
+import DribbbleProfileSectionContent from './cardSections/DribbbleProfileSectionContent';
 import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
@@ -62,6 +68,12 @@ const proSectionComponentMap = {
   'linkedin_highlights': LinkedInHighlightsSectionContent,
   'tiktok_highlights': TikTokHighlightsSectionContent,
   'instagram_profile': InstagramProfileSectionContent,
+  'linkedin_profile': LinkedInProfileSectionContent,
+  'x_profile': XProfileSectionContent,
+  'snapchat_profile': SnapchatProfileSectionContent,
+  'tiktok_profile': TikTokProfileSectionContent,
+  'behance_profile': BehanceProfileSectionContent,
+  'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
 };
 
@@ -96,6 +108,12 @@ export const sectionComponentMap = {
   'linkedin_highlights': LinkedInHighlightsSectionContent,
   'tiktok_highlights': TikTokHighlightsSectionContent,
   'instagram_profile': InstagramProfileSectionContent,
+  'linkedin_profile': LinkedInProfileSectionContent,
+  'x_profile': XProfileSectionContent,
+  'snapchat_profile': SnapchatProfileSectionContent,
+  'tiktok_profile': TikTokProfileSectionContent,
+  'behance_profile': BehanceProfileSectionContent,
+  'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
 };
 
@@ -131,6 +149,12 @@ export default function CardSectionRenderer({
   
   // Add error handling for component mapping
   const Component = mapToUse[section.type];
+  console.log('🔍 CARD-RENDERER: Rendering section:', {
+    sectionType: section.type,
+    hasComponent: !!Component,
+    availableTypes: Object.keys(mapToUse),
+    cardType: cardType
+  });
   if (!Component) {
     console.warn(`No component found for section type: ${section.type}`);
     return null;

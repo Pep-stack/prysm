@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaInstagram, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaTiktok } from 'react-icons/fa';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
-export default function InstagramProfileSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
+export default function TikTokProfileSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const [profileUrl, setProfileUrl] = useState('');
   const [username, setUsername] = useState('');
 
@@ -14,16 +15,16 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
 
-  // Parse Instagram profile data
-  const parseInstagramProfileData = (profileData) => {
-    console.log('🔍 Parsing Instagram profile data:', {
+  // Parse TikTok profile data
+  const parseTikTokProfileData = (profileData) => {
+    console.log('🔍 Parsing TikTok profile data:', {
       profileData,
       type: typeof profileData,
       isNull: profileData === null,
       isUndefined: profileData === undefined,
       stringLength: typeof profileData === 'string' ? profileData.length : 'N/A',
       isArray: Array.isArray(profileData),
-      keys: typeof profileData === 'object' ? Object.keys(profileData) : 'N/A'
+      keys: typeof profileData === 'object' && profileData !== null ? Object.keys(profileData) : 'N/A'
     });
     
     // Handle string format (direct URL)
@@ -75,28 +76,29 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
     return null;
   };
 
-  // Extract username from Instagram URL
+  // Extract username from TikTok URL
   const extractUsername = (url) => {
     if (!url) return '';
-    const match = url.match(/instagram\.com\/([^\/\?]+)/);
+    // Handle tiktok.com/@username format
+    const match = url.match(/tiktok\.com\/@([^\/\?]+)/);
     return match ? match[1] : '';
   };
 
-  // Get Instagram profile data from profile
-  const instagramProfileData = useMemo(() => {
+  // Get TikTok profile data from profile
+  const tiktokProfileData = useMemo(() => {
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
-      instagram_profile: profile?.instagram_profile,
+      tiktok_profile: profile?.tiktok_profile,
       profileKeys: profile ? Object.keys(profile) : 'no profile',
-      hasInstagramProfile: !!profile?.instagram_profile
+      hasTikTokProfile: !!profile?.tiktok_profile
     });
-    return profile?.instagram_profile;
-  }, [profile?.instagram_profile]);
+    return profile?.tiktok_profile;
+  }, [profile?.tiktok_profile]);
 
   // Parse data on mount
   useEffect(() => {
-    console.log('🔄 useEffect triggered with instagramProfileData:', instagramProfileData);
-    const parsedData = parseInstagramProfileData(instagramProfileData);
+    console.log('🔄 useEffect triggered with tiktokProfileData:', tiktokProfileData);
+    const parsedData = parseTikTokProfileData(tiktokProfileData);
     console.log('📊 Parsed data result:', parsedData);
     
     if (parsedData) {
@@ -108,7 +110,7 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
       setProfileUrl('');
       setUsername('');
     }
-  }, [instagramProfileData]);
+  }, [tiktokProfileData]);
 
   // Section styling
   const defaultSectionStyle = {
@@ -145,13 +147,13 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
       username: username,
       hasProfileUrl: !!profileUrl,
       hasUsername: !!username,
-      instagramProfileData: instagramProfileData
+      tiktokProfileData: tiktokProfileData
     });
     
     // TEMPORARY TEST: Force show profile card for testing
-    if (instagramProfileData && typeof instagramProfileData === 'string' && instagramProfileData.includes('instagram.com')) {
-      console.log('🧪 TEST: Forcing profile display with data:', instagramProfileData);
-      const testUsername = extractUsername(instagramProfileData);
+    if (tiktokProfileData && typeof tiktokProfileData === 'string' && tiktokProfileData.includes('tiktok.com')) {
+      console.log('🧪 TEST: Forcing profile display with data:', tiktokProfileData);
+      const testUsername = extractUsername(tiktokProfileData);
       return (
         <div style={{
           backdropFilter: 'blur(12px)',
@@ -185,14 +187,14 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
+                background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(220, 39, 67, 0.3)',
+                boxShadow: '0 2px 8px rgba(254, 44, 85, 0.3)',
                 flexShrink: 0
               }}>
-                <FaInstagram size={18} color="white" />
+                <FaTiktok size={18} color="white" />
               </div>
               <div style={{
                 display: 'flex',
@@ -214,14 +216,14 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
                   fontWeight: '400',
                   fontFamily: settings.font_family || 'Inter, sans-serif'
                 }}>
-                  Instagram Profile
+                  TikTok Profile
                 </div>
               </div>
             </div>
 
             {/* Right side - Button */}
             <button style={{
-              background: 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
+              background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -233,21 +235,21 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
               alignItems: 'center',
               gap: '8px',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 2px 8px rgba(220, 39, 67, 0.3)',
+              boxShadow: '0 2px 8px rgba(254, 44, 85, 0.3)',
               letterSpacing: '-0.1px',
               flexShrink: 0,
               fontFamily: settings.font_family || 'Inter, sans-serif'
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-1px)';
-              e.target.style.boxShadow = '0 4px 12px rgba(220, 39, 67, 0.4)';
+              e.target.style.boxShadow = '0 4px 12px rgba(254, 44, 85, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 2px 8px rgba(220, 39, 67, 0.3)';
+              e.target.style.boxShadow = '0 2px 8px rgba(254, 44, 85, 0.3)';
             }}
             onClick={() => {
-              window.open(instagramProfileData, '_blank', 'noopener,noreferrer');
+              window.open(tiktokProfileData, '_blank', 'noopener,noreferrer');
             }}
             >
               <FaExternalLinkAlt size={12} />
@@ -290,14 +292,14 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
+              background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(220, 39, 67, 0.3)',
+              boxShadow: '0 2px 8px rgba(254, 44, 85, 0.3)',
               flexShrink: 0
             }}>
-              <FaInstagram size={18} color="white" />
+              <FaTiktok size={18} color="white" />
             </div>
             <div style={{
               display: 'flex',
@@ -311,7 +313,7 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
                 letterSpacing: '-0.2px',
                 fontFamily: settings.font_family || 'Inter, sans-serif'
               }}>
-                Instagram Profile
+                TikTok Profile
               </div>
               <div style={{
                 fontSize: (parseInt(settings.font_size) || 16) - 3 + 'px',
@@ -319,7 +321,7 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
                 fontWeight: '400',
                 fontFamily: settings.font_family || 'Inter, sans-serif'
               }}>
-                Add your Instagram profile
+                Add your TikTok profile
               </div>
             </div>
           </div>
@@ -382,19 +384,19 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
           gap: '12px',
           flex: '1'
         }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(220, 39, 67, 0.3)',
-            flexShrink: 0
-          }}>
-            <FaInstagram size={18} color="white" />
-          </div>
+                         <div style={{
+                 width: '40px',
+                 height: '40px',
+                 borderRadius: '50%',
+                 background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)',
+                 display: 'flex',
+                 alignItems: 'center',
+                 justifyContent: 'center',
+                 boxShadow: '0 2px 8px rgba(254, 44, 85, 0.3)',
+                 flexShrink: 0
+               }}>
+                 <FaTiktok size={18} color="white" />
+               </div>
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -415,40 +417,40 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
               fontWeight: '400',
               fontFamily: settings.font_family || 'Inter, sans-serif'
             }}>
-              Instagram Profile
+              TikTok Profile
             </div>
           </div>
         </div>
 
         {/* Right side - Button */}
-        <button style={{
-          background: 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '12px',
-          padding: '10px 16px',
-          fontSize: settings.font_size ? (parseInt(settings.font_size) - 2) + 'px' : '14px',
-          fontWeight: settings.font_weight || '600',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: '0 2px 8px rgba(220, 39, 67, 0.3)',
-          letterSpacing: '-0.1px',
-          flexShrink: 0,
-          fontFamily: settings.font_family || 'Inter, sans-serif'
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.transform = 'translateY(-1px)';
-          e.target.style.boxShadow = '0 4px 12px rgba(220, 39, 67, 0.4)';
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = '0 2px 8px rgba(220, 39, 67, 0.3)';
-        }}
+                     <button style={{
+               background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)',
+               color: 'white',
+               border: 'none',
+               borderRadius: '12px',
+               padding: '10px 16px',
+               fontSize: settings.font_size ? (parseInt(settings.font_size) - 2) + 'px' : '14px',
+               fontWeight: settings.font_weight || '600',
+               cursor: 'pointer',
+               display: 'flex',
+               alignItems: 'center',
+               gap: '8px',
+               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+               boxShadow: '0 2px 8px rgba(254, 44, 85, 0.3)',
+               letterSpacing: '-0.1px',
+               flexShrink: 0,
+               fontFamily: settings.font_family || 'Inter, sans-serif'
+             }}
+             onMouseEnter={(e) => {
+               e.target.style.transform = 'translateY(-1px)';
+               e.target.style.boxShadow = '0 4px 12px rgba(254, 44, 85, 0.4)';
+             }}
+             onMouseLeave={(e) => {
+               e.target.style.transform = 'translateY(0)';
+               e.target.style.boxShadow = '0 2px 8px rgba(254, 44, 85, 0.3)';
+             }}
         onClick={() => {
-          const displayUrl = profileUrl || (instagramProfileData && typeof instagramProfileData === 'string' ? instagramProfileData : '');
+          const displayUrl = profileUrl || (tiktokProfileData && typeof tiktokProfileData === 'string' ? tiktokProfileData : '');
           if (displayUrl) {
             window.open(displayUrl, '_blank', 'noopener,noreferrer');
           }

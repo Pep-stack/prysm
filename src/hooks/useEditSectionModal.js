@@ -187,6 +187,9 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     const sectionType = editingSection.type;
     const databaseColumnName = getDatabaseColumnName(sectionType);
     
+    // Process value BEFORE sending to Supabase
+    let valueToSave = currentValue;
+    
     console.log('🔍 DEBUG: Instagram profile save process:', {
       sectionType,
       databaseColumnName,
@@ -194,9 +197,6 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       valueToSave,
       user: user?.id
     });
-    
-    // Process value BEFORE sending to Supabase
-    let valueToSave = currentValue;
     if (sectionType === 'languages' && Array.isArray(currentValue)) {
       valueToSave = currentValue.join(','); // Join array into comma-separated string
     } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') && Array.isArray(currentValue)) {

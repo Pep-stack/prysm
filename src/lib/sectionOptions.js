@@ -60,6 +60,12 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'linkedin_highlights', name: 'LinkedIn Highlights', icon: FaLinkedin, category: CATEGORIES.CONTENT, editorComponent: 'LinkedInHighlightsEditor' },
   { type: 'tiktok_highlights', name: 'TikTok Highlights', icon: FaTiktok, category: CATEGORIES.CONTENT, editorComponent: 'TikHubHighlightsEditor' },
   { type: 'instagram_profile', name: 'Instagram Profile', icon: FaInstagram, category: CATEGORIES.CONTENT, editorComponent: 'InstagramProfileEditor' },
+  { type: 'linkedin_profile', name: 'LinkedIn Profile', icon: FaLinkedin, category: CATEGORIES.CONTENT, editorComponent: 'LinkedInProfileEditor' },
+  { type: 'x_profile', name: 'X Profile', icon: FaXTwitter, category: CATEGORIES.CONTENT, editorComponent: 'XProfileEditor' },
+  { type: 'snapchat_profile', name: 'Snapchat Profile', icon: FaSnapchat, category: CATEGORIES.CONTENT, editorComponent: 'SnapchatProfileEditor' },
+  { type: 'tiktok_profile', name: 'TikTok Profile', icon: FaTiktok, category: CATEGORIES.CONTENT, editorComponent: 'TikTokProfileEditor' },
+  { type: 'behance_profile', name: 'Behance Profile', icon: FaBehance, category: CATEGORIES.CONTENT, editorComponent: 'BehanceProfileEditor' },
+  { type: 'dribbble_profile', name: 'Dribbble Profile', icon: FaDribbble, category: CATEGORIES.CONTENT, editorComponent: 'DribbbleProfileEditor' },
   { type: 'github_highlights', name: 'GitHub Highlights', icon: FaGithub, category: CATEGORIES.CONTENT, editorComponent: 'GitHubHighlightsEditor' },
 
   // BUSINESS - Professional services and engagement
