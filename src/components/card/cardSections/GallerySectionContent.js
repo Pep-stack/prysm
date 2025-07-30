@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { LuImage, LuChevronLeft, LuChevronRight, LuExternalLink } from 'react-icons/lu';
+import { LuImage } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function GallerySectionContent({ profile, styles, isEditing, onSave, onCancel }) {
@@ -85,8 +85,55 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
   // Render placeholder when no data
   if (!galleryData || galleryData.length === 0) {
     return (
-      <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Gallery</h3>
+      <div style={{
+        ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}>
+        {/* Title at the top of the container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: textColor,
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuImage size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Gallery
+          </h3>
+        </div>
+        
         <div style={placeholderStyle}>
           <LuImage size={48} style={{ color: textColor, opacity: 0.5 }} />
           <p style={{ color: textColor, opacity: 0.7 }}>No gallery images yet</p>
@@ -98,9 +145,55 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
   const currentImage = galleryData[currentIndex];
 
   return (
-    <div style={sectionStyle}>
-      <h3 style={sectionTitleStyle}>Gallery</h3>
-      
+    <div style={{
+      ...sectionStyle,
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      background: 'rgba(255, 255, 255, 0.25)',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      borderRadius: '16px',
+      padding: '20px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+      overflow: 'hidden',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }}>
+      {/* Title at the top of the container */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+      }}>
+        <div style={{
+          width: '24px',
+          height: '24px',
+          backgroundColor: textColor,
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0.8
+        }}>
+          <LuImage size={14} style={{ color: 'white' }} />
+        </div>
+        <h3 style={{
+          ...sectionTitleStyle,
+          fontSize: '18px',
+          fontWeight: '600',
+          color: textColor,
+          margin: 0,
+          letterSpacing: '-0.01em',
+          opacity: 0.9
+        }}>
+          {galleryData[0]?.title || 'Gallery'}
+        </h3>
+      </div>
+
       <div 
         className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
         onTouchStart={handleTouchStart}
@@ -113,73 +206,38 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
             className="w-full h-full object-cover"
           />
         )}
-        
-        {/* Navigation arrows */}
-        {galleryData.length > 1 && (
-          <>
-            <button
-              onClick={prevImage}
-              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
-            >
-              <LuChevronLeft size={20} />
-            </button>
-            <button
-              onClick={nextImage}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
-            >
-              <LuChevronRight size={20} />
-            </button>
-          </>
-        )}
-        
-        {/* Image info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-          <h4 className="text-white font-medium mb-1">{currentImage.title}</h4>
-          {currentImage.description && (
-            <p className="text-white text-sm opacity-90">{currentImage.description}</p>
-          )}
-          {currentImage.link && (
-            <a
-              href={currentImage.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-white text-sm opacity-90 hover:opacity-100 mt-2"
-            >
-              <LuExternalLink size={14} />
-              View Details
-            </a>
-          )}
-        </div>
-        
-        {/* Image counter */}
-        {galleryData.length > 1 && (
-          <div className="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
-            {currentIndex + 1} / {galleryData.length}
-          </div>
-        )}
       </div>
       
-      {/* Thumbnail navigation */}
+      {/* Dots navigation */}
       {galleryData.length > 1 && (
-        <div className="flex gap-2 mt-4 overflow-x-auto">
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '8px',
+          marginTop: '16px',
+          paddingTop: '12px',
+          borderTop: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
           {galleryData.map((image, index) => (
-            <button
+            <div
               key={image.id || index}
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
+                opacity: index === currentIndex ? 0.8 : 0.4,
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
               onClick={() => setCurrentIndex(index)}
-              className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-all ${
-                index === currentIndex 
-                  ? 'border-emerald-500' 
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              {image.imageUrl && (
-                <img
-                  src={image.imageUrl}
-                  alt={image.title || `Gallery image ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </button>
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            />
           ))}
         </div>
       )}

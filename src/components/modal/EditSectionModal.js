@@ -10,7 +10,7 @@ import ClientTestimonialSelector from '../shared/ClientTestimonialSelector';
 import SkillsSelector from '../shared/SkillsSelector';
 import ServicesSelector from '../shared/ServicesSelector';
 import GallerySelector from '../shared/GallerySelector';
-import VideoSelector from '../shared/VideoSelector';
+import VideoEditor from '../shared/VideoSelector';
 import AppointmentSelector from '../shared/AppointmentSelector';
 import PublicationSelector from '../shared/PublicationSelector';
 import CommunitySelector from '../shared/CommunitySelector';
@@ -222,25 +222,29 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     }
 
     if (section.editorComponent === 'GallerySelector') {
-      console.log('🎯 GALLERY-SELECTOR: Rendering GallerySelector component');
-      // Ensure 'value' passed to GallerySelector is an array of gallery objects
+      console.log('🎯 GALLERY-EDITOR: Rendering GalleryEditor component');
+      // Ensure 'value' passed to GalleryEditor is an array of gallery objects
       const selectedGalleryEntries = Array.isArray(value) ? value : [];
       return (
         <GallerySelector 
           value={selectedGalleryEntries} // Pass current gallery entries
           onChange={onChange} // onChange should expect an array of gallery objects
+          onSave={onSave}
+          onCancel={onClose}
         />
       );
     }
 
     if (section.editorComponent === 'VideoSelector') {
-      console.log('🎯 VIDEO-SELECTOR: Rendering VideoSelector component');
-      // Ensure 'value' passed to VideoSelector is a video object
+      console.log('🎯 VIDEO-EDITOR: Rendering VideoEditor component');
+      // Ensure 'value' passed to VideoEditor is a video object
       const selectedVideoData = value || {};
       return (
-        <VideoSelector 
+        <VideoEditor 
           value={selectedVideoData} // Pass current video data
           onChange={onChange} // onChange should expect a video object
+          onSave={onSave}
+          onCancel={onClose}
         />
       );
     }
@@ -632,8 +636,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
 
-  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, and GitHub Highlights, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights') {
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, and Featured Video, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 

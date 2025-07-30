@@ -105,7 +105,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     } else {
       // Use section.type instead of section.id for database column lookup
       // Map special cases where section.type doesn't match database column name
-      const getDatabaseColumnName = (sectionType) => {
+      const getDatabaseColumnNameForInput = (sectionType) => {
         switch (sectionType) {
           case 'github':
             return 'github_gitlab';
@@ -124,7 +124,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
         }
       };
       
-      const databaseColumnName = getDatabaseColumnName(section.type);
+      const databaseColumnName = getDatabaseColumnNameForInput(section.type);
       setInputValue(initialProfileData[databaseColumnName] || ''); 
     }
     
@@ -159,7 +159,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     
     // Use section.type as the database column name instead of section.id
     // Map special cases where section.type doesn't match database column name
-    const getDatabaseColumnName = (sectionType) => {
+    const getDatabaseColumnNameForSave = (sectionType) => {
       switch (sectionType) {
         case 'github':
           return 'github_gitlab';
@@ -185,7 +185,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     };
     
     const sectionType = editingSection.type;
-    const databaseColumnName = getDatabaseColumnName(sectionType);
+    const databaseColumnName = getDatabaseColumnNameForSave(sectionType);
     
     // Process value BEFORE sending to Supabase
     let valueToSave = currentValue;

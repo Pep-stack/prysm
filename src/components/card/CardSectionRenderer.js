@@ -15,6 +15,7 @@ import LanguagesSectionContent from './cardSections/LanguagesSectionContent';
 import ClientTestimonialsSectionContent from './cardSections/ClientTestimonialsSectionContent';
 import SkillsSectionContent from './cardSections/SkillsSectionContent';
 import GallerySectionContent from './cardSections/GallerySectionContent';
+import FeaturedVideoSectionContent from './cardSections/FeaturedVideoSectionContent';
 import XHighlightsSectionContent from './cardSections/XHighlightsSectionContent';
 import YouTubeHighlightsSectionContent from './cardSections/YouTubeHighlightsSectionContent';
 import LinkedInHighlightsSectionContent from './cardSections/LinkedInHighlightsSectionContent';
@@ -63,6 +64,7 @@ const proSectionComponentMap = {
   'services': ServicesSectionContent,
   // New sections
   'gallery': GallerySectionContent,
+  'featured_video': FeaturedVideoSectionContent,
   'x_highlights': XHighlightsSectionContent,
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,

@@ -112,20 +112,20 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
     }
   }, [xProfileData]);
 
-  // Section styling - Consistent with dashboard editor
+  // Section styling
   const defaultSectionStyle = {
-    padding: '20px',
-    borderRadius: '16px',
-    background: 'rgba(255, 255, 255, 0.25)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.4)',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    padding: '32px',
+    borderRadius: '20px',
+    background: settings.background_color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: settings.text_color || '#ffffff',
+    fontFamily: settings.font_family || 'Inter, sans-serif',
+    fontSize: settings.font_size || '16px',
+    fontWeight: settings.font_weight || '400',
+    textAlign: settings.text_align || 'left',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+    border: settings.border_style || 'none',
     position: 'relative',
-    overflow: 'hidden',
-    width: '100%',
-    fontFamily: settings.font_family || 'Inter, sans-serif'
+    overflow: 'hidden'
   };
 
   const defaultSectionTitleStyle = {
@@ -260,23 +260,21 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
       );
     }
     
-                    return (
-                  <div style={{
-                    backdropFilter: 'blur(12px)',
-                    WebkitBackdropFilter: 'blur(12px)',
-                    background: 'rgba(255, 255, 255, 0.25)',
-                    border: '1px solid rgba(255, 255, 255, 0.4)',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    width: '100%',
-                    fontFamily: settings.font_family || 'Inter, sans-serif',
-                    ...sectionStyle
-                  }}>
+    return (
+      <div style={{
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        fontFamily: settings.font_family || 'Inter, sans-serif',
+        ...sectionStyle
+      }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -371,7 +369,6 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
       overflow: 'hidden',
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
       width: '100%',
-      fontFamily: settings.font_family || 'Inter, sans-serif',
       ...sectionStyle
     }}>
       <div style={{

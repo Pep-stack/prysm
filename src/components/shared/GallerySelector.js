@@ -1,221 +1,411 @@
 'use client';
 
-import React, { useState } from 'react';
-import { LuImage, LuPlus, LuTrash2, LuPencil } from 'react-icons/lu';
+import React, { useState, useEffect } from 'react';
+import { LuImage, LuPlus, LuTrash2, LuUpload, LuLoader, LuX } from 'react-icons/lu';
+import { supabase } from '../../lib/supabase';
+import { getAvailableBucket } from '../../lib/supabase-storage-setup';
 
-export default function GallerySelector({ value = [], onChange }) {
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [newEntry, setNewEntry] = useState({
-    title: '',
-    description: '',
-    imageUrl: '',
-    link: ''
-  });
+export default function GalleryEditor({ value = '', onChange, onSave, onCancel }) {
+  const [gallery, setGallery] = useState([]);
+  const [title, setTitle] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
 
-  const handleAddNew = () => {
-    setEditingIndex('new');
-    setNewEntry({
-      title: '',
-      description: '',
-      imageUrl: '',
-      link: ''
+  useEffect(() => {
+    if (value) {
+      try {
+        const parsed = Array.isArray(value) ? value : JSON.parse(value);
+        setGallery(parsed);
+        // Set title from first item if available
+        if (parsed.length > 0 && parsed[0].title) {
+          setTitle(parsed[0].title);
+        }
+      } catch (e) {
+        setGallery([]);
+      }
+    } else {
+      setGallery([]);
+    }
+  }, [value]);
+
+  // Add CSS animation globally once
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes prysm-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .prysm-spin {
+        animation: prysm-spin 1s linear infinite;
+        transform-origin: center;
+        display: inline-block;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || gallery.length >= 20) return;
+
+    console.log('🔄 Starting gallery file upload:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
     });
-  };
 
-  const handleSaveNew = () => {
-    if (newEntry.title && newEntry.imageUrl) {
-      const updatedGallery = [...value, { ...newEntry, id: Date.now() }];
-      onChange(updatedGallery);
-      setEditingIndex(null);
-      setNewEntry({
-        title: '',
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be logged in to upload files');
+      }
+
+      console.log('👤 User authenticated:', user.id);
+
+      // Check file size (max 50MB)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (file.size > maxSize) {
+        throw new Error('File size must be less than 50MB');
+      }
+
+      // Check file type
+      const allowedTypes = ['image/'];
+      if (!allowedTypes.some(type => file.type.startsWith(type))) {
+        throw new Error('Only image files are allowed');
+      }
+
+      // Try multiple bucket strategies
+      let uploadResult = null;
+      let finalBucketName = null;
+
+      // Strategy 1: Try project-media bucket
+      try {
+        console.log('🗂️ Trying strategy 1: project-media bucket');
+        const bucketName = 'project-media';
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+        console.log('📂 Upload details:', { bucketName, fileName });
+
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (!error && data) {
+          uploadResult = { data, fileName };
+          finalBucketName = bucketName;
+          console.log('✅ Strategy 1 SUCCESS:', { data, fileName });
+        } else {
+          console.log('❌ Strategy 1 FAILED:', error);
+        }
+      } catch (err) {
+        console.log('❌ Strategy 1 EXCEPTION:', err.message);
+      }
+
+      // Strategy 2: Try uploads bucket if project-media failed
+      if (!uploadResult) {
+        try {
+          console.log('🗂️ Trying strategy 2: uploads bucket');
+          const bucketName = 'uploads';
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+          console.log('📂 Upload details:', { bucketName, fileName });
+
+          const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (!error && data) {
+            uploadResult = { data, fileName };
+            finalBucketName = bucketName;
+            console.log('✅ Strategy 2 SUCCESS:', { data, fileName });
+          } else {
+            console.log('❌ Strategy 2 FAILED:', error);
+          }
+        } catch (err) {
+          console.log('❌ Strategy 2 EXCEPTION:', err.message);
+        }
+      }
+
+      // Strategy 3: Try any available bucket
+      if (!uploadResult) {
+        console.log('🗂️ Trying strategy 3: dynamic bucket detection');
+        const bucketName = await getAvailableBucket();
+        if (bucketName) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+          console.log('📂 Upload details:', { bucketName, fileName });
+
+          const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (!error && data) {
+            uploadResult = { data, fileName };
+            finalBucketName = bucketName;
+            console.log('✅ Strategy 3 SUCCESS:', { data, fileName });
+          } else {
+            console.log('❌ Strategy 3 FAILED:', error);
+          }
+        }
+      }
+
+      if (!uploadResult || !finalBucketName) {
+        throw new Error('All upload strategies failed. Please check Supabase Storage configuration and RLS policies.');
+      }
+
+      console.log('📡 Getting public URL for:', { bucket: finalBucketName, fileName: uploadResult.fileName });
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from(finalBucketName)
+        .getPublicUrl(uploadResult.fileName);
+
+      console.log('🔗 Public URL received:', publicUrl);
+
+      if (!publicUrl) {
+        throw new Error('Failed to get public URL for uploaded file');
+      }
+
+      // Add new image to gallery
+      const newImage = {
+        id: Date.now(),
+        imageUrl: publicUrl,
+        title: title || 'Gallery Image',
         description: '',
-        imageUrl: '',
         link: ''
+      };
+
+      setGallery([...gallery, newImage]);
+
+      console.log('✅ Gallery image uploaded successfully:', { 
+        publicUrl, 
+        bucketName: finalBucketName, 
+        fileName: uploadResult.fileName
       });
+
+    } catch (error) {
+      console.error('❌ Upload error:', error);
+      setUploadError(error.message || 'Upload failed. Please try again.');
+    } finally {
+      setIsUploading(false);
+      console.log('🏁 Upload process finished');
     }
   };
 
-  const handleEdit = (index) => {
-    setEditingIndex(index);
-    setNewEntry({ ...value[index] });
+  const handleRemoveImage = (id) => {
+    setGallery(gallery.filter(img => img.id !== id));
   };
 
-  const handleSaveEdit = (index, updatedEntry) => {
-    const updatedGallery = [...value];
-    updatedGallery[index] = updatedEntry;
-    onChange(updatedGallery);
-    setEditingIndex(null);
-  };
-
-  const handleDelete = (index) => {
-    const updatedGallery = value.filter((_, i) => i !== index);
-    onChange(updatedGallery);
+  const handleSave = () => {
+    // Create gallery data with title
+    const galleryData = gallery.map(img => ({
+      ...img,
+      title: title || 'Gallery Image'
+    }));
+    
+    onChange(galleryData);
+    onSave(galleryData);
+    if (onCancel) onCancel();
   };
 
   const handleCancel = () => {
-    setEditingIndex(null);
-    setNewEntry({
-      title: '',
-      description: '',
-      imageUrl: '',
-      link: ''
-    });
+    if (onCancel) onCancel();
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Gallery Images</h3>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-        >
-          <LuPlus size={16} />
-          Add Image
-        </button>
+    <div
+      className="w-full"
+      style={{
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+        border: '1px solid #333',
+        borderRadius: '16px',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Gallery Header with icon and text */}
+      <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
+            backgroundColor: '#ffffff'
+          }}>
+            <LuImage className="text-black text-xl" />
+          </div>
+          <div>
+            <h3 className="text-white font-semibold text-lg">Gallery</h3>
+            <p className="text-gray-400 text-sm">Add your best images</p>
+          </div>
+        </div>
       </div>
 
-      {value.length === 0 && editingIndex === null && (
-        <div className="text-center py-8 text-gray-500">
-          <LuImage size={48} className="mx-auto mb-4 text-gray-300" />
-          <p>No gallery images yet. Add your first image to get started.</p>
+      {/* Content */}
+      <div className="p-6 pt-4">
+        {/* Gallery Title Input */}
+        <div className="mb-6">
+          <label className="block text-white text-sm font-medium mb-2">
+            Gallery Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Enter gallery title"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
+          />
         </div>
-      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {value.map((item, index) => (
-          <div key={item.id || index} className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            {item.imageUrl && (
-              <div className="aspect-square bg-gray-100">
-                <img
-                  src={item.imageUrl}
-                  alt={item.title || 'Gallery image'}
-                  className="w-full h-full object-cover"
+        {/* Add Image Section */}
+        <div className="mb-6">
+          <label className="block text-white text-sm font-medium mb-2">
+            Upload Image
+          </label>
+          
+          {/* Upload Error Message */}
+          {uploadError && (
+            <div className="p-3 bg-red-900 border border-red-700 rounded-lg text-red-300 text-sm mb-3">
+              {uploadError}
+            </div>
+          )}
+          
+          <div
+            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+              isUploading 
+                ? 'border-blue-500 bg-blue-900/20' 
+                : 'border-gray-600 bg-gray-800/50 hover:border-gray-500'
+            }`}
+          >
+            {isUploading ? (
+              <>
+                <LuLoader 
+                  size={24} 
+                  className="text-blue-400 mb-2 prysm-spin mx-auto" 
                 />
-              </div>
+                <p className="text-blue-400 text-sm font-medium mb-2">
+                  Uploading image...
+                </p>
+              </>
+            ) : (
+              <>
+                <LuUpload size={24} className="text-gray-400 mb-2 mx-auto" />
+                <p className="text-gray-400 text-sm mb-2">
+                  Upload gallery image
+                </p>
+              </>
             )}
-            <div className="p-4">
-              <h4 className="font-medium text-gray-900 mb-1">{item.title}</h4>
-              {item.description && (
-                <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-              )}
-              {item.link && (
-                <a
-                  href={item.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-emerald-600 hover:text-emerald-700"
-                >
-                  View Link
-                </a>
-              )}
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => handleEdit(index)}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-gray-800"
-                >
-                  <LuPencil size={14} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-red-600 hover:text-red-700"
-                >
-                  <LuTrash2 size={14} />
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {editingIndex !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              {editingIndex === 'new' ? 'Add New Image' : 'Edit Image'}
-            </h3>
             
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={newEntry.title}
-                  onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Image title"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Image URL *
-                </label>
-                <input
-                  type="url"
-                  value={newEntry.imageUrl}
-                  onChange={(e) => setNewEntry({ ...newEntry, imageUrl: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={newEntry.description}
-                  onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  rows={3}
-                  placeholder="Optional description"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Link URL
-                </label>
-                <input
-                  type="url"
-                  value={newEntry.link}
-                  onChange={(e) => setNewEntry({ ...newEntry, link: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="https://example.com"
-                />
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={handleCancel}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (editingIndex === 'new') {
-                    handleSaveNew();
-                  } else {
-                    handleSaveEdit(editingIndex, newEntry);
-                  }
-                }}
-                disabled={!newEntry.title || !newEntry.imageUrl}
-                className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save
-              </button>
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              disabled={isUploading || gallery.length >= 20}
+              className="hidden"
+              id="gallery-upload"
+            />
+            <label
+              htmlFor="gallery-upload"
+              className={`inline-block px-4 py-2 rounded-lg font-medium transition-colors ${
+                isUploading || gallery.length >= 20
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  : 'bg-white text-black hover:bg-gray-100 cursor-pointer'
+              }`}
+            >
+              {isUploading ? 'Uploading...' : 'Choose File'}
+            </label>
+            
+            {gallery.length >= 20 && (
+              <p className="text-red-400 text-sm mt-2">Maximum 20 images reached</p>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Current Images */}
+        {gallery.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-white font-medium mb-3 text-sm">
+              Added Images ({gallery.length}/20)
+            </h4>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {gallery.map((image) => (
+                <div 
+                  key={image.id}
+                  className="p-3 bg-gray-800 rounded-lg"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
+                        <LuImage className="text-white text-sm" />
+                      </div>
+                      <div className="text-white text-sm truncate">
+                        {image.title}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveImage(image.id)}
+                      className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1"
+                    >
+                      <LuTrash2 size={14} />
+                      Remove
+                    </button>
+                  </div>
+                  <div className="text-gray-500 text-xs truncate">
+                    {image.imageUrl}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {gallery.length === 0 && (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LuImage className="text-gray-400 text-2xl" />
+            </div>
+            <p className="text-gray-400 text-sm">No images yet. Upload your first image to get started.</p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleCancel}
+            className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#000000'
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 
