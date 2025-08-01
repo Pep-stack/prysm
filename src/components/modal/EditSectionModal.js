@@ -11,10 +11,9 @@ import SkillsSelector from '../shared/SkillsSelector';
 import ServicesSelector from '../shared/ServicesSelector';
 import GallerySelector from '../shared/GallerySelector';
 import VideoEditor from '../shared/VideoSelector';
-import AppointmentSelector from '../shared/AppointmentSelector';
+import AppointmentsEditor from '../shared/AppointmentsEditor';
 import PublicationSelector from '../shared/PublicationSelector';
 import CommunitySelector from '../shared/CommunitySelector';
-import EventSelector from '../shared/EventSelector';
 import FAQSelector from '../shared/FAQSelector';
 import TikTokEditor from '../shared/TikTokEditor';
 import InstagramEditor from '../shared/InstagramEditor';
@@ -52,20 +51,22 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
   };
 
   const modalContentStyle = {
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 5px 15px rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'transparent',
+    padding: '0',
+    borderRadius: '0',
+    boxShadow: 'none',
     width: '100%',
-    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector' || section?.editorComponent === 'SkillsSelector' || section?.editorComponent === 'ServicesSelector') ? '800px' : '400px',
+    maxWidth: (section?.editorComponent === 'EducationSelector' || section?.editorComponent === 'ExperienceSelector' || section?.editorComponent === 'CertificationSelector' || section?.editorComponent === 'ProjectSelector' || section?.editorComponent === 'SkillsSelector' || section?.editorComponent === 'ServicesSelector') ? '800px' : '600px',
     maxHeight: '90vh',
     overflowY: 'auto'
   };
@@ -249,14 +250,16 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
-    if (section.editorComponent === 'AppointmentSelector') {
-      console.log('🎯 APPOINTMENT-SELECTOR: Rendering AppointmentSelector component');
-      // Ensure 'value' passed to AppointmentSelector is an appointment object
+    if (section.editorComponent === 'AppointmentsEditor') {
+      console.log('🎯 APPOINTMENTS-EDITOR: Rendering AppointmentsEditor component');
+      // Ensure 'value' passed to AppointmentsEditor is an appointment object
       const selectedAppointmentData = value || {};
       return (
-        <AppointmentSelector 
+        <AppointmentsEditor 
           value={selectedAppointmentData} // Pass current appointment data
           onChange={onChange} // onChange should expect an appointment object
+          onSave={onSave}
+          onCancel={onClose}
         />
       );
     }
@@ -281,18 +284,6 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <CommunitySelector 
           value={selectedCommunityData} // Pass current community data
           onChange={onChange} // onChange should expect a community object
-        />
-      );
-    }
-
-    if (section.editorComponent === 'EventSelector') {
-      console.log('🎯 EVENT-SELECTOR: Rendering EventSelector component');
-      // Ensure 'value' passed to EventSelector is an array of event objects
-      const selectedEventEntries = Array.isArray(value) ? value : [];
-      return (
-        <EventSelector 
-          value={selectedEventEntries} // Pass current event entries
-          onChange={onChange} // onChange should expect an array of event objects
         />
       );
     }
@@ -636,8 +627,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
 
-  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, and Featured Video, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video') {
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, and Appointments, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 

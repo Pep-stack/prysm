@@ -140,7 +140,7 @@ export function useUserProfile(user) {
       
       console.log('🔥 SAVE-LAYOUT: Database operation details', {
         databaseColumn: key,
-        dataToSave: JSON.stringify(serializedLayout, null, 2),
+        dataToSave: 'Layout data (serialized)',
         userId: user.id,
         updateObject: { [key]: serializedLayout, updated_at: new Date().toISOString() }
       });

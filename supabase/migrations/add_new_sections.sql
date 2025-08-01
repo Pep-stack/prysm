@@ -23,7 +23,7 @@ COMMENT ON COLUMN profiles.faq IS 'FAQ entries as JSON string';
 -- Create indexes for better performance on new columns
 CREATE INDEX IF NOT EXISTS idx_profiles_gallery ON profiles USING GIN (gallery);
 CREATE INDEX IF NOT EXISTS idx_profiles_featured_video ON profiles USING GIN (featured_video);
-CREATE INDEX IF NOT EXISTS idx_profiles_appointments ON profiles USING GIN (appointments);
+CREATE INDEX IF NOT EXISTS idx_profiles_appointments ON profiles (appointments);
 CREATE INDEX IF NOT EXISTS idx_profiles_publications ON profiles USING GIN (publications);
 CREATE INDEX IF NOT EXISTS idx_profiles_community ON profiles USING GIN (community);
 CREATE INDEX IF NOT EXISTS idx_profiles_events ON profiles USING GIN (events);

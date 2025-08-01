@@ -1,45 +1,55 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { LuVideo, LuPlay } from 'react-icons/lu';
+import React, { useMemo } from 'react';
+import { LuVideo } from 'react-icons/lu';
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function FeaturedVideoSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
+  
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
+  
+  // Parse and memoize video data
+  const parseVideoData = (videoData) => {
+    if (typeof videoData === 'string' && videoData.trim()) {
+      try {
+        return JSON.parse(videoData);
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    if (typeof videoData === 'object' && videoData !== null) {
+      return videoData;
+    }
+    
+    return null;
+  };
 
   const videoData = useMemo(() => {
-    if (!profile?.featured_video) return null;
-    
-    try {
-      return typeof profile.featured_video === 'string' 
-        ? JSON.parse(profile.featured_video) 
-        : profile.featured_video;
-    } catch (e) {
-      console.error('Error parsing featured video data:', e);
-      return null;
-    }
+    return parseVideoData(profile?.featured_video);
   }, [profile?.featured_video]);
 
-  const textColor = styles?.textColor || '#ffffff';
-  const sectionTitleStyle = styles?.sectionTitleStyle || {};
-
+  // Render placeholder when no data
   if (!videoData || !videoData.videoUrl) {
     return (
-      <div
-        style={{
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          background: 'rgba(255, 255, 255, 0.25)',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          borderRadius: '16px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
-          width: '100%',
-          maxWidth: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
+      <div style={{
+        ...sectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}>
         {/* Header with logo and title */}
         <div style={{
           display: 'flex',
@@ -70,39 +80,13 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
             letterSpacing: '-0.01em',
             opacity: 0.9
           }}>
-            Featured Video
+            {videoData?.title || 'Featured Video'}
           </h3>
         </div>
-
-        {/* Empty state */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px 20px',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '60px',
-            height: '60px',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '16px'
-          }}>
-            <LuVideo size={24} style={{ color: 'rgba(255, 255, 255, 0.6)' }} />
-          </div>
-          <p style={{
-            color: 'rgba(255, 255, 255, 0.7)',
-            fontSize: '14px',
-            margin: 0,
-            lineHeight: '1.5'
-          }}>
-            No featured video yet
-          </p>
+        
+        <div style={placeholderStyle}>
+          <LuVideo size={48} style={{ color: textColor, opacity: 0.5 }} />
+          <p style={{ color: textColor, opacity: 0.7 }}>No featured video yet</p>
         </div>
       </div>
     );
@@ -111,6 +95,7 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
   return (
     <div
       style={{
+        ...sectionStyle,
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         background: 'rgba(255, 255, 255, 0.25)',
@@ -182,22 +167,6 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
           poster={videoData.thumbnailUrl || ''}
         />
       </div>
-
-      {/* Video Description */}
-      {videoData.description && (
-        <div style={{
-          marginTop: '12px'
-        }}>
-          <p style={{
-            color: 'rgba(255, 255, 255, 0.8)',
-            fontSize: '14px',
-            lineHeight: '1.5',
-            margin: 0
-          }}>
-            {videoData.description}
-          </p>
-        </div>
-      )}
     </div>
   );
 } 

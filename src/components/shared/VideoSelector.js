@@ -8,7 +8,6 @@ import { getAvailableBucket, ensureStoragePolicies } from '../../lib/supabase-st
 export default function VideoEditor({ value = '', onChange, onSave, onCancel }) {
   const [videoData, setVideoData] = useState({
     title: '',
-    description: '',
     videoUrl: '',
     platform: 'custom',
     thumbnailUrl: ''
@@ -24,7 +23,6 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
       } catch (e) {
         setVideoData({
           title: '',
-          description: '',
           videoUrl: '',
           platform: 'custom',
           thumbnailUrl: ''
@@ -47,7 +45,7 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
     // Validate file size (max 100MB)
     const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
-      setUploadError('Video file size must be less than 100MB');
+      setUploadError('Video file size must be less than 100MB. Please compress your video or choose a smaller file.');
       return;
     }
 
@@ -62,6 +60,7 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
       }
 
       console.log('User authenticated:', user.id);
+      console.log('File size:', file.size, 'bytes');
 
       // Check storage policies
       await ensureStoragePolicies();
@@ -91,6 +90,12 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
+        
+        // Handle specific file size error
+        if (uploadError.message && uploadError.message.includes('maximum allowed size')) {
+          throw new Error('File is too large for the current storage settings. Please compress your video or contact support to increase the file size limit.');
+        }
+        
         throw new Error(uploadError.message || 'Upload failed. Please try again.');
       }
 
@@ -137,7 +142,6 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
   const removeVideo = () => {
     setVideoData({
       title: '',
-      description: '',
       videoUrl: '',
       platform: 'custom',
       thumbnailUrl: ''
@@ -164,7 +168,9 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
             <LuVideo className="text-black text-xl" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg">Featured Video</h3>
+            <h3 className="text-white font-semibold text-lg">
+              {videoData.title || 'Featured Video'}
+            </h3>
             <p className="text-gray-400 text-sm">Upload your featured video</p>
           </div>
         </div>
@@ -182,20 +188,6 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
             value={videoData.title}
             onChange={(e) => setVideoData({ ...videoData, title: e.target.value })}
             placeholder="Enter video title"
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
-          />
-        </div>
-
-        {/* Video Description Input */}
-        <div className="mb-6">
-          <label className="block text-white text-sm font-medium mb-2">
-            Description
-          </label>
-          <textarea
-            value={videoData.description}
-            onChange={(e) => setVideoData({ ...videoData, description: e.target.value })}
-            placeholder="Brief description of the video"
-            rows={3}
             className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
           />
         </div>
@@ -229,6 +221,9 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
                     </p>
                     <p className="text-gray-400 text-sm mt-1">
                       MP4, WebM, OGG, MOV (max 100MB)
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      For larger files, compress your video first
                     </p>
                   </div>
                 </div>
@@ -274,9 +269,6 @@ export default function VideoEditor({ value = '', onChange, onSave, onCancel }) 
               </div>
               <div className="mt-3">
                 <h5 className="font-medium text-white">{videoData.title}</h5>
-                {videoData.description && (
-                  <p className="text-sm text-gray-400 mt-1">{videoData.description}</p>
-                )}
               </div>
             </div>
           </div>

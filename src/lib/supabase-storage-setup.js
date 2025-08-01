@@ -28,6 +28,13 @@ export async function ensureProjectMediaBucket() {
       console.log('✅ project-media bucket created successfully');
     } else {
       console.log('✅ project-media bucket already exists');
+      
+      // Check if we need to update the bucket settings for larger files
+      if (projectMediaBucket.file_size_limit && projectMediaBucket.file_size_limit < 104857600) {
+        console.log('⚠️ Bucket file size limit is too small for videos. Please update in Supabase Dashboard.');
+        console.log('Current limit:', projectMediaBucket.file_size_limit, 'bytes');
+        console.log('Recommended limit: 104857600 bytes (100MB)');
+      }
     }
 
     return true;

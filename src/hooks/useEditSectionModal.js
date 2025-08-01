@@ -1,7 +1,21 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { supabase } from '../lib/supabase'; // Adjusted path
+import { supabase } from '../lib/supabase';
+
+// Utility function to safely serialize data without circular references
+const safeStringify = (obj) => {
+  const seen = new WeakSet();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return undefined; // Remove circular reference
+      }
+      seen.add(value);
+    }
+    return value;
+  });
+}; // Adjusted path
 
 // Helper function to get editor component for section type
 const getEditorComponentForSection = (sectionType) => {
@@ -16,7 +30,7 @@ const getEditorComponentForSection = (sectionType) => {
     'services': 'ServicesSelector',
     'gallery': 'GallerySelector',
     'featured_video': 'VideoSelector',
-    'appointments': 'AppointmentSelector',
+    'appointments': 'AppointmentsEditor',
     'publications': 'PublicationSelector',
     'community': 'CommunitySelector',
     'events': 'EventSelector',
@@ -47,6 +61,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     };
     
     console.log('🔥 OPEN-MODAL: Enhanced section with editorComponent:', enhancedSection);
+    console.log('🔥 OPEN-MODAL: Initial profile data keys:', Object.keys(initialProfileData || {}));
     setEditingSection(enhancedSection);
     
     // Special handling for languages section
@@ -62,7 +77,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
       
       setInputValue(languagesArray);
-    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services' || section.type === 'gallery' || section.type === 'publications' || section.type === 'events' || section.type === 'faq' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'github_highlights') {
+    } else if (section.type === 'education' || section.type === 'experience' || section.type === 'certifications' || section.type === 'projects' || section.type === 'testimonials' || section.type === 'skills' || section.type === 'services' || section.type === 'gallery' || section.type === 'publications' || section.type === 'events' || section.type === 'faq' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'github_highlights' || section.type === 'appointments') {
       // Special handling for array-based sections
       const sectionData = initialProfileData[section.type];
       
@@ -81,7 +96,29 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
         sectionArray = sectionData;
       }
       
-      setInputValue(sectionArray);
+      // Create a safe copy to avoid circular references
+      const safeArray = sectionArray.map(item => {
+        if (item && typeof item === 'object') {
+          // Create a clean copy with only the properties we need
+          const cleanItem = {};
+          Object.keys(item).forEach(key => {
+            if (typeof item[key] !== 'object' || item[key] === null) {
+              cleanItem[key] = item[key];
+            }
+          });
+          return cleanItem;
+        }
+        return item;
+      });
+      
+      console.log(`🔥 OPEN-MODAL: ${section.type} data:`, {
+        originalData: sectionArray,
+        safeData: safeArray,
+        dataType: typeof sectionArray,
+        isArray: Array.isArray(sectionArray)
+      });
+      
+      setInputValue(safeArray);
     } else if (section.type === 'featured_video' || section.type === 'appointments' || section.type === 'community') {
       // Special handling for object-based sections
       const sectionData = initialProfileData[section.type];
@@ -119,6 +156,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
             return 'snapchat';
           case 'reddit':
             return 'reddit';
+          case 'appointments':
+            return 'appointments';
           default:
             return sectionType;
         }
@@ -179,6 +218,8 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           return 'youtube_highlights';
         case 'x_highlights':
           return 'x_highlights';
+        case 'appointments':
+          return 'appointments';
         default:
           return sectionType;
       }
@@ -199,9 +240,35 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     });
     if (sectionType === 'languages' && Array.isArray(currentValue)) {
       valueToSave = currentValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') && Array.isArray(currentValue)) {
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights' || sectionType === 'appointments') && Array.isArray(currentValue)) {
       try {
-        valueToSave = JSON.stringify(currentValue); // Serialize array to JSON string
+        // Create a safe copy without circular references
+        const safeValue = currentValue.map(item => {
+          if (item && typeof item === 'object') {
+            // Create a clean copy with only the properties we need for events
+            const cleanItem = {};
+            if (sectionType === 'events') {
+              // For events, only include the specific properties we need
+              const allowedKeys = ['title', 'description', 'date', 'time', 'location', 'url', 'isOnline', 'isFree', 'price', 'featured'];
+              allowedKeys.forEach(key => {
+                if (item.hasOwnProperty(key)) {
+                  cleanItem[key] = item[key];
+                }
+              });
+            } else {
+              // For other sections, copy all properties except potential circular references
+              Object.keys(item).forEach(key => {
+                if (typeof item[key] !== 'object' || item[key] === null) {
+                  cleanItem[key] = item[key];
+                }
+              });
+            }
+            return cleanItem;
+          }
+          return item;
+        });
+        
+        valueToSave = safeStringify(safeValue); // Serialize array to JSON string safely
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
@@ -210,7 +277,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       }
     } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') && typeof currentValue === 'object' && !Array.isArray(currentValue)) {
       try {
-        valueToSave = JSON.stringify(currentValue); // Serialize object to JSON string
+        valueToSave = safeStringify(currentValue); // Serialize object to JSON string safely
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);

@@ -28,6 +28,8 @@ import TikTokProfileSectionContent from './cardSections/TikTokProfileSectionCont
 import BehanceProfileSectionContent from './cardSections/BehanceProfileSectionContent';
 import DribbbleProfileSectionContent from './cardSections/DribbbleProfileSectionContent';
 import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
+import AppointmentsSectionContent from './cardSections/AppointmentsSectionContent';
+
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
 const ServicesSectionContent = lazy(() => import('./cardSections/ServicesSectionContent'));
@@ -77,6 +79,7 @@ const proSectionComponentMap = {
   'behance_profile': BehanceProfileSectionContent,
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
+  'appointments': AppointmentsSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -117,6 +120,7 @@ export const sectionComponentMap = {
   'behance_profile': BehanceProfileSectionContent,
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
+  'appointments': AppointmentsSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
