@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { LuFileText, LuPlus, LuTrash2, LuPencil, LuExternalLink } from 'react-icons/lu';
 
-export default function PublicationSelector({ value = [], onChange }) {
+export default function PublicationSelector({ value = [], onChange, onSave, onCancel }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [newEntry, setNewEntry] = useState({
     title: '',
@@ -15,7 +15,7 @@ export default function PublicationSelector({ value = [], onChange }) {
   });
 
   const handleAddNew = () => {
-    setEditingIndex('new');
+    // Reset form for new entry - no need to set editingIndex since form is inline
     setNewEntry({
       title: '',
       description: '',
@@ -29,8 +29,13 @@ export default function PublicationSelector({ value = [], onChange }) {
   const handleSaveNew = () => {
     if (newEntry.title && newEntry.url) {
       const updatedPublications = [...value, { ...newEntry, id: Date.now() }];
-      onChange(updatedPublications);
-      setEditingIndex(null);
+      console.log('📝 Adding new publication:', {
+        newEntry,
+        updatedPublications,
+        currentValue: value
+      });
+      
+      // Reset the form
       setNewEntry({
         title: '',
         description: '',
@@ -39,6 +44,12 @@ export default function PublicationSelector({ value = [], onChange }) {
         platform: '',
         featured: false
       });
+      
+      // Return the updated publications array
+      return updatedPublications;
+    } else {
+      console.warn('⚠️ Cannot save publication: missing title or URL');
+      return value; // Return current value if validation fails
     }
   };
 
@@ -50,12 +61,23 @@ export default function PublicationSelector({ value = [], onChange }) {
   const handleSaveEdit = (index, updatedEntry) => {
     const updatedPublications = [...value];
     updatedPublications[index] = updatedEntry;
+    console.log('📝 Updating publication:', {
+      index,
+      updatedEntry,
+      updatedPublications,
+      currentValue: value
+    });
     onChange(updatedPublications);
     setEditingIndex(null);
   };
 
   const handleDelete = (index) => {
     const updatedPublications = value.filter((_, i) => i !== index);
+    console.log('🗑️ Deleting publication:', {
+      index,
+      updatedPublications,
+      currentValue: value
+    });
     onChange(updatedPublications);
   };
 
@@ -69,6 +91,38 @@ export default function PublicationSelector({ value = [], onChange }) {
       platform: '',
       featured: false
     });
+    
+    // If onCancel is provided, call it to close the modal
+    if (onCancel) {
+      console.log('🚪 Calling onCancel to close modal');
+      onCancel();
+    }
+  };
+
+  const handleSaveAndClose = () => {
+    console.log('💾 Saving publications data:', {
+      newEntry,
+      hasNewEntry: !!(newEntry.title && newEntry.url),
+      currentValue: value,
+      hasOnSave: !!onSave
+    });
+    
+    let publicationsToSave = value;
+    
+    // Add new publication if form is filled
+    if (newEntry.title && newEntry.url) {
+      publicationsToSave = handleSaveNew();
+    }
+    
+    // Save the publications data
+    console.log('💾 Saving publications:', publicationsToSave);
+    onChange(publicationsToSave);
+    
+    // If onSave is provided, call it to close the modal
+    if (onSave) {
+      console.log('🚪 Calling onSave to close modal');
+      onSave(publicationsToSave);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -82,188 +136,342 @@ export default function PublicationSelector({ value = [], onChange }) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Publications & Blog Posts</h3>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-        >
-          <LuPlus size={16} />
-          Add Publication
-        </button>
+    <div 
+      className="w-full"
+      style={{
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+        border: '1px solid #333',
+        borderRadius: '16px',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Publications Header with icon and text */}
+      <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-600">
+            <LuFileText className="text-white text-xl" />
+          </div>
+          <div>
+            <h3 className="text-white font-semibold text-lg">Publications & Blog Posts</h3>
+            <p className="text-gray-400 text-sm">Manage your articles and blog posts</p>
+          </div>
+        </div>
       </div>
 
-      {value.length === 0 && editingIndex === null && (
-        <div className="text-center py-8 text-gray-500">
-          <LuFileText size={48} className="mx-auto mb-4 text-gray-300" />
-          <p>No publications yet. Add your first article or blog post to get started.</p>
-        </div>
-      )}
+      {/* Content area */}
+      <div className="p-6 pt-4">
+        {/* Add Publication Section */}
+        <div className="mb-6">
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-white font-medium mb-2 text-sm">Title *</label>
+              <input
+                type="text" 
+                value={newEntry.title} 
+                onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
+                placeholder="Article title" 
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+            </div>
 
-      <div className="space-y-3">
-        {value.map((item, index) => (
-          <div key={item.id || index} className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-medium text-gray-900">{item.title}</h4>
-                  {item.featured && (
-                    <span className="px-2 py-1 text-xs bg-emerald-100 text-emerald-800 rounded-full">
-                      Featured
-                    </span>
-                  )}
-                </div>
-                {item.description && (
-                  <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                )}
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  {item.platform && (
-                    <span className="capitalize">{item.platform}</span>
-                  )}
-                  {item.date && (
-                    <span>{formatDate(item.date)}</span>
-                  )}
-                  {item.url && (
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-emerald-600 hover:text-emerald-700"
-                    >
-                      <LuExternalLink size={12} />
-                      View Article
-                    </a>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-2 ml-4">
-                <button
-                  onClick={() => handleEdit(index)}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:text-gray-800"
-                >
-                  <LuPencil size={14} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(index)}
-                  className="flex items-center gap-1 px-2 py-1 text-sm text-red-600 hover:text-red-700"
-                >
-                  <LuTrash2 size={14} />
-                  Delete
-                </button>
-              </div>
+            <div>
+              <label className="block text-white font-medium mb-2 text-sm">URL *</label>
+              <input
+                type="url" 
+                value={newEntry.url} 
+                onChange={(e) => setNewEntry({ ...newEntry, url: e.target.value })}
+                placeholder="https://example.com/article" 
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-white font-medium mb-2 text-sm">Platform</label>
+              <input
+                type="text" 
+                value={newEntry.platform} 
+                onChange={(e) => setNewEntry({ ...newEntry, platform: e.target.value })}
+                placeholder="Medium, Substack, Personal Blog, etc." 
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-white font-medium mb-2 text-sm">Publication Date</label>
+              <input
+                type="date" 
+                value={newEntry.date} 
+                onChange={(e) => setNewEntry({ ...newEntry, date: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-white font-medium mb-2 text-sm">Description</label>
+              <textarea
+                value={newEntry.description} 
+                onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-vertical"
+                rows={4}
+                placeholder="Brief description of the article"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox" 
+                id="featured" 
+                checked={newEntry.featured} 
+                onChange={(e) => setNewEntry({ ...newEntry, featured: e.target.checked })}
+                className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-600 rounded"
+                style={{ backgroundColor: '#1a1a1a' }}
+              />
+              <label htmlFor="featured" className="ml-3 block text-sm text-gray-300">
+                Mark as featured
+              </label>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Current Publications */}
+        {value.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-white font-medium mb-3 text-sm">
+              Added Publications ({value.length})
+            </h4>
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {value.map((item, index) => (
+                <div 
+                  key={item.id || index} 
+                  className="p-3 bg-gray-800 rounded-lg border border-gray-700"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-gray-700 rounded flex items-center justify-center">
+                        <LuFileText className="text-white text-sm" />
+                      </div>
+                      <div className="text-white text-sm truncate">
+                        {item.title}
+                      </div>
+                      {item.featured && (
+                        <span className="px-2 py-1 text-xs bg-amber-900 text-amber-200 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(index)}
+                        className="text-gray-300 hover:text-white text-sm flex items-center gap-1"
+                      >
+                        <LuPencil size={14} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(index)}
+                        className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1"
+                      >
+                        <LuTrash2 size={14} />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-gray-500 text-xs truncate">
+                    {item.url}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {value.length === 0 && (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LuFileText className="text-gray-400 text-2xl" />
+            </div>
+            <p className="text-gray-400 text-sm">No publications yet. Add your first article or blog post to get started.</p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleCancel}
+            className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            {onCancel ? 'Cancel' : 'Clear Form'}
+          </button>
+          <button
+            onClick={handleSaveAndClose}
+            className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
+            style={{
+              backgroundColor: '#ffffff',
+              color: '#000000'
+            }}
+          >
+            {onSave ? 'Save & Close' : 'Add Publication'}
+          </button>
+        </div>
       </div>
 
-      {editingIndex !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">
-              {editingIndex === 'new' ? 'Add New Publication' : 'Edit Publication'}
-            </h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Title *
-                </label>
-                <input
-                  type="text"
-                  value={newEntry.title}
-                  onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Article title"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL *
-                </label>
-                <input
-                  type="url"
-                  value={newEntry.url}
-                  onChange={(e) => setNewEntry({ ...newEntry, url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="https://example.com/article"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Platform
-                </label>
-                <input
-                  type="text"
-                  value={newEntry.platform}
-                  onChange={(e) => setNewEntry({ ...newEntry, platform: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  placeholder="Medium, Substack, Personal Blog, etc."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Publication Date
-                </label>
-                <input
-                  type="date"
-                  value={newEntry.date}
-                  onChange={(e) => setNewEntry({ ...newEntry, date: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={newEntry.description}
-                  onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  rows={3}
-                  placeholder="Brief description of the article"
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={newEntry.featured}
-                  onChange={(e) => setNewEntry({ ...newEntry, featured: e.target.checked })}
-                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-gray-300 rounded"
-                />
-                <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
-                  Mark as featured
-                </label>
+      {editingIndex !== null && editingIndex !== 'new' && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+          }}
+          onClick={handleCancel}
+        >
+          <div 
+            style={{
+              background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+              border: '1px solid #333',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '500px',
+              maxHeight: '90vh',
+              overflow: 'hidden'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Publications Header with icon and text */}
+            <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-emerald-600">
+                  <LuFileText className="text-white text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold text-lg">
+                    {editingIndex === 'new' ? 'Add New Publication' : 'Edit Publication'}
+                  </h3>
+                  <p className="text-gray-400 text-sm">Add your article or blog post</p>
+                </div>
               </div>
             </div>
 
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={handleCancel}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  if (editingIndex === 'new') {
-                    handleSaveNew();
-                  } else {
-                    handleSaveEdit(editingIndex, newEntry);
-                  }
-                }}
-                disabled={!newEntry.title || !newEntry.url}
-                className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Save
-              </button>
+            {/* Content with form fields */}
+            <div className="p-6 pt-4">
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">Title *</label>
+                  <input
+                    type="text"
+                    value={newEntry.title}
+                    onChange={(e) => setNewEntry({ ...newEntry, title: e.target.value })}
+                    placeholder="Article title"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">URL *</label>
+                  <input
+                    type="url"
+                    value={newEntry.url}
+                    onChange={(e) => setNewEntry({ ...newEntry, url: e.target.value })}
+                    placeholder="https://example.com/article"
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">Platform</label>
+                  <input
+                    type="text"
+                    value={newEntry.platform}
+                    onChange={(e) => setNewEntry({ ...newEntry, platform: e.target.value })}
+                    placeholder="Medium, Substack, Personal Blog, etc."
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">Publication Date</label>
+                  <input
+                    type="date"
+                    value={newEntry.date}
+                    onChange={(e) => setNewEntry({ ...newEntry, date: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2 text-sm">Description</label>
+                  <textarea
+                    value={newEntry.description}
+                    onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-vertical"
+                    rows={4}
+                    placeholder="Brief description of the article"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    checked={newEntry.featured}
+                    onChange={(e) => setNewEntry({ ...newEntry, featured: e.target.checked })}
+                    className="h-5 w-5 text-emerald-600 focus:ring-emerald-500 border-gray-600 rounded"
+                    style={{ backgroundColor: '#1a1a1a' }}
+                  />
+                  <label htmlFor="featured" className="ml-3 block text-sm text-gray-300">
+                    Mark as featured
+                  </label>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 mt-8">
+                <button
+                  onClick={handleCancel}
+                  className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (editingIndex === 'new') {
+                      handleSaveNew();
+                    } else {
+                      handleSaveEdit(editingIndex, newEntry);
+                    }
+                  }}
+                  disabled={!newEntry.title || !newEntry.url}
+                  className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    background: (newEntry.title && newEntry.url)
+                      ? 'linear-gradient(45deg, #059669 0%, #10b981 50%, #34d399 100%)'
+                      : '#333',
+                    color: '#ffffff'
+                  }}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
         </div>

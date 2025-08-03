@@ -70,7 +70,7 @@ export const ALL_SECTION_OPTIONS = [
 
   // BUSINESS - Professional services and engagement
   { type: 'appointments', name: 'Schedule a Call', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentsEditor' },
-  { type: 'community', name: 'Join the Community', icon: LuUsers, category: CATEGORIES.BUSINESS, editorComponent: 'CommunitySelector' },
+  { type: 'subscribe', name: 'Subscribe', icon: FaEnvelope, category: CATEGORIES.BUSINESS, editorComponent: 'SubscribeSelector' },
   { type: 'faq', name: 'FAQ', icon: LuCircleHelp, category: CATEGORIES.BUSINESS, editorComponent: 'FAQSelector' },
   
   // SOCIAL & LINKS - Social media and contact links (moved to bottom)
@@ -165,7 +165,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     featured_video: { title: defaultTitle, value: '', editorComponent: 'VideoSelector' },
     appointments: { title: defaultTitle, value: '', editorComponent: 'AppointmentsEditor' },
     publications: { title: defaultTitle, value: [], editorComponent: 'PublicationSelector' },
-    community: { title: defaultTitle, value: '', editorComponent: 'CommunitySelector' },
+    subscribe: { title: defaultTitle, value: '', editorComponent: 'SubscribeSelector' },
 
     faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
     x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },

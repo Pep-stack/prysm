@@ -3,19 +3,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
-// Utility function to safely serialize data without circular references
-const safeStringify = (obj) => {
-  const seen = new WeakSet();
-  return JSON.stringify(obj, (key, value) => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        return undefined; // Remove circular reference
-      }
-      seen.add(value);
-    }
-    return value;
-  });
-}; // Adjusted path
+ // Adjusted path
 
 // Helper function to get editor component for section type
 const getEditorComponentForSection = (sectionType) => {
@@ -33,6 +21,7 @@ const getEditorComponentForSection = (sectionType) => {
     'appointments': 'AppointmentsEditor',
     'publications': 'PublicationSelector',
     'community': 'CommunitySelector',
+    'subscribe': 'SubscribeSelector',
     'events': 'EventSelector',
     'faq': 'FAQSelector',
     'x_highlights': 'XHighlightsEditor',
@@ -119,7 +108,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       });
       
       setInputValue(safeArray);
-    } else if (section.type === 'featured_video' || section.type === 'appointments' || section.type === 'community') {
+    } else if (section.type === 'featured_video' || section.type === 'appointments' || section.type === 'community' || section.type === 'subscribe') {
       // Special handling for object-based sections
       const sectionData = initialProfileData[section.type];
       
@@ -268,16 +257,73 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           return item;
         });
         
-        valueToSave = safeStringify(safeValue); // Serialize array to JSON string safely
+        // Use a safer approach to avoid cyclic structures
+        const seen = new WeakSet();
+        
+        const cleanValue = (obj) => {
+          if (obj === null || typeof obj !== 'object') {
+            return obj;
+          }
+          
+          if (seen.has(obj)) {
+            return undefined; // Remove circular reference
+          }
+          seen.add(obj);
+          
+          if (Array.isArray(obj)) {
+            return obj.map(item => cleanValue(item)).filter(item => item !== undefined);
+          }
+          
+          const result = {};
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key) && obj[key] !== undefined && obj[key] !== null) {
+              const cleaned = cleanValue(obj[key]);
+              if (cleaned !== undefined) {
+                result[key] = cleaned;
+              }
+            }
+          }
+          return result;
+        };
+        
+        const cleaned = cleanValue(safeValue);
+        valueToSave = JSON.stringify(cleaned);
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
         setError(`Error serializing ${sectionType} data: ${serializeError.message}`);
         return;
       }
-    } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') && typeof currentValue === 'object' && !Array.isArray(currentValue)) {
+    } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community' || sectionType === 'subscribe') && typeof currentValue === 'object' && !Array.isArray(currentValue)) {
       try {
-        valueToSave = safeStringify(currentValue); // Serialize object to JSON string safely
+        // Use a safer approach to avoid cyclic structures
+        const cleanObject = {};
+        const seen = new WeakSet();
+        
+        const cleanValue = (obj) => {
+          if (obj === null || typeof obj !== 'object') {
+            return obj;
+          }
+          
+          if (seen.has(obj)) {
+            return undefined; // Remove circular reference
+          }
+          seen.add(obj);
+          
+          const result = {};
+          for (const key in obj) {
+            if (obj.hasOwnProperty(key) && obj[key] !== undefined && obj[key] !== null) {
+              const cleaned = cleanValue(obj[key]);
+              if (cleaned !== undefined) {
+                result[key] = cleaned;
+              }
+            }
+          }
+          return result;
+        };
+        
+        const cleaned = cleanValue(currentValue);
+        valueToSave = JSON.stringify(cleaned);
         console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
@@ -323,7 +369,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
               originalArray: currentValue,
               updatedProfileData: updatedProfileData[sectionType]
             });
-         } else if (sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community') {
+         } else if (sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community' || sectionType === 'subscribe') {
             updatedProfileData[sectionType] = currentValue; // Restore the object format for local state
             console.log('🔄 Restoring object format for local state:', {
               sectionType,

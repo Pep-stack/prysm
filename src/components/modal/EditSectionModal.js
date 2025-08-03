@@ -14,6 +14,7 @@ import VideoEditor from '../shared/VideoSelector';
 import AppointmentsEditor from '../shared/AppointmentsEditor';
 import PublicationSelector from '../shared/PublicationSelector';
 import CommunitySelector from '../shared/CommunitySelector';
+import SubscribeSelector from '../shared/SubscribeSelector';
 import FAQSelector from '../shared/FAQSelector';
 import TikTokEditor from '../shared/TikTokEditor';
 import InstagramEditor from '../shared/InstagramEditor';
@@ -272,6 +273,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <PublicationSelector 
           value={selectedPublicationEntries} // Pass current publication entries
           onChange={onChange} // onChange should expect an array of publication objects
+          onSave={onSave}
+          onCancel={onClose}
         />
       );
     }
@@ -284,6 +287,18 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <CommunitySelector 
           value={selectedCommunityData} // Pass current community data
           onChange={onChange} // onChange should expect a community object
+        />
+      );
+    }
+
+    if (section.editorComponent === 'SubscribeSelector') {
+      console.log('🎯 SUBSCRIBE-SELECTOR: Rendering SubscribeSelector component');
+      // Ensure 'value' passed to SubscribeSelector is a subscribe object
+      const selectedSubscribeData = value || {};
+      return (
+        <SubscribeSelector 
+          value={selectedSubscribeData} // Pass current subscribe data
+          onChange={onChange} // onChange should expect a subscribe object
         />
       );
     }
@@ -627,8 +642,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
 
-  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, and Appointments, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments') {
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, Appointments, and Publications, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments' || section.type === 'publications') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 

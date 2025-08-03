@@ -20,11 +20,12 @@ COMMENT ON COLUMN profiles.community IS 'Community signup configuration as JSON 
 COMMENT ON COLUMN profiles.events IS 'Events and calendar entries as JSON string';
 COMMENT ON COLUMN profiles.faq IS 'FAQ entries as JSON string';
 
--- Create indexes for better performance on new columns
-CREATE INDEX IF NOT EXISTS idx_profiles_gallery ON profiles USING GIN (gallery);
-CREATE INDEX IF NOT EXISTS idx_profiles_featured_video ON profiles USING GIN (featured_video);
-CREATE INDEX IF NOT EXISTS idx_profiles_appointments ON profiles (appointments);
-CREATE INDEX IF NOT EXISTS idx_profiles_publications ON profiles USING GIN (publications);
-CREATE INDEX IF NOT EXISTS idx_profiles_community ON profiles USING GIN (community);
-CREATE INDEX IF NOT EXISTS idx_profiles_events ON profiles USING GIN (events);
-CREATE INDEX IF NOT EXISTS idx_profiles_faq ON profiles USING GIN (faq); 
+-- Create simple indexes for better performance on new columns
+-- Using simple indexes instead of GIN to avoid compatibility issues
+CREATE INDEX IF NOT EXISTS idx_profiles_gallery ON profiles (gallery) WHERE gallery IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_featured_video ON profiles (featured_video) WHERE featured_video IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_appointments ON profiles (appointments) WHERE appointments IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_publications ON profiles (publications) WHERE publications IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_community ON profiles (community) WHERE community IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_events ON profiles (events) WHERE events IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_profiles_faq ON profiles (faq) WHERE faq IS NOT NULL; 

@@ -29,6 +29,8 @@ import BehanceProfileSectionContent from './cardSections/BehanceProfileSectionCo
 import DribbbleProfileSectionContent from './cardSections/DribbbleProfileSectionContent';
 import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
 import AppointmentsSectionContent from './cardSections/AppointmentsSectionContent';
+import SubscribeSectionContent from './cardSections/SubscribeSectionContent';
+import PublicationSectionContent from './cardSections/PublicationSectionContent';
 
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
@@ -67,6 +69,7 @@ const proSectionComponentMap = {
   // New sections
   'gallery': GallerySectionContent,
   'featured_video': FeaturedVideoSectionContent,
+  'publications': PublicationSectionContent,
   'x_highlights': XHighlightsSectionContent,
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
@@ -80,6 +83,7 @@ const proSectionComponentMap = {
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
+  'subscribe': SubscribeSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -108,6 +112,7 @@ export const sectionComponentMap = {
   'services': ServicesSectionContent,
   // New sections
   'gallery': GallerySectionContent,
+  'publications': PublicationSectionContent,
   'x_highlights': XHighlightsSectionContent,
   'youtube_highlights': YouTubeHighlightsSectionContent,
   'linkedin_highlights': LinkedInHighlightsSectionContent,
@@ -121,6 +126,7 @@ export const sectionComponentMap = {
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
+  'subscribe': SubscribeSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
