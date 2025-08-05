@@ -125,36 +125,74 @@ export default function FAQSectionContent({ section, profile, user, styles = {} 
     setExpandedItems(newExpanded);
   };
 
-  // If no FAQ data, show elegant placeholder
+  // If no FAQ data, show elegant placeholder with standardized preview UI
   if (!faqData || faqData.length === 0) {
     return (
-      <div style={finalSectionStyle}>
-        <div style={finalSectionTitleStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{
-              width: '32px',
-              height: '32px',
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <LuCircleHelp size={20} style={{ color: 'white' }} />
-            </div>
-            <h3 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: 'white' }}>
-              Frequently Asked Questions
-            </h3>
-          </div>
-        </div>
+      <div style={{
+        ...finalSectionStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }}>
+        {/* Title at the top of the container */}
         <div style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          color: 'rgba(255, 255, 255, 0.7)',
-          fontStyle: 'italic'
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
-          <LuCircleHelp size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-          <p style={{ margin: 0, fontSize: '16px' }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: '#374151',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuCircleHelp size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...finalSectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Frequently Asked Questions
+          </h3>
+        </div>
+        
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px 16px',
+          textAlign: 'center'
+        }}>
+          <LuCircleHelp size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <p style={{ 
+            margin: 0, 
+            fontSize: '16px',
+            color: textColor,
+            opacity: 0.7,
+            fontWeight: '500'
+          }}>
             No FAQs added yet. Add frequently asked questions to help your visitors.
           </p>
         </div>
@@ -163,25 +201,53 @@ export default function FAQSectionContent({ section, profile, user, styles = {} 
   }
 
   return (
-    <div style={finalSectionStyle}>
+    <div style={{
+      ...finalSectionStyle,
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      background: 'rgba(255, 255, 255, 0.25)',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      borderRadius: '16px',
+      padding: '20px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+      overflow: 'hidden',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }}>
       {/* Section Header */}
-      <div style={finalSectionTitleStyle}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <LuCircleHelp size={20} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{ margin: 0, fontSize: '24px', fontWeight: '600', color: 'white' }}>
-            Frequently Asked Questions
-          </h3>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+      }}>
+        <div style={{
+          width: '24px',
+          height: '24px',
+          backgroundColor: '#374151',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0.8
+        }}>
+          <LuCircleHelp size={14} style={{ color: 'white' }} />
         </div>
+        <h3 style={{
+          ...finalSectionTitleStyle,
+          fontSize: '18px',
+          fontWeight: '600',
+          color: textColor,
+          margin: 0,
+          letterSpacing: '-0.01em',
+          opacity: 0.9
+        }}>
+          Frequently Asked Questions
+        </h3>
       </div>
 
       {/* FAQ Items */}

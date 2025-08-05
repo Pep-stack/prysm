@@ -337,7 +337,7 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
                 <div style={{
                   width: '16px',
                   height: '16px',
-                  backgroundColor: textColor,
+                  backgroundColor: '#374151',
                   borderRadius: '4px',
                   display: 'flex',
                   alignItems: 'center',
@@ -519,7 +519,7 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -570,47 +570,72 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
       </div>
     );
   } else {
-    // Empty state
+    // Empty state with standardized preview UI
     return (
-      <div style={placeholderStyle} title="Click to add services">
+      <div style={{
+        ...placeholderStyle,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(255, 255, 255, 0.25)',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        borderRadius: '16px',
+        padding: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box'
+      }} title="Click to add services">
+        {/* Title at the top of the container */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        }}>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: '#374151',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuWrench size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Services Offered
+          </h3>
+        </div>
+        
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '48px 24px',
-          backgroundColor: '#f8fafc',
-          border: '2px dashed #cbd5e1',
-          borderRadius: '16px',
-          textAlign: 'center',
-          transition: 'all 0.2s ease'
+          padding: '32px 16px',
+          textAlign: 'center'
         }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '56px',
-            height: '56px',
-            backgroundColor: '#e2e8f0',
-            borderRadius: '16px',
-            marginBottom: '16px'
-          }}>
-            <LuWrench size={28} style={{ color: '#94a3b8' }} />
-          </div>
-          <h4 style={{
-            margin: '0 0 8px 0',
+          <LuWrench size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <p style={{ 
+            margin: 0, 
             fontSize: '16px',
-            fontWeight: '600',
-            color: '#475569'
-          }}>
-            Showcase Your Services
-          </h4>
-          <p style={{
-            margin: 0,
-            fontSize: '14px',
-            color: '#64748b',
-            fontWeight: '500',
-            lineHeight: '1.5'
+            color: textColor,
+            opacity: 0.7,
+            fontWeight: '500'
           }}>
             Click to add your professional services with pricing, features, and expertise levels
           </p>

@@ -172,7 +172,7 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
         justifyContent: 'center',
         width: '32px',
         height: '32px',
-        backgroundColor: textColor,
+        backgroundColor: '#374151',
         borderRadius: '8px',
         marginBottom: '12px',
         alignSelf: 'flex-start',
@@ -209,7 +209,7 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
           <div style={{
             width: '12px',
             height: '12px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
@@ -244,7 +244,7 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
           <div style={{
             width: '12px',
             height: '12px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '3px',
             display: 'flex',
             alignItems: 'center',
@@ -403,7 +403,7 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',

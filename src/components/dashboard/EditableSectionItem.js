@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { LuGripVertical, LuTrash2, LuPencil } from 'react-icons/lu'; // Lucide icons
 import { SECTION_OPTIONS } from '../../lib/sectionOptions';
 
-export function EditableSectionItem({ id, section, onRemove, onEdit }) {
+export function EditableSectionItem({ id, section, onRemove, onEdit, isSocialBar = false }) {
   const {
     attributes,
     listeners,
@@ -27,11 +27,60 @@ export function EditableSectionItem({ id, section, onRemove, onEdit }) {
   const option = SECTION_OPTIONS.find(opt => opt.type === section.type);
   const Icon = option?.icon;
 
+  // Compact styling voor social bar
+  const compactClasses = isSocialBar 
+    ? "bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-0 flex items-center justify-between gap-2 touch-none w-full" 
+    : "bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3 flex items-center gap-3 touch-none";
+
+  if (isSocialBar) {
+    // Speciale layout voor social bar items
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={compactClasses}
+      >
+        {/* Left side: Drag handle + Icon + Text */}
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <button {...attributes} {...listeners} className="cursor-grab text-gray-400 hover:text-gray-600 p-1 flex-shrink-0">
+            <LuGripVertical size={16} />
+          </button>
+          <div className="text-gray-600 flex-shrink-0">
+            {Icon && <Icon size={18} />}
+          </div>
+          <button onClick={() => onEdit(section)} className="text-left hover:text-[#00C896] min-w-0 flex-1">
+            <p className="text-sm font-medium text-black whitespace-nowrap overflow-hidden text-ellipsis">{section.title || section.type}</p>
+          </button>
+        </div>
+
+        {/* Right side: Actions */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button onClick={() => onEdit(section)} className="text-gray-400 hover:text-[#00C896] p-1" aria-label="Edit section">
+            <LuPencil size={14} />
+          </button>
+          <button onClick={(e) => {
+            console.log('🔴 BUTTON-CLICK: Remove section button clicked for ID:', section.id);
+            console.log('🔴 BUTTON-CLICK: Event target:', e.target);
+            console.log('🔴 BUTTON-CLICK: onRemove function:', onRemove);
+            if (typeof onRemove === 'function') {
+              onRemove(section.id);
+            } else {
+              console.error('🔴 BUTTON-CLICK: onRemove is not a function!');
+            }
+          }} className="text-gray-400 hover:text-red-500 p-1" aria-label="Remove section" style={{ pointerEvents: 'auto', zIndex: 1 }}>
+            <LuTrash2 size={14} />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Normale layout voor reguliere items
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3 flex items-center gap-3 touch-none" // touch-none is belangrijk voor dnd-kit
+      className={compactClasses}
     >
       {/* Drag Handle */}
       <button {...attributes} {...listeners} className="cursor-grab text-gray-400 hover:text-gray-600 p-1">
@@ -55,7 +104,7 @@ export function EditableSectionItem({ id, section, onRemove, onEdit }) {
       </div>
 
       {/* Actions (Edit/Remove) */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
          <button onClick={() => onEdit(section)} className="text-gray-400 hover:text-[#00C896] p-1" aria-label="Edit section">
              <LuPencil size={16} />
          </button>

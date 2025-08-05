@@ -57,7 +57,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'appointments', name: 'Schedule a Call', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentsEditor' },
   { type: 'subscribe', name: 'Subscribe', icon: LuMail, category: CATEGORIES.BUSINESS, editorComponent: 'SubscribeSelector' },
   { type: 'faq', name: 'FAQ', icon: LuCircleHelp, category: CATEGORIES.BUSINESS, editorComponent: 'FAQSelector' },
-
+  
   // SOCIAL HIGHLIGHTS - Social media content highlights
   { type: 'x_highlights', name: 'X Highlights', icon: FaXTwitter, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'XHighlightsEditor' },
   { type: 'youtube_highlights', name: 'YouTube Highlights', icon: FaYoutube, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'YouTubeHighlightsEditor' },
@@ -162,17 +162,17 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
      services: { title: defaultTitle, value: [], editorComponent: 'ServicesSelector' },
      testimonials: { title: defaultTitle, value: [], editorComponent: 'ClientTestimonialSelector' },
      appointments: { title: defaultTitle, value: '', editorComponent: 'AppointmentsEditor' },
-     subscribe: { title: defaultTitle, value: '', editorComponent: 'SubscribeSelector' },
-     faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
+    subscribe: { title: defaultTitle, value: '', editorComponent: 'SubscribeSelector' },
+    faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
 
      // Social highlights defaults
-     x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },
-     youtube_highlights: { title: defaultTitle, value: [], editorComponent: 'YouTubeHighlightsEditor' },
-     linkedin_highlights: { title: defaultTitle, value: [], editorComponent: 'LinkedInHighlightsEditor' },
-     tiktok_highlights: { title: defaultTitle, value: [], editorComponent: 'TikTokHighlightsEditor' },
-     github_highlights: { title: defaultTitle, value: [], editorComponent: 'GitHubHighlightsEditor' },
-
-     // Social media defaults (shared across all types)
+    x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },
+    youtube_highlights: { title: defaultTitle, value: [], editorComponent: 'YouTubeHighlightsEditor' },
+    linkedin_highlights: { title: defaultTitle, value: [], editorComponent: 'LinkedInHighlightsEditor' },
+    tiktok_highlights: { title: defaultTitle, value: [], editorComponent: 'TikTokHighlightsEditor' },
+    github_highlights: { title: defaultTitle, value: [], editorComponent: 'GitHubHighlightsEditor' },
+    
+    // Social media defaults (shared across all types)
     linkedin: { title: defaultTitle, value: '' },
     github_gitlab: { title: defaultTitle, value: '' },
     x_profile: { title: defaultTitle, value: '' },

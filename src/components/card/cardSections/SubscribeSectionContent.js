@@ -24,18 +24,70 @@ export default function SubscribeSectionContent({ section, profile, styles, isPu
   };
 
   return (
-    <div style={sectionStyle} className="w-full">
-      {/* Section Header */}
-      <div style={{ marginBottom: '16px' }}>
-        <h3 style={sectionTitleStyle} className="text-lg font-semibold mb-2">
+    <div style={{
+      ...sectionStyle,
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      background: 'rgba(255, 255, 255, 0.25)',
+      border: '1px solid rgba(255, 255, 255, 0.4)',
+      borderRadius: '16px',
+      padding: '20px',
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+      overflow: 'hidden',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }} className="w-full">
+      {/* Title at the top of the container */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+      }}>
+        <div style={{
+          width: '24px',
+          height: '24px',
+          backgroundColor: '#374151',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0.8
+        }}>
+          <FaEnvelope size={14} style={{ color: 'white' }} />
+        </div>
+        <h3 style={{
+          ...sectionTitleStyle,
+          fontSize: '18px',
+          fontWeight: '600',
+          color: '#000000',
+          margin: 0,
+          letterSpacing: '-0.01em',
+          opacity: 0.9
+        }}>
           {title}
         </h3>
-        {description && (
-          <p className="text-sm text-gray-600 mb-4">
+      </div>
+      
+      {description && (
+        <div style={{
+          marginBottom: '16px'
+        }}>
+          <p style={{
+            fontSize: '14px',
+            color: '#000000',
+            opacity: 0.7,
+            margin: 0,
+            lineHeight: '1.5'
+          }}>
             {description}
           </p>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Subscribe Form */}
       <div className="w-full">

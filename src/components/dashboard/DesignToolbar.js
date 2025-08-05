@@ -221,7 +221,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   };
 
   return (
-    <div className="relative w-full flex justify-end z-40">
+    <div className="relative w-full flex justify-start z-40">
       {/* Design Settings Button */}
       <button
         aria-label="Open Design Settings"

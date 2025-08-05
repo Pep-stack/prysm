@@ -112,7 +112,7 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -172,7 +172,7 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
         <div style={{
           width: '24px',
           height: '24px',
-          backgroundColor: textColor,
+          backgroundColor: '#374151',
           borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',

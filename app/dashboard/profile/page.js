@@ -446,17 +446,7 @@ export default function ProfilePage() {
   return (
     <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
       <div className="w-full sm:w-[300px] md:w-[500px] lg:w-[600px] space-y-6 pb-16 md:pb-0">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="p-2 hover:bg-gray-100 rounded-full transition"
-            type="button"
-          >
-            <LuArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <h1 className="text-xl font-semibold text-black">Profile Settings</h1>
-        </div>
+
 
 
 

@@ -140,7 +140,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
               justifyContent: 'center',
               width: '56px',
               height: '56px',
-              backgroundColor: textColor,
+              backgroundColor: '#374151',
               opacity: 0.8,
               borderRadius: '50%',
               flexShrink: 0,
@@ -177,7 +177,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
                 <div style={{
                   width: '16px',
                   height: '16px',
-                  backgroundColor: textColor,
+                  backgroundColor: '#374151',
                   borderRadius: '4px',
                   display: 'flex',
                   alignItems: 'center',
@@ -212,7 +212,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
                   <div style={{
                     width: '16px',
                     height: '16px',
-                    backgroundColor: textColor,
+                    backgroundColor: '#374151',
                     borderRadius: '4px',
                     display: 'flex',
                     alignItems: 'center',
@@ -242,7 +242,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
             alignItems: 'center',
             gap: '6px',
             padding: '6px 12px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             color: 'white',
             fontSize: '11px',
             fontWeight: '600',
@@ -281,7 +281,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
             <div style={{
               width: '20px',
               height: '20px',
-              backgroundColor: textColor,
+              backgroundColor: '#374151',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -498,7 +498,7 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',

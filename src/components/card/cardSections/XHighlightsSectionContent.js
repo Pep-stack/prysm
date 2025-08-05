@@ -606,7 +606,7 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -717,7 +717,7 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
           <div style={{
             width: '24px',
             height: '24px',
-            backgroundColor: textColor,
+            backgroundColor: '#374151',
             borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
@@ -744,39 +744,20 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          padding: '40px 20px',
+          justifyContent: 'center',
+          padding: '32px 16px',
           textAlign: 'center'
         }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            backgroundColor: textColor,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '16px',
-            opacity: 0.6
-          }}>
-            <FaXTwitter size={20} style={{ color: 'white' }} />
-          </div>
-          <div style={{
-            color: textColor,
+          <FaXTwitter size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <p style={{ 
+            margin: 0, 
             fontSize: '16px',
-            fontWeight: '600',
-            marginBottom: '8px',
-            opacity: 0.8
-          }}>
-            No X Highlights Yet
-          </div>
-          <div style={{
             color: textColor,
-            fontSize: '14px',
-            opacity: 0.6,
-            lineHeight: '1.4'
+            opacity: 0.7,
+            fontWeight: '500'
           }}>
-            Add your best X posts to showcase your content
-          </div>
+            No X Highlights Yet. Add your best X posts to showcase your content.
+          </p>
         </div>
       </div>
     );

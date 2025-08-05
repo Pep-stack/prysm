@@ -102,19 +102,42 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
           transition: 'all 0.3s ease',
           overflow: 'hidden',
           width: '100%',
-          fontFamily: settings.font_family || 'Inter, sans-serif'
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
       >
-        {/* Section Title */}
+        {/* Title at the top of the container */}
         <div style={{
-          ...sectionTitleStyle,
-          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
-          <LuCalendar style={{ color: '#006BFF', fontSize: '20px' }} />
-          <span>{initialAppointmentsData.title || 'Schedule a Call'}</span>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: '#374151',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuCalendar size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            {initialAppointmentsData.title || 'Schedule a Call'}
+          </h3>
         </div>
 
         {/* Content */}
@@ -276,36 +299,61 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
         transition: 'all 0.3s ease',
         overflow: 'hidden',
         width: '100%',
-        fontFamily: settings.font_family || 'Inter, sans-serif'
+        maxWidth: '100%',
+        boxSizing: 'border-box'
       }}>
+        {/* Title at the top of the container */}
         <div style={{
-          ...sectionTitleStyle,
-          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
-          <LuCalendar style={{ color: '#006BFF', fontSize: '20px' }} />
-          <span>Schedule a Call</span>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: '#374151',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <LuCalendar size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            Schedule a Call
+          </h3>
         </div>
         
         <div style={{
-          ...placeholderStyle,
-          textAlign: 'center',
-          padding: '40px 20px'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px 16px',
+          textAlign: 'center'
         }}>
-          <LuCalendar style={{ 
-            fontSize: '48px', 
-            color: '#006BFF', 
-            marginBottom: '16px',
-            opacity: 0.5
-          }} />
-          <div style={{ fontSize: '16px', marginBottom: '8px' }}>
-            No scheduling link yet
-          </div>
-          <div style={{ fontSize: '14px', opacity: 0.7 }}>
-            Add your Calendly link to let people book appointments
-          </div>
+          <LuCalendar size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <p style={{ 
+            margin: 0, 
+            fontSize: '16px',
+            color: textColor,
+            opacity: 0.7,
+            fontWeight: '500'
+          }}>
+            No scheduling link yet. Add your Calendly link to let people book appointments.
+          </p>
         </div>
       </div>
     );

@@ -602,34 +602,58 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
         width: '100%',
         fontFamily: settings.font_family || 'Inter, sans-serif'
       }}>
+        {/* Title at the top of the container */}
         <div style={{
-          ...sectionTitleStyle,
-          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
         }}>
-          <FaYoutube style={{ color: '#FF0000', fontSize: '20px' }} />
-          <span>YouTube Highlights</span>
+          <div style={{
+            width: '24px',
+            height: '24px',
+            backgroundColor: '#374151',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: 0.8
+          }}>
+            <FaYoutube size={14} style={{ color: 'white' }} />
+          </div>
+          <h3 style={{
+            ...sectionTitleStyle,
+            fontSize: '18px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em',
+            opacity: 0.9
+          }}>
+            YouTube Highlights
+          </h3>
         </div>
         
         <div style={{
-          ...placeholderStyle,
-          textAlign: 'center',
-          padding: '40px 20px'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '32px 16px',
+          textAlign: 'center'
         }}>
-          <FaYoutube style={{ 
-            fontSize: '48px', 
-            color: '#FF0000', 
-            marginBottom: '16px',
-            opacity: 0.5
-          }} />
-          <div style={{ fontSize: '16px', marginBottom: '8px' }}>
-            No YouTube highlights yet
-          </div>
-          <div style={{ fontSize: '14px', opacity: 0.7 }}>
-            Add your best YouTube videos to showcase your content
-          </div>
+          <FaYoutube size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <p style={{ 
+            margin: 0, 
+            fontSize: '16px',
+            color: textColor,
+            opacity: 0.7,
+            fontWeight: '500'
+          }}>
+            No YouTube highlights yet. Add your best YouTube videos to showcase your content.
+          </p>
         </div>
       </div>
     );

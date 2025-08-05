@@ -20,7 +20,7 @@ export default function CardFooter({ profile, user }) {
         color: textColor
       }}
     >
-      <div className="flex items-center justify-center gap-2 text-sm text-gray-700 font-medium">
+      <div className="flex items-center justify-center gap-2 text-sm font-medium" style={{ color: textColor }}>
         <Link href="/" className="hover:opacity-80 transition-opacity">
           <Image 
             src="/images/prysma-icon.png" 

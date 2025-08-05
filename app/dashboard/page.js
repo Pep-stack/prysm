@@ -360,13 +360,10 @@ export default function DashboardPageContent() {
 
   return (
     <DesignSettingsProvider initial={workingProfile}>
-      <div className="relative w-full flex justify-end z-40 mb-6 px-6">
-        <DesignToolbar initial={workingProfile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
-      </div>
       <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
         <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-black">Edit Sections</h2>
+          <div className="mb-6">
+            <DesignToolbar initial={workingProfile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
           </div>
           <AvailableSectionList
             onAddSection={handleAddSection}
