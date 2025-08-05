@@ -48,11 +48,20 @@ export default function ProfilePage() {
   const cardType = 'pro';
 
   // Card display settings per card type
-  const getCardDisplaySettings = (type) => profile.card_display_settings?.[type] || {
-    display_type: 'avatar',
-    avatar_size: 'medium',
-    avatar_shape: 'circle',
-    avatar_position: 'left',
+  const getCardDisplaySettings = (type) => {
+    const settings = profile.card_display_settings?.[type] || {
+      display_type: 'avatar',
+      avatar_size: 'medium',
+      avatar_shape: 'circle',
+      avatar_position: 'left',
+    };
+    
+    // Convert old 'header' type to 'avatar' for backward compatibility
+    if (settings.display_type === 'header') {
+      settings.display_type = 'avatar';
+    }
+    
+    return settings;
   };
   const [cardDisplaySettings, setCardDisplaySettings] = useState(getCardDisplaySettings(cardType));
 
@@ -620,6 +629,44 @@ export default function ProfilePage() {
                 </p>
               </div>
 
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={cardProfile.phone || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="+31 6 12345678"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  maxLength={20}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your phone number will be clickable on your card
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={cardProfile.email || ''}
+                  onChange={handleCardProfileChange}
+                  placeholder="john@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-emerald-500 focus:border-emerald-500"
+                  maxLength={100}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Your email will be clickable on your card
+                </p>
+              </div>
+
               {/* Availability Status */}
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -703,21 +750,23 @@ export default function ProfilePage() {
         {/* Profile Display Settings Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-4 sm:p-6">
-            <div className="flex items-center gap-3 mb-4 text-gray-700">
+            <div className="flex items-center gap-3 mb-6 text-gray-700">
               <LuMonitor className="w-5 h-5 flex-shrink-0" />
               <h2 className="text-base font-medium text-black">Profile Display</h2>
             </div>
-            <div className="space-y-6 sm:pl-8">
-              {/* Display Type Selection */}
+            
+            <div className="space-y-8 sm:pl-8">
+              {/* Avatar Style Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Choose Display Type
+                <label className="block text-sm font-medium text-gray-900 mb-4">
+                  Choose Avatar Style
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Square Avatar Option */}
+                  <label className={`group relative p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                     cardDisplaySettings.display_type === 'avatar' 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                      : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
                   }`}>
                     <input
                       type="radio"
@@ -728,121 +777,105 @@ export default function ProfilePage() {
                       className="sr-only"
                     />
                     <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                        <LuUser className="w-8 h-8 text-white" />
+                      <div className="w-20 h-20 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                        <LuUser className="w-10 h-10 text-white" />
                       </div>
-                      <h3 className="font-medium text-gray-900">Avatar</h3>
-                      <p className="text-xs text-gray-500 mt-1">Small circular profile photo</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Square Avatar</h3>
+                      <p className="text-xs text-gray-500 mt-1">Rounded corners, modern look</p>
                     </div>
                     {cardDisplaySettings.display_type === 'avatar' && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <LuSave className="w-3 h-3 text-white" />
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                        <LuCheck className="w-4 h-4 text-white" />
                       </div>
                     )}
                   </label>
-                  <label className={`relative p-4 border-2 rounded-lg cursor-pointer transition ${
-                    cardDisplaySettings.display_type === 'header' 
-                      ? 'border-emerald-500 bg-emerald-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+
+                  {/* Round Avatar Option */}
+                  <label className={`group relative p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    cardDisplaySettings.display_type === 'round_avatar' 
+                      ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                      : 'border-gray-200 hover:border-emerald-300 hover:bg-gray-50'
                   }`}>
                     <input
                       type="radio"
                       name="displayType"
-                      value="header"
-                      checked={cardDisplaySettings.display_type === 'header'}
-                      onChange={() => handleCardDisplaySettingChange('displayType', 'header')}
+                      value="round_avatar"
+                      checked={cardDisplaySettings.display_type === 'round_avatar'}
+                      onChange={() => handleCardDisplaySettingChange('displayType', 'round_avatar')}
                       className="sr-only"
                     />
                     <div className="text-center">
-                      <div className="w-16 h-10 mx-auto mb-2 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                        <LuImage className="w-6 h-6 text-white" />
+                      <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
+                        <LuUser className="w-10 h-10 text-white" />
                       </div>
-                      <h3 className="font-medium text-gray-900 mt-2">Header Image</h3>
-                      <p className="text-xs text-gray-500 mt-1">Large banner image</p>
+                      <h3 className="font-semibold text-gray-900 text-sm">Round Avatar</h3>
+                      <p className="text-xs text-gray-500 mt-1">Perfect circle, classic style</p>
                     </div>
-                    {cardDisplaySettings.display_type === 'header' && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                        <LuSave className="w-3 h-3 text-white" />
+                    {cardDisplaySettings.display_type === 'round_avatar' && (
+                      <div className="absolute top-3 right-3 w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                        <LuCheck className="w-4 h-4 text-white" />
                       </div>
                     )}
                   </label>
                 </div>
               </div>
-              {/* Avatar Settings (alleen tonen als avatar geselecteerd is) */}
-              {cardDisplaySettings.display_type === 'avatar' && (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900">Avatar</h3>
-                  {/* Preview + upload */}
-                  <div className="flex flex-col items-center gap-4 mb-2">
-                    <img 
-                      src={cardImages.avatar_url || 'https://via.placeholder.com/220x220?text=Avatar'} 
-                      alt="Profile Avatar" 
-                      style={{ width: 220, height: 220, objectFit: 'cover', borderRadius: 24, border: 'none', display: 'block' }}
-                    />
-                    <div className="flex flex-col gap-2 w-full items-center">
-                      <input
-                        type="file"
-                        id="avatar-upload"
-                        accept="image/png,image/jpeg,image/jpg"
-                        onChange={(e) => e.target.files?.[0] && setAvatarFile(e.target.files[0])}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                      />
+
+              {/* Avatar Upload Section - shows for both avatar types */}
+              {(cardDisplaySettings.display_type === 'avatar' || cardDisplaySettings.display_type === 'round_avatar') && (
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                  <div className="text-center space-y-6">
+                    <div>
+                      <h3 className="font-medium text-gray-900 mb-4">
+                        {cardDisplaySettings.display_type === 'avatar' ? 'Square Avatar' : 'Round Avatar'}
+                      </h3>
+                      
+                      {/* Avatar Preview */}
+                      <div className="flex justify-center mb-6">
+                        <img 
+                          src={cardImages.avatar_url || 'https://via.placeholder.com/220x220?text=Avatar'} 
+                          alt="Profile Avatar" 
+                          className={`w-56 h-56 object-cover border-4 border-white shadow-xl ${
+                            cardDisplaySettings.display_type === 'round_avatar' ? 'rounded-full' : 'rounded-3xl'
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Upload Controls */}
+                    <div className="max-w-md mx-auto space-y-4">
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id="avatar-upload"
+                          accept="image/png,image/jpeg,image/jpg"
+                          onChange={(e) => e.target.files?.[0] && setAvatarFile(e.target.files[0])}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <div className="flex items-center justify-center w-full h-12 px-4 bg-white border-2 border-dashed border-gray-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors duration-200">
+                          <LuImagePlus className="w-5 h-5 text-gray-400 mr-2" />
+                          <span className="text-sm font-medium text-gray-600">
+                            {avatarFile ? avatarFile.name : 'Kies bestand'}
+                          </span>
+                        </div>
+                      </div>
+                      
                       <button
                         onClick={handleAvatarUpload}
                         disabled={!avatarFile || uploadingAvatar}
-                        className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-300 text-white font-semibold px-6 py-3 rounded-lg text-sm transition-all duration-200 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        <LuImagePlus className="w-4 h-4" />
-                        {uploadingAvatar ? 'Uploading...' : 'Upload Avatar'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Header Settings (alleen tonen als header geselecteerd is) */}
-              {cardDisplaySettings.display_type === 'header' && (
-                <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-900">Header Image</h3>
-                  {/* Preview + upload/delete */}
-                  <div className="flex items-center gap-4 mb-2">
-                    {cardImages.header_url ? (
-                      <img 
-                        src={cardImages.header_url} 
-                        alt="Header" 
-                        className="w-40 h-16 object-cover rounded-lg border border-gray-200"
-                      />
-                    ) : (
-                      <div className="w-40 h-16 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 text-gray-400">
-                        No header image
-                      </div>
-                    )}
-                    <div className="flex flex-col gap-2">
-                      <input
-                        type="file"
-                        id="header-upload"
-                        accept="image/png,image/jpeg,image/jpg"
-                        onChange={(e) => e.target.files?.[0] && setHeaderFile(e.target.files[0])}
-                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                      />
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleHeaderUpload}
-                          disabled={!headerFile || uploadingHeader}
-                          className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <LuImagePlus className="w-4 h-4" />
-                          {uploadingHeader ? 'Uploading...' : 'Upload Header'}
-                        </button>
-                        {cardImages.header_url && (
-                          <button
-                            onClick={handleRemoveHeaderImage}
-                            disabled={uploadingHeader}
-                            className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-medium px-3 py-1.5 rounded-md text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            Remove Header Image
-                          </button>
+                        {uploadingAvatar ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Uploaden...
+                          </>
+                        ) : (
+                          <>
+                            <LuImagePlus className="w-4 h-4" />
+                            Upload Avatar
+                          </>
                         )}
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>

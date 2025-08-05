@@ -36,10 +36,8 @@ COMMENT ON COLUMN profiles.card_display_settings IS 'Display settings per card t
 --     "show_availability": true,
 --     "phone": "+31 6 12345678",
 --     "email": "john@example.com",
---     "company": "Tech Corp",
---     "job_title": "Senior Developer",
---     "experience_years": "5+",
---     "languages": "Dutch, English",
+--     "current_role": "Senior Developer at TechCorp",
+--     "age": "28",
 --     "timezone": "Europe/Amsterdam"
 --   }
 -- }

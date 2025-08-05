@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
-import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaRedditAlien, FaSnapchatGhost, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaRedditAlien, FaSnapchatGhost, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaTiktok } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 
 const SOCIALS = [
@@ -17,8 +17,6 @@ const SOCIALS = [
   { type: 'behance', name: 'Behance', icon: FaBehance },
   { type: 'tiktok', name: 'TikTok', icon: FaTiktok },
   { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp },
-  { type: 'email', name: 'Email', icon: FaEnvelope },
-  { type: 'phone', name: 'Phone', icon: FaPhone },
 ];
 
 export default function SocialMediaSectionContent({ section, profile, user, styles = {}, onSocialClick }) {
@@ -58,10 +56,6 @@ export default function SocialMediaSectionContent({ section, profile, user, styl
         return profile?.reddit;
       case 'whatsapp':
         return profile?.whatsapp;
-      case 'email':
-        return profile?.email ? `mailto:${profile.email}` : null;
-      case 'phone':
-        return profile?.phone ? `tel:${profile.phone}` : null;
       default:
         return null;
     }

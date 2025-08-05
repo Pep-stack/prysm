@@ -73,6 +73,12 @@ export default function PrysmaCard({
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
         {cardSections && cardSections.length > 0 && (
           cardSections.map((section) => {
+            console.log('🔍 PRYSMA-CARD: Rendering section:', {
+              sectionId: section.id,
+              sectionType: section.type,
+              sectionValue: section.value,
+              isFAQ: section.type === 'faq'
+            });
             return (
               <CardSectionRenderer
                 key={section.id}

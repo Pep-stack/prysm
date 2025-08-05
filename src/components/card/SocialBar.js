@@ -53,8 +53,6 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
           // Determine platform based on section type
           const getPlatform = (sectionType) => {
             switch (sectionType) {
-              case 'email': return 'email';
-              case 'phone': return 'phone';
               case 'whatsapp': return 'whatsapp';
               case 'linkedin': return 'linkedin';
               case 'instagram': return 'instagram';

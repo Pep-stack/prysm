@@ -32,9 +32,6 @@ const categorizedOptions = [
   {
     category: 'Contact & Interaction',
     options: [
-      { id: 'contact', name: 'Contact Section', inputType: 'none' },
-      { id: 'contact_buttons', name: 'Contact Buttons', inputType: 'none' },
-      { id: 'contact_form', name: 'Contact Form', inputType: 'none' },
       { id: 'calendar_scheduling', name: 'Calendar / Scheduling', inputType: 'none' },
       { id: 'newsletter_signup', name: 'Newsletter Signup', inputType: 'none' },
     ]
@@ -53,9 +50,7 @@ const categorizedOptions = [
       { id: 'snapchat', name: 'Snapchat Profile', inputType: 'text', placeholder: 'Enter profile URL' },
       { id: 'reddit', name: 'Reddit Profile', inputType: 'text', placeholder: 'Enter profile URL' },
   
-      { id: 'phone', name: 'Phone Number', inputType: 'text', placeholder: 'Enter phone number' },
       { id: 'whatsapp', name: 'WhatsApp', inputType: 'text', placeholder: 'Enter WhatsApp number' },
-      { id: 'email', name: 'Email', inputType: 'text', placeholder: 'Enter email address' },
       { id: 'behance', name: 'Behance', inputType: 'text', placeholder: 'Enter your Behance profile URL' },
     ]
   },
@@ -70,7 +65,7 @@ const categorizedOptions = [
   {
     category: 'Utilities & Extras',
     options: [
-      { id: 'download_cv', name: 'Download CV (PDF/vCard)', inputType: 'none' },
+
       { id: 'statistics_proof', name: 'Statistics / Social Proof', inputType: 'none' },
       { id: 'blog_articles', name: 'Blog / Articles', inputType: 'none' },
       { id: 'video_banner', name: 'Video Banner / Intro', inputType: 'none' },

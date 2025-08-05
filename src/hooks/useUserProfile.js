@@ -129,6 +129,13 @@ export function useUserProfile(user) {
         filteredCount: validLayout.length - cleanLayout.length
       });
       
+      // Extra debug for FAQ sections
+      const faqSections = cleanLayout.filter(section => section.type === 'faq');
+      console.log('🔍 SAVE-LAYOUT: FAQ sections found:', {
+        faqSectionsCount: faqSections.length,
+        faqSections: faqSections
+      });
+      
       // Safely serialize the layout to prevent circular references
       let serializedLayout;
       try {
@@ -185,7 +192,11 @@ export function useUserProfile(user) {
         message: err.message,
         details: err.details || 'No additional details',
         hint: err.hint,
-        code: err.code
+        code: err.code,
+        layoutLength: newLayout?.length,
+        cardType,
+        key,
+        serializedLayout: typeof serializedLayout
       });
       setLayoutError(`Failed to save card layout: ${err.message}`);
     } finally {

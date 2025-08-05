@@ -100,14 +100,29 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
         return item;
       });
       
-      console.log(`🔥 OPEN-MODAL: ${section.type} data:`, {
-        originalData: sectionArray,
-        safeData: safeArray,
-        dataType: typeof sectionArray,
-        isArray: Array.isArray(sectionArray)
-      });
-      
-      setInputValue(safeArray);
+      // Extra safety for FAQ data - ensure only id, question, answer
+      if (section.type === 'faq') {
+        const safeFAQArray = safeArray.map(item => ({
+          id: item.id || Date.now(),
+          question: item.question || '',
+          answer: item.answer || ''
+        }));
+        setInputValue(safeFAQArray);
+        console.log(`🔥 OPEN-MODAL: FAQ data:`, {
+          originalData: sectionArray,
+          safeData: safeFAQArray,
+          dataType: typeof sectionArray,
+          isArray: Array.isArray(sectionArray)
+        });
+      } else {
+        setInputValue(safeArray);
+        console.log(`🔥 OPEN-MODAL: ${section.type} data:`, {
+          originalData: sectionArray,
+          safeData: safeArray,
+          dataType: typeof sectionArray,
+          isArray: Array.isArray(sectionArray)
+        });
+      }
     } else if (section.type === 'featured_video' || section.type === 'appointments' || section.type === 'community' || section.type === 'subscribe') {
       // Special handling for object-based sections
       const sectionData = initialProfileData[section.type];
@@ -180,6 +195,30 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       inputValueType: typeof currentValue,
       editingSection: editingSection
     });
+    
+    // Extra debug for FAQ data
+    if (editingSection.type === 'faq') {
+      console.log('🔍 FAQ-DEBUG: Current value details:', {
+        currentValue,
+        currentValueType: typeof currentValue,
+        isArray: Array.isArray(currentValue),
+        isObject: typeof currentValue === 'object',
+        keys: currentValue && typeof currentValue === 'object' ? Object.keys(currentValue) : 'not object'
+      });
+    }
+    
+    // Extra debug for FAQ data
+    if (editingSection.type === 'faq' && Array.isArray(currentValue)) {
+      console.log('🔍 FAQ-DEBUG: Current value details:', {
+        items: currentValue.map((item, index) => ({
+          index,
+          id: item.id,
+          question: item.question,
+          answer: item.answer,
+          hasCircularRef: item === currentValue || item === item.question || item === item.answer
+        }))
+      });
+    }
 
 
     
@@ -220,7 +259,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     // Process value BEFORE sending to Supabase
     let valueToSave = currentValue;
     
-    console.log('🔍 DEBUG: Instagram profile save process:', {
+    console.log('🔍 DEBUG: Save process:', {
       sectionType,
       databaseColumnName,
       currentValue,
@@ -229,7 +268,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     });
     if (sectionType === 'languages' && Array.isArray(currentValue)) {
       valueToSave = currentValue.join(','); // Join array into comma-separated string
-    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights' || sectionType === 'appointments') && Array.isArray(currentValue)) {
+    } else if ((sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights' || sectionType === 'appointments') && Array.isArray(currentValue)) {
       try {
         // Create a safe copy without circular references
         const safeValue = currentValue.map(item => {
@@ -244,6 +283,9 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
                   cleanItem[key] = item[key];
                 }
               });
+            } else if (sectionType === 'faq') {
+              // Skip FAQ items in the general cleaning - we handle them separately
+              return null;
             } else {
               // For other sections, copy all properties except potential circular references
               Object.keys(item).forEach(key => {
@@ -257,47 +299,156 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           return item;
         });
         
-        // Use a safer approach to avoid cyclic structures
-        const seen = new WeakSet();
+        // Filter out null items (invalid FAQ items)
+        const filteredSafeValue = safeValue.filter(item => item !== null);
         
-        const cleanValue = (obj) => {
-          if (obj === null || typeof obj !== 'object') {
-            return obj;
-          }
+        // Special handling for FAQ data to prevent cyclic structures
+        if (sectionType === 'faq') {
+          console.log('🔧 FAQ-SPECIAL: Using FAQ-specific cleaning');
           
-          if (seen.has(obj)) {
-            return undefined; // Remove circular reference
-          }
-          seen.add(obj);
+          // Create a completely clean FAQ array with direct approach
+          const cleanFAQArray = [];
           
-          if (Array.isArray(obj)) {
-            return obj.map(item => cleanValue(item)).filter(item => item !== undefined);
-          }
+          // Log the input data
+          console.log('🔧 FAQ-SPECIAL: Input data:', {
+            currentValue,
+            filteredSafeValue,
+            currentValueType: typeof currentValue,
+            isArray: Array.isArray(currentValue)
+          });
           
-          const result = {};
-          for (const key in obj) {
-            if (obj.hasOwnProperty(key) && obj[key] !== undefined && obj[key] !== null) {
-              const cleaned = cleanValue(obj[key]);
-              if (cleaned !== undefined) {
-                result[key] = cleaned;
+          // Use currentValue directly if it's an array
+          const sourceArray = Array.isArray(currentValue) ? currentValue : [];
+          
+          for (let i = 0; i < sourceArray.length; i++) {
+            const item = sourceArray[i];
+            console.log(`🔧 FAQ-SPECIAL: Processing item ${i}:`, item);
+            
+            if (item && typeof item === 'object') {
+              const cleanItem = {
+                id: item.id || Date.now() + i,
+                question: String(item.question || ''),
+                answer: String(item.answer || '')
+              };
+              
+              // Only add if it has content
+              if (cleanItem.question.trim() || cleanItem.answer.trim()) {
+                cleanFAQArray.push(cleanItem);
+                console.log(`🔧 FAQ-SPECIAL: Added clean item:`, cleanItem);
               }
             }
           }
-          return result;
-        };
-        
-        const cleaned = cleanValue(safeValue);
-        valueToSave = JSON.stringify(cleaned);
-        console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
+          
+          console.log('🔧 FAQ-SPECIAL: Final clean array:', cleanFAQArray);
+          
+          // Test serialization before proceeding
+          try {
+            valueToSave = JSON.stringify(cleanFAQArray);
+            console.log(`📝 Serialized FAQ data:`, valueToSave);
+          } catch (serializeError) {
+            console.error('❌ FAQ-SERIALIZE: Error serializing FAQ data:', serializeError);
+            // Use empty array as fallback
+            valueToSave = JSON.stringify([]);
+            console.log('🔧 FAQ-SERIALIZE: Using empty array fallback');
+          }
+        } else {
+          // Use a safer approach to avoid cyclic structures for other array types
+          const seen = new WeakSet();
+          
+          const cleanValue = (obj) => {
+            if (obj === null || typeof obj !== 'object') {
+              return obj;
+            }
+            
+            if (seen.has(obj)) {
+              return null; // Return null instead of undefined for circular reference
+            }
+            seen.add(obj);
+            
+            if (Array.isArray(obj)) {
+              return obj.map(item => cleanValue(item)).filter(item => item !== null);
+            }
+            
+            const result = {};
+            for (const key in obj) {
+              if (obj.hasOwnProperty(key) && obj[key] !== undefined && obj[key] !== null) {
+                const cleaned = cleanValue(obj[key]);
+                if (cleaned !== null) {
+                  result[key] = cleaned;
+                }
+              }
+            }
+            return result;
+          };
+          
+          const cleaned = cleanValue(safeValue);
+          valueToSave = JSON.stringify(cleaned);
+          console.log(`📝 Serialized ${sectionType} data:`, valueToSave);
+        }
       } catch (serializeError) {
         console.error('❌ Error serializing data:', serializeError);
         setError(`Error serializing ${sectionType} data: ${serializeError.message}`);
         return;
       }
+    } else if (sectionType === 'faq' && (Array.isArray(currentValue) || (typeof currentValue === 'object' && currentValue !== null))) {
+      // Special handling for FAQ data to prevent cyclic structures
+      console.log('🔧 FAQ-SPECIAL: Using FAQ-specific cleaning');
+      
+      // Create a completely clean FAQ array with direct approach
+      const cleanFAQArray = [];
+      
+      // Log the input data
+      console.log('🔧 FAQ-SPECIAL: Input data:', {
+        currentValue,
+        currentValueType: typeof currentValue,
+        isArray: Array.isArray(currentValue),
+        currentValueLength: Array.isArray(currentValue) ? currentValue.length : 'not array',
+        currentValueKeys: Array.isArray(currentValue) && currentValue.length > 0 ? Object.keys(currentValue[0]) : 'no items'
+      });
+      
+      // Use currentValue directly if it's an array, or convert object to array
+      let sourceArray = [];
+      if (Array.isArray(currentValue)) {
+        sourceArray = currentValue;
+      } else if (typeof currentValue === 'object' && currentValue !== null) {
+        // Convert object to array if needed
+        sourceArray = Object.values(currentValue).filter(item => item && typeof item === 'object');
+      }
+      
+      for (let i = 0; i < sourceArray.length; i++) {
+        const item = sourceArray[i];
+        console.log(`🔧 FAQ-SPECIAL: Processing item ${i}:`, item);
+        
+        if (item && typeof item === 'object') {
+          const cleanItem = {
+            id: item.id || Date.now() + i,
+            question: String(item.question || ''),
+            answer: String(item.answer || '')
+          };
+          
+          // Only add if it has content
+          if (cleanItem.question.trim() || cleanItem.answer.trim()) {
+            cleanFAQArray.push(cleanItem);
+            console.log(`🔧 FAQ-SPECIAL: Added clean item:`, cleanItem);
+          }
+        }
+      }
+      
+      console.log('🔧 FAQ-SPECIAL: Final clean array:', cleanFAQArray);
+      
+      // Test serialization before proceeding
+      try {
+        valueToSave = JSON.stringify(cleanFAQArray);
+        console.log(`📝 Serialized FAQ data:`, valueToSave);
+      } catch (serializeError) {
+        console.error('❌ FAQ-SERIALIZE: Error serializing FAQ data:', serializeError);
+        // Use empty array as fallback
+        valueToSave = JSON.stringify([]);
+        console.log('🔧 FAQ-SERIALIZE: Using empty array fallback');
+      }
     } else if ((sectionType === 'featured_video' || sectionType === 'appointments' || sectionType === 'community' || sectionType === 'subscribe') && typeof currentValue === 'object' && !Array.isArray(currentValue)) {
       try {
         // Use a safer approach to avoid cyclic structures
-        const cleanObject = {};
         const seen = new WeakSet();
         
         const cleanValue = (obj) => {
@@ -306,7 +457,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           }
           
           if (seen.has(obj)) {
-            return undefined; // Remove circular reference
+            return null; // Return null instead of undefined for circular reference
           }
           seen.add(obj);
           
@@ -314,7 +465,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           for (const key in obj) {
             if (obj.hasOwnProperty(key) && obj[key] !== undefined && obj[key] !== null) {
               const cleaned = cleanValue(obj[key]);
-              if (cleaned !== undefined) {
+              if (cleaned !== null) {
                 result[key] = cleaned;
               }
             }
@@ -335,16 +486,77 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     setIsLoading(true); 
     setError(null);
     try {
+      // Extra safety check before Supabase update
+      let finalValueToSave = valueToSave;
+      if (sectionType === 'faq') {
+        console.log('🔍 FAQ-SUPABASE: About to test valueToSave:', {
+          valueToSave,
+          valueToSaveType: typeof valueToSave,
+          valueToSaveLength: valueToSave?.length
+        });
+        try {
+          // Check if valueToSave is actually a string
+          if (typeof valueToSave !== 'string') {
+            console.error('❌ FAQ-SUPABASE: valueToSave is not a string:', typeof valueToSave);
+            finalValueToSave = JSON.stringify([]);
+            return;
+          }
+          
+          // Since valueToSave is already a JSON string, just verify it's valid
+          const parsed = JSON.parse(valueToSave);
+          console.log('✅ FAQ-SUPABASE: Value can be safely serialized, parsed result:', parsed);
+          
+          // Extra check: verify the parsed data is actually FAQ data
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            console.log('✅ FAQ-SUPABASE: Valid FAQ data found:', {
+              length: parsed.length,
+              firstItem: parsed[0]
+            });
+          } else {
+            console.warn('⚠️ FAQ-SUPABASE: Parsed data is not valid FAQ array:', parsed);
+          }
+        } catch (testError) {
+          console.error('❌ FAQ-SUPABASE: Value cannot be safely serialized, using fallback');
+          console.error('❌ FAQ-SUPABASE: Test error:', testError);
+          console.error('❌ FAQ-SUPABASE: Original valueToSave:', valueToSave);
+          // Create a completely clean fallback
+          const fallbackValue = JSON.stringify([]);
+          finalValueToSave = fallbackValue;
+        }
+      }
+      
       console.log('💾 Attempting to save to Supabase:', {
         sectionType,
-        valueToSave,
+        databaseColumnName,
+        valueToSave: finalValueToSave,
         userId: user.id,
-        updateObject: { [sectionType]: valueToSave, updated_at: new Date().toISOString() }
+        updateObject: { [databaseColumnName]: finalValueToSave, updated_at: new Date().toISOString() }
       });
+      
+      // Extra check for FAQ column existence
+      if (sectionType === 'faq') {
+        console.log('🔍 FAQ-DATABASE: Checking if faq column exists...');
+        try {
+          // Try to get the current profile to see if faq column exists
+          const { data: currentProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('faq')
+            .eq('id', user.id)
+            .single();
+          
+          if (fetchError) {
+            console.error('❌ FAQ-DATABASE: Error fetching current profile:', fetchError);
+          } else {
+            console.log('✅ FAQ-DATABASE: FAQ column exists, current value:', currentProfile?.faq);
+          }
+        } catch (checkError) {
+          console.error('❌ FAQ-DATABASE: Error checking FAQ column:', checkError);
+        }
+      }
       
       const { data, error: updateError } = await supabase
         .from('profiles')
-        .update({ [databaseColumnName]: valueToSave, updated_at: new Date().toISOString() }) // Use correct database column name
+        .update({ [databaseColumnName]: finalValueToSave, updated_at: new Date().toISOString() }) // Use correct database column name
         .eq('id', user.id)
         .select() // Select the updated row
         .single(); 
@@ -356,15 +568,52 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
       
       console.log('✅ Supabase update successful:', data);
       
+      // Extra debug for FAQ data
+      if (sectionType === 'faq') {
+        console.log('🔍 FAQ-SAVE: Database update result:', {
+          data,
+          faqColumn: data?.faq,
+          parsedFAQ: data?.faq ? JSON.parse(data.faq) : null,
+          currentValue,
+          valueToSave,
+          finalValueToSave,
+          databaseColumnName,
+          sectionType
+        });
+        
+        // Also check if the FAQ data was actually saved
+        if (data?.faq) {
+          try {
+            const savedFAQ = JSON.parse(data.faq);
+            console.log('✅ FAQ-SAVE: FAQ data successfully saved to database:', {
+              savedFAQ,
+              length: Array.isArray(savedFAQ) ? savedFAQ.length : 'not array'
+            });
+          } catch (error) {
+            console.error('❌ FAQ-SAVE: Error parsing saved FAQ data:', error);
+          }
+        } else {
+          console.error('❌ FAQ-SAVE: No FAQ data found in database response');
+        }
+      }
+      
       // Call the callback passed from the parent to update its profile state
       if (onProfileUpdate) {
          // IMPORTANT: Pass back the *original* input value if it was an array or object,
          // so the parent state (and selector components) get the correct format.
          // The 'data' returned from Supabase will have the string version.
          const updatedProfileData = { ...data };
-         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'faq' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') {
+         if (sectionType === 'languages' || sectionType === 'education' || sectionType === 'experience' || sectionType === 'certifications' || sectionType === 'projects' || sectionType === 'testimonials' || sectionType === 'skills' || sectionType === 'services' || sectionType === 'gallery' || sectionType === 'publications' || sectionType === 'events' || sectionType === 'x_highlights' || sectionType === 'youtube_highlights' || sectionType === 'linkedin_highlights') {
             updatedProfileData[sectionType] = currentValue; // Restore the array format for local state
             console.log('🔄 Restoring array format for local state:', {
+              sectionType,
+              originalArray: currentValue,
+              updatedProfileData: updatedProfileData[sectionType]
+            });
+         } else if (sectionType === 'faq') {
+            // Special handling for FAQ - ensure it's stored as an array in local state
+            updatedProfileData[sectionType] = currentValue; // Restore the array format for local state
+            console.log('🔄 FAQ: Restoring array format for local state:', {
               sectionType,
               originalArray: currentValue,
               updatedProfileData: updatedProfileData[sectionType]
@@ -385,8 +634,28 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
               originalValue: currentValue,
               updatedProfileData: updatedProfileData[databaseColumnName]
             });
+                  }
+         
+         // Special handling for FAQ - also update the card_sections array
+         if (sectionType === 'faq' && Array.isArray(currentValue)) {
+           console.log('🔧 FAQ: Updating card_sections with FAQ data');
+           // Update the FAQ section in card_sections with the data
+           try {
+             // Find the FAQ section in card_sections and update its value
+             // This will be handled by the parent component's auto-save mechanism
+             console.log('🔧 FAQ: FAQ data saved to profile.faq, will be loaded by FAQSectionContent');
+             
+             // Also update the section value for immediate display
+             if (editingSection && editingSection.id) {
+               console.log('🔧 FAQ: Updating section value for immediate display');
+               // The section value will be updated by the parent component
+             }
+           } catch (error) {
+             console.error('❌ FAQ: Error updating card_sections:', error);
+           }
          }
-         onProfileUpdate(updatedProfileData); 
+         
+         onProfileUpdate(updatedProfileData);
       }
       closeModal(); // Close modal on success
 
@@ -417,6 +686,29 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     }
   }, [editingSection, user, inputValue, closeModal, onProfileUpdate]);
 
+  // Safe setInputValue function that prevents circular references
+  const safeSetInputValue = useCallback((newValue) => {
+    console.log('🔄 SAFE-SET-INPUT: Received new value:', {
+      newValue,
+      newValueType: typeof newValue,
+      isArray: Array.isArray(newValue),
+      sectionType: editingSection?.type
+    });
+    
+    // Extra safety check for FAQ data
+    if (editingSection?.type === 'faq' && Array.isArray(newValue)) {
+      const safeFAQValue = newValue.map(item => ({
+        id: item.id || Date.now(),
+        question: item.question || '',
+        answer: item.answer || ''
+      }));
+      console.log('🔄 SAFE-SET-INPUT: FAQ safety check - cleaned value:', safeFAQValue);
+      setInputValue(safeFAQValue);
+    } else {
+      setInputValue(newValue);
+    }
+  }, [editingSection?.type, setInputValue]);
+
   return {
     isModalOpen,
     editingSection,
@@ -425,7 +717,7 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
     error, // Return error state
     openModal,
     closeModal,
-    setInputValue, // Allow direct input changes
+    setInputValue: safeSetInputValue, // Use safe version
     handleSave,
   };
 } 

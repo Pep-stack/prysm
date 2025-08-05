@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 
-export default function SubscribeSelector({ value = '', onChange }) {
+export default function SubscribeSelector({ value = '', onChange, onSave: modalOnSave, onCancel: modalOnCancel }) {
   const [subscribeData, setSubscribeData] = useState({
     t: value?.title || 'Subscribe',
     d: value?.description || 'Stay updated with our latest news and updates.',
@@ -26,7 +26,19 @@ export default function SubscribeSelector({ value = '', onChange }) {
     }
   }, [value]);
 
+  const handleCancel = () => {
+    // If we have a modal cancel function, call it
+    if (modalOnCancel) {
+      modalOnCancel();
+    }
+  };
 
+  const handleSave = () => {
+    // Save to database via modal
+    if (modalOnSave) {
+      modalOnSave();
+    }
+  };
 
   return (
     <div
@@ -155,7 +167,25 @@ export default function SubscribeSelector({ value = '', onChange }) {
           </div>
         </div>
 
-
+        {/* Save/Cancel Buttons - Always visible at bottom */}
+        <div className="flex gap-3 mt-6 pt-4 border-t border-gray-700">
+          <button
+            onClick={handleCancel}
+            className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
+            style={{
+              backgroundColor: '#10b981',
+              color: 'white'
+            }}
+          >
+            Save
+          </button>
+        </div>
       </div>
     </div>
   );

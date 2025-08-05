@@ -135,7 +135,8 @@ export default function DashboardPageContent() {
       console.log('🔥 AUTO-SAVE: Collecting sections for save', {
         totalSections: allSections.length,
         sectionsData: allSections,
-        cardType
+        cardType,
+        hasFAQ: allSections.some(s => s.type === 'faq')
       });
       
       await saveCardLayout(allSections, cardType);
@@ -233,7 +234,20 @@ export default function DashboardPageContent() {
     console.log('💾 MODAL-SAVE: Saving with args:', args);
     await originalHandleModalSave(...args);
     console.log('✅ MODAL-SAVE: Modal saved, auto-save will trigger automatically');
-  }, [originalHandleModalSave]);
+    
+    // Extra debug for FAQ section
+    if (args[0] && args[0].type === 'faq') {
+      console.log('🔍 FAQ-MODAL-SAVE: FAQ section saved, checking profile update...');
+      // Wait a bit for the profile to update
+      setTimeout(() => {
+        console.log('🔍 FAQ-MODAL-SAVE: Profile after save:', {
+          workingProfile,
+          faqData: workingProfile?.faq,
+          parsedFAQ: workingProfile?.faq ? JSON.parse(workingProfile.faq) : null
+        });
+      }, 1000);
+    }
+  }, [originalHandleModalSave, workingProfile]);
 
   useEffect(() => {
     if (!sessionLoading && !user) {
@@ -316,11 +330,13 @@ export default function DashboardPageContent() {
       console.log('🔥 ADD-SECTION: Adding to card sections');
       setCardSections((prev) => {
         const newSections = [...prev, newSection];
-        console.log('🔥 ADD-SECTION: Card sections updated', {
-          previousCount: prev.length,
-          newCount: newSections.length,
-          newSections
-        });
+              console.log('🔥 ADD-SECTION: Card sections updated', {
+        previousCount: prev.length,
+        newCount: newSections.length,
+        newSections,
+        hasFAQ: newSections.some(s => s.type === 'faq'),
+        faqSections: newSections.filter(s => s.type === 'faq')
+      });
         return newSections;
       });
       console.log('✅ ADD-SECTION: Card section added, auto-save will trigger automatically');
@@ -405,14 +421,52 @@ export default function DashboardPageContent() {
 
 function DashboardMainWithBg({ profile, user, cardSections, socialBarSections }) {
   const { settings } = useDesignSettings();
+  
+  // Complete background options for patterns
+  const BACKGROUND_COLOR_OPTIONS = [
+    // ULTRA REFINED SOLIDS & GRADIENTS - Original refined selection
+    { label: 'Pure Canvas', value: '#ffffff', name: 'Pure Canvas' },
+    { label: 'Midnight Black', value: '#0a0a0a', name: 'Midnight Black' },
+    { label: 'Soft Pearl', value: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)', name: 'Soft Pearl', isGradient: true },
+    { label: 'Warm Stone', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #e7e5e4 100%)', name: 'Warm Stone', isGradient: true },
+    { label: 'Deep Charcoal', value: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%)', name: 'Deep Charcoal', isGradient: true },
+    
+         // ELEGANT PATTERNS - Sophisticated textures for modern professionals
+     { label: 'Subtle Dots', value: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0)', name: 'Subtle Dots', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '20px 20px' },
+     { label: 'Fine Grid', value: 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)', name: 'Fine Grid', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '24px 24px' },
+     { label: 'Soft Lines', value: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)', name: 'Soft Lines', isPattern: true, backgroundColor: '#fafafa' },
+     { label: 'Paper Texture', value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)', name: 'Paper Texture', isPattern: true, backgroundColor: '#fefefe', backgroundSize: '16px 16px, 24px 24px' },
+     { label: 'Dark Mesh', value: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', name: 'Dark Mesh', isPattern: true, backgroundColor: '#1a1a1a', backgroundSize: '18px 18px' }
+  ];
+  
+  const backgroundOption = BACKGROUND_COLOR_OPTIONS.find(opt => opt.value === settings.background_color);
+  
+  // Determine style based on background type
+  const getBackgroundStyle = () => {
+    if (backgroundOption?.isPattern) {
+      return {
+        backgroundColor: backgroundOption.backgroundColor,
+        backgroundImage: settings.background_color,
+        backgroundSize: backgroundOption.backgroundSize || 'auto'
+      };
+    } else if (settings.background_color?.includes('linear-gradient') || 
+               settings.background_color?.includes('radial-gradient') || 
+               settings.background_color?.includes('repeating-linear-gradient')) {
+      return {
+        backgroundImage: settings.background_color || 'linear-gradient(135deg, #f8f9fa 0%, #f8f9fa 100%)'
+      };
+    } else {
+      return {
+        backgroundColor: settings.background_color || '#f8f9fa'
+      };
+    }
+  };
+  
   return (
     <main 
       className="flex-1 flex justify-center items-start pt-6" 
       style={{ 
-        ...(settings.background_color?.includes('linear-gradient')
-          ? { backgroundImage: settings.background_color || 'linear-gradient(135deg, #f8f9fa 0%, #f8f9fa 100%)' }
-          : { backgroundColor: settings.background_color || '#f8f9fa' }
-        ),
+        ...getBackgroundStyle(),
         minHeight: '100vh', 
         borderRadius: '15px' 
       }}

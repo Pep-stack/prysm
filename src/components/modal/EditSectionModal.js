@@ -111,6 +111,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <LanguageSelector 
           value={selectedLanguageCodes} // Pass current codes
           onChange={onChange} // onChange should expect an array of codes
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -122,6 +124,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <EducationSelector 
           value={selectedEducationEntries} // Pass current education entries
           onChange={onChange} // onChange should expect an array of education objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -133,6 +137,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <ExperienceSelector 
           value={selectedExperienceEntries} // Pass current experience entries
           onChange={onChange} // onChange should expect an array of experience objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -144,6 +150,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <CertificationSelector 
           value={selectedCertificationEntries} // Pass current certification entries
           onChange={onChange} // onChange should expect an array of certification objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -155,6 +163,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <ProjectSelector 
           value={selectedProjectEntries} // Pass current project entries
           onChange={onChange} // onChange should expect an array of project objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -195,6 +205,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
           value={selectedTestimonialEntries} // Pass current testimonial entries
           onChange={onChange} // onChange should expect an array of testimonial objects
           userId={userId} // Pass user ID for Supabase integration
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -207,6 +219,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <SkillsSelector 
           value={selectedSkillEntries} // Pass current skill entries
           onChange={onChange} // onChange should expect an array of skill objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -219,6 +233,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <ServicesSelector 
           value={selectedServiceEntries} // Pass current service entries
           onChange={onChange} // onChange should expect an array of service objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -259,8 +275,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <AppointmentsEditor 
           value={selectedAppointmentData} // Pass current appointment data
           onChange={onChange} // onChange should expect an appointment object
-          onSave={onSave}
-          onCancel={onClose}
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -299,6 +315,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <SubscribeSelector 
           value={selectedSubscribeData} // Pass current subscribe data
           onChange={onChange} // onChange should expect a subscribe object
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -311,6 +329,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
         <FAQSelector 
           value={selectedFAQEntries} // Pass current FAQ entries
           onChange={onChange} // onChange should expect an array of FAQ objects
+          onSave={onSave} // Pass save function
+          onCancel={onClose} // Pass close function for cancel
         />
       );
     }
@@ -659,42 +679,68 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
   return (
     <div style={modalOverlayStyle} onClick={onClose}> 
       <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}> 
-        <h2>Edit {section.name}</h2>
+        {/* Only show title and buttons for sections that don't have internal save/cancel */}
+        {section.editorComponent !== 'ProjectSelector' && 
+         section.editorComponent !== 'ServicesSelector' && 
+         section.editorComponent !== 'ClientTestimonialSelector' && 
+         section.editorComponent !== 'SkillsSelector' &&
+         section.editorComponent !== 'ExperienceSelector' &&
+         section.editorComponent !== 'EducationSelector' &&
+         section.editorComponent !== 'CertificationSelector' &&
+         section.editorComponent !== 'LanguageSelector' &&
+         section.editorComponent !== 'SubscribeSelector' &&
+         section.editorComponent !== 'FAQSelector' &&
+         section.editorComponent !== 'AppointmentsEditor' && (
+          <h3>Edit {section.name}</h3>
+        )}
         
         {renderInput()} {/* Render the correct input or custom component */}
 
-        <div style={buttonContainerStyle}>
-          <button 
-            onClick={onClose} 
-            style={{ 
-              padding: '8px 16px',
-              backgroundColor: 'transparent',
-              borderColor: '#e2e8f0',
-              color: '#64748b',
-              borderRadius: '25px',
-              fontSize: '14px',
-              fontWeight: '500',
-              border: '1px solid #e2e8f0'
-            }}
-          >
-            Cancel
-          </button>
-          <button 
-            onClick={onSave} 
-            style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#00C48C', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '25px',
-              fontSize: '14px',
-              fontWeight: '500',
-              boxShadow: '0 2px 8px rgba(0, 196, 140, 0.3)'
-            }}
-          >
-            Save
-          </button>
-        </div>
+        {/* Only show save/cancel buttons for sections that don't have internal save/cancel */}
+        {section.editorComponent !== 'ProjectSelector' && 
+         section.editorComponent !== 'ServicesSelector' && 
+         section.editorComponent !== 'ClientTestimonialSelector' && 
+         section.editorComponent !== 'SkillsSelector' &&
+         section.editorComponent !== 'ExperienceSelector' &&
+         section.editorComponent !== 'EducationSelector' &&
+         section.editorComponent !== 'CertificationSelector' &&
+         section.editorComponent !== 'LanguageSelector' &&
+         section.editorComponent !== 'SubscribeSelector' &&
+         section.editorComponent !== 'FAQSelector' &&
+         section.editorComponent !== 'AppointmentsEditor' && (
+          <div style={buttonContainerStyle}>
+            <button 
+              onClick={onClose} 
+              style={{ 
+                padding: '8px 16px',
+                backgroundColor: 'transparent',
+                borderColor: '#e2e8f0',
+                color: '#64748b',
+                borderRadius: '25px',
+                fontSize: '14px',
+                fontWeight: '500',
+                border: '1px solid #e2e8f0'
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={onSave} 
+              style={{ 
+                padding: '8px 16px', 
+                backgroundColor: '#00C48C', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '25px',
+                fontSize: '14px',
+                fontWeight: '500',
+                boxShadow: '0 2px 8px rgba(0, 196, 140, 0.3)'
+              }}
+            >
+              Save
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

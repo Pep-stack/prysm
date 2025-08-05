@@ -36,35 +36,19 @@ const SOCIAL_BAR_POSITION_OPTIONS = [
 ];
 
 const BACKGROUND_COLOR_OPTIONS = [
-  // Clean solids (keep these)
-  { label: 'Pure White', value: '#ffffff', name: 'Pure White' },
-  { label: 'Light Gray', value: '#f8f9fa', name: 'Light Gray' },
-  { label: 'Soft Cream', value: '#fafaf9', name: 'Soft Cream' },
-  { label: 'Professional Dark', value: '#1f2937', name: 'Professional Dark' },
+  // ULTRA REFINED SOLIDS & GRADIENTS - Original refined selection
+  { label: 'Pure Canvas', value: '#ffffff', name: 'Pure Canvas' },
+  { label: 'Midnight Black', value: '#0a0a0a', name: 'Midnight Black' },
+  { label: 'Soft Pearl', value: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)', name: 'Soft Pearl', isGradient: true },
+  { label: 'Warm Stone', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #e7e5e4 100%)', name: 'Warm Stone', isGradient: true },
+  { label: 'Deep Charcoal', value: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%)', name: 'Deep Charcoal', isGradient: true },
   
-  // Modern neutrals (new)
-  { label: 'Warm White', value: '#fdfdfd', name: 'Warm White' },
-  { label: 'Cool Gray', value: '#f1f5f9', name: 'Cool Gray' },
-  { label: 'Slate Blue', value: '#f8fafc', name: 'Slate Blue' },
-  
-  // Subtle professional gradients (refined existing)
-  { label: 'Ocean Gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', name: 'Ocean Gradient', isGradient: true },
-  { label: 'Mint Gradient', value: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', name: 'Mint Gradient', isGradient: true },
-  { label: 'Dark Ocean', value: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)', name: 'Dark Ocean', isGradient: true },
-  { label: 'Dark Emerald', value: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)', name: 'Dark Emerald', isGradient: true },
-  { label: 'Dark Royal', value: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', name: 'Dark Royal', isGradient: true },
-  
-  // Modern 2024 gradients (new)
-  { label: 'Soft Glassmorphism', value: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 100%)', name: 'Soft Glassmorphism', isGradient: true },
-  { label: 'Professional Blue', value: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f8fafc 100%)', name: 'Professional Blue', isGradient: true },
-  { label: 'Warm Neutral', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #f8f9fa 100%)', name: 'Warm Neutral', isGradient: true },
-  { label: 'Modern Mesh', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)', name: 'Modern Mesh', isGradient: true },
-  { label: 'Platinum Shine', value: 'linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%)', name: 'Platinum Shine', isGradient: true },
-  { label: 'Arctic Mist', value: 'linear-gradient(135deg, #f7f8f8 0%, #acbb78 100%)', name: 'Arctic Mist', isGradient: true },
-  { label: 'Digital Dawn', value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #4facfe 100%)', name: 'Digital Dawn', isGradient: true },
-  { label: 'Clean Slate', value: 'linear-gradient(135deg, #485563 0%, #29323c 100%)', name: 'Clean Slate', isGradient: true },
-  { label: 'Emerald Professional', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', name: 'Emerald Professional', isGradient: true },
-  { label: 'Cosmic Latte', value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff8c94 100%)', name: 'Cosmic Latte', isGradient: true }
+  // ELEGANT PATTERNS - Sophisticated textures for modern professionals
+  { label: 'Subtle Dots', value: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0)', name: 'Subtle Dots', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '20px 20px' },
+  { label: 'Fine Grid', value: 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)', name: 'Fine Grid', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '24px 24px' },
+  { label: 'Soft Lines', value: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)', name: 'Soft Lines', isPattern: true, backgroundColor: '#fafafa' },
+  { label: 'Paper Texture', value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)', name: 'Paper Texture', isPattern: true, backgroundColor: '#fefefe', backgroundSize: '16px 16px, 24px 24px' },
+  { label: 'Dark Mesh', value: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', name: 'Dark Mesh', isPattern: true, backgroundColor: '#1a1a1a', backgroundSize: '18px 18px' }
 ];
 
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
@@ -376,27 +360,43 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                   aria-label="Background Color"
                   className="w-9 h-9 rounded-full border border-gray-200 shadow-sm relative hover:ring-2 hover:ring-emerald-200 transition overflow-hidden"
                   style={{ 
-                    ...(backgroundColor?.includes('linear-gradient')
-                      ? { backgroundImage: backgroundColor }
-                      : { backgroundColor }
-                    )
+                    ...(() => {
+                      const option = BACKGROUND_COLOR_OPTIONS.find(opt => opt.value === backgroundColor);
+                      if (option?.isPattern) {
+                        return {
+                          backgroundColor: option.backgroundColor,
+                          backgroundImage: backgroundColor,
+                          backgroundSize: option.backgroundSize || 'auto'
+                        };
+                      } else if (backgroundColor?.includes('linear-gradient') || backgroundColor?.includes('radial-gradient') || backgroundColor?.includes('repeating-linear-gradient')) {
+                        return { backgroundImage: backgroundColor };
+                      } else {
+                        return { backgroundColor };
+                      }
+                    })()
                   }}
                   onClick={() => setShowBackgroundColorDropdown(!showBackgroundColorDropdown)}
                   type="button"
                 />
                 {showBackgroundColorDropdown && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-3 z-30 flex-col items-center min-w-[240px]">
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-3 z-30 flex-col items-center min-w-[320px]">
                     <div className="grid grid-cols-5 gap-2 mb-2">
                       {BACKGROUND_COLOR_OPTIONS.map(opt => (
                         <button
                           key={opt.value}
                           className="w-8 h-8 rounded-lg border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition relative overflow-hidden"
                           style={{ 
-                            ...(opt.isGradient 
+                            ...(opt.isPattern
+                              ? { 
+                                  backgroundColor: opt.backgroundColor,
+                                  backgroundImage: opt.value,
+                                  backgroundSize: opt.backgroundSize || 'auto'
+                                }
+                              : opt.isGradient 
                               ? { backgroundImage: opt.value }
                               : { backgroundColor: opt.value }
                             ),
-                            border: opt.value === '#ffffff' || opt.value === '#fafaf9' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
+                            border: opt.value === '#ffffff' || opt.value?.includes('#ffffff') || opt.value?.includes('#fafafa') || opt.backgroundColor === '#ffffff' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
                           }}
                           onClick={() => handleBackgroundColorSelect(opt.value)}
                           aria-label={opt.name}

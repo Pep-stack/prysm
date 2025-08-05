@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
-import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser, LuClock3, LuBuilding2 } from 'react-icons/lu';
+import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser, LuClock3, LuBuilding2, LuPhone, LuMail } from 'react-icons/lu';
 
 // Helper functie voor initialen
 const getInitials = (name) => {
@@ -105,9 +105,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Mapping voor personal info per card type
   // Geen secties die als losse section op de card kunnen verschijnen
   const PERSONAL_INFO_FIELDS = {
-    pro: ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role'],
-    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'age', 'availability_status', 'timezone', 'current_role'],
-    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'age', 'availability_status', 'timezone', 'current_role'],
+    pro: ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role', 'phone', 'email'],
+    career: ['name', 'headline', 'bio', 'location', 'desired_role', 'age', 'availability_status', 'timezone', 'current_role', 'phone', 'email'],
+    business: ['name', 'headline', 'bio', 'industry', 'location', 'website', 'company_size', 'age', 'availability_status', 'timezone', 'current_role', 'phone', 'email'],
   };
 
   // Haal de juiste personal info uit de card_profiles JSON
@@ -137,6 +137,8 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
     company_size: 'Company Size',
     timezone: 'Timezone',
     current_role: 'Current Role',
+    phone: 'Phone',
+    email: 'Email',
   };
 
   return (
@@ -199,7 +201,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
       
       {/* Avatar + profile info wrapper (ensures padding does not affect header image) */}
       <div className={styles.avatarRow}>
-        {displayType === 'avatar' && (
+        {(displayType === 'avatar' || displayType === 'round_avatar') && (
           <div 
             style={{
               justifyContent: 'center',
@@ -216,7 +218,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 height={320}
                 style={{ 
                   objectFit: 'cover',
-                  borderRadius: 24,
+                  borderRadius: displayType === 'round_avatar' ? '50%' : 24,
                   width: '320px',
                   height: '320px',
                   display: 'block',
@@ -229,7 +231,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 style={{
                   width: '320px',
                   height: '320px',
-                  borderRadius: 24,
+                  borderRadius: displayType === 'round_avatar' ? '50%' : 24,
                   fontSize: '128px',
                   flexShrink: 0,
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -563,6 +565,104 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                 </div>
               )}
 
+              {/* Phone Container */}
+              {personalInfo?.phone && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onClick={() => window.open(`tel:${personalInfo.phone}`, '_blank')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuPhone size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.phone}
+                  </span>
+                </div>
+              )}
+
+              {/* Email Container */}
+              {personalInfo?.email && (
+                <div style={{
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(255, 255, 255, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.4)',
+                  borderRadius: '12px',
+                  padding: '8px 12px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+                onClick={() => window.open(`mailto:${personalInfo.email}`, '_blank')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0px)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: textColor,
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0.8
+                  }}>
+                    <LuMail size={12} style={{ color: 'white' }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    color: textColor,
+                    opacity: 0.9
+                  }}>
+                    {personalInfo.email}
+                  </span>
+                </div>
+              )}
+
               {/* Availability Status Container */}
               {personalInfo?.show_availability && personalInfo?.availability_status && (
                 <div style={{
@@ -675,7 +775,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
             {/* Other optional fields in glass containers */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '0px' }}> {/* Reduced to 0px to test */}
               {fieldsToShow.map((field) => {
-                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role'].includes(field)) return null;
+                if (!personalInfo?.[field] || ['name', 'headline', 'bio', 'location', 'website', 'age', 'availability_status', 'timezone', 'current_role', 'phone', 'email'].includes(field)) return null;
                 
                 return (
                   <div key={field} style={{

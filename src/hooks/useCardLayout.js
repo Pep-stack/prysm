@@ -50,11 +50,7 @@ const createDefaultSections = (cardType = CARD_TYPES.PRO) => {
       type: 'bio',
       ...getDefaultSectionProps('bio')
     },
-    {
-      id: uuidv4(), 
-      type: 'contact',
-      ...getDefaultSectionProps('contact')
-    },
+
     {
       id: uuidv4(),
       type: 'languages',
@@ -142,6 +138,15 @@ export function useCardLayout(profile, cardType) {
           parsedSections: allSections,
           sectionsCount: allSections.length,
           syncReason: isInitialLoad ? 'initial load' : hasProfileIdChanged ? 'profile ID changed' : 'empty local state'
+        });
+        
+        // Extra debug for FAQ sections
+        const faqSections = allSections.filter(section => section.type === 'faq');
+        console.log('🔍 PROFILE-SYNC: FAQ sections found:', {
+          faqSectionsCount: faqSections.length,
+          faqSections: faqSections,
+          allSectionsCount: allSections.length,
+          allSections: allSections.map(s => ({ id: s.id, type: s.type }))
         });
         
         const newCardSections = allSections.filter(s => !s.area || s.area !== 'social_bar');

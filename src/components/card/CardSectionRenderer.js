@@ -31,6 +31,7 @@ import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSecti
 import AppointmentsSectionContent from './cardSections/AppointmentsSectionContent';
 import SubscribeSectionContent from './cardSections/SubscribeSectionContent';
 import PublicationSectionContent from './cardSections/PublicationSectionContent';
+import FAQSectionContent from './cardSections/FAQSectionContent';
 
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
@@ -46,7 +47,6 @@ const proSectionComponentMap = {
   'linkedin': SocialMediaSectionContent,
   'x': SocialMediaSectionContent,
   'instagram': SocialMediaSectionContent,
-  'email': SocialMediaSectionContent,
   'whatsapp': SocialMediaSectionContent,
   'github': SocialMediaSectionContent,
   'youtube': SocialMediaSectionContent,
@@ -56,7 +56,6 @@ const proSectionComponentMap = {
   'behance': SocialMediaSectionContent,
   'snapchat': SocialMediaSectionContent,
   'reddit': SocialMediaSectionContent,
-  'phone': SocialMediaSectionContent,
   // Other sections
   'experience': ExperienceSectionContent,
   'education': EducationSectionContent,
@@ -84,13 +83,13 @@ const proSectionComponentMap = {
   'github_highlights': GitHubHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
+  'faq': FAQSectionContent,
 };
 
 export const sectionComponentMap = {
   'linkedin': SocialMediaSectionContent,
   'x': SocialMediaSectionContent,
   'instagram': SocialMediaSectionContent,
-  'email': SocialMediaSectionContent,
   'whatsapp': SocialMediaSectionContent,
   'github': SocialMediaSectionContent,
   'youtube': SocialMediaSectionContent,
@@ -127,6 +126,7 @@ export const sectionComponentMap = {
   'github_highlights': GitHubHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
+  'faq': FAQSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view
@@ -209,8 +209,6 @@ export default function CardSectionRenderer({
   // Determine platform based on section type
   const getPlatform = (sectionType) => {
     switch (sectionType) {
-      case 'email': return 'email';
-      case 'phone': return 'phone';
       case 'whatsapp': return 'whatsapp';
       case 'linkedin': return 'linkedin';
       case 'instagram': return 'instagram';

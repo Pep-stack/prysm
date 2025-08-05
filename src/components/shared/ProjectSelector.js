@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LuUpload, LuX, LuPlay, LuImage, LuLoader } from 'react-icons/lu';
+import { LuUpload, LuX, LuPlay, LuImage, LuLoader, LuFolderOpen } from 'react-icons/lu';
 import { supabase } from '../../lib/supabase';
 import { getAvailableBucket } from '../../lib/supabase-storage-setup';
 
-export default function ProjectSelector({ value = [], onChange }) {
+export default function ProjectSelector({ value = [], onChange, onSave: modalOnSave, onCancel: modalOnCancel }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [newEntry, setNewEntry] = useState({
     title: '',
@@ -98,71 +98,130 @@ export default function ProjectSelector({ value = [], onChange }) {
 
   const handleCancel = () => {
     setEditingIndex(null);
+    // If we have a modal cancel function, call it
+    if (modalOnCancel) {
+      modalOnCancel();
+    }
+  };
+
+  const handleSave = () => {
+    // If we're editing something, save it first
+    if (editingIndex === 'new') {
+      handleSaveNew();
+    } else if (editingIndex !== null) {
+      // For existing entries, just close editing mode
+      setEditingIndex(null);
+    }
+    
+    // Now save to database via modal
+    if (modalOnSave) {
+      modalOnSave();
+    }
   };
 
   return (
-    <div style={{ marginBottom: '20px' }}>
-      <label style={{ display: 'block', marginBottom: '15px', fontWeight: '600', fontSize: '14px' }}>
-        Projects & Portfolio:
-      </label>
+    <div
+      className="w-full"
+      style={{
+        background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
+        border: '1px solid #333',
+        borderRadius: '16px',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Portfolio Header */}
+      <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
+            backgroundColor: '#3b82f6'
+          }}>
+            <LuFolderOpen className="text-white text-xl" />
+          </div>
+          <div>
+            <h3 className="text-white font-semibold text-lg">Portfolio</h3>
+            <p className="text-gray-400 text-sm">Manage your projects and work</p>
+          </div>
+        </div>
+      </div>
 
-      {/* Existing Project Entries */}
-      {value.map((entry, index) => (
-        <ProjectEntry
-          key={entry.id || index}
-          entry={entry}
-          index={index}
-          isEditing={editingIndex === index}
-          onEdit={() => handleEdit(index)}
-          onSave={(updatedEntry) => handleSaveEdit(index, updatedEntry)}
-          onDelete={() => handleDelete(index)}
-          onCancel={handleCancel}
-        />
-      ))}
+      {/* Content */}
+      <div className="p-6 pt-4">
+        {/* Existing Project Entries */}
+        {value.map((entry, index) => (
+          <ProjectEntry
+            key={entry.id || index}
+            entry={entry}
+            index={index}
+            isEditing={editingIndex === index}
+            onEdit={() => handleEdit(index)}
+            onSave={(updatedEntry) => handleSaveEdit(index, updatedEntry)}
+            onDelete={() => handleDelete(index)}
+            onCancel={handleCancel}
+          />
+        ))}
 
-      {/* Add New Entry */}
-      {editingIndex === 'new' ? (
-        <ProjectEntry
-          entry={newEntry}
-          isEditing={true}
-          isNew={true}
-          onSave={handleSaveNew}
-          onCancel={handleCancel}
-          onChange={setNewEntry}
-        />
-      ) : (
-        <button
-          onClick={handleAddNew}
-          style={{
-            padding: '12px 20px',
-            backgroundColor: '#f8f9fa',
-            border: '2px dashed #dee2e6',
-            borderRadius: '8px',
-            color: '#6c757d',
-            fontSize: '14px',
-            cursor: 'pointer',
-            width: '100%',
-            transition: 'all 0.2s ease',
-            marginTop: value.length > 0 ? '12px' : '0'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.backgroundColor = '#e9ecef';
-            e.target.style.borderColor = '#adb5bd';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.backgroundColor = '#f8f9fa';
-            e.target.style.borderColor = '#dee2e6';
-          }}
-        >
-          + Add Project
-        </button>
-      )}
+        {/* Add New Entry */}
+        {editingIndex === 'new' ? (
+          <ProjectEntry
+            entry={newEntry}
+            isEditing={true}
+            isNew={true}
+            onSave={handleSaveNew}
+            onCancel={handleCancel}
+            onChange={setNewEntry}
+          />
+        ) : (
+          <button
+            onClick={handleAddNew}
+            className="w-full p-4 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors font-medium"
+            style={{ backgroundColor: '#1a1a1a' }}
+          >
+            + Add Project
+          </button>
+        )}
+
+        {/* Save/Cancel Buttons - Always visible at bottom */}
+        <div className="flex gap-3 mt-6 pt-4 border-t border-gray-700">
+          <button
+            onClick={handleCancel}
+            className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
+            style={{
+              backgroundColor: '#3b82f6',
+              color: 'white'
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, onCancel, onChange }) {
-  const [localEntry, setLocalEntry] = useState(entry);
+  // Initialize with default structure to prevent undefined errors
+  const defaultEntry = {
+    title: '',
+    description: '',
+    mediaUrl: '',
+    mediaType: 'image',
+    demoUrl: '',
+    codeUrl: '',
+    technologies: [],
+    startDate: '',
+    endDate: '',
+    status: 'completed',
+    category: '',
+    ...entry // Override with actual entry data
+  };
+  
+  const [localEntry, setLocalEntry] = useState(defaultEntry);
   const [techInput, setTechInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -174,7 +233,22 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
       newEntry: entry, 
       currentLocalEntry: localEntry 
     });
-    setLocalEntry(entry);
+    // Ensure the entry has all required fields
+    const safeEntry = {
+      title: '',
+      description: '',
+      mediaUrl: '',
+      mediaType: 'image',
+      demoUrl: '',
+      codeUrl: '',
+      technologies: [],
+      startDate: '',
+      endDate: '',
+      status: 'completed',
+      category: '',
+      ...entry // Override with actual entry data
+    };
+    setLocalEntry(safeEntry);
   }, [entry]);
 
   // Debug effect to monitor localEntry changes
@@ -198,264 +272,106 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
     // Force re-render when mediaUrl changes
     if (field === 'mediaUrl') {
       setForceRender(prev => prev + 1);
-      console.log('🔄 Forcing re-render for mediaUrl change');
     }
     
     if (onChange) {
-      console.log('🔄 Calling parent onChange with:', updated);
       onChange(updated);
     }
-    
-    // Small delay to check if state was updated
-    setTimeout(() => {
-      console.log('🔄 State after update (delayed check):', { 
-        field, 
-        value, 
-        currentLocalEntry: localEntry,
-        expectedValue: value 
-      });
-    }, 100);
   };
 
   const handleAddTechnology = () => {
-    if (techInput.trim() && !localEntry.technologies.includes(techInput.trim())) {
-      const updated = { 
-        ...localEntry, 
-        technologies: [...localEntry.technologies, techInput.trim()] 
+    const currentTechnologies = localEntry.technologies || [];
+    if (techInput.trim() && !currentTechnologies.includes(techInput.trim())) {
+      const updated = {
+        ...localEntry,
+        technologies: [...currentTechnologies, techInput.trim()]
       };
       setLocalEntry(updated);
-      if (onChange) onChange(updated);
       setTechInput('');
+      if (onChange) onChange(updated);
     }
   };
 
   const handleRemoveTechnology = (techToRemove) => {
-    const updated = { 
-      ...localEntry, 
-      technologies: localEntry.technologies.filter(tech => tech !== techToRemove) 
+    const currentTechnologies = localEntry.technologies || [];
+    const updated = {
+      ...localEntry,
+      technologies: currentTechnologies.filter(tech => tech !== techToRemove)
     };
     setLocalEntry(updated);
     if (onChange) onChange(updated);
   };
 
-  // ✅ FIXED: Real file upload to Supabase Storage
   const handleMediaUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    console.log('🔄 Starting file upload:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type
-    });
+    // Validate file type
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (!isImage && !isVideo) {
+      setUploadError('Please select an image or video file.');
+      return;
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('File size must be less than 5MB.');
+      return;
+    }
 
     setIsUploading(true);
     setUploadError(null);
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error('You must be logged in to upload files');
+      const bucket = getAvailableBucket();
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `projects/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file);
+
+      if (error) {
+        console.error('Upload error:', error);
+        setUploadError('Failed to upload file. Please try again.');
+        return;
       }
 
-      console.log('👤 User authenticated:', user.id);
-
-      // Check file size (max 50MB)
-      const maxSize = 50 * 1024 * 1024; // 50MB
-      if (file.size > maxSize) {
-        throw new Error('File size must be less than 50MB');
-      }
-
-      // Check file type
-      const allowedTypes = ['image/', 'video/'];
-      if (!allowedTypes.some(type => file.type.startsWith(type))) {
-        throw new Error('Only image and video files are allowed');
-      }
-
-      // Try multiple bucket strategies
-      let uploadResult = null;
-      let finalBucketName = null;
-
-      // Strategy 1: Try project-media bucket
-      try {
-        console.log('🗂️ Trying strategy 1: project-media bucket');
-        const bucketName = 'project-media';
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-        console.log('📂 Upload details:', { bucketName, fileName });
-
-        const { data, error } = await supabase.storage
-          .from(bucketName)
-          .upload(fileName, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
-
-        if (!error && data) {
-          uploadResult = { data, fileName };
-          finalBucketName = bucketName;
-          console.log('✅ Strategy 1 SUCCESS:', { data, fileName });
-        } else {
-          console.log('❌ Strategy 1 FAILED:', error);
-        }
-      } catch (err) {
-        console.log('❌ Strategy 1 EXCEPTION:', err.message);
-      }
-
-      // Strategy 2: Try uploads bucket if project-media failed
-      if (!uploadResult) {
-        try {
-          console.log('🗂️ Trying strategy 2: uploads bucket');
-          const bucketName = 'uploads';
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-          console.log('📂 Upload details:', { bucketName, fileName });
-
-          const { data, error } = await supabase.storage
-            .from(bucketName)
-            .upload(fileName, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (!error && data) {
-            uploadResult = { data, fileName };
-            finalBucketName = bucketName;
-            console.log('✅ Strategy 2 SUCCESS:', { data, fileName });
-          } else {
-            console.log('❌ Strategy 2 FAILED:', error);
-          }
-        } catch (err) {
-          console.log('❌ Strategy 2 EXCEPTION:', err.message);
-        }
-      }
-
-      // Strategy 3: Try any available bucket
-      if (!uploadResult) {
-        console.log('🗂️ Trying strategy 3: dynamic bucket detection');
-        const bucketName = await getAvailableBucket();
-        if (bucketName) {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-          console.log('📂 Upload details:', { bucketName, fileName });
-
-          const { data, error } = await supabase.storage
-            .from(bucketName)
-            .upload(fileName, file, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (!error && data) {
-            uploadResult = { data, fileName };
-            finalBucketName = bucketName;
-            console.log('✅ Strategy 3 SUCCESS:', { data, fileName });
-          } else {
-            console.log('❌ Strategy 3 FAILED:', error);
-          }
-        }
-      }
-
-      if (!uploadResult || !finalBucketName) {
-        throw new Error('All upload strategies failed. Please check Supabase Storage configuration and RLS policies.');
-      }
-
-      console.log('📡 Getting public URL for:', { bucket: finalBucketName, fileName: uploadResult.fileName });
-
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from(finalBucketName)
-        .getPublicUrl(uploadResult.fileName);
+        .from(bucket)
+        .getPublicUrl(filePath);
 
-      console.log('🔗 Public URL received:', publicUrl);
+      console.log('✅ Upload successful:', { publicUrl, filePath });
 
-      if (!publicUrl) {
-        throw new Error('Failed to get public URL for uploaded file');
-      }
-
-      // Update local entry with real URL
-      const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
-      
-      console.log('🔄 Updating local entry:', {
-        mediaUrl: publicUrl,
-        mediaType: mediaType,
-        localEntryBefore: { ...localEntry }
-      });
-
-      handleInputChange('mediaUrl', publicUrl);
-      handleInputChange('mediaType', mediaType);
-
-      console.log('🔄 After handleInputChange, localEntry should be:', {
+      const updated = {
         ...localEntry,
         mediaUrl: publicUrl,
-        mediaType: mediaType
-      });
+        mediaType: isVideo ? 'video' : 'image'
+      };
 
-      console.log('✅ File uploaded successfully:', { 
-        publicUrl, 
-        bucketName: finalBucketName, 
-        fileName: uploadResult.fileName,
-        mediaType
-      });
-
-      // Force immediate UI update after successful upload
-      setTimeout(() => {
-        console.log('🔄 Force updating UI state after upload');
-        setLocalEntry(prev => ({
-          ...prev,
-          mediaUrl: publicUrl,
-          mediaType: mediaType
-        }));
-        setForceRender(prev => prev + 1);
-      }, 100);
+      setLocalEntry(updated);
+      if (onChange) onChange(updated);
+      setForceRender(prev => prev + 1);
 
     } catch (error) {
-      console.error('❌ Upload error:', error);
-      setUploadError(error.message || 'Upload failed. Please try again.');
+      console.error('Upload error:', error);
+      setUploadError('Failed to upload file. Please try again.');
     } finally {
       setIsUploading(false);
-      console.log('🏁 Upload process finished');
     }
   };
 
-  const handleSave = () => {
-    console.log('💾 handleSave called, checking localEntry:', {
-      localEntry: { ...localEntry },
-      hasTitle: !!localEntry.title,
-      hasDescription: !!localEntry.description,
-      hasMedia: !!localEntry.mediaUrl,
-      mediaUrl: localEntry.mediaUrl,
-      mediaType: localEntry.mediaType
-    });
-    
-    if (localEntry.title && localEntry.description) {
-      console.log('✅ Validation passed, calling onSave with:', localEntry);
-      onSave(localEntry);
-    } else {
-      console.log('❌ Validation failed:', {
-        missingTitle: !localEntry.title,
-        missingDescription: !localEntry.description
-      });
-    }
-  };
-
+  // Edit mode
   if (isEditing) {
     return (
-      <div style={{
-        padding: '20px',
-        border: '1px solid #e5e7eb',
-        borderRadius: '12px',
-        backgroundColor: '#fafafa',
-        marginBottom: '16px'
-      }}>
+      <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
         {/* Title and Description */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', marginBottom: '16px' }}>
+        <div className="grid grid-cols-1 gap-3 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+            <label className="block text-white font-medium mb-2 text-sm">
               Project Title *
             </label>
             <input
@@ -463,18 +379,12 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
               value={localEntry.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
               placeholder="My Awesome Project"
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '14px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+            <label className="block text-white font-medium mb-2 text-sm">
               Description *
             </label>
             <textarea
@@ -482,420 +392,190 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
               onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Brief description of your project..."
               rows={3}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '14px',
-                resize: 'vertical',
-                minHeight: '80px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-20"
             />
           </div>
         </div>
 
         {/* Media Upload */}
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+        <div className="mb-4">
+          <label className="block text-white font-medium mb-2 text-sm">
             Project Image/Video *
           </label>
           
           {/* Upload Error Message */}
           {uploadError && (
-            <div style={{
-              padding: '8px 12px',
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
-              borderRadius: '6px',
-              color: '#dc2626',
-              fontSize: '12px',
-              marginBottom: '8px'
-            }}>
+            <div className="p-3 mb-3 bg-red-900 border border-red-700 rounded-lg text-red-300 text-sm">
               {uploadError}
             </div>
           )}
           
-          {/* DEBUG: Always log current state */}
-          {console.log('🖼️ Current render state:', {
-            hasMediaUrl: !!localEntry.mediaUrl,
-            mediaUrl: localEntry.mediaUrl,
-            mediaType: localEntry.mediaType,
-            forceRender: forceRender,
-            isUploading: isUploading
-          })}
-          
           {(localEntry.mediaUrl && localEntry.mediaUrl.length > 0) ? (
-            <div style={{ position: 'relative', marginBottom: '8px' }}>
-              {/* DEBUG: Log current media state */}
-              {console.log('🖼️ Rendering media preview:', {
-                mediaUrl: localEntry.mediaUrl,
-                mediaType: localEntry.mediaType,
-                isVideo: localEntry.mediaType === 'video'
-              })}
-              
+            <div className="relative mb-3">
               {localEntry.mediaType === 'video' ? (
                 <video
                   src={localEntry.mediaUrl}
-                  style={{
-                    width: '100%',
-                    maxHeight: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb'
-                  }}
+                  className="w-full max-h-48 object-cover rounded-lg border border-gray-700"
                   controls
-                  onLoadStart={() => console.log('🎬 Video load started')}
-                  onLoad={() => console.log('✅ Video loaded successfully')}
-                  onError={(e) => console.error('❌ Video load error:', e)}
                 />
               ) : (
                 <img
                   src={localEntry.mediaUrl}
                   alt="Project preview"
-                  style={{
-                    width: '100%',
-                    maxHeight: '200px',
-                    objectFit: 'cover',
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb'
-                  }}
-                  onLoad={() => console.log('✅ Image loaded successfully:', localEntry.mediaUrl)}
-                  onError={(e) => console.error('❌ Image load error:', e, 'URL:', localEntry.mediaUrl)}
+                  className="w-full max-h-48 object-cover rounded-lg border border-gray-700"
                 />
               )}
               <button
                 onClick={() => {
-                  console.log('🗑️ Removing media:', localEntry.mediaUrl);
                   handleInputChange('mediaUrl', '');
                   handleInputChange('mediaType', 'image');
                   setUploadError(null);
                 }}
                 disabled={isUploading}
-                style={{
-                  position: 'absolute',
-                  top: '8px',
-                  right: '8px',
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                  color: 'white',
-                  border: 'none',
-                  cursor: isUploading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: isUploading ? 0.5 : 1
-                }}
+                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <LuX size={12} />
               </button>
             </div>
           ) : (
-            <div style={{
-              border: `2px dashed ${isUploading ? '#3b82f6' : '#d1d5db'}`,
-              borderRadius: '8px',
-              padding: '20px',
-              textAlign: 'center',
-              backgroundColor: isUploading ? '#f0f9ff' : '#f9fafb',
-              position: 'relative'
-            }}>
-              {isUploading ? (
-                <>
-                  <LuLoader 
-                    size={24} 
-                    style={{ 
-                      color: '#3b82f6', 
-                      marginBottom: '8px',
-                      animation: 'prysm-spin 1s linear infinite',
-                      transformOrigin: 'center',
-                      display: 'inline-block'
-                    }} 
-                  />
-                  <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#3b82f6', fontWeight: '500' }}>
-                    Uploading file...
-                  </p>
-                </>
-              ) : (
-                <>
-                  <LuUpload size={24} style={{ color: '#6b7280', marginBottom: '8px' }} />
-                  <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#6b7280' }}>
-                    Upload project image or video
-                  </p>
-                </>
-              )}
-              
+            <div className={`border-2 border-dashed rounded-lg p-5 text-center transition-colors ${isUploading ? 'border-blue-500' : 'border-gray-600'}`}>
               <input
                 type="file"
                 accept="image/*,video/*"
                 onChange={handleMediaUpload}
                 disabled={isUploading}
-                style={{ display: 'none' }}
-                id={`media-upload-${index || 'new'}`}
+                className="hidden"
+                id={`media-upload-${index}`}
               />
               <label
-                htmlFor={`media-upload-${index || 'new'}`}
-                style={{
-                  display: 'inline-block',
-                  padding: '6px 12px',
-                  backgroundColor: isUploading ? '#94a3b8' : '#3b82f6',
-                  color: 'white',
-                  fontSize: '12px',
-                  borderRadius: '6px',
-                  cursor: isUploading ? 'not-allowed' : 'pointer',
-                  opacity: isUploading ? 0.7 : 1,
-                  pointerEvents: isUploading ? 'none' : 'auto'
-                }}
+                htmlFor={`media-upload-${index}`}
+                className="cursor-pointer block"
               >
-                {isUploading ? 'Uploading...' : 'Choose File'}
+                {isUploading ? (
+                  <div className="flex flex-col items-center">
+                    <LuLoader className="prysm-spin text-blue-500 text-2xl mb-2" />
+                    <span className="text-gray-400 text-sm">Uploading...</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <LuUpload className="text-gray-400 text-2xl mb-2" />
+                    <span className="text-gray-400 text-sm">Click to upload image or video</span>
+                    <span className="text-gray-500 text-xs mt-1">Max 5MB</span>
+                  </div>
+                )}
               </label>
             </div>
           )}
-          
-          {/* Alternative: URL Input */}
-          <div style={{ marginTop: '8px' }}>
-            <input
-              type="url"
-              value={localEntry.mediaUrl}
-              onChange={(e) => {
-                handleInputChange('mediaUrl', e.target.value);
-                setUploadError(null);
-              }}
-              disabled={isUploading}
-              placeholder="Or paste image/video URL here..."
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '12px',
-                opacity: isUploading ? 0.5 : 1,
-                cursor: isUploading ? 'not-allowed' : 'text'
-              }}
-            />
-          </div>
         </div>
 
-        {/* Links */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        {/* URLs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-              Demo URL
-            </label>
+            <label className="block text-white font-medium mb-2 text-sm">Demo URL</label>
             <input
               type="url"
               value={localEntry.demoUrl}
               onChange={(e) => handleInputChange('demoUrl', e.target.value)}
-              placeholder="https://myproject.com"
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              placeholder="https://demo.example.com"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-              Code URL
-            </label>
+            <label className="block text-white font-medium mb-2 text-sm">Code URL</label>
             <input
               type="url"
               value={localEntry.codeUrl}
               onChange={(e) => handleInputChange('codeUrl', e.target.value)}
               placeholder="https://github.com/user/repo"
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
 
         {/* Technologies */}
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-            Technologies Used
-          </label>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <div className="mb-4">
+          <label className="block text-white font-medium mb-2 text-sm">Technologies</label>
+          <div className="flex gap-2 mb-2">
             <input
               type="text"
               value={techInput}
               onChange={(e) => setTechInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
-              placeholder="React, Node.js, etc."
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              onKeyPress={(e) => e.key === 'Enter' && handleAddTechnology()}
+              placeholder="Add technology..."
+              className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <button
-              type="button"
               onClick={handleAddTechnology}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               Add
             </button>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {localEntry.technologies.map((tech, idx) => (
-              <span
-                key={idx}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '4px 8px',
-                  backgroundColor: '#e0e7ff',
-                  color: '#3730a3',
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  borderRadius: '6px'
-                }}
-              >
-                {tech}
-                <button
-                  onClick={() => handleRemoveTechnology(tech)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#3730a3',
-                    cursor: 'pointer',
-                    padding: 0,
-                    marginLeft: '4px'
-                  }}
+          {localEntry.technologies && localEntry.technologies.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {localEntry.technologies.map((tech, idx) => (
+                <span
+                  key={idx}
+                  className="px-3 py-1 bg-gray-700 text-white text-sm rounded-full flex items-center gap-2"
                 >
-                  <LuX size={12} />
-                </button>
-              </span>
-            ))}
-          </div>
+                  {tech}
+                  <button
+                    onClick={() => handleRemoveTechnology(tech)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <LuX size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Dates and Status */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-              Start Date
-            </label>
+            <label className="block text-white font-medium mb-2 text-sm">Start Date</label>
             <input
               type="month"
               value={localEntry.startDate}
               onChange={(e) => handleInputChange('startDate', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-              End Date
-            </label>
+            <label className="block text-white font-medium mb-2 text-sm">End Date</label>
             <input
               type="month"
               value={localEntry.endDate}
               onChange={(e) => handleInputChange('endDate', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-              Status
-            </label>
+            <label className="block text-white font-medium mb-2 text-sm">Status</label>
             <select
               value={localEntry.status}
               onChange={(e) => handleInputChange('status', e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="completed">Completed</option>
               <option value="ongoing">Ongoing</option>
               <option value="paused">Paused</option>
-              <option value="archived">Archived</option>
+              <option value="planned">Planned</option>
             </select>
           </div>
         </div>
 
         {/* Category */}
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: '500', color: '#374151' }}>
-            Category (Optional)
-          </label>
+        <div className="mb-6">
+          <label className="block text-white font-medium mb-2 text-sm">Category</label>
           <input
             type="text"
             value={localEntry.category}
             onChange={(e) => handleInputChange('category', e.target.value)}
-            placeholder="Web App, Mobile App, Design, etc."
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px'
-            }}
+            placeholder="e.g., Web Development, Mobile App, Design"
+            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          <button
-            onClick={onCancel}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#f3f4f6',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              fontSize: '14px',
-              cursor: 'pointer'
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!localEntry.title || !localEntry.description}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: localEntry.title && localEntry.description ? '#059669' : '#9ca3af',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              cursor: localEntry.title && localEntry.description ? 'pointer' : 'not-allowed'
-            }}
-          >
-            {isNew ? 'Add' : 'Save'}
-          </button>
         </div>
       </div>
     );
@@ -903,47 +583,30 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
 
   // Display mode
   return (
-    <div style={{
-      padding: '16px',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      backgroundColor: 'white',
-      marginBottom: '12px',
-      transition: 'all 0.2s ease'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-        <div style={{ flex: 1 }}>
-          <h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+    <div className="p-4 mb-3 rounded-lg" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          <h4 className="text-white font-semibold text-lg mb-1">
             {entry.title}
           </h4>
-          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280', fontWeight: '500', marginBottom: '8px' }}>
+          <p className="text-gray-400 text-sm mb-3">
             {entry.description}
           </p>
           
           {/* Media Preview */}
           {entry.mediaUrl && (
-            <div style={{ marginBottom: '8px' }}>
+            <div className="mb-3">
               {entry.mediaType === 'video' ? (
                 <video
                   src={entry.mediaUrl}
-                  style={{
-                    width: '100%',
-                    maxHeight: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '6px'
-                  }}
+                  className="w-full max-h-32 object-cover rounded-lg"
                   muted
                 />
               ) : (
                 <img
                   src={entry.mediaUrl}
                   alt={entry.title}
-                  style={{
-                    width: '100%',
-                    maxHeight: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '6px'
-                  }}
+                  className="w-full max-h-32 object-cover rounded-lg"
                 />
               )}
             </div>
@@ -951,25 +614,18 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
 
           {/* Technologies */}
           {entry.technologies && entry.technologies.length > 0 && (
-            <div style={{ marginBottom: '8px' }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-2">
                 {entry.technologies.slice(0, 5).map((tech, idx) => (
                   <span
                     key={idx}
-                    style={{
-                      padding: '2px 6px',
-                      backgroundColor: '#f3f4f6',
-                      color: '#374151',
-                      fontSize: '11px',
-                      fontWeight: '500',
-                      borderRadius: '4px'
-                    }}
+                    className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded"
                   >
                     {tech}
                   </span>
                 ))}
-                {entry.technologies.length > 5 && (
-                  <span style={{ fontSize: '11px', color: '#6b7280' }}>
+                {entry.technologies && entry.technologies.length > 5 && (
+                  <span className="text-gray-500 text-xs">
                     +{entry.technologies.length - 5} more
                   </span>
                 )}
@@ -978,49 +634,26 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
           )}
         </div>
         
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="flex gap-2">
           {entry.demoUrl && (
             <a
               href={entry.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#dbeafe',
-                border: '1px solid #93c5fd',
-                borderRadius: '4px',
-                fontSize: '12px',
-                textDecoration: 'none',
-                color: '#1d4ed8'
-              }}
+              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
             >
               Demo
             </a>
           )}
           <button
             onClick={onEdit}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #dee2e6',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer'
-            }}
+            className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors"
           >
             Edit
           </button>
           <button
             onClick={onDelete}
-            style={{
-              padding: '6px 12px',
-              backgroundColor: '#fee2e2',
-              border: '1px solid #fecaca',
-              borderRadius: '4px',
-              fontSize: '12px',
-              cursor: 'pointer',
-              color: '#dc2626'
-            }}
+            className="px-3 py-1 bg-red-900 text-red-300 text-xs rounded hover:bg-red-800 transition-colors"
           >
             Delete
           </button>
@@ -1028,30 +661,24 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
       </div>
 
       {(entry.startDate || entry.endDate) && (
-        <p style={{ margin: 0, fontSize: '13px', color: '#9ca3af', marginBottom: '4px' }}>
+        <p className="text-gray-500 text-xs mb-2">
           {entry.startDate && new Date(entry.startDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           {entry.startDate && entry.endDate && ' - '}
           {entry.endDate && new Date(entry.endDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
         </p>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{
-          padding: '2px 6px',
-          backgroundColor: entry.status === 'completed' ? '#d1fae5' : 
-                          entry.status === 'ongoing' ? '#dbeafe' : 
-                          entry.status === 'paused' ? '#fef3c7' : '#f3f4f6',
-          color: entry.status === 'completed' ? '#059669' : 
-                 entry.status === 'ongoing' ? '#0284c7' : 
-                 entry.status === 'paused' ? '#d97706' : '#6b7280',
-          fontSize: '11px',
-          fontWeight: '500',
-          borderRadius: '4px'
-        }}>
+      <div className="flex items-center gap-3">
+        <span className={`px-2 py-1 text-xs rounded font-medium ${
+          entry.status === 'completed' ? 'bg-green-900 text-green-300' : 
+          entry.status === 'ongoing' ? 'bg-blue-900 text-blue-300' : 
+          entry.status === 'paused' ? 'bg-yellow-900 text-yellow-300' : 
+          'bg-gray-700 text-gray-300'
+        }`}>
           {entry.status}
         </span>
         {entry.category && (
-          <span style={{ fontSize: '12px', color: '#6b7280' }}>
+          <span className="text-gray-500 text-xs">
             {entry.category}
           </span>
         )}
