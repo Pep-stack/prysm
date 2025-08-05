@@ -71,7 +71,7 @@ export default function SubscribeSectionContent({ section, profile, styles, isPu
         
         {/* Help text */}
         <p className="text-xs text-gray-500 mt-2">
-          We'll never share your email with anyone else.
+          We&apos;ll never share your email with anyone else.
         </p>
       </div>
     </div>

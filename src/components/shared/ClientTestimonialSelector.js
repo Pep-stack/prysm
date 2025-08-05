@@ -282,7 +282,7 @@ function TestimonialCard({ testimonial, index, onEdit, onDelete }) {
             {testimonial.quote && (
               <div className="bg-gray-800 rounded-lg p-3 mb-3 border-l-4 border-pink-500">
                 <p className="text-gray-300 italic leading-relaxed text-sm">
-                  "{testimonial.quote}"
+                  &ldquo;{testimonial.quote}&rdquo;
                 </p>
               </div>
             )}
