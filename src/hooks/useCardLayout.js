@@ -81,7 +81,8 @@ export function useCardLayout(profile, cardType) {
       const hasProfileIdChanged = profileId !== lastSyncedRef.current.profileId;
       const isInitialLoad = lastSyncedRef.current.profileId === null && profileId;
       const hasEmptyLocalState = cardSections.length === 0 && socialBarSections.length === 0;
-      const shouldSync = isInitialLoad || hasProfileIdChanged || (hasEmptyLocalState && profileId);
+      // Removed problematic condition that caused sections to reappear when empty
+      const shouldSync = isInitialLoad || hasProfileIdChanged;
 
       console.log('🔥 PROFILE-SYNC: useEffect triggered', { 
         hasProfile: !!profile, 

@@ -1,19 +1,25 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { getAutomaticColors } from '../../lib/themeSystem';
 
 export const DesignSettingsContext = createContext({ 
   settings: {}, 
   setSettings: (_:any) => {},
-  isLoading: false
+  isLoading: false,
+  updateThemeColors: (_:string) => {}
 });
 
 export function DesignSettingsProvider({ initial, children }) {
+  // Get automatic colors for initial background
+  const initialBackground = initial?.background_color || '#ffffff';
+  const automaticColors = getAutomaticColors(initialBackground);
+  
   const [settings, setSettings] = useState({
-    background_color: initial?.background_color || '#f8f9fa',
+    background_color: initialBackground,
     font_family: initial?.font_family || 'Inter, sans-serif',
-    text_color: initial?.text_color || '#000000',
-    icon_color: initial?.icon_color || 'auto',
+    text_color: automaticColors.text_color,
+    icon_color: automaticColors.icon_color,
     social_bar_position: initial?.social_bar_position || 'top',
     ...initial
   });
@@ -62,10 +68,24 @@ export function DesignSettingsProvider({ initial, children }) {
     loadSettings();
   }, [initial?.id]);
 
-  // VERWIJDERD: Automatische updates van initial prop om te voorkomen dat settings veranderen voordat save wordt gedrukt
+  // Function to update theme colors automatically when background changes
+  const updateThemeColors = (newBackgroundColor) => {
+    const automaticColors = getAutomaticColors(newBackgroundColor);
+    setSettings(prev => ({
+      ...prev,
+      background_color: newBackgroundColor,
+      text_color: automaticColors.text_color,
+      icon_color: automaticColors.icon_color
+    }));
+  };
 
   return (
-    <DesignSettingsContext.Provider value={{ settings, setSettings, isLoading }}>
+    <DesignSettingsContext.Provider value={{ 
+      settings, 
+      setSettings, 
+      isLoading, 
+      updateThemeColors 
+    }}>
       {children}
     </DesignSettingsContext.Provider>
   );

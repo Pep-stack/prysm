@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FaFont, FaTimes } from 'react-icons/fa';
+import { FaFont, FaTimes, FaPalette } from 'react-icons/fa';
 import { MdSettings } from 'react-icons/md';
 import { useDesignSettings } from './DesignSettingsContext';
+import { THEME_BACKGROUNDS, getThemePreview, isDarkTheme } from '../../lib/themeSystem';
 
 const FONT_OPTIONS = [
   { label: 'Inter', value: 'Inter, sans-serif' },
@@ -17,48 +18,16 @@ const FONT_OPTIONS = [
   { label: 'Merriweather', value: 'Merriweather, serif' },
 ];
 
-const TEXT_COLOR_OPTIONS = [
-  { label: 'Black', value: '#000000', name: 'Black' },
-  { label: 'Gray', value: '#6b7280', name: 'Gray' },
-  { label: 'White', value: '#ffffff', name: 'White' }
-];
-
-const ICON_COLOR_OPTIONS = [
-  { label: 'Auto', value: 'auto', name: 'Auto' },
-  { label: 'Black', value: 'black', name: 'Black' },
-  { label: 'White', value: 'white', name: 'White' },
-  { label: 'Gray', value: '#6b7280', name: 'Gray' }
-];
-
 const SOCIAL_BAR_POSITION_OPTIONS = [
   { label: 'Top (Below Header)', value: 'top', name: 'Top' },
   { label: 'Bottom (Above Footer)', value: 'bottom', name: 'Bottom' }
 ];
 
-const BACKGROUND_COLOR_OPTIONS = [
-  // ULTRA REFINED SOLIDS & GRADIENTS - Original refined selection
-  { label: 'Pure Canvas', value: '#ffffff', name: 'Pure Canvas' },
-  { label: 'Midnight Black', value: '#0a0a0a', name: 'Midnight Black' },
-  { label: 'Soft Pearl', value: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)', name: 'Soft Pearl', isGradient: true },
-  { label: 'Warm Stone', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #e7e5e4 100%)', name: 'Warm Stone', isGradient: true },
-  { label: 'Deep Charcoal', value: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%)', name: 'Deep Charcoal', isGradient: true },
-  
-  // ELEGANT PATTERNS - Sophisticated textures for modern professionals
-  { label: 'Subtle Dots', value: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0)', name: 'Subtle Dots', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '20px 20px' },
-  { label: 'Fine Grid', value: 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)', name: 'Fine Grid', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '24px 24px' },
-  { label: 'Soft Lines', value: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)', name: 'Soft Lines', isPattern: true, backgroundColor: '#fafafa' },
-  { label: 'Paper Texture', value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)', name: 'Paper Texture', isPattern: true, backgroundColor: '#fefefe', backgroundSize: '16px 16px, 24px 24px' },
-  { label: 'Dark Mesh', value: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', name: 'Dark Mesh', isPattern: true, backgroundColor: '#1a1a1a', backgroundSize: '18px 18px' }
-];
-
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
-  const { settings, setSettings, isLoading } = useDesignSettings();
+  const { settings, setSettings, isLoading, updateThemeColors } = useDesignSettings();
   
-  // Use context settings as source of truth, fallback to initial prop
+  // Simplified state - only font and social bar position are manual
   const [fontFamily, setFontFamily] = useState(settings.font_family || initial?.font_family || 'Inter, sans-serif');
-  const [textColor, setTextColor] = useState(settings.text_color || initial?.text_color || '#000000');
-  const [backgroundColor, setBackgroundColor] = useState(settings.background_color || initial?.background_color || '#f8f9fa');
-  const [iconColor, setIconColor] = useState(settings.icon_color || initial?.icon_color || 'auto');
   const [socialBarPosition, setSocialBarPosition] = useState(settings.social_bar_position || initial?.social_bar_position || 'top');
   
   const [saving, setSaving] = useState(false);
@@ -66,14 +35,10 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [error, setError] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
-  const [showTextColorDropdown, setShowTextColorDropdown] = useState(false);
-  const [showBackgroundColorDropdown, setShowBackgroundColorDropdown] = useState(false);
-  const [showIconColorDropdown, setShowIconColorDropdown] = useState(false);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [showSocialBarPositionDropdown, setShowSocialBarPositionDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
-  const textColorDropdownRef = useRef(null);
-  const backgroundColorDropdownRef = useRef(null);
-  const iconColorDropdownRef = useRef(null);
+  const themeDropdownRef = useRef(null);
   const socialBarPositionDropdownRef = useRef(null);
   const menuRef = useRef(null);
 
@@ -81,37 +46,35 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     function handleClickOutside(e) {
       if (showMenu && menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false);
       if (showFontDropdown && fontDropdownRef.current && !fontDropdownRef.current.contains(e.target)) setShowFontDropdown(false);
-      if (showTextColorDropdown && textColorDropdownRef.current && !textColorDropdownRef.current.contains(e.target)) setShowTextColorDropdown(false);
-      if (showBackgroundColorDropdown && backgroundColorDropdownRef.current && !backgroundColorDropdownRef.current.contains(e.target)) setShowBackgroundColorDropdown(false);
-      if (showIconColorDropdown && iconColorDropdownRef.current && !iconColorDropdownRef.current.contains(e.target)) setShowIconColorDropdown(false);
+      if (showThemeDropdown && themeDropdownRef.current && !themeDropdownRef.current.contains(e.target)) setShowThemeDropdown(false);
       if (showSocialBarPositionDropdown && socialBarPositionDropdownRef.current && !socialBarPositionDropdownRef.current.contains(e.target)) setShowSocialBarPositionDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showTextColorDropdown, showBackgroundColorDropdown, showIconColorDropdown, showSocialBarPositionDropdown]);
+  }, [showMenu, showFontDropdown, showThemeDropdown, showSocialBarPositionDropdown]);
 
-  // Alleen synchroniseren bij eerste load, niet bij elke change
+  // Sync only font and social bar position from context
   useEffect(() => {
     if (!isLoading && settings.font_family && !fontFamily) {
       setFontFamily(settings.font_family);
-      setTextColor(settings.text_color || '#000000');
-      setBackgroundColor(settings.background_color || '#f8f9fa');
-      setIconColor(settings.icon_color || 'auto');
       setSocialBarPosition(settings.social_bar_position || 'top');
     }
   }, [settings, isLoading]);
 
-  // Fallback naar initial prop als context nog niet geladen is
+  // Fallback to initial prop if context not loaded yet
   useEffect(() => {
     if (!isLoading && !settings.font_family && initial?.font_family) {
       console.log('🔄 TOOLBAR: Using initial prop values as fallback');
       setFontFamily(initial.font_family);
-      setTextColor(initial.text_color || '#000000');
-      setBackgroundColor(initial.background_color || '#f8f9fa');
-      setIconColor(initial.icon_color || 'auto');
       setSocialBarPosition(initial.social_bar_position || 'top');
     }
   }, [initial, settings, isLoading]);
+
+  // Handle theme selection
+  const handleThemeSelect = (theme) => {
+    updateThemeColors(theme.value);
+    setShowThemeDropdown(false);
+  };
 
   const handleSave = async () => {
     if (isLoading) {
@@ -122,12 +85,12 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setSaving(true);
     setError(null);
     
-    // Gebruik de huidige local state waarden (die zijn up-to-date)
+    // Use current settings from context (colors are automatic) plus local state
     const payload = {
       font_family: fontFamily,
-      text_color: textColor,
-      background_color: backgroundColor,
-      icon_color: iconColor,
+      text_color: settings.text_color, // Automatic from theme
+      background_color: settings.background_color, // Set via theme selection
+      icon_color: settings.icon_color, // Automatic from theme
       social_bar_position: socialBarPosition
     };
 
@@ -196,23 +159,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setShowFontDropdown(false);
   };
 
-  const handleTextColorSelect = (color) => {
-    setTextColor(color);
-    // NIET automatisch context updaten - alleen bij save
-    setShowTextColorDropdown(false);
-  };
 
-  const handleBackgroundColorSelect = (color) => {
-    setBackgroundColor(color);
-    // NIET automatisch context updaten - alleen bij save
-    setShowBackgroundColorDropdown(false);
-  };
-
-  const handleIconColorSelect = (color) => {
-    setIconColor(color);
-    // NIET automatisch context updaten - alleen bij save
-    setShowIconColorDropdown(false);
-  };
 
   const handleSocialBarPositionSelect = (position) => {
     setSocialBarPosition(position);
@@ -220,17 +167,26 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setShowSocialBarPositionDropdown(false);
   };
 
+  // Get current theme for preview
+  const currentTheme = THEME_BACKGROUNDS.find(theme => theme.value === settings.background_color) || THEME_BACKGROUNDS[0];
+  
   return (
     <div className="relative w-full flex justify-start z-40">
-      {/* Design Settings Button */}
+      {/* Design Settings Button with theme preview */}
       <button
         aria-label="Open Design Settings"
-        className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow hover:bg-neutral-50 transition text-sm font-semibold"
+        className="flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-gray-200 shadow hover:bg-neutral-50 transition text-sm font-semibold"
         onClick={() => setShowMenu(true)}
         type="button"
       >
-        <MdSettings className="text-emerald-500" />
-        <span>Design Settings</span>
+        <div className="flex items-center gap-2">
+          <FaPalette className="text-emerald-500" size={16} />
+          <div 
+            className="w-5 h-5 rounded-full border-2 border-gray-200"
+            style={{ background: currentTheme.preview }}
+          />
+        </div>
+        <span>Theme & Design</span>
       </button>
       {/* Overlay Menu */}
       {showMenu && (
@@ -285,127 +241,110 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               </div>
             </div>
 
-            {/* Text Color */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Text Color</span>
-              <div className="relative" ref={textColorDropdownRef}>
-                <button
-                  aria-label="Text Color"
-                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
-                  style={{ backgroundColor: textColor }}
-                  onClick={() => setShowTextColorDropdown(!showTextColorDropdown)}
-                  type="button"
-                />
-                {showTextColorDropdown && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-2 flex gap-2 z-30 flex-col items-center min-w-[180px]">
-                    <div className="flex gap-2 mb-2">
-                      {TEXT_COLOR_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          className="w-6 h-6 rounded-full border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition"
-                          style={{ backgroundColor: opt.value, border: opt.value === '#ffffff' ? '2px solid #e5e7eb' : '1px solid #d1d5db' }}
-                          onClick={() => handleTextColorSelect(opt.value)}
-                          aria-label={opt.name}
-                          title={opt.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {/* Theme Selection */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <FaPalette className="text-emerald-500" size={16} />
+                <span className="text-sm font-semibold text-gray-700">Choose Theme</span>
               </div>
-            </div>
-
-            {/* Icon Color */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Icon Color</span>
-              <div className="relative" ref={iconColorDropdownRef}>
-                <button
-                  aria-label="Icon Color"
-                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm flex items-center justify-center relative hover:ring-2 hover:ring-emerald-200 transition"
-                  style={{ backgroundColor: iconColor === 'auto' ? '#e5e7eb' : iconColor }}
-                  onClick={() => setShowIconColorDropdown(!showIconColorDropdown)}
-                  type="button"
-                >
-                  {iconColor === 'auto' && <span className="text-xs font-bold">A</span>}
-                </button>
-                {showIconColorDropdown && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-2 flex gap-2 z-30 flex-col items-center min-w-[180px]">
-                    <div className="flex gap-2 mb-2">
-                      {ICON_COLOR_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          className="w-6 h-6 rounded-full border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition flex items-center justify-center"
-                          style={{ 
-                            backgroundColor: opt.value === 'auto' ? '#e5e7eb' : opt.value,
-                            border: opt.value === 'white' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
-                          }}
-                          onClick={() => handleIconColorSelect(opt.value)}
-                          aria-label={opt.name}
-                          title={opt.name}
-                        >
-                          {opt.value === 'auto' && <span className="text-xs font-bold">A</span>}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              
+              {/* Light Themes */}
+              <div>
+                <span className="text-xs font-medium text-gray-500 mb-2 block">Light Themes</span>
+                <div className="grid grid-cols-4 gap-3">
+                  {THEME_BACKGROUNDS.filter(theme => theme.category === 'light').map(theme => (
+                    <button
+                      key={theme.id}
+                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                        currentTheme.id === theme.id 
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => handleThemeSelect(theme)}
+                      type="button"
+                      aria-label={`Select ${theme.label} theme`}
+                    >
+                      <div 
+                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        style={{ 
+                          ...(theme.isPattern
+                            ? { 
+                                backgroundColor: theme.backgroundColor,
+                                backgroundImage: theme.value,
+                                backgroundSize: theme.backgroundSize || 'auto'
+                              }
+                            : theme.isGradient 
+                            ? { backgroundImage: theme.value }
+                            : { backgroundColor: theme.value }
+                          )
+                        }}
+                      />
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      {currentTheme.id === theme.id && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Background Color */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Background</span>
-              <div className="relative" ref={backgroundColorDropdownRef}>
-                <button
-                  aria-label="Background Color"
-                  className="w-9 h-9 rounded-full border border-gray-200 shadow-sm relative hover:ring-2 hover:ring-emerald-200 transition overflow-hidden"
-                  style={{ 
-                    ...(() => {
-                      const option = BACKGROUND_COLOR_OPTIONS.find(opt => opt.value === backgroundColor);
-                      if (option?.isPattern) {
-                        return {
-                          backgroundColor: option.backgroundColor,
-                          backgroundImage: backgroundColor,
-                          backgroundSize: option.backgroundSize || 'auto'
-                        };
-                      } else if (backgroundColor?.includes('linear-gradient') || backgroundColor?.includes('radial-gradient') || backgroundColor?.includes('repeating-linear-gradient')) {
-                        return { backgroundImage: backgroundColor };
-                      } else {
-                        return { backgroundColor };
-                      }
-                    })()
-                  }}
-                  onClick={() => setShowBackgroundColorDropdown(!showBackgroundColorDropdown)}
-                  type="button"
-                />
-                {showBackgroundColorDropdown && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow p-3 z-30 flex-col items-center min-w-[320px]">
-                    <div className="grid grid-cols-5 gap-2 mb-2">
-                      {BACKGROUND_COLOR_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          className="w-8 h-8 rounded-lg border border-gray-200 hover:ring-2 hover:ring-emerald-200 transition relative overflow-hidden"
-                          style={{ 
-                            ...(opt.isPattern
-                              ? { 
-                                  backgroundColor: opt.backgroundColor,
-                                  backgroundImage: opt.value,
-                                  backgroundSize: opt.backgroundSize || 'auto'
-                                }
-                              : opt.isGradient 
-                              ? { backgroundImage: opt.value }
-                              : { backgroundColor: opt.value }
-                            ),
-                            border: opt.value === '#ffffff' || opt.value?.includes('#ffffff') || opt.value?.includes('#fafafa') || opt.backgroundColor === '#ffffff' ? '2px solid #e5e7eb' : '1px solid #d1d5db'
-                          }}
-                          onClick={() => handleBackgroundColorSelect(opt.value)}
-                          aria-label={opt.name}
-                          title={opt.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Dark Themes */}
+              <div>
+                <span className="text-xs font-medium text-gray-500 mb-2 block">Dark Themes</span>
+                <div className="grid grid-cols-4 gap-3">
+                  {THEME_BACKGROUNDS.filter(theme => theme.category === 'dark').map(theme => (
+                    <button
+                      key={theme.id}
+                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                        currentTheme.id === theme.id 
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => handleThemeSelect(theme)}
+                      type="button"
+                      aria-label={`Select ${theme.label} theme`}
+                    >
+                      <div 
+                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        style={{ 
+                          ...(theme.isPattern
+                            ? { 
+                                backgroundColor: theme.backgroundColor,
+                                backgroundImage: theme.value,
+                                backgroundSize: theme.backgroundSize || 'auto'
+                              }
+                            : theme.isGradient 
+                            ? { backgroundImage: theme.value }
+                            : { backgroundColor: theme.value }
+                          )
+                        }}
+                      />
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      {currentTheme.id === theme.id && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Theme Info */}
+              <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className="w-4 h-4 rounded-full border border-gray-300"
+                    style={{ background: currentTheme.preview }}
+                  />
+                  <span className="text-sm font-medium text-gray-700">{currentTheme.label}</span>
+                </div>
+                <div className="text-xs text-gray-500 space-y-1">
+                  <div>Text: <span style={{ color: currentTheme.theme.text_color }}>■</span> {currentTheme.theme.text_color}</div>
+                  <div>Icons: <span style={{ color: currentTheme.theme.icon_color }}>■</span> {currentTheme.theme.icon_color}</div>
+                </div>
               </div>
             </div>
 

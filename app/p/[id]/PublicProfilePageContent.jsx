@@ -2,6 +2,7 @@
 import { useDesignSettings } from '../../../src/components/dashboard/DesignSettingsContext';
 import PrysmaCard from '../../../src/components/card/PrysmaCard';
 import { getSectionsKey } from '../../../src/lib/sectionOptions';
+import { THEME_BACKGROUNDS } from '../../../src/lib/themeSystem';
 import { useEffect } from 'react';
 
 // Define which section types are considered social media (same as in the hook)
@@ -61,16 +62,7 @@ export default function PublicProfilePageContent({ profile }) {
     trackPageView();
   }, [profile.id]);
   
-  // Complete background options for patterns (same as dashboard)
-  const BACKGROUND_COLOR_OPTIONS = [
-    { label: 'Subtle Dots', value: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0)', name: 'Subtle Dots', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '20px 20px' },
-    { label: 'Fine Grid', value: 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)', name: 'Fine Grid', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '24px 24px' },
-    { label: 'Soft Lines', value: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)', name: 'Soft Lines', isPattern: true, backgroundColor: '#fafafa' },
-    { label: 'Paper Texture', value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)', name: 'Paper Texture', isPattern: true, backgroundColor: '#fefefe', backgroundSize: '16px 16px, 24px 24px' },
-    { label: 'Dark Mesh', value: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', name: 'Dark Mesh', isPattern: true, backgroundColor: '#1a1a1a', backgroundSize: '18px 18px' }
-  ];
-  
-  const backgroundOption = BACKGROUND_COLOR_OPTIONS.find(opt => opt.value === settings.background_color);
+  const backgroundOption = THEME_BACKGROUNDS.find(opt => opt.value === settings.background_color);
   
   // Style for full page background (solid color only for patterns)
   const getPageBackgroundStyle = () => {

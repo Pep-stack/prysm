@@ -419,24 +419,10 @@ export default function DashboardPageContent() {
 function DashboardMainWithBg({ profile, user, cardSections, socialBarSections }) {
   const { settings } = useDesignSettings();
   
-  // Complete background options for patterns
-  const BACKGROUND_COLOR_OPTIONS = [
-    // ULTRA REFINED SOLIDS & GRADIENTS - Original refined selection
-    { label: 'Pure Canvas', value: '#ffffff', name: 'Pure Canvas' },
-    { label: 'Midnight Black', value: '#0a0a0a', name: 'Midnight Black' },
-    { label: 'Soft Pearl', value: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)', name: 'Soft Pearl', isGradient: true },
-    { label: 'Warm Stone', value: 'linear-gradient(135deg, #fafaf9 0%, #f5f5f4 50%, #e7e5e4 100%)', name: 'Warm Stone', isGradient: true },
-    { label: 'Deep Charcoal', value: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #18181b 100%)', name: 'Deep Charcoal', isGradient: true },
-    
-         // ELEGANT PATTERNS - Sophisticated textures for modern professionals
-     { label: 'Subtle Dots', value: 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.08) 1px, transparent 0)', name: 'Subtle Dots', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '20px 20px' },
-     { label: 'Fine Grid', value: 'linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px)', name: 'Fine Grid', isPattern: true, backgroundColor: '#ffffff', backgroundSize: '24px 24px' },
-     { label: 'Soft Lines', value: 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.02) 2px, rgba(0,0,0,0.02) 4px)', name: 'Soft Lines', isPattern: true, backgroundColor: '#fafafa' },
-     { label: 'Paper Texture', value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)', name: 'Paper Texture', isPattern: true, backgroundColor: '#fefefe', backgroundSize: '16px 16px, 24px 24px' },
-     { label: 'Dark Mesh', value: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', name: 'Dark Mesh', isPattern: true, backgroundColor: '#1a1a1a', backgroundSize: '18px 18px' }
-  ];
+  // Import theme system for background rendering
+  const { THEME_BACKGROUNDS } = require('../../src/lib/themeSystem');
   
-  const backgroundOption = BACKGROUND_COLOR_OPTIONS.find(opt => opt.value === settings.background_color);
+  const backgroundOption = THEME_BACKGROUNDS.find(opt => opt.value === settings.background_color);
   
   // Determine style based on background type
   const getBackgroundStyle = () => {
