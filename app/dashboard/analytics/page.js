@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
     whatsapp: '#25D366',
     email: '#EA4335',
     phone: '#34A853',
-    x: '#1DA1F2',
+    x: '#000000',
     facebook: '#1877F2',
     dribbble: '#EA4C89',
     behance: '#1769FF',
@@ -119,6 +119,9 @@ export default function AnalyticsPage() {
 
   const getSocialIcon = (platform) => {
     const Icon = SOCIAL_ICONS[platform];
+    if (platform === 'snapchat') {
+      return <FaSnapchatGhost className="h-4 w-4" style={{ color: 'black' }} />;
+    }
     return Icon ? <Icon className="h-4 w-4" /> : <LuShare2 className="h-4 w-4" />;
   };
 
@@ -177,6 +180,9 @@ export default function AnalyticsPage() {
     };
     
     const Icon = iconMap[referrerSource] || LuGlobe;
+    if (referrerSource === 'snapchat') {
+      return <FaSnapchatGhost className="h-4 w-4" style={{ color: 'black' }} />;
+    }
     return <Icon className="h-4 w-4" />;
   };
 
@@ -185,7 +191,7 @@ export default function AnalyticsPage() {
       'qr_code': '#6366F1',
       'instagram': '#E4405F',
       'linkedin': '#0077B5',
-      'x': '#1DA1F2',
+      'x': '#000000',
       'facebook': '#1877F2',
       'tiktok': '#FF0050',
       'youtube': '#FF0000',
@@ -411,8 +417,7 @@ export default function AnalyticsPage() {
                           isTopPerformer ? 'border-yellow-200 shadow-yellow-100' : 'border-gray-200 hover:border-gray-300'
                         }`}
                         style={{
-                          animationDelay: `${index * 100}ms`,
-                          animation: 'fadeInUp 0.6s ease-out forwards'
+                          animation: `fadeInUp 0.6s ease-out ${index * 100}ms forwards`
                         }}
                       >
                         {isTopPerformer && (
@@ -449,7 +454,6 @@ export default function AnalyticsPage() {
                                 width: `${percentage}%`,
                                 backgroundColor: SOCIAL_COLORS[platform] || '#8884d8',
                                 animation: `growWidth 1s ease-out ${index * 100}ms forwards`,
-                                transform: 'scaleX(0)',
                                 transformOrigin: 'left'
                               }}
                             ></div>
