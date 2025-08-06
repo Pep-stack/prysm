@@ -9,10 +9,8 @@ import { getGroupedSectionOptions, CATEGORY_ICONS, CARD_TYPES } from '../../lib/
 import { LuChevronDown } from "react-icons/lu";
 
 export default function AvailableSectionList({ onAddSection, existingSectionTypes = [], cardType = CARD_TYPES.PRO }) {
-  console.log('🟢 COMPONENT: AvailableSectionList rendered with onAddSection:', typeof onAddSection);
   const { openCategories, setOpenCategories, toggleCategory } = useOpenCategories();
   const [isExpanded, setIsExpanded] = useState(true);
-  // console.log("Initial openCategories:", openCategories); // Vorige debug log
 
   // Gebruik de grouping functie met card type
   const groupedAvailableOptions = getGroupedSectionOptions(existingSectionTypes, cardType);
@@ -71,7 +69,7 @@ export default function AvailableSectionList({ onAddSection, existingSectionType
 
                 // --- DEBUG LOG ---
                 // Log de categorie en het gevonden icoon component
-                console.log(`Rendering Category: "${category}", Found Icon Component:`, CategoryIcon);
+        
                 // --- EINDE DEBUG LOG ---
 
                 return (
@@ -103,13 +101,8 @@ export default function AvailableSectionList({ onAddSection, existingSectionType
                               <button
                                 key={option.type}
                                 onClick={(e) => {
-                                  console.log('🔴 BUTTON-CLICK: Add section button clicked for type:', option.type);
-                                  console.log('🔴 BUTTON-CLICK: Event target:', e.target);
-                                  console.log('🔴 BUTTON-CLICK: onAddSection function:', onAddSection);
                                   if (typeof onAddSection === 'function') {
                                     onAddSection(option.type);
-                                  } else {
-                                    console.error('🔴 BUTTON-CLICK: onAddSection is not a function!');
                                   }
                                 }}
                                 disabled={existingSectionTypes.includes(option.type)}

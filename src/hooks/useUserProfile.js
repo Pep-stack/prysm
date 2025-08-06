@@ -178,10 +178,15 @@ export function useUserProfile(user) {
       
       // Update local profile state immediately after successful save
       setProfile(prev => {
-        const updated = prev ? { ...prev, [key]: serializedLayout, updated_at: new Date().toISOString() } : null;
-        console.log('🔥 SAVE-LAYOUT: Local profile state updated', {
-          previousProfile: prev ? { [key]: prev[key] } : null,
-          newProfile: updated ? { [key]: updated[key] } : null
+        const newUpdatedAt = new Date().toISOString();
+        const updated = prev ? { ...prev, [key]: serializedLayout, updated_at: newUpdatedAt } : null;
+        console.log('🔄 SAVE-LAYOUT: Local profile state updated', {
+          previousProfileKey: prev ? prev[key]?.length : 'null',
+          newProfileKey: updated ? updated[key]?.length : 'null',
+          previousUpdatedAt: prev?.updated_at,
+          newUpdatedAt: newUpdatedAt,
+          sectionsCount: serializedLayout.length,
+          timestamp: new Date().toISOString()
         });
         return updated;
       });

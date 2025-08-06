@@ -50,7 +50,8 @@ export default function PublicProfilePageContent({ profile }) {
             profileId: profile.id,
             ip: ip,
             userAgent: userAgent,
-            referrer: referrer
+            referrer: referrer,
+            source: source
           })
         });
       } catch (error) {

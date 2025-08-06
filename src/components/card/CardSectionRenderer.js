@@ -185,7 +185,6 @@ export default function CardSectionRenderer({
     fontFamily: settings.font_family || 'Inter, sans-serif',
     padding: '16px',
     borderRadius: '8px',
-    backgroundColor: 'transparent',
     border: 'none',
     marginBottom: '16px',
     ...sectionStyle

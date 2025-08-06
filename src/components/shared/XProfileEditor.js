@@ -64,7 +64,7 @@ export default function XProfileEditor({ value = '', onChange, onSave, onCancel 
       <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-            background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)'
+            background: '#000000'
           }}>
             <FaXTwitter className="text-white text-xl" />
           </div>
@@ -99,9 +99,9 @@ export default function XProfileEditor({ value = '', onChange, onSave, onCancel 
             <h4 className="text-white font-medium mb-3 text-sm">Profile Preview</h4>
             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-center gap-3">
-                                         <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-                           background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)'
-                         }}>
+                                                         <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
+                  background: '#000000'
+                }}>
                            <FaXTwitter className="text-white text-sm" />
                          </div>
                 <div className="flex-1">
@@ -127,7 +127,7 @@ export default function XProfileEditor({ value = '', onChange, onSave, onCancel 
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                  style={{
                        background: username.trim() 
-                         ? 'linear-gradient(45deg, #000000 0%, #ffffff 100%)'
+                         ? '#000000'
                          : '#333',
                        color: '#ffffff'
                      }}

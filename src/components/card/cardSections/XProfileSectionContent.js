@@ -187,7 +187,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)',
+                background: '#000000',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -223,7 +223,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
 
             {/* Right side - Button */}
             <button style={{
-              background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)',
+              background: '#000000',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -264,10 +264,10 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
       <div style={{
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
+        background: 'rgba(255, 255, 255, 0.15)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '12px',
+        padding: '8px 12px',
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         transition: 'all 0.3s ease',
         overflow: 'hidden',
@@ -292,7 +292,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)',
+              background: '#000000',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -359,10 +359,10 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
     <div style={{
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
-      background: 'rgba(255, 255, 255, 0.25)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '16px',
-      padding: '20px',
+      background: 'rgba(255, 255, 255, 0.15)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      borderRadius: '12px',
+      padding: '8px 12px',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       cursor: 'pointer',
       position: 'relative',
@@ -388,7 +388,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)',
+            background: '#000000',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -424,7 +424,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
 
         {/* Right side - Button */}
         <button style={{
-          background: 'linear-gradient(45deg, #000000 0%, #ffffff 100%)',
+          background: '#000000',
           color: 'white',
           border: 'none',
           borderRadius: '12px',

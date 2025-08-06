@@ -64,7 +64,7 @@ export default function TikTokProfileEditor({ value = '', onChange, onSave, onCa
       <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-            background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)'
+            background: '#FE2C55'
           }}>
             <FaTiktok className="text-white text-xl" />
           </div>
@@ -100,7 +100,7 @@ export default function TikTokProfileEditor({ value = '', onChange, onSave, onCa
             <div className="p-4 bg-gray-800 rounded-lg border border-gray-700">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-                  background: 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)'
+                  background: '#FE2C55'
                 }}>
                   <FaTiktok className="text-white text-sm" />
                 </div>
@@ -127,7 +127,7 @@ export default function TikTokProfileEditor({ value = '', onChange, onSave, onCa
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
               background: username.trim() 
-                ? 'linear-gradient(45deg, #000000 0%, #FE2C55 100%)'
+                ? '#FE2C55'
                 : '#333',
               color: '#ffffff'
             }}

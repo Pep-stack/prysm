@@ -15,7 +15,7 @@ export default function QRCodePage() {
   useEffect(() => {
     if (!sessionLoading && user?.id && typeof window !== 'undefined') {
       // BELANGRIJK: pas '/p/' aan als je publieke route anders is!
-      setProfileUrl(`${window.location.origin}/p/${user.id}`);
+      setProfileUrl(`${window.location.origin}/p/${user.id}?source=qr_code`);
       setIsLoading(false);
     } else if (!sessionLoading && !user) {
       // Geen gebruiker gevonden na het laden

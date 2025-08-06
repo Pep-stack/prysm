@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { 
   LuEye, LuUsers, LuTrendingUp, LuCalendar, LuSmartphone, LuMonitor, 
-  LuGlobe, LuBarChart3, LuRefreshCw, LuArrowUp, LuArrowDown, LuMessageSquare, LuPhone, LuMail, LuMessageCircle, LuShare2
+  LuGlobe, LuBarChart3, LuRefreshCw, LuArrowUp, LuArrowDown, LuMessageSquare, LuPhone, LuMail, LuMessageCircle, LuShare2, LuQrCode
 } from "react-icons/lu";
 import { FaLinkedin, FaInstagram, FaGithub, FaYoutube, FaTiktok, FaWhatsapp, FaEnvelope, FaPhone, FaTwitter, FaFacebook, FaDribbble, FaBehance, FaSnapchatGhost, FaRedditAlien } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -122,20 +122,91 @@ export default function AnalyticsPage() {
     return Icon ? <Icon className="h-4 w-4" /> : <LuShare2 className="h-4 w-4" />;
   };
 
-  const getBrowserDisplayName = (browserName) => {
-    switch (browserName) {
-      case 'chrome': return 'Chrome';
-      case 'firefox': return 'Firefox';
+  const getReferrerDisplayName = (referrerSource) => {
+    switch (referrerSource) {
+      case 'direct': return 'Direct';
+      case 'qr_code': return 'QR Code';
+      case 'instagram': return 'Instagram';
+      case 'linkedin': return 'LinkedIn';
+      case 'x': return 'X (Twitter)';
+      case 'facebook': return 'Facebook';
+      case 'tiktok': return 'TikTok';
+      case 'youtube': return 'YouTube';
+      case 'github': return 'GitHub';
+      case 'google': return 'Google';
+      case 'whatsapp': return 'WhatsApp';
+      case 'telegram': return 'Telegram';
+      case 'reddit': return 'Reddit';
+      case 'dribbble': return 'Dribbble';
+      case 'behance': return 'Behance';
+      case 'snapchat': return 'Snapchat';
+      case 'discord': return 'Discord';
+      case 'twitch': return 'Twitch';
+      case 'pinterest': return 'Pinterest';
       case 'safari': return 'Safari';
-      case 'opera': return 'Opera';
-      case 'edge': return 'Edge';
-      case 'brave': return 'Brave';
-      case 'ie': return 'Internet Explorer';
-      case 'curl': return 'cURL';
-      case 'test': return 'Test';
-      case 'unknown': return 'Unknown';
-      default: return browserName.charAt(0).toUpperCase() + browserName.slice(1);
+      case 'email': return 'Email';
+      case 'other': return 'Other';
+      default: return referrerSource.charAt(0).toUpperCase() + referrerSource.slice(1);
     }
+  };
+
+  const getReferrerIcon = (referrerSource) => {
+    const iconMap = {
+      'qr_code': LuQrCode,
+      'instagram': FaInstagram,
+      'linkedin': FaLinkedin,
+      'x': FaXTwitter,
+      'facebook': FaFacebook,
+      'tiktok': FaTiktok,
+      'youtube': FaYoutube,
+      'github': FaGithub,
+      'whatsapp': FaWhatsapp,
+      'telegram': LuMessageCircle,
+      'reddit': FaRedditAlien,
+      'dribbble': FaDribbble,
+      'behance': FaBehance,
+      'snapchat': FaSnapchatGhost,
+      'discord': LuMessageCircle,
+      'twitch': LuGlobe,
+      'pinterest': LuGlobe,
+      'safari': LuGlobe,
+      'email': FaEnvelope,
+      'google': LuGlobe,
+      'direct': LuGlobe,
+      'other': LuGlobe
+    };
+    
+    const Icon = iconMap[referrerSource] || LuGlobe;
+    return <Icon className="h-4 w-4" />;
+  };
+
+  const getReferrerColor = (referrerSource) => {
+    const colorMap = {
+      'qr_code': '#6366F1',
+      'instagram': '#E4405F',
+      'linkedin': '#0077B5',
+      'x': '#1DA1F2',
+      'facebook': '#1877F2',
+      'tiktok': '#FF0050',
+      'youtube': '#FF0000',
+      'github': '#333333',
+      'whatsapp': '#25D366',
+      'telegram': '#0088CC',
+      'reddit': '#FF4500',
+      'dribbble': '#EA4C89',
+      'behance': '#1769FF',
+      'snapchat': '#FFFC00',
+      'discord': '#7289DA',
+      'twitch': '#9146FF',
+      'pinterest': '#BD081C',
+      'safari': '#007AFF',
+      'email': '#EA4335',
+      'google': '#4285F4',
+      'direct': '#10B981',
+      'other': '#8884D8'
+    };
+    
+    return colorMap[referrerSource] || '#8884D8';
   };
 
   if (isLoading) {
@@ -294,68 +365,123 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Social Clicks Bar Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Social Clicks</h3>
-          <div className="relative">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart 
-                data={Object.entries(analyticsData.socialBreakdown || {}).map(([platform, count]) => ({
-                  platform,
-                  clicks: count,
-                  color: '#10B981' // Prysma green
-                }))}
-                margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="platform" 
-                  tick={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(value) => formatNumber(value)}
-                />
-                <Tooltip 
-                  formatter={(value) => [value, 'Clicks']}
-                  labelFormatter={(label) => `${label.charAt(0).toUpperCase() + label.slice(1)}`}
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Bar 
-                  dataKey="clicks" 
-                  radius={[4, 4, 0, 0]}
-                  fill="#10B981"
-                  style={{
-                    filter: 'drop-shadow(0 2px 4px rgba(16, 185, 129, 0.3))'
-                  }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-            
-            {/* Social Icons Directly Under Each Bar */}
-            <div className="absolute bottom-0 left-0 right-0 flex justify-around px-4">
-              {Object.entries(analyticsData.socialBreakdown || {}).map(([platform, count]) => (
-                <div key={platform} className="flex flex-col items-center space-y-1">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: SOCIAL_COLORS[platform] || '#8884d8' }}
-                  >
-                    <div className="text-white">
-                      {getSocialIcon(platform)}
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-gray-900">{count}</span>
-                </div>
-              ))}
+        {/* Social Clicks - Modern Cards Layout */}
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 relative overflow-hidden">
+          {/* Background decoration - smaller on mobile */}
+          <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded-full opacity-50 transform translate-x-10 sm:translate-x-16 -translate-y-10 sm:-translate-y-16"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-tr from-green-50 to-blue-50 rounded-full opacity-50 transform -translate-x-8 sm:-translate-x-12 translate-y-8 sm:translate-y-12"></div>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-3 sm:space-y-0">
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">Social Platform Engagement</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Track which platforms drive the most engagement</p>
+              </div>
+              <div className="flex items-center space-x-2 self-start sm:self-auto">
+                <LuShare2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700">
+                  {Object.values(analyticsData.socialBreakdown || {}).reduce((sum, count) => sum + count, 0)} total clicks
+                </span>
+              </div>
             </div>
+
+            {Object.keys(analyticsData.socialBreakdown || {}).length === 0 ? (
+              <div className="text-center py-8 sm:py-12">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <LuShare2 className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
+                </div>
+                <h4 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No social clicks yet</h4>
+                <p className="text-sm sm:text-base text-gray-600 max-w-sm mx-auto px-4">
+                  When visitors click your social media links, you&apos;ll see engagement data here.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4">
+                {Object.entries(analyticsData.socialBreakdown || {})
+                  .sort(([,a], [,b]) => b - a) // Sort by click count descending
+                  .map(([platform, count], index) => {
+                    const totalClicks = Object.values(analyticsData.socialBreakdown || {}).reduce((sum, clicks) => sum + clicks, 0);
+                    const percentage = totalClicks > 0 ? ((count / totalClicks) * 100).toFixed(1) : 0;
+                    const isTopPerformer = index === 0 && count > 0;
+                    
+                    return (
+                                            <div 
+                        key={platform}
+                        className={`group relative bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${
+                          isTopPerformer ? 'border-yellow-200 shadow-yellow-100' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        style={{
+                          animationDelay: `${index * 100}ms`,
+                          animation: 'fadeInUp 0.6s ease-out forwards'
+                        }}
+                      >
+                        {isTopPerformer && (
+                          <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-xs font-bold text-white">★</span>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <div 
+                            className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-110"
+                            style={{ 
+                              backgroundColor: SOCIAL_COLORS[platform] || '#8884d8',
+                              boxShadow: `0 2px 8px ${SOCIAL_COLORS[platform] || '#8884d8'}20`
+                            }}
+                          >
+                            <div className="text-white text-sm sm:text-lg">
+                              {getSocialIcon(platform)}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-lg sm:text-2xl font-bold text-gray-900">{count}</div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2 sm:space-y-3">
+                          <h4 className="text-sm sm:text-base font-semibold text-gray-900 capitalize">{platform}</h4>
+                          
+                          {/* Progress bar */}
+                          <div className="w-full bg-gray-100 rounded-full h-1.5 sm:h-2 overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all duration-700 ease-out"
+                              style={{ 
+                                width: `${percentage}%`,
+                                backgroundColor: SOCIAL_COLORS[platform] || '#8884d8',
+                                animation: `growWidth 1s ease-out ${index * 100}ms forwards`,
+                                transform: 'scaleX(0)',
+                                transformOrigin: 'left'
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
+
+          <style jsx>{`
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes growWidth {
+              from {
+                transform: scaleX(0);
+              }
+              to {
+                transform: scaleX(1);
+              }
+            }
+          `}</style>
         </div>
       </div>
 
@@ -387,21 +513,65 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Browser Breakdown */}
+        {/* Referrer Breakdown */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Browser Breakdown</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={Object.entries(analyticsData.browserBreakdown || {}).map(([browser, count]) => ({
-              name: getBrowserDisplayName(browser),
-              views: count
-            }))}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip formatter={(value) => [value, 'Views']} />
-              <Bar dataKey="views" fill="#00C49F" />
-            </BarChart>
-          </ResponsiveContainer>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Traffic Sources</h3>
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart 
+                data={Object.entries(analyticsData.referrerBreakdown || {}).map(([referrer, count]) => ({
+                  name: getReferrerDisplayName(referrer),
+                  views: count,
+                  referrer: referrer
+                }))}
+                margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis 
+                  dataKey="name" 
+                  tick={false}
+                  axisLine={false}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(value) => formatNumber(value)}
+                />
+                <Tooltip 
+                  formatter={(value) => [value, 'Views']}
+                  labelFormatter={(label) => label}
+                  contentStyle={{
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                  }}
+                />
+                <Bar 
+                  dataKey="views" 
+                  radius={[4, 4, 0, 0]}
+                  fill="#10B981"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+            
+            {/* Referrer Icons Directly Under Each Bar */}
+            <div className="absolute bottom-0 left-0 right-0 flex justify-around px-4">
+              {Object.entries(analyticsData.referrerBreakdown || {}).map(([referrer, count]) => (
+                <div key={referrer} className="flex flex-col items-center space-y-1">
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
+                    style={{ backgroundColor: getReferrerColor(referrer) }}
+                  >
+                    <div className="text-white">
+                      {getReferrerIcon(referrer)}
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold text-gray-900">{count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

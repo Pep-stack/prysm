@@ -23,10 +23,9 @@ import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
 import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
 import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
-import { useCardLayout } from '../../src/hooks/useCardLayout';
+import { useSimpleCardSections } from '../../src/hooks/useSimpleCardSections';
 
-import { v4 as uuidv4 } from 'uuid';
-import { getDefaultSectionProps, getSectionOptionsByCardType, CARD_TYPES } from '../../src/lib/sectionOptions';
+import { CARD_TYPES } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
 import { supabase } from '../../src/lib/supabase';
 import DesignToolbar from '../../src/components/dashboard/DesignToolbar';
@@ -59,22 +58,19 @@ export default function DashboardPageContent() {
     };
   }, [profile, user?.id]);
 
-  // Use the consolidated card layout hook
+  // Use the new simple card sections system
   const cardType = workingProfile?.card_type || CARD_TYPES.PRO;
   const {
     cardSections,
     socialBarSections,
-    setCardSections,
-    setSocialBarSections,
-    handleRemoveSection: originalHandleRemoveSection,
-    handleDragEnd: originalHandleDragEnd,
-    getAllSections,
-    isAutoSaving: hookIsAutoSaving,
-    setIsAutoSaving: setHookIsAutoSaving,
-  } = useCardLayout(workingProfile, cardType);
+    addSection,
+    removeSection,
+    reorderSections,
+    isLoading,
+    error
+  } = useSimpleCardSections(user, cardType);
 
   const [activeId, setActiveId] = useState(null);
-  const hasInitialLoad = useRef(false);
 
   // Design state (now handled by DesignToolbar)
   const [savingAppearance, setSavingAppearance] = useState(false);
@@ -111,143 +107,44 @@ export default function DashboardPageContent() {
     })
   );
 
-  // Auto-save function that runs after any change
-  const autoSaveLayout = useCallback(async () => {
-    console.log('🔥 AUTO-SAVE: Starting auto-save operation', { 
-      hasUser: !!user, 
-      userId: user?.id,
-      isCurrentlySaving: hookIsAutoSaving,
-      cardType
-    });
-    
-    if (!user || hookIsAutoSaving) {
-      console.log('🚫 AUTO-SAVE: Save operation blocked', {
-        reason: !user ? 'no user' : 'already saving',
-        hasUser: !!user,
-        isCurrentlySaving: hookIsAutoSaving
-      });
-      return;
-    }
-    
-    setHookIsAutoSaving(true);
-    try {
-      const allSections = getAllSections();
-      console.log('🔥 AUTO-SAVE: Collecting sections for save', {
-        totalSections: allSections.length,
-        sectionsData: allSections,
-        cardType,
-        hasFAQ: allSections.some(s => s.type === 'faq')
-      });
-      
-      await saveCardLayout(allSections, cardType);
-      console.log('✅ AUTO-SAVE: Save operation completed successfully');
-    } catch (error) {
-      console.error('❌ AUTO-SAVE: Save operation failed', {
-        error,
-        message: error.message
-      });
-    } finally {
-      // Small delay to show saving state and prevent profile sync conflicts
-      setTimeout(() => {
-        console.log('🏁 AUTO-SAVE: Clearing auto-save state');
-        setHookIsAutoSaving(false);
-      }, 1000);
-    }
-  }, [user, hookIsAutoSaving, getAllSections, saveCardLayout, cardType, setHookIsAutoSaving]);
-
-  // Effect to track initial load completion
+  // Portfolio section fix - only needed for data migration
   useEffect(() => {
-    if (profile !== null) { // null means still loading, undefined means no profile found
-      hasInitialLoad.current = true;
-      console.log('🎯 INITIAL-LOAD: Profile load completed, auto-save will now be enabled', {
-        hasProfile: !!profile,
-        profileId: profile?.id,
-        cardSectionsCount: cardSections.length,
-        socialBarSectionsCount: socialBarSections.length
-      });
-      
-      // Fix any portfolio sections by converting them to projects
-      if (profile?.card_sections) {
-        const hasPortfolioSections = profile.card_sections.some(section => section.type === 'portfolio');
-        if (hasPortfolioSections) {
-          console.log('🔧 FIXING: Found portfolio sections, converting to projects');
-          const fixedSections = profile.card_sections.map(section => 
-            section.type === 'portfolio' ? { ...section, type: 'projects' } : section
-          );
-          
-          // Update the profile with fixed sections
-          const updatedProfile = { ...profile, card_sections: fixedSections };
-          handleProfileUpdate(updatedProfile);
-          
-          console.log('✅ FIXED: Portfolio sections converted to projects');
-        }
+    if (profile?.card_sections) {
+      const hasPortfolioSections = profile.card_sections.some(section => section.type === 'portfolio');
+      if (hasPortfolioSections) {
+        const fixedSections = profile.card_sections.map(section => 
+          section.type === 'portfolio' ? { ...section, type: 'projects' } : section
+        );
+        const updatedProfile = { ...profile, card_sections: fixedSections };
+        handleProfileUpdate(updatedProfile);
       }
     }
-  }, [profile, cardSections, socialBarSections]);
+  }, [profile]);
 
-  // Auto-save effect - triggers save when sections change
-  useEffect(() => {
-    // Don't auto-save if we haven't completed initial load or there's no user
-    if (!user || !hasInitialLoad.current) {
-      console.log('🚫 AUTO-SAVE-TRIGGER: Blocked', {
-        hasUser: !!user,
-        hasCompletedInitialLoad: hasInitialLoad.current,
-        reason: !user ? 'no user' : 'initial load not completed'
-      });
+  const handleRemoveSection = useCallback(async (sectionId) => {
+    removeSection(sectionId);
+  }, [removeSection]);
+
+  const handleDragEnd = useCallback(async (event) => {
+    const { active, over } = event;
+    
+    if (!active || !over || active.id === over.id) {
       return;
     }
 
-    console.log('🔄 AUTO-SAVE-TRIGGER: Sections changed, scheduling auto-save', {
-      cardSectionsCount: cardSections.length,
-      socialBarSectionsCount: socialBarSections.length,
-      totalSections: cardSections.length + socialBarSections.length,
-      hasCompletedInitialLoad: hasInitialLoad.current
-    });
-
-    // Debounce the auto-save to prevent multiple rapid saves
-    const timeoutId = setTimeout(() => {
-      autoSaveLayout();
-    }, 500); // Increased delay for better debouncing
-
-    return () => clearTimeout(timeoutId);
-  }, [cardSections, socialBarSections, user, autoSaveLayout]);
-
-  // Wrapper functions - auto-save is now handled by useEffect
-  const handleRemoveSection = useCallback(async (sectionId) => {
-    console.log('🔥 REMOVE-SECTION: Starting remove section operation', {
-      sectionId,
-      currentCardSections: cardSections.length,
-      currentSocialBarSections: socialBarSections.length
-    });
+    // Find the indices of the dragged and target sections
+    const allSections = [...cardSections, ...socialBarSections];
+    const activeIndex = allSections.findIndex(section => section.id === active.id);
+    const overIndex = allSections.findIndex(section => section.id === over.id);
     
-    originalHandleRemoveSection(sectionId);
-    console.log('✅ REMOVE-SECTION: Section removed, auto-save will trigger automatically');
-  }, [originalHandleRemoveSection, cardSections.length, socialBarSections.length]);
-
-  const handleDragEnd = useCallback(async (event) => {
-    console.log('🎯 DRAG-END: Handling drag end:', event);
-    originalHandleDragEnd(event);
-    console.log('✅ DRAG-END: Drag completed, auto-save will trigger automatically');
-  }, [originalHandleDragEnd]);
+    if (activeIndex !== -1 && overIndex !== -1) {
+      reorderSections(activeIndex, overIndex);
+    }
+  }, [cardSections, socialBarSections, reorderSections]);
 
   const handleModalSave = useCallback(async (...args) => {
-    console.log('💾 MODAL-SAVE: Saving with args:', args);
     await originalHandleModalSave(...args);
-    console.log('✅ MODAL-SAVE: Modal saved, auto-save will trigger automatically');
-    
-    // Extra debug for FAQ section
-    if (args[0] && args[0].type === 'faq') {
-      console.log('🔍 FAQ-MODAL-SAVE: FAQ section saved, checking profile update...');
-      // Wait a bit for the profile to update
-      setTimeout(() => {
-        console.log('🔍 FAQ-MODAL-SAVE: Profile after save:', {
-          workingProfile,
-          faqData: workingProfile?.faq,
-          parsedFAQ: workingProfile?.faq ? JSON.parse(workingProfile.faq) : null
-        });
-      }, 1000);
-    }
-  }, [originalHandleModalSave, workingProfile]);
+  }, [originalHandleModalSave]);
 
   useEffect(() => {
     if (!sessionLoading && !user) {
@@ -259,88 +156,17 @@ export default function DashboardPageContent() {
     return <div>Loading Dashboard Content...</div>;
   }
 
+  // Simple validation
   if (!profile) {
-    console.log('🔥 DASHBOARD: No profile found - using temporary profile');
+    // Using temporary profile for new users
   }
-
-  console.log('🔥 DASHBOARD: Component render state', { 
-    sessionLoading, 
-    profileLoading, 
-    hasUser: !!user, 
-    hasProfile: !!profile,
-    hasWorkingProfile: !!workingProfile,
-    profileId: workingProfile?.id,
-    cardSectionsCount: cardSections.length,
-    socialBarSectionsCount: socialBarSections.length,
-    profileCardSections: profile?.card_sections
-  });
 
   function handleDragStart(event) {
     setActiveId(event.active.id);
   }
 
   const handleAddSection = (sectionType) => {
-    console.log('🔥 ADD-SECTION: Starting add section operation', {
-      sectionType,
-      currentCardType: workingProfile?.card_type || CARD_TYPES.PRO,
-      workingProfileId: workingProfile?.id
-    });
-    
-    // Get card type from profile, default to PRO
-    const currentCardType = workingProfile?.card_type || CARD_TYPES.PRO;
-    const defaultProps = getDefaultSectionProps(sectionType, currentCardType);
-    
-    // Get the section option to include editorComponent if available
-    const sectionOptions = getSectionOptionsByCardType(currentCardType);
-    const sectionOption = sectionOptions.find(option => option.type === sectionType);
-    
-    const newSection = {
-      id: uuidv4(),
-      type: sectionType,
-      ...defaultProps,
-      // Include editorComponent if it exists in the section option
-      ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent })
-    };
-    
-    console.log('🔥 ADD-SECTION: Created new section object', {
-      newSection,
-      sectionId: newSection.id,
-      editorComponent: newSection.editorComponent,
-      sectionOption: sectionOption
-    });
-    
-    // Check if it's a social media type and add to appropriate area
-    const SOCIAL_MEDIA_TYPES = [
-      'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 'snapchat', 'reddit', 'phone', 'whatsapp', 'email', 'behance'
-    ];
-    
-    if (SOCIAL_MEDIA_TYPES.includes(sectionType)) {
-      console.log('🔥 ADD-SECTION: Adding to social bar sections');
-      setSocialBarSections((prev) => {
-        const newSections = [...prev, { ...newSection, area: 'social_bar' }];
-        console.log('🔥 ADD-SECTION: Social bar sections updated', {
-          previousCount: prev.length,
-          newCount: newSections.length,
-          newSections
-        });
-        return newSections;
-      });
-      console.log('✅ ADD-SECTION: Social section added, auto-save will trigger automatically');
-    } else {
-      console.log('🔥 ADD-SECTION: Adding to card sections');
-      setCardSections((prev) => {
-        const newSections = [...prev, newSection];
-              console.log('🔥 ADD-SECTION: Card sections updated', {
-        previousCount: prev.length,
-        newCount: newSections.length,
-        newSections,
-        hasFAQ: newSections.some(s => s.type === 'faq'),
-        faqSections: newSections.filter(s => s.type === 'faq')
-      });
-        return newSections;
-      });
-      console.log('✅ ADD-SECTION: Card section added, auto-save will trigger automatically');
-    }
+    addSection(sectionType);
   };
 
   const existingSectionTypes = [...cardSections, ...socialBarSections].map((s) => s.type);

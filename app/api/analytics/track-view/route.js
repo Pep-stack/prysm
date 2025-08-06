@@ -7,7 +7,7 @@ const supabase = createClient(
 
 export async function POST(request) {
   try {
-    const { profileId, ip: clientIp, userAgent, referrer } = await request.json();
+    const { profileId, ip: clientIp, userAgent, referrer, source = 'direct' } = await request.json();
 
     if (!profileId) {
       return Response.json({ error: 'Profile ID is required' }, { status: 400 });
@@ -67,6 +67,7 @@ export async function POST(request) {
         viewer_ip: ip,
         user_agent: userAgent,
         referrer: referrer,
+        source: source,
         country: geographicData.country,
         city: geographicData.city,
         latitude: geographicData.latitude,

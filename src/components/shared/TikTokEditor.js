@@ -101,7 +101,7 @@ export default function TikTokEditor({ value = '', onChange, onSave, onCancel })
             disabled={!username.trim()}
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              background: 'linear-gradient(135deg, #fe2c55 0%, #ff4d6a 100%)',
+              background: '#FE2C55',
               color: 'white'
             }}
           >

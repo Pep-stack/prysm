@@ -96,17 +96,17 @@ export async function GET(request) {
       error: deviceError 
     });
 
-    // Browser breakdown query
-    const { data: browserData, error: browserError } = await supabase
+    // Referrer breakdown query (including source column)
+    const { data: referrerData, error: referrerError } = await supabase
       .from('analytics_views')
-      .select('user_agent')
+      .select('referrer, source')
       .in('profile_id', profileIds)
       .gte('created_at', startDate.toISOString())
       .lte('created_at', endDate.toISOString());
 
-    console.log('Browser data query result:', { 
-      browserData: browserData?.length || 0, 
-      error: browserError 
+    console.log('Referrer data query result:', { 
+      referrerData: referrerData?.length || 0, 
+      error: referrerError 
     });
 
     // Social clicks query
@@ -160,25 +160,68 @@ export async function GET(request) {
       });
     }
 
-    // Process browser breakdown
-    const browserBreakdown = {};
-    if (browserData) {
-      browserData.forEach(view => {
-        const userAgent = view.user_agent || '';
-        let browser = 'unknown';
+    // Process referrer breakdown (prioritize source column over referrer detection)
+    const referrerBreakdown = {};
+    if (referrerData) {
+      referrerData.forEach(view => {
+        let referrerSource = 'direct';
+        const source = view.source || '';
+        const referrer = view.referrer || '';
         
-        // Improved browser detection logic
-        if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) browser = 'chrome';
-        else if (userAgent.includes('Firefox')) browser = 'firefox';
-        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) browser = 'safari';
-        else if (userAgent.includes('Edge')) browser = 'edge';
-        else if (userAgent.includes('Opera')) browser = 'opera';
-        else if (userAgent.includes('Brave')) browser = 'brave';
-        else if (userAgent.includes('Internet Explorer') || userAgent.includes('MSIE')) browser = 'ie';
-        else if (userAgent.includes('curl')) browser = 'curl';
-        else if (userAgent.includes('test')) browser = 'test';
+        // First check if we have an explicit source (like qr_code)
+        if (source && source !== 'direct') {
+          referrerSource = source;
+        } else if (!referrer || referrer === '') {
+          referrerSource = 'direct';
+        } else if (referrer.includes('instagram.com')) {
+          referrerSource = 'instagram';
+        } else if (referrer.includes('linkedin.com')) {
+          referrerSource = 'linkedin';
+        } else if (referrer.includes('twitter.com') || referrer.includes('x.com')) {
+          referrerSource = 'x';
+        } else if (referrer.includes('facebook.com')) {
+          referrerSource = 'facebook';
+        } else if (referrer.includes('tiktok.com')) {
+          referrerSource = 'tiktok';
+        } else if (referrer.includes('youtube.com')) {
+          referrerSource = 'youtube';
+        } else if (referrer.includes('github.com')) {
+          referrerSource = 'github';
+        } else if (referrer.includes('google.com')) {
+          referrerSource = 'google';
+        } else if (referrer.includes('whatsapp.com') || referrer.includes('wa.me')) {
+          referrerSource = 'whatsapp';
+        } else if (referrer.includes('t.me') || referrer.includes('telegram')) {
+          referrerSource = 'telegram';
+        } else if (referrer.includes('reddit.com')) {
+          referrerSource = 'reddit';
+        } else if (referrer.includes('dribbble.com')) {
+          referrerSource = 'dribbble';
+        } else if (referrer.includes('behance.net')) {
+          referrerSource = 'behance';
+        } else if (referrer.includes('snapchat.com')) {
+          referrerSource = 'snapchat';
+        } else if (referrer.includes('discord.com') || referrer.includes('discord.gg')) {
+          referrerSource = 'discord';
+        } else if (referrer.includes('twitch.tv')) {
+          referrerSource = 'twitch';
+        } else if (referrer.includes('pinterest.com')) {
+          referrerSource = 'pinterest';
+        } else if (referrer.includes('safari') || referrer.includes('apple')) {
+          referrerSource = 'safari';
+        } else if (referrer.includes('gmail.com') || referrer.includes('mail.')) {
+          referrerSource = 'email';
+        } else {
+          // Extract domain for other referrers
+          try {
+            const url = new URL(referrer);
+            referrerSource = url.hostname.replace('www.', '');
+          } catch {
+            referrerSource = 'other';
+          }
+        }
         
-        browserBreakdown[browser] = (browserBreakdown[browser] || 0) + 1;
+        referrerBreakdown[referrerSource] = (referrerBreakdown[referrerSource] || 0) + 1;
       });
     }
 
@@ -278,7 +321,7 @@ export async function GET(request) {
       totalViews,
       uniqueVisitors,
       deviceBreakdown,
-      browserBreakdown,
+      referrerBreakdown,
       socialBreakdown,
       totalSocialClicks,
       socialConversionRate,
