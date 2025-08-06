@@ -194,11 +194,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
           <div className="fixed inset-0 bg-black/30 z-40" aria-label="Close Design Settings Overlay" onClick={() => setShowMenu(false)} />
           <div
             ref={menuRef}
-            className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 flex flex-col gap-6 min-w-[320px] max-w-[90vw]"
+            className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 w-[95vw] max-w-md sm:max-w-lg"
             role="dialog"
             aria-modal="true"
             tabIndex={-1}
-            style={{ maxHeight: '90vh', overflowY: 'auto' }}
+            style={{ maxHeight: '85vh', overflowY: 'auto' }}
           >
             <button
               aria-label="Close Design Settings"
@@ -251,8 +251,50 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               {/* Light Themes */}
               <div>
                 <span className="text-xs font-medium text-gray-500 mb-2 block">Light Themes</span>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                   {THEME_BACKGROUNDS.filter(theme => theme.category === 'light').map(theme => (
+                    <button
+                      key={theme.id}
+                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                        currentTheme.id === theme.id 
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => handleThemeSelect(theme)}
+                      type="button"
+                      aria-label={`Select ${theme.label} theme`}
+                    >
+                      <div 
+                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        style={{ 
+                          ...(theme.isPattern
+                            ? { 
+                                backgroundColor: theme.backgroundColor,
+                                backgroundImage: theme.value,
+                                backgroundSize: theme.backgroundSize || 'auto'
+                              }
+                            : theme.isGradient 
+                            ? { backgroundImage: theme.value }
+                            : { backgroundColor: theme.value }
+                          )
+                        }}
+                      />
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      {currentTheme.id === theme.id && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Color Themes */}
+              <div>
+                <span className="text-xs font-medium text-gray-500 mb-2 block">Color Themes</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                  {THEME_BACKGROUNDS.filter(theme => theme.category === 'color').map(theme => (
                     <button
                       key={theme.id}
                       className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
@@ -293,7 +335,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               {/* Dark Themes */}
               <div>
                 <span className="text-xs font-medium text-gray-500 mb-2 block">Dark Themes</span>
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
                   {THEME_BACKGROUNDS.filter(theme => theme.category === 'dark').map(theme => (
                     <button
                       key={theme.id}
@@ -332,20 +374,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                 </div>
               </div>
 
-              {/* Theme Info */}
-              <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <div 
-                    className="w-4 h-4 rounded-full border border-gray-300"
-                    style={{ background: currentTheme.preview }}
-                  />
-                  <span className="text-sm font-medium text-gray-700">{currentTheme.label}</span>
-                </div>
-                <div className="text-xs text-gray-500 space-y-1">
-                  <div>Text: <span style={{ color: currentTheme.theme.text_color }}>■</span> {currentTheme.theme.text_color}</div>
-                  <div>Icons: <span style={{ color: currentTheme.theme.icon_color }}>■</span> {currentTheme.theme.icon_color}</div>
-                </div>
-              </div>
+
             </div>
 
             {/* Social Bar Position */}
@@ -385,7 +414,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               aria-label="Save Appearance"
               onClick={handleSave}
               disabled={saving || isLoading}
-              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-2 text-base font-semibold"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-2 sm:py-3 text-sm sm:text-base font-semibold"
               type="button"
             >
               {isLoading ? 'Loading...' : saving ? 'Saving...' : 'Save'}

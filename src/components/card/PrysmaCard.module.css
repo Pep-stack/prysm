@@ -12,7 +12,7 @@
 
 /* Card body for main sections */
 .cardBody {
-  padding: 8px 24px 24px 24px; /* Reduced to match social bar spacing */
+  padding: 8px 24px 24px 24px; /* Back to normal padding */
   display: flex;
   flex-direction: column;
   gap: 0px; /* Removed gap completely to test */
@@ -105,13 +105,7 @@
 
 /* Footer styling */
 .cardFooter {
-  margin-top: 32px; /* More space between last section and footer */
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1); /* Glass background */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 32px; /* Space between last section and footer */
 }
 
 @media (max-width: 600px) {

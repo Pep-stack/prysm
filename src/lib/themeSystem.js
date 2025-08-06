@@ -93,20 +93,62 @@ export const THEME_BACKGROUNDS = [
       secondary_text: '#4a4a4a'
     }
   },
+
+  // ===== COLOR THEMES =====
   {
-    id: 'paper_texture',
-    label: 'Paper Texture',
-    value: 'radial-gradient(circle at 2px 2px, rgba(0,0,0,0.02) 1px, transparent 0), radial-gradient(circle at 12px 12px, rgba(0,0,0,0.015) 1px, transparent 0)',
-    name: 'Paper Texture',
-    category: 'light',
-    isPattern: true,
-    backgroundColor: '#fefefe',
-    backgroundSize: '16px 16px, 24px 24px',
-    preview: '#fefefe',
+    id: 'steel_blue',
+    label: 'Steel Blue',
+    value: 'linear-gradient(135deg, #475569 0%, #64748b 50%, #94a3b8 100%)',
+    name: 'Steel Blue',
+    category: 'color',
+    isGradient: true,
+    preview: '#64748b',
     theme: {
-      text_color: '#141414',
-      icon_color: '#252525',
-      secondary_text: '#454545'
+      text_color: '#f8fafc',
+      icon_color: '#e2e8f0',
+      secondary_text: '#cbd5e1'
+    }
+  },
+  {
+    id: 'sage_green',
+    label: 'Sage Green',
+    value: 'linear-gradient(135deg, #6b7280 0%, #84cc16 20%, #a3a3a3 100%)',
+    name: 'Sage Green',
+    category: 'color',
+    isGradient: true,
+    preview: '#84cc16',
+    theme: {
+      text_color: '#f9fafb',
+      icon_color: '#f3f4f6',
+      secondary_text: '#d1d5db'
+    }
+  },
+  {
+    id: 'wine_elegant',
+    label: 'Wine Elegant',
+    value: 'linear-gradient(135deg, #7c2d12 0%, #991b1b 30%, #b45309 100%)',
+    name: 'Wine Elegant',
+    category: 'color',
+    isGradient: true,
+    preview: '#991b1b',
+    theme: {
+      text_color: '#fef2f2',
+      icon_color: '#fecaca',
+      secondary_text: '#fca5a5'
+    }
+  },
+  {
+    id: 'navy_professional',
+    label: 'Navy Professional',
+    value: 'linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #4338ca 100%)',
+    name: 'Navy Professional',
+    category: 'color',
+    isGradient: true,
+    preview: '#3730a3',
+    theme: {
+      text_color: '#f0f9ff',
+      icon_color: '#dbeafe',
+      secondary_text: '#93c5fd'
     }
   },
 

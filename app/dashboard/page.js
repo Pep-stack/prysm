@@ -447,14 +447,14 @@ function DashboardMainWithBg({ profile, user, cardSections, socialBarSections })
   
   return (
     <main 
-      className="flex-1 flex justify-center items-start pt-6" 
+      className="flex-1 flex flex-col justify-start items-center pt-6 pb-6" 
       style={{ 
         ...getBackgroundStyle(),
         minHeight: '100vh', 
         borderRadius: '15px' 
       }}
     >
-      <div className="w-full max-w-3xl px-0 py-0">
+      <div className="w-full max-w-3xl px-0 py-0 flex-grow">
         <PrysmaCard
           profile={profile}
           user={user}
