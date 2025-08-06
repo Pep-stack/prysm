@@ -1,17 +1,28 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaExternalLinkAlt, FaGithub, FaStar, FaCodeBranch, FaComment, FaExclamationCircle } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaGithub, FaStar, FaCodeBranch, FaComment } from 'react-icons/fa';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function GitHubHighlightsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
-  // Add CSS for loading spinner
+  // Add CSS for loading spinner and animations
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .github-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .github-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
       }
     `;
     document.head.appendChild(style);
@@ -61,6 +72,16 @@ export default function GitHubHighlightsSectionContent({ profile, styles, isEdit
     return parseGitHubHighlightsData(profile?.github_highlights);
   }, [profile?.github_highlights]);
 
+  // Theme-responsive detection (moved to component level for global access)
+  const isDarkTheme = settings.background_color && (
+    settings.background_color.includes('#0a0a0a') || // midnight black
+    settings.background_color.includes('#18181b') || // deep charcoal
+    settings.background_color.includes('#1a1a1a') || // dark mesh
+    settings.text_color === '#f5f5f5' || // light text indicates dark theme
+    settings.text_color === '#fafafa' ||
+    settings.text_color === '#f8f8f8'
+  );
+
   // Fetch GitHub data using our server-side proxy
   const fetchGitHubData = async (url) => {
     try {
@@ -88,685 +109,539 @@ export default function GitHubHighlightsSectionContent({ profile, styles, isEdit
   // Fetch all GitHub data for highlights
   useEffect(() => {
     const fetchAllGitHubData = async () => {
-      if (!initialGitHubHighlightsData || initialGitHubHighlightsData.length === 0) return;
+      if (!initialGitHubHighlightsData || initialGitHubHighlightsData.length === 0) {
+        console.log('ℹ️ No GitHub highlights to fetch data for');
+        return;
+      }
+      
+      console.log('🐙 Starting to fetch GitHub data for', initialGitHubHighlightsData.length, 'highlights');
       
       setLoadingGithub(true);
       const dataMap = {};
       
-      for (const entry of initialGitHubHighlightsData) {
-        if (entry.url) {
-          const data = await fetchGitHubData(entry.url);
-          if (data) {
-            dataMap[entry.url] = data;
+      try {
+        for (const entry of initialGitHubHighlightsData) {
+          if (entry.url && !githubData[entry.url]) {
+            const data = await fetchGitHubData(entry.url);
+            if (data) {
+              dataMap[entry.url] = data;
+            }
           }
         }
+        
+        if (Object.keys(dataMap).length > 0) {
+          setGithubData(prev => ({ ...prev, ...dataMap }));
+        }
+      } catch (error) {
+        console.error('💥 Error fetching GitHub data:', error);
+      } finally {
+        setLoadingGithub(false);
       }
-      
-      setGithubData(dataMap);
-      setLoadingGithub(false);
     };
 
     fetchAllGitHubData();
   }, [initialGitHubHighlightsData]);
 
-  const handleSave = () => {
-    if (onSave) onSave();
-  };
-
-  const handleCancel = () => {
-    if (onCancel) onCancel();
-  };
-
-  const nextHighlight = () => {
-    if (initialGitHubHighlightsData.length > 1) {
-      setCurrentIndex((prev) => (prev + 1) % initialGitHubHighlightsData.length);
-    }
-  };
-
-  const prevHighlight = () => {
-    if (initialGitHubHighlightsData.length > 1) {
-      setCurrentIndex((prev) => (prev - 1 + initialGitHubHighlightsData.length) % initialGitHubHighlightsData.length);
-    }
-  };
-
+  // Touch/swipe handlers for mobile carousel
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
   };
 
   const handleTouchEnd = (e) => {
+    if (!touchStartX) return;
+    
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
     
-    if (Math.abs(diff) > 50) {
+    if (Math.abs(diff) > 50) { // Minimum swipe distance
       if (diff > 0) {
-        nextHighlight();
+        nextHighlight(); // Swipe left = next
       } else {
-        prevHighlight();
+        prevHighlight(); // Swipe right = previous
       }
     }
   };
 
-  const extractGitHubInfo = (url) => {
-    // Extract owner and repo from GitHub URL
-    const repoMatch = url.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
-    const gistMatch = url.match(/gist\.github\.com\/([^\/]+)\/([^\/\?#]+)/);
-    
-    if (repoMatch) {
+  const nextHighlight = () => {
+    if (initialGitHubHighlightsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === initialGitHubHighlightsData.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const prevHighlight = () => {
+    if (initialGitHubHighlightsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === 0 ? initialGitHubHighlightsData.length - 1 : prev - 1
+      );
+    }
+  };
+
+  // Extract repository info from GitHub URL
+  const extractRepoInfo = (url) => {
+    const match = url.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/);
+    if (match) {
       return {
-        owner: repoMatch[1],
-        repo: repoMatch[2]
-      };
-    } else if (gistMatch) {
-      return {
-        owner: gistMatch[1],
-        gistId: gistMatch[2]
+        owner: match[1],
+        repo: match[2]
       };
     }
     return null;
   };
 
-  const generateGitHubTitle = (url, entry) => {
-    const githubInfo = extractGitHubInfo(url);
-    if (githubInfo) {
-      if (githubInfo.repo) {
-        return `${githubInfo.owner}/${githubInfo.repo}`;
-      } else if (githubInfo.gistId) {
-        return `@${githubInfo.owner}'s Gist`;
-      }
+  // Generate a more descriptive title
+  const generateRepoTitle = (url, entry) => {
+    const repoInfo = extractRepoInfo(url);
+    if (repoInfo) {
+      return `${repoInfo.owner}/${repoInfo.repo}`;
     }
-    return entry.title || 'GitHub Content';
+    return entry.title || 'GitHub Repository';
   };
 
-  const generateGitHubDescription = (entry) => {
-    return entry.description || 'Check out this GitHub content!';
+  // Generate a more descriptive description
+  const generateRepoDescription = (entry) => {
+    if (entry.description && entry.description !== 'Check out this GitHub repository!') {
+      return entry.description;
+    }
+    return 'Check out this GitHub repository!';
   };
 
+  // Format number for display (e.g., 1000 -> 1K)
+  const formatNumber = (num) => {
+    if (!num) return '0';
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
+
+  // Render single GitHub highlight card with new minimalist design
   const renderGitHubHighlightCard = (entry, index, isCarousel = false) => {
-    const currentUrl = entry.url;
-    const githubDataForUrl = githubData[currentUrl];
-    const githubInfo = extractGitHubInfo(currentUrl);
+    const repoTitle = generateRepoTitle(entry.url, entry);
+    const repoDescription = generateRepoDescription(entry);
+    const githubDataForUrl = githubData[entry.url];
+    
+         // Theme-responsive colors (using global isDarkTheme)
+    
+    // For light themes: dark cards for contrast
+    // For dark themes: light cards for contrast
+    const cardBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.08)' 
+      : 'rgba(0, 0, 0, 0.85)';
+    
+    const cardTextColor = isDarkTheme 
+      ? '#ffffff' 
+      : '#ffffff';
+      
+    const cardSecondaryTextColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.7)' 
+      : 'rgba(255, 255, 255, 0.8)';
+      
+    const buttonBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.9)' 
+      : 'rgba(255, 255, 255, 0.15)';
+      
+    const buttonTextColor = isDarkTheme 
+      ? '#1a1a1a' 
+      : '#ffffff';
+      
+    const buttonHoverBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 1)' 
+      : 'rgba(255, 255, 255, 0.25)';
     
     return (
       <div 
         key={entry.id || index} 
         style={{
           position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialGitHubHighlightsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
+          marginBottom: isCarousel ? '0' : '24px',
+          width: '100%',
+          animation: 'fadeIn 0.6s ease forwards'
         }}
       >
-        {/* GitHub-styled wrapper */}
-        <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-          border: '1px solid #333',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease'
-        }}>
-          {/* GitHub Header */}
-          <div style={{ 
-            backgroundColor: '#000000',
-            padding: '16px',
-            borderBottom: '1px solid #333'
+        {/* Clean, minimalist repo card */}
+        <div 
+          className="github-card-hover"
+          style={{
+            backgroundColor: cardBackgroundColor,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: isDarkTheme 
+              ? '0 2px 16px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 16px rgba(0, 0, 0, 0.06)',
+            border: isDarkTheme 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
+          {/* Repository preview area */}
+          <div style={{
+            position: 'relative',
+            padding: '20px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* GitHub icon */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#ffffff',
-                borderRadius: '50%',
-                overflow: 'hidden'
+            {/* Subtle GitHub branding */}
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              borderRadius: '6px',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
+            }}>
+              <FaGithub style={{ color: '#white', fontSize: '12px' }} />
+              <span style={{ 
+                color: 'white', 
+                fontSize: '11px', 
+                fontWeight: '500',
+                letterSpacing: '0.02em'
               }}>
-                <FaGithub style={{ color: '#000000', fontSize: '16px' }} />
-              </div>
-              <div>
-                <div style={{
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
-                  GitHub {githubDataForUrl?.type ? githubDataForUrl.type.charAt(0).toUpperCase() + githubDataForUrl.type.slice(1) : 'Content'}
-                </div>
-              </div>
+                GITHUB
+              </span>
             </div>
-          </div>
 
-          {/* GitHub Content */}
-          <div style={{ padding: '16px' }}>
-            {/* Content based on GitHub data */}
-            {githubDataForUrl ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px'
+            {/* Repository content */}
+            <div style={{ paddingRight: '60px' }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: cardTextColor,
+                margin: '0 0 8px 0',
+                lineHeight: '1.3',
+                letterSpacing: '-0.01em'
               }}>
-                {/* Title */}
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '8px',
-                  color: '#ffffff'
-                }}>
-                  {githubDataForUrl.title || generateGitHubTitle(currentUrl, entry)}
-                </div>
-                
-                {/* Description */}
-                <div style={{
+                {githubDataForUrl?.title || repoTitle}
+              </h3>
+              
+              {githubDataForUrl?.description && (
+                <p style={{
                   fontSize: '14px',
-                  color: '#888888',
-                  marginBottom: '12px'
+                  color: cardSecondaryTextColor,
+                  margin: '0 0 16px 0',
+                  lineHeight: '1.4'
                 }}>
                   {githubDataForUrl.description}
-                </div>
+                </p>
+              )}
 
-                {/* GitHub-specific metadata */}
+              {/* Repository stats */}
+              {githubDataForUrl && (
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',
-                  fontSize: '12px',
-                  color: '#8b949e',
-                  marginBottom: '12px',
-                  flexWrap: 'wrap'
+                  marginBottom: '16px',
+                  fontSize: '13px',
+                  color: cardSecondaryTextColor
                 }}>
-                  {githubDataForUrl.author_name && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span>by</span>
-                      <span style={{ color: '#ffffff', fontWeight: '500' }}>
-                        {githubDataForUrl.author_name}
-                      </span>
+                  {githubDataForUrl.stars !== undefined && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <FaStar style={{ fontSize: '11px' }} />
+                      <span>{formatNumber(githubDataForUrl.stars)}</span>
                     </div>
                   )}
-
-                  {/* Repository-specific stats */}
-                  {githubDataForUrl.type === 'repository' && (
-                    <>
-                      {githubDataForUrl.language && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaCodeBranch />
-                          <span>{githubDataForUrl.language}</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.stars && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaStar style={{ color: '#fbbf24' }} />
-                          <span>{githubDataForUrl.stars.toLocaleString()}</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.forks && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaCodeBranch />
-                          <span>{githubDataForUrl.forks.toLocaleString()}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Gist-specific info */}
-                  {githubDataForUrl.type === 'gist' && githubDataForUrl.files && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <FaCodeBranch />
-                      <span>{githubDataForUrl.files.length} file(s)</span>
+                  {githubDataForUrl.forks !== undefined && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <FaCodeBranch style={{ fontSize: '11px' }} />
+                      <span>{formatNumber(githubDataForUrl.forks)}</span>
                     </div>
                   )}
-
-                  {/* Issue/PR-specific info */}
-                  {(githubDataForUrl.type === 'issue' || githubDataForUrl.type === 'pull_request') && (
-                    <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        {githubDataForUrl.type === 'issue' ? <FaExclamationCircle /> : <FaCodeBranch />}
-                        <span style={{ 
-                          color: githubDataForUrl.state === 'open' ? '#238636' : 
-                                 githubDataForUrl.state === 'closed' ? '#da3633' : '#f0883e'
-                        }}>
-                          {githubDataForUrl.state}
-                        </span>
-                      </div>
-                      {githubDataForUrl.comments > 0 && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaComment />
-                          <span>{githubDataForUrl.comments}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* User-specific info */}
-                  {githubDataForUrl.type === 'user' && (
-                    <>
-                      {githubDataForUrl.followers && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaStar />
-                          <span>{githubDataForUrl.followers.toLocaleString()} followers</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.public_repos && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaCodeBranch />
-                          <span>{githubDataForUrl.public_repos} repos</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.location && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span>📍 {githubDataForUrl.location}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Organization-specific info */}
-                  {githubDataForUrl.type === 'organization' && (
-                    <>
-                      {githubDataForUrl.public_repos && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <FaCodeBranch />
-                          <span>{githubDataForUrl.public_repos} repos</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.location && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span>📍 {githubDataForUrl.location}</span>
-                        </div>
-                      )}
-                      {githubDataForUrl.company && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span>🏢 {githubDataForUrl.company}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {/* External link button */}
-                <a 
-                  href={githubDataForUrl.html_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '12px 16px',
-                    backgroundColor: '#ffffff',
-                    color: '#000000',
-                    textDecoration: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.backgroundColor = '#f0f0f0';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.backgroundColor = '#ffffff';
-                  }}
-                >
-                  <FaExternalLinkAlt style={{ fontSize: '12px' }} />
-                  View on GitHub
-                </a>
-              </div>
-            ) : loadingGithub ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid #ffffff',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                Loading GitHub data...
-              </div>
-            ) : (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px'
-              }}>
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  marginBottom: '8px'
-                }}>
-                  {generateGitHubTitle(currentUrl, entry)}
-                </div>
-                <div style={{
-                  fontSize: '14px',
-                  color: '#888888'
-                }}>
-                  {generateGitHubDescription(entry)}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-
-    
-
-    return (
-      <div 
-        key={entry.id || index}
-        style={cardStyle}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* GitHub Header */}
-        <div style={titleStyle}>
-          <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
-          <span>{generateGitHubTitle(currentUrl, entry)}</span>
-        </div>
-
-        {/* Content based on GitHub data */}
-        {githubDataForUrl ? (
-          <div>
-            {/* Description */}
-            <div style={descriptionStyle}>
-              {githubDataForUrl.description}
-            </div>
-
-            {/* GitHub-specific metadata */}
-            <div style={metadataStyle}>
-              {githubDataForUrl.author_name && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span>by</span>
-                  <span style={{ color: '#ffffff', fontWeight: '500' }}>
-                    {githubDataForUrl.author_name}
-                  </span>
-                </div>
-              )}
-
-              {/* Repository-specific stats */}
-              {githubDataForUrl.type === 'repository' && (
-                <>
                   {githubDataForUrl.language && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <FaCodeBranch />
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: cardSecondaryTextColor
+                      }} />
                       <span>{githubDataForUrl.language}</span>
                     </div>
                   )}
-                  {githubDataForUrl.stars && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <FaStar style={{ color: '#fbbf24' }} />
-                      <span>{githubDataForUrl.stars.toLocaleString()}</span>
-                    </div>
-                  )}
-                  {githubDataForUrl.forks && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <FaCodeBranch />
-                      <span>{githubDataForUrl.forks.toLocaleString()}</span>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Gist-specific info */}
-              {githubDataForUrl.type === 'gist' && githubDataForUrl.files && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <FaCodeBranch />
-                  <span>{githubDataForUrl.files.length} file(s)</span>
                 </div>
               )}
-
-              {/* Issue/PR-specific info */}
-              {(githubDataForUrl.type === 'issue' || githubDataForUrl.type === 'pull_request') && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    {githubDataForUrl.type === 'issue' ? <FaExclamationCircle /> : <FaCodeBranch />}
-                    <span style={{ 
-                      color: githubDataForUrl.state === 'open' ? '#238636' : 
-                             githubDataForUrl.state === 'closed' ? '#da3633' : '#f0883e'
-                    }}>
-                      {githubDataForUrl.state}
-                    </span>
-                  </div>
-                  {githubDataForUrl.comments > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <FaComment />
-                      <span>{githubDataForUrl.comments}</span>
-                    </div>
-                  )}
-                </>
-              )}
+              
+              {/* Minimal action button */}
+              <a 
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  backgroundColor: buttonBackgroundColor,
+                  color: buttonTextColor,
+                  textDecoration: 'none',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  letterSpacing: '0.01em'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = buttonHoverBackgroundColor;
+                  e.target.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = buttonBackgroundColor;
+                  e.target.style.transform = 'translateY(0)';
+                }}
+              >
+                <FaExternalLinkAlt style={{ fontSize: '10px' }} />
+                View Repository
+              </a>
             </div>
-
-            {/* External link */}
-            <a 
-              href={githubDataForUrl.html_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={linkStyle}
-            >
-              View on GitHub
-              <FaExternalLinkAlt />
-            </a>
           </div>
-        ) : loadingGithub ? (
-          <div style={{
-            color: '#ffffff',
-            fontSize: '14px',
-            lineHeight: '1.4',
-            marginBottom: '12px',
-            minHeight: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <div style={{
-              width: '16px',
-              height: '16px',
-              border: '2px solid #ffffff',
-              borderTop: '2px solid transparent',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-            Loading GitHub data...
-          </div>
-        ) : (
-          <div style={{
-            color: '#ffffff',
-            fontSize: '14px',
-            lineHeight: '1.4',
-            marginBottom: '12px',
-            minHeight: '40px'
-          }}>
-            {generateGitHubDescription(entry)}
-          </div>
-        )}
+        </div>
       </div>
     );
   };
 
-           // If no highlights, show placeholder
-         if (!initialGitHubHighlightsData || initialGitHubHighlightsData.length === 0) {
-           return (
-             <div style={{
-               ...sectionStyle,
-               backdropFilter: 'blur(12px)',
-               WebkitBackdropFilter: 'blur(12px)',
-               background: 'rgba(255, 255, 255, 0.25)',
-               border: '1px solid rgba(255, 255, 255, 0.4)',
-               borderRadius: '16px',
-               padding: '20px',
-               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-               transition: 'all 0.3s ease',
-               overflow: 'hidden',
-               width: '100%',
-               fontFamily: settings.font_family || 'Inter, sans-serif'
-             }}>
-               {/* Title at the top of the container */}
-               <div style={{
-                 display: 'flex',
-                 alignItems: 'center',
-                 gap: '10px',
-                 marginBottom: '16px',
-                 paddingBottom: '12px',
-                 borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-               }}>
+  // Main render
+  if (initialGitHubHighlightsData.length > 0) {
+    return (
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '0',
+          margin: '0',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Clean section header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '20px',
+          paddingBottom: '12px',
+          borderBottom: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px solid rgba(255, 255, 255, 0.2)' 
+            : '1px solid rgba(0, 0, 0, 0.08)'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#24292e',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <FaGithub style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            GitHub Highlights
+          </h2>
+        </div>
+
+        {/* Loading state */}
+        {loadingGithub && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '60px 20px'
+          }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              border: '2px solid #f0f0f0',
+              borderTop: '2px solid #1a1a1a',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+          </div>
+        )}
+
+        {/* Content */}
+        {!loadingGithub && (
+          <div>
+            {/* Single repository display */}
+            {initialGitHubHighlightsData.length === 1 && (
+              <div>
+                {renderGitHubHighlightCard(initialGitHubHighlightsData[0], 0)}
+              </div>
+            )}
+
+            {/* Carousel for multiple repositories */}
+            {initialGitHubHighlightsData.length > 1 && (
+              <div style={{
+                position: 'relative'
+              }}>
+                {/* Current highlight */}
+                <div style={{ 
+                  width: '100%'
+                }}>
+                  {renderGitHubHighlightCard(initialGitHubHighlightsData[currentIndex], currentIndex, true)}
+                </div>
+
+                                 {/* Minimalist carousel indicators */}
                  <div style={{
-                   width: '24px',
-                   height: '24px',
-                   backgroundColor: '#374151',
-                   borderRadius: '8px',
                    display: 'flex',
-                   alignItems: 'center',
                    justifyContent: 'center',
-                   opacity: 0.8
+                   gap: '8px',
+                   marginTop: '20px'
                  }}>
-                   <FaGithub size={14} style={{ color: 'white' }} />
+                   {initialGitHubHighlightsData.map((_, index) => (
+                     <button
+                       key={index}
+                       onClick={() => setCurrentIndex(index)}
+                       style={{
+                         width: index === currentIndex ? '24px' : '8px',
+                         height: '8px',
+                         borderRadius: '4px',
+                         border: 'none',
+                         background: index === currentIndex 
+                           ? (isDarkTheme ? '#ffffff' : '#1a1a1a')
+                           : (isDarkTheme ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'),
+                         cursor: 'pointer',
+                         transition: 'all 0.3s ease'
+                       }}
+                     />
+                   ))}
                  </div>
-                 <h3 style={{
-                   ...sectionTitleStyle,
-                   fontSize: '18px',
-                   fontWeight: '600',
-                   color: textColor,
-                   margin: 0,
-                   letterSpacing: '-0.01em',
-                   opacity: 0.9
-                 }}>
-                   GitHub Highlights
-                 </h3>
-               </div>
-               
-               <div style={{
-                 display: 'flex',
-                 flexDirection: 'column',
-                 alignItems: 'center',
-                 justifyContent: 'center',
-                 padding: '32px 16px',
-                 textAlign: 'center'
-               }}>
-                 <FaGithub size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-                 <p style={{ 
-                   margin: 0, 
-                   fontSize: '16px',
-                   color: textColor,
-                   opacity: 0.7,
-                   fontWeight: '500'
-                 }}>
-                   No GitHub highlights yet. Add your best GitHub content to showcase your work.
-                 </p>
-               </div>
-             </div>
-           );
-         }
-       
-         // If only one highlight, show it directly
-         if (initialGitHubHighlightsData.length === 1) {
-           return (
-             <div style={{
-               ...sectionStyle,
-               backdropFilter: 'blur(12px)',
-               WebkitBackdropFilter: 'blur(12px)',
-               background: 'rgba(255, 255, 255, 0.25)',
-               border: '1px solid rgba(255, 255, 255, 0.4)',
-               borderRadius: '16px',
-               padding: '20px',
-               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-               transition: 'all 0.3s ease',
-               overflow: 'hidden',
-               width: '100%',
-               fontFamily: settings.font_family || 'Inter, sans-serif'
-             }}
-             onTouchStart={handleTouchStart}
-             onTouchEnd={handleTouchEnd}
-             >
-               <div style={{
-                 ...sectionTitleStyle,
-                 marginBottom: '16px',
-                 display: 'flex',
-                 alignItems: 'center',
-                 gap: '8px'
-               }}>
-                 <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
-                 <span>GitHub Highlights</span>
-               </div>
-               
-               {renderGitHubHighlightCard(initialGitHubHighlightsData[0], 0)}
-             </div>
-           );
-         }
-       
-         // Multiple highlights - show carousel
-         return (
-           <div style={{
-             ...sectionStyle,
-             backdropFilter: 'blur(12px)',
-             WebkitBackdropFilter: 'blur(12px)',
-             background: 'rgba(255, 255, 255, 0.25)',
-             border: '1px solid rgba(255, 255, 255, 0.4)',
-             borderRadius: '16px',
-             padding: '20px',
-             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-             transition: 'all 0.3s ease',
-             overflow: 'hidden',
-             width: '100%',
-             fontFamily: settings.font_family || 'Inter, sans-serif'
-           }}
-           onTouchStart={handleTouchStart}
-           onTouchEnd={handleTouchEnd}
-           >
-             <div style={{
-               ...sectionTitleStyle,
-               marginBottom: '16px',
-               display: 'flex',
-               alignItems: 'center',
-               gap: '8px'
-             }}>
-               <FaGithub style={{ color: '#ffffff', fontSize: '20px' }} />
-               <span>GitHub Highlights</span>
-             </div>
-             
-             {/* Carousel container */}
-             <div style={{ position: 'relative' }}>
-               {renderGitHubHighlightCard(initialGitHubHighlightsData[currentIndex], currentIndex, true)}
-               
-               {/* Dots indicator */}
-               <div style={{
-                 display: 'flex',
-                 justifyContent: 'center',
-                 gap: '6px',
-                 marginTop: '12px'
-               }}>
-                 {initialGitHubHighlightsData.map((_, index) => (
-                   <button
-                     key={index}
-                     onClick={() => setCurrentIndex(index)}
-                     style={{
-                       width: '8px',
-                       height: '8px',
-                       borderRadius: '50%',
-                       border: 'none',
-                       background: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.3)',
-                       cursor: 'pointer',
-                       transition: 'all 0.2s ease'
-                     }}
-                   />
-                 ))}
-               </div>
-             </div>
-           </div>
-         );
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    // Clean empty state
+    return (
+      <div style={{
+        ...sectionStyle,
+        padding: '0',
+        margin: '0',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
+        width: '100%',
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+      }}>
+        {/* Clean section header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '20px',
+          paddingBottom: '12px',
+          borderBottom: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px solid rgba(255, 255, 255, 0.2)' 
+            : '1px solid rgba(0, 0, 0, 0.08)'
+        }}>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#24292e',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <FaGithub style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            GitHub Highlights
+          </h2>
+        </div>
+        
+        {/* Minimal empty state */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 20px',
+          textAlign: 'center',
+          backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8' 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          borderRadius: '12px',
+          border: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px dashed rgba(255, 255, 255, 0.2)' 
+            : '1px dashed rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.04)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px'
+          }}>
+            <FaGithub style={{ 
+              color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+                ? 'rgba(255, 255, 255, 0.6)' 
+                : '#6b7280', 
+              fontSize: '20px' 
+            }} />
+          </div>
+          <p style={{ 
+            margin: 0, 
+            fontSize: '14px',
+            color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.7)' 
+              : '#6b7280',
+            fontWeight: '500',
+            lineHeight: '1.4'
+          }}>
+            No GitHub highlights yet.<br />
+            Add your best repositories to showcase your work.
+          </p>
+        </div>
+      </div>
+    );
+  }
 } 

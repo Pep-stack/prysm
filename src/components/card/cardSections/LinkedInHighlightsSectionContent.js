@@ -1,19 +1,30 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaPlay } from 'react-icons/fa';
 import { FaLinkedin } from 'react-icons/fa';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function LinkedInHighlightsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
 
-  // Add CSS for loading spinner
+  // Add CSS for loading spinner and animations
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .linkedin-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .linkedin-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
       }
     `;
     document.head.appendChild(style);
@@ -63,6 +74,16 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
     return parseLinkedInHighlightsData(profile?.linkedin_highlights);
   }, [profile?.linkedin_highlights]);
 
+  // Theme-responsive detection (moved to component level for global access)
+  const isDarkTheme = settings.background_color && (
+    settings.background_color.includes('#0a0a0a') || // midnight black
+    settings.background_color.includes('#18181b') || // deep charcoal
+    settings.background_color.includes('#1a1a1a') || // dark mesh
+    settings.text_color === '#f5f5f5' || // light text indicates dark theme
+    settings.text_color === '#fafafa' ||
+    settings.text_color === '#f8f8f8'
+  );
+
   // Fetch post data using our server-side proxy
   const fetchPostData = async (url) => {
     try {
@@ -87,23 +108,15 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
     }
   };
 
-  // Extract post ID from URL
-  const extractPostId = (url) => {
-    const activityMatch = url.match(/activity_(\d+)/);
-    const updateMatch = url.match(/update\/([^&\s]+)/);
-    
-    if (activityMatch) {
-      return activityMatch[1];
-    } else if (updateMatch) {
-      return updateMatch[1];
-    }
-    return null;
-  };
-
   // Fetch post data for all highlights
   useEffect(() => {
     const fetchAllPostData = async () => {
-      if (initialLinkedInHighlightsData.length === 0) return;
+      if (initialLinkedInHighlightsData.length === 0) {
+        console.log('ℹ️ No LinkedIn highlights to fetch data for');
+        return;
+      }
+      
+      console.log('💼 Starting to fetch post data for', initialLinkedInHighlightsData.length, 'highlights');
       
       setLoadingPosts(true);
       const newPostData = {};
@@ -122,7 +135,7 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
           setPostData(prev => ({ ...prev, ...newPostData }));
         }
       } catch (error) {
-        console.error('Error fetching post data:', error);
+        console.error('💥 Error fetching post data:', error);
       } finally {
         setLoadingPosts(false);
       }
@@ -167,33 +180,9 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
     }
   };
 
-  const extractLinkedInInfo = (url) => {
-    const postId = extractPostId(url);
-    if (postId) {
-      return { postId };
-    }
-    return null;
-  };
-
-  // Generate a more descriptive title based on the URL
-  const generatePostTitle = (url, entry) => {
-    if (entry.title && entry.title !== 'LinkedIn Post') {
-      return entry.title;
-    }
-    
-    const linkedinInfo = extractLinkedInInfo(url);
-    if (linkedinInfo?.postId) {
-      return `LinkedIn Post (${linkedinInfo.postId})`;
-    }
-    
-    // Extract author from URL if available
-    const authorMatch = url.match(/posts\/([^_]+)/);
-    if (authorMatch) {
-      const author = authorMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      return `LinkedIn Post by ${author}`;
-    }
-    
-    return 'LinkedIn Post';
+  // Generate a more descriptive title
+  const generatePostTitle = (entry) => {
+    return entry.title || 'LinkedIn Post';
   };
 
   // Generate a more descriptive description
@@ -201,256 +190,183 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
     if (entry.description && entry.description !== 'Check out this LinkedIn post!') {
       return entry.description;
     }
-    
-    // If no custom description, create a generic one
     return 'Check out this LinkedIn post!';
   };
 
-  // Render single LinkedIn highlight card
+  // Render single LinkedIn highlight card with new minimalist design
   const renderLinkedInHighlightCard = (entry, index, isCarousel = false) => {
-    const linkedinInfo = extractLinkedInInfo(entry.url);
-    const postTitle = generatePostTitle(entry.url, entry);
+    const postTitle = generatePostTitle(entry);
     const postDescription = generatePostDescription(entry);
     const postDataForUrl = postData[entry.url];
-    const postId = linkedinInfo?.postId;
+    
+    // Theme-responsive colors (using global isDarkTheme)
+    
+    // For light themes: dark cards for contrast
+    // For dark themes: light cards for contrast
+    const cardBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.08)' 
+      : 'rgba(0, 0, 0, 0.85)';
+    
+    const cardTextColor = isDarkTheme 
+      ? '#ffffff' 
+      : '#ffffff';
+      
+    const cardSecondaryTextColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.7)' 
+      : 'rgba(255, 255, 255, 0.8)';
+      
+    const buttonBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.9)' 
+      : 'rgba(255, 255, 255, 0.15)';
+      
+    const buttonTextColor = isDarkTheme 
+      ? '#1a1a1a' 
+      : '#ffffff';
+      
+    const buttonHoverBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 1)' 
+      : 'rgba(255, 255, 255, 0.25)';
     
     return (
       <div 
         key={entry.id || index} 
         style={{
           position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialLinkedInHighlightsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
+          marginBottom: isCarousel ? '0' : '24px',
+          width: '100%',
+          animation: 'fadeIn 0.6s ease forwards'
         }}
       >
-        {/* LinkedIn-styled wrapper */}
-        <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-          border: '1px solid #333',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease'
-        }}>
-          {/* LinkedIn Header */}
-          <div style={{ 
-            backgroundColor: '#000000',
-            padding: '16px',
-            borderBottom: '1px solid #333'
+        {/* Clean, minimalist post card */}
+        <div 
+          className="linkedin-card-hover"
+          style={{
+            backgroundColor: cardBackgroundColor,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: isDarkTheme 
+              ? '0 2px 16px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 16px rgba(0, 0, 0, 0.06)',
+            border: isDarkTheme 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
+          {/* Post preview area */}
+          <div style={{
+            position: 'relative',
+            padding: '20px',
+            minHeight: '120px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* LinkedIn icon */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#0077B5',
-                borderRadius: '50%',
-                overflow: 'hidden'
+            {/* Subtle LinkedIn branding */}
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              borderRadius: '6px',
+              padding: '4px 8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
+            }}>
+              <FaLinkedin style={{ color: '#0077b5', fontSize: '12px' }} />
+              <span style={{ 
+                color: 'white', 
+                fontSize: '11px', 
+                fontWeight: '500',
+                letterSpacing: '0.02em'
               }}>
-                <FaLinkedin style={{ color: '#ffffff', fontSize: '16px' }} />
-              </div>
-              <div>
-                <div style={{
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
-                  LinkedIn Post
-                </div>
-              </div>
+                LINKEDIN
+              </span>
             </div>
-          </div>
 
-          {/* LinkedIn Content */}
-          <div style={{ padding: '16px' }}>
-            {/* Post info */}
+            {/* Post content */}
             {postDataForUrl ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px'
-              }}>
-                                     {/* Post title from oEmbed API */}
-                     <div style={{
-                       fontSize: '16px',
-                       fontWeight: '600',
-                       marginBottom: '8px',
-                       color: '#ffffff'
-                     }}>
-                       {postDataForUrl.title && postDataForUrl.title !== 'LinkedIn Post' ? 
-                         postDataForUrl.title : 
-                         postTitle
-                       }
-                     </div>
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  color: cardTextColor,
+                  margin: '0 0 8px 0',
+                  lineHeight: '1.3',
+                  letterSpacing: '-0.01em'
+                }}>
+                  {postDataForUrl.title || postTitle}
+                </h3>
                 
-                                     {/* Post author */}
-                     {postDataForUrl.author_name && postDataForUrl.author_name !== 'LinkedIn User' && (
-                       <div style={{
-                         fontSize: '14px',
-                         color: '#888888',
-                         marginBottom: '8px'
-                       }}>
-                         by {postDataForUrl.author_name}
-                       </div>
-                     )}
+                {postDataForUrl.author_name && (
+                  <p style={{
+                    fontSize: '14px',
+                    color: cardSecondaryTextColor,
+                    margin: '0 0 16px 0',
+                    fontWeight: '500'
+                  }}>
+                    {postDataForUrl.author_name}
+                  </p>
+                )}
               </div>
             ) : (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px'
-              }}>
-                <div style={{
-                  fontSize: '16px',
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
                   fontWeight: '600',
-                  marginBottom: '8px'
+                  color: cardTextColor,
+                  margin: '0 0 8px 0',
+                  lineHeight: '1.3',
+                  letterSpacing: '-0.01em'
                 }}>
                   {postTitle}
-                </div>
-                <div style={{
+                </h3>
+                <p style={{
                   fontSize: '14px',
-                  color: '#888888'
+                  color: cardSecondaryTextColor,
+                  margin: '0 0 16px 0'
                 }}>
                   {postDescription}
-                </div>
+                </p>
               </div>
             )}
             
-            {/* LinkedIn post preview */}
-            <div style={{
-              marginBottom: '12px',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              position: 'relative',
-              backgroundColor: '#f3f2ef',
-              padding: '16px',
-              border: '1px solid #e0e0e0'
-            }}>
-                                 <div style={{
-                     display: 'flex',
-                     alignItems: 'center',
-                     gap: '12px',
-                     marginBottom: '8px'
-                   }}>
-                     <div style={{
-                       width: '40px',
-                       height: '40px',
-                       backgroundColor: '#0077B5',
-                       borderRadius: '50%',
-                       display: 'flex',
-                       alignItems: 'center',
-                       justifyContent: 'center',
-                       position: 'relative'
-                     }}>
-                       <FaLinkedin style={{ color: '#ffffff', fontSize: '16px' }} />
-                       {/* LinkedIn verification badge */}
-                       <div style={{
-                         position: 'absolute',
-                         bottom: '-2px',
-                         right: '-2px',
-                         width: '12px',
-                         height: '12px',
-                         backgroundColor: '#0077B5',
-                         borderRadius: '50%',
-                         border: '2px solid #ffffff',
-                         display: 'flex',
-                         alignItems: 'center',
-                         justifyContent: 'center'
-                       }}>
-                         <div style={{
-                           width: '4px',
-                           height: '4px',
-                           backgroundColor: '#ffffff',
-                           borderRadius: '50%'
-                         }} />
-                       </div>
-                     </div>
-                     <div>
-                       <div style={{
-                         fontSize: '14px',
-                         fontWeight: '600',
-                         color: '#000000'
-                       }}>
-                         {postDataForUrl?.author_name || 'LinkedIn Post'}
-                       </div>
-                       <div style={{
-                         fontSize: '12px',
-                         color: '#666666'
-                       }}>
-                         {postDataForUrl?.provider_name || 'Professional content'}
-                       </div>
-                     </div>
-                   </div>
-                                 <div style={{
-                     fontSize: '14px',
-                     color: '#000000',
-                     lineHeight: '1.4'
-                   }}>
-                     {postDataForUrl?.html ? (
-                       <div dangerouslySetInnerHTML={{ __html: postDataForUrl.html }} />
-                     ) : postDataForUrl?.title ? (
-                       <div style={{ fontWeight: '500', marginBottom: '8px' }}>
-                         {postDataForUrl.title}
-                       </div>
-                     ) : (
-                       <div>
-                         <div style={{ 
-                           color: '#000000', 
-                           fontWeight: '500', 
-                           marginBottom: '8px',
-                           lineHeight: '1.4'
-                         }}>
-                           {entry.description || 'Professional LinkedIn post'}
-                         </div>
-                         <div style={{ 
-                           color: '#666666', 
-                           fontSize: '12px',
-                           fontStyle: 'italic',
-                           marginTop: '4px'
-                         }}>
-                           Click to view the full post on LinkedIn
-                         </div>
-                       </div>
-                     )}
-                   </div>
-            </div>
-            
-            {/* External link button */}
+            {/* Minimal action button */}
             <a 
               href={entry.url}
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                backgroundColor: '#0077B5',
-                color: '#ffffff',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: buttonBackgroundColor,
+                color: buttonTextColor,
                 textDecoration: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
+                fontSize: '13px',
+                fontWeight: '500',
                 transition: 'all 0.2s ease',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                letterSpacing: '0.01em',
+                alignSelf: 'flex-start'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#005885';
+                e.target.style.backgroundColor = buttonHoverBackgroundColor;
+                e.target.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#0077B5';
+                e.target.style.backgroundColor = buttonBackgroundColor;
+                e.target.style.transform = 'translateY(0)';
               }}
             >
-              <FaExternalLinkAlt style={{ fontSize: '12px' }} />
-              View on LinkedIn
+              <FaExternalLinkAlt style={{ fontSize: '10px' }} />
+              View Post
             </a>
           </div>
         </div>
@@ -464,31 +380,50 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
       <div 
         style={{
           ...sectionStyle,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          background: 'rgba(255, 255, 255, 0.25)',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          borderRadius: '16px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
+          padding: '0',
+          margin: '0',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           width: '100%',
-          fontFamily: settings.font_family || 'Inter, sans-serif'
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Section Title */}
+        {/* Clean section header */}
         <div style={{
-          ...sectionTitleStyle,
-          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          marginBottom: '20px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
-          <FaLinkedin style={{ color: '#0077B5', fontSize: '20px' }} />
-          <span>LinkedIn Highlights</span>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#0077b5',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <FaLinkedin style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            LinkedIn Highlights
+          </h2>
         </div>
 
         {/* Loading state */}
@@ -497,13 +432,13 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '40px 20px'
+            padding: '60px 20px'
           }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              border: '3px solid #f3f3f3',
-              borderTop: '3px solid #0077B5',
+              width: '24px',
+              height: '24px',
+              border: '2px solid #f0f0f0',
+              borderTop: '2px solid #1a1a1a',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }} />
@@ -523,36 +458,36 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
             {/* Carousel for multiple posts */}
             {initialLinkedInHighlightsData.length > 1 && (
               <div style={{
-                position: 'relative',
-                overflow: 'hidden'
+                position: 'relative'
               }}>
                 {/* Current highlight */}
                 <div style={{ 
-                  overflow: 'hidden',
                   width: '100%'
                 }}>
                   {renderLinkedInHighlightCard(initialLinkedInHighlightsData[currentIndex], currentIndex, true)}
                 </div>
 
-                {/* Carousel indicators - only dots */}
+                {/* Minimalist carousel indicators */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  gap: '6px',
-                  marginTop: '12px'
+                  gap: '8px',
+                  marginTop: '20px'
                 }}>
                   {initialLinkedInHighlightsData.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
                       style={{
-                        width: '8px',
+                        width: index === currentIndex ? '24px' : '8px',
                         height: '8px',
-                        borderRadius: '50%',
+                        borderRadius: '4px',
                         border: 'none',
-                        background: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.3)',
+                        background: index === currentIndex 
+                          ? (isDarkTheme ? '#ffffff' : '#1a1a1a')
+                          : (isDarkTheme ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'),
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.3s ease'
                       }}
                     />
                   ))}
@@ -564,73 +499,99 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
       </div>
     );
   } else {
-    // Empty state
+    // Clean empty state
     return (
       <div style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
+        padding: '0',
+        margin: '0',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         width: '100%',
-        fontFamily: settings.font_family || 'Inter, sans-serif'
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '20px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#0077b5',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <FaLinkedin size={14} style={{ color: 'white' }} />
+            <FaLinkedin style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             LinkedIn Highlights
-          </h3>
+          </h2>
         </div>
         
+        {/* Minimal empty state */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
+          padding: '40px 20px',
+          textAlign: 'center',
+          backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8' 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          borderRadius: '12px',
+          border: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px dashed rgba(255, 255, 255, 0.2)' 
+            : '1px dashed rgba(0, 0, 0, 0.1)'
         }}>
-          <FaLinkedin size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <div style={{
+            width: '48px',
+            height: '48px',
+            backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.04)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px'
+          }}>
+            <FaLinkedin style={{ 
+              color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+                ? 'rgba(255, 255, 255, 0.6)' 
+                : '#6b7280', 
+              fontSize: '20px' 
+            }} />
+          </div>
           <p style={{ 
             margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
+            fontSize: '14px',
+            color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.7)' 
+              : '#6b7280',
+            fontWeight: '500',
+            lineHeight: '1.4'
           }}>
-            No LinkedIn highlights yet. Add your best LinkedIn posts to showcase your professional content.
+            No LinkedIn highlights yet.<br />
+            Add your best posts to showcase your content.
           </p>
         </div>
       </div>

@@ -1,18 +1,29 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaPlay } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function XHighlightsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
-  // Add CSS for loading spinner
+  // Add CSS for loading spinner and animations
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .tweet-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .tweet-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
       }
     `;
     document.head.appendChild(style);
@@ -72,6 +83,16 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
     return parseXHighlightsData(profile?.x_highlights);
   }, [profile?.x_highlights]);
 
+  // Theme-responsive detection (moved to component level for global access)
+  const isDarkTheme = settings.background_color && (
+    settings.background_color.includes('#0a0a0a') || // midnight black
+    settings.background_color.includes('#18181b') || // deep charcoal
+    settings.background_color.includes('#1a1a1a') || // dark mesh
+    settings.text_color === '#f5f5f5' || // light text indicates dark theme
+    settings.text_color === '#fafafa' ||
+    settings.text_color === '#f8f8f8'
+  );
+
   // Fetch tweet data using our server-side proxy
   const fetchTweetData = async (url) => {
     try {
@@ -96,84 +117,15 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
     }
   };
 
-  // Extract image URLs from tweet HTML
-  const extractImageUrls = (html) => {
-    if (!html) return [];
-    
-    const imageUrls = [];
-    const imgRegex = /<img[^>]+src="([^"]+)"[^>]*>/g;
-    let match;
-    
-    while ((match = imgRegex.exec(html)) !== null) {
-      const src = match[1];
-      if (src.includes('pbs.twimg.com/media/') || src.includes('profile_images') || src.includes('video_thumb')) {
-        imageUrls.push(src);
-      }
-    }
-    
-    return imageUrls;
-  };
-
-  // Extract profile picture URL from tweet HTML
-  const extractProfilePicture = (html) => {
-    if (!html) return null;
-    
-    // Look for profile picture in the HTML
-    const profileImgMatch = html.match(/<img[^>]+src="([^"]*profile_images[^"]*)"[^>]*>/);
-    if (profileImgMatch) {
-      return profileImgMatch[1];
-    }
-    
-    return null;
-  };
-
-  // Extract engagement metrics from tweet data
-  const extractEngagementMetrics = (tweetData) => {
-    if (!tweetData) return null;
-    
-    // Try to extract metrics from the HTML content
-    const html = tweetData.html || '';
-    
-    // Look for common patterns in the HTML that might contain engagement data
-    const metrics = {
-      likes: null,
-      retweets: null,
-      replies: null
-    };
-    
-    // Try to find engagement data in the HTML
-    // This is a simplified approach - in practice, the oEmbed API might not always include this data
-    const likeMatch = html.match(/(\d+)\s*likes?/i);
-    const retweetMatch = html.match(/(\d+)\s*retweets?/i);
-    const replyMatch = html.match(/(\d+)\s*replies?/i);
-    
-    if (likeMatch) metrics.likes = parseInt(likeMatch[1]);
-    if (retweetMatch) metrics.retweets = parseInt(retweetMatch[1]);
-    if (replyMatch) metrics.replies = parseInt(replyMatch[1]);
-    
-    return metrics;
-  };
-
-  // Format number for display (e.g., 1000 -> 1K)
-  const formatNumber = (num) => {
-    if (!num) return '0';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-  };
-
-  // Clean tweet HTML to remove images (we'll show URLs separately)
-  const cleanTweetHtml = (html) => {
-    if (!html) return '';
-    
-    // Remove img tags but keep the rest of the content
-    return html.replace(/<img[^>]*>/g, '');
-  };
-
   // Fetch tweet data for all highlights
   useEffect(() => {
     const fetchAllTweetData = async () => {
-      if (initialXHighlightsData.length === 0) return;
+      if (initialXHighlightsData.length === 0) {
+        console.log('ℹ️ No X highlights to fetch data for');
+        return;
+      }
+      
+      console.log('🐦 Starting to fetch tweet data for', initialXHighlightsData.length, 'highlights');
       
       setLoadingTweets(true);
       const newTweetData = {};
@@ -183,12 +135,7 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
           if (highlight.url && !tweetData[highlight.url]) {
             const data = await fetchTweetData(highlight.url);
             if (data) {
-              // Extract image URLs
-              const imageUrls = extractImageUrls(data.html || '');
-              newTweetData[highlight.url] = {
-                ...data,
-                imageUrls: imageUrls
-              };
+              newTweetData[highlight.url] = data;
             }
           }
         }
@@ -197,7 +144,7 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
           setTweetData(prev => ({ ...prev, ...newTweetData }));
         }
       } catch (error) {
-        console.error('Error fetching tweet data:', error);
+        console.error('💥 Error fetching tweet data:', error);
       } finally {
         setLoadingTweets(false);
       }
@@ -206,43 +153,17 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
     fetchAllTweetData();
   }, [initialXHighlightsData]);
 
-  // Reset carousel index when data length changes
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [initialXHighlightsData.length]);
-
-  const handleSave = () => {
-    if (onSave) {
-      onSave(initialXHighlightsData);
-    }
-  };
-
-  const handleCancel = () => {
-    if (onCancel) {
-      onCancel();
-    }
-  };
-
-  const nextHighlight = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === initialXHighlightsData.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const prevHighlight = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? initialXHighlightsData.length - 1 : prevIndex - 1
-    );
-  };
-
+  // Touch/swipe handlers for mobile carousel
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
   };
 
   const handleTouchEnd = (e) => {
+    if (!touchStartX) return;
+    
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
-
+    
     if (Math.abs(diff) > 50) { // Minimum swipe distance
       if (diff > 0) {
         nextHighlight(); // Swipe left = next
@@ -252,287 +173,199 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
     }
   };
 
-  const extractXInfo = (url) => {
-    // Extract username and post ID from X URL
-    const xMatch = url.match(/x\.com\/([^\/]+)\/status\/(\d+)/);
-    if (xMatch) {
-      return {
-        username: xMatch[1],
-        postId: xMatch[2]
-      };
+  const nextHighlight = () => {
+    if (initialXHighlightsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === initialXHighlightsData.length - 1 ? 0 : prev + 1
+      );
     }
-    return null;
   };
 
-  // Generate a more descriptive title based on the URL
-  const generatePostTitle = (url, entry) => {
-    const xInfo = extractXInfo(url);
-    if (xInfo) {
-      return `@${xInfo.username}'s post`;
+  const prevHighlight = () => {
+    if (initialXHighlightsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === 0 ? initialXHighlightsData.length - 1 : prev - 1
+      );
     }
+  };
+
+  // Generate a more descriptive title
+  const generateTweetTitle = (entry) => {
     return entry.title || 'X Post';
   };
 
   // Generate a more descriptive description
-  const generatePostDescription = (entry) => {
+  const generateTweetDescription = (entry) => {
     if (entry.description && entry.description !== 'Check out this X post!') {
       return entry.description;
     }
-    
-    // If no custom description, create a generic one
     return 'Check out this X post!';
   };
 
-  // Render single X highlight card
+  // Render single X highlight card with new minimalist design
   const renderXHighlightCard = (entry, index, isCarousel = false) => {
-    const xInfo = extractXInfo(entry.url);
-    const postTitle = generatePostTitle(entry.url, entry);
-    const postDescription = generatePostDescription(entry);
+    const tweetTitle = generateTweetTitle(entry);
+    const tweetDescription = generateTweetDescription(entry);
     const tweetDataForUrl = tweetData[entry.url];
     
-    // Extract image URLs and clean HTML
-    const imageUrls = tweetDataForUrl ? extractImageUrls(tweetDataForUrl.html) : [];
-    const cleanedTweetHtml = tweetDataForUrl ? cleanTweetHtml(tweetDataForUrl.html) : '';
+    // Theme-responsive colors (using global isDarkTheme)
+    
+    // For light themes: dark cards for contrast
+    // For dark themes: light cards for contrast
+    const cardBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.08)' 
+      : 'rgba(0, 0, 0, 0.85)';
+    
+    const cardTextColor = isDarkTheme 
+      ? '#ffffff' 
+      : '#ffffff';
+      
+    const cardSecondaryTextColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.7)' 
+      : 'rgba(255, 255, 255, 0.8)';
+      
+    const buttonBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.9)' 
+      : 'rgba(255, 255, 255, 0.15)';
+      
+    const buttonTextColor = isDarkTheme 
+      ? '#1a1a1a' 
+      : '#ffffff';
+      
+    const buttonHoverBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 1)' 
+      : 'rgba(255, 255, 255, 0.25)';
     
     return (
       <div 
         key={entry.id || index} 
         style={{
           position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialXHighlightsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
+          marginBottom: isCarousel ? '0' : '24px',
+          width: '100%',
+          animation: 'fadeIn 0.6s ease forwards'
         }}
       >
-        {/* X-styled wrapper */}
-        <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-          border: '1px solid #333',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease'
-        }}>
-          {/* X Header */}
-          <div style={{ 
-            backgroundColor: '#000000',
-            padding: '16px',
-            borderBottom: '1px solid #333'
+        {/* Clean, minimalist tweet card */}
+        <div 
+          className="tweet-card-hover"
+          style={{
+            backgroundColor: cardBackgroundColor,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: isDarkTheme 
+              ? '0 2px 16px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 16px rgba(0, 0, 0, 0.06)',
+            border: isDarkTheme 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
+          {/* Tweet preview area */}
+          <div style={{
+            position: 'relative',
+            padding: '20px',
+            minHeight: '120px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* Profile picture or X icon */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#ffffff',
-                borderRadius: '50%',
-                overflow: 'hidden'
-              }}>
-                {tweetDataForUrl && tweetDataForUrl.html && (() => {
-                  const profilePictureUrl = extractProfilePicture(tweetDataForUrl.html);
-                  if (profilePictureUrl) {
-                    return (
-                      <img 
-                        src={profilePictureUrl} 
-                        alt="Profile"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                        onError={(e) => {
-                          console.log('Profile picture failed to load:', profilePictureUrl);
-                          e.target.style.display = 'none';
-                          // Show X icon as fallback
-                          e.target.parentElement.innerHTML = '<FaXTwitter style={{ color: "#000000", fontSize: "16px" }} />';
-                        }}
-                        onLoad={(e) => {
-                          console.log('Profile picture loaded successfully:', profilePictureUrl);
-                        }}
-                      />
-                    );
-                  }
-                  return <FaXTwitter style={{ color: '#000000', fontSize: '16px' }} />;
-                })()}
-              </div>
-              <div>
-                <div style={{
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
-                  {xInfo ? `@${xInfo.username}` : 'X User'}
-                </div>
-                <div style={{
-                  color: '#888888',
-                  fontSize: '12px'
-                }}>
-                  {postTitle}
-                </div>
-              </div>
+            {/* Subtle X branding */}
+            <div style={{
+              position: 'absolute',
+              top: '12px',
+              right: '12px',
+              backgroundColor: 'rgba(0, 0, 0, 0.75)',
+              borderRadius: '6px',
+              padding: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
+            }}>
+              <FaXTwitter style={{ color: '#ffffff', fontSize: '12px' }} />
             </div>
-          </div>
 
-          {/* X Content */}
-          <div style={{ padding: '16px' }}>
-            {/* Tweet content from oEmbed API */}
+            {/* Tweet content */}
             {tweetDataForUrl ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px'
-              }}>
-                {/* Tweet text */}
-                <div 
-                  dangerouslySetInnerHTML={{ __html: cleanedTweetHtml }}
-                  style={{
+              <div>
+                {tweetDataForUrl.author_name && (
+                  <p style={{
                     fontSize: '14px',
-                    lineHeight: '1.4',
-                    color: '#ffffff',
-                    marginBottom: imageUrls.length > 0 ? '12px' : '0'
-                  }}
-                />
-                
-                {/* Image URLs */}
-                {imageUrls.length > 0 && (
-                  <div style={{
-                    marginBottom: '12px'
+                    color: cardSecondaryTextColor,
+                    margin: '0 0 12px 0',
+                    fontWeight: '500'
                   }}>
-                    <div style={{
-                      color: '#888888',
-                      fontSize: '12px',
-                      marginBottom: '8px',
-                      fontWeight: '600'
-                    }}>
-                      Images in this post:
-                    </div>
-                    {imageUrls.map((imageUrl, imgIndex) => (
-                      <div
-                        key={imgIndex}
-                        style={{
-                          color: '#4a9eff',
-                          fontSize: '12px',
-                          marginBottom: '4px',
-                          wordBreak: 'break-all',
-                          fontFamily: 'monospace'
-                        }}
-                      >
-                        {imageUrl}
-                      </div>
-                    ))}
-                  </div>
+                    @{tweetDataForUrl.author_name}
+                  </p>
+                )}
+                
+                {/* Show actual tweet HTML content if available */}
+                {tweetDataForUrl.html ? (
+                  <div 
+                    style={{
+                      fontSize: '16px',
+                      color: cardTextColor,
+                      margin: '0 0 16px 0',
+                      lineHeight: '1.4'
+                    }}
+                    dangerouslySetInnerHTML={{ 
+                      __html: tweetDataForUrl.html.replace(
+                        /<a /g, 
+                        `<a style="color: ${isDarkTheme ? '#60a5fa' : '#3b82f6'}; text-decoration: none;" `
+                      )
+                    }}
+                  />
+                ) : tweetDataForUrl.title ? (
+                  <h3 style={{
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    color: cardTextColor,
+                    margin: '0 0 16px 0',
+                    lineHeight: '1.4',
+                    letterSpacing: '-0.01em'
+                  }}>
+                    {tweetDataForUrl.title}
+                  </h3>
+                ) : (
+                  <h3 style={{
+                    fontSize: '16px',
+                    fontWeight: '500',
+                    color: cardTextColor,
+                    margin: '0 0 16px 0',
+                    lineHeight: '1.4',
+                    letterSpacing: '-0.01em'
+                  }}>
+                    {tweetTitle}
+                  </h3>
                 )}
               </div>
-            ) : loadingTweets ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  border: '2px solid #ffffff',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                Loading tweet...
-              </div>
             ) : (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px'
-              }}>
-                {postDescription}
+              <div>
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  color: cardTextColor,
+                  margin: '0 0 8px 0',
+                  lineHeight: '1.4',
+                  letterSpacing: '-0.01em'
+                }}>
+                  {tweetTitle}
+                </h3>
+                <p style={{
+                  fontSize: '14px',
+                  color: cardSecondaryTextColor,
+                  margin: '0 0 16px 0'
+                }}>
+                  {tweetDescription}
+                </p>
               </div>
             )}
             
-            {/* Post metadata and engagement */}
-            <div style={{
-              color: '#888888',
-              fontSize: '12px',
-              marginBottom: '12px'
-            }}>
-              {/* Post info */}
-              {xInfo && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '8px'
-                }}>
-                  <span>@{xInfo.username}</span>
-                </div>
-              )}
-              
-              {/* Engagement metrics */}
-              {tweetDataForUrl && (() => {
-                const metrics = extractEngagementMetrics(tweetDataForUrl);
-                if (metrics && (metrics.likes || metrics.retweets || metrics.replies)) {
-                  return (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '8px 0',
-                      borderTop: '1px solid #333',
-                      marginTop: '8px'
-                    }}>
-                      {metrics.replies !== null && (
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          color: '#888888'
-                        }}>
-                          <span style={{ fontSize: '14px' }}>💬</span>
-                          <span>{formatNumber(metrics.replies)}</span>
-                        </div>
-                      )}
-                      {metrics.retweets !== null && (
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          color: '#888888'
-                        }}>
-                          <span style={{ fontSize: '14px' }}>🔄</span>
-                          <span>{formatNumber(metrics.retweets)}</span>
-                        </div>
-                      )}
-                      {metrics.likes !== null && (
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          color: '#888888'
-                        }}>
-                          <span style={{ fontSize: '14px' }}>❤️</span>
-                          <span>{formatNumber(metrics.likes)}</span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-            </div>
-            
-            {/* External link button */}
+            {/* Minimal action button */}
             <a 
               href={entry.url}
               target="_blank"
@@ -540,25 +373,30 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
+                gap: '6px',
                 padding: '8px 16px',
-                backgroundColor: '#ffffff',
-                color: '#000000',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: '600',
+                backgroundColor: buttonBackgroundColor,
+                color: buttonTextColor,
                 textDecoration: 'none',
-                transition: 'all 0.2s ease'
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer',
+                letterSpacing: '0.01em',
+                alignSelf: 'flex-start'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#f0f0f0';
+                e.target.style.backgroundColor = buttonHoverBackgroundColor;
+                e.target.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#ffffff';
+                e.target.style.backgroundColor = buttonBackgroundColor;
+                e.target.style.transform = 'translateY(0)';
               }}
             >
-              <FaExternalLinkAlt size={10} />
-              View on X
+              <FaExternalLinkAlt style={{ fontSize: '10px' }} />
+              View Post
             </a>
           </div>
         </div>
@@ -566,197 +404,228 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
     );
   };
 
-  // Render display UI
+  // Main render
   if (initialXHighlightsData.length > 0) {
     return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit X highlights"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '0',
+          margin: '0',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '20px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px solid rgba(255, 255, 255, 0.2)' 
+            : '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#000000',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <FaXTwitter size={14} style={{ color: 'white' }} />
+            <FaXTwitter style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             X Highlights
-          </h3>
+          </h2>
         </div>
 
-        {/* Carousel content - Always show carousel for better UX */}
-        <div style={{ position: 'relative' }}>
-          {initialXHighlightsData.length === 1 ? (
-            // Single highlight - show directly
-            <div style={{ 
-              overflow: 'hidden',
-              width: '100%'
-            }}>
-              {renderXHighlightCard(initialXHighlightsData[0], 0, true)}
-            </div>
-          ) : (
-            // Multiple highlights - show carousel
-            <div 
-              style={{ 
-                position: 'relative',
-                overflow: 'hidden',
-                width: '100%'
-              }}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              {/* Current highlight */}
-              <div style={{ 
-                overflow: 'hidden',
-                width: '100%'
-              }}>
-                {renderXHighlightCard(initialXHighlightsData[currentIndex], currentIndex, true)}
-              </div>
+        {/* Loading state */}
+        {loadingTweets && (
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '60px 20px'
+          }}>
+            <div style={{
+              width: '24px',
+              height: '24px',
+              border: '2px solid #f0f0f0',
+              borderTop: '2px solid #1a1a1a',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+          </div>
+        )}
 
-              {/* Carousel indicators - only dots */}
-              {initialXHighlightsData.length > 1 && (
+        {/* Content */}
+        {!loadingTweets && (
+          <div>
+            {/* Single post display */}
+            {initialXHighlightsData.length === 1 && (
+              <div>
+                {renderXHighlightCard(initialXHighlightsData[0], 0)}
+              </div>
+            )}
+
+            {/* Carousel for multiple posts */}
+            {initialXHighlightsData.length > 1 && (
+              <div style={{
+                position: 'relative'
+              }}>
+                {/* Current highlight */}
+                <div style={{ 
+                  width: '100%'
+                }}>
+                  {renderXHighlightCard(initialXHighlightsData[currentIndex], currentIndex, true)}
+                </div>
+
+                {/* Minimalist carousel indicators */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  gap: '6px',
-                  marginTop: '12px'
+                  gap: '8px',
+                  marginTop: '20px'
                 }}>
                   {initialXHighlightsData.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
                       style={{
-                        width: '8px',
+                        width: index === currentIndex ? '24px' : '8px',
                         height: '8px',
-                        borderRadius: '50%',
+                        borderRadius: '4px',
                         border: 'none',
-                        background: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.3)',
+                        background: index === currentIndex 
+                          ? (isDarkTheme ? '#ffffff' : '#1a1a1a')
+                          : (isDarkTheme ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'),
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.3s ease'
                       }}
                     />
                   ))}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   } else {
-    // Empty state
+    // Clean empty state
     return (
       <div style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
+        padding: '0',
+        margin: '0',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
-        {/* Title */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '20px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px solid rgba(255, 255, 255, 0.2)' 
+            : '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#000000',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <FaXTwitter size={14} style={{ color: 'white' }} />
+            <FaXTwitter style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             X Highlights
-          </h3>
+          </h2>
         </div>
-
-        {/* Empty state */}
+        
+        {/* Minimal empty state */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
+          padding: '40px 20px',
+          textAlign: 'center',
+          backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8' 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          borderRadius: '12px',
+          border: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px dashed rgba(255, 255, 255, 0.2)' 
+            : '1px dashed rgba(0, 0, 0, 0.1)'
         }}>
-          <FaXTwitter size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <div style={{
+            width: '48px',
+            height: '48px',
+            backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.04)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px'
+          }}>
+            <FaXTwitter style={{ 
+              color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+                ? 'rgba(255, 255, 255, 0.6)' 
+                : '#6b7280', 
+              fontSize: '20px' 
+            }} />
+          </div>
           <p style={{ 
             margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
+            fontSize: '14px',
+            color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.7)' 
+              : '#6b7280',
+            fontWeight: '500',
+            lineHeight: '1.4'
           }}>
-            No X Highlights Yet. Add your best X posts to showcase your content.
+            No X highlights yet.<br />
+            Add your best posts to showcase your content.
           </p>
         </div>
       </div>

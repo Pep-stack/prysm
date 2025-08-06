@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaPlay } from 'react-icons/fa';
 import { FaYoutube } from 'react-icons/fa';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
@@ -14,6 +14,24 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+      }
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .video-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .video-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+      .play-button-hover {
+        transition: all 0.2s ease;
+      }
+      .play-button-hover:hover {
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.95) !important;
       }
     `;
     document.head.appendChild(style);
@@ -78,6 +96,16 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
   const initialYouTubeHighlightsData = useMemo(() => {
     return parseYouTubeHighlightsData(profile?.youtube_highlights);
   }, [profile?.youtube_highlights]);
+
+  // Theme-responsive detection (moved to component level for global access)
+  const isDarkTheme = settings.background_color && (
+    settings.background_color.includes('#0a0a0a') || // midnight black
+    settings.background_color.includes('#18181b') || // deep charcoal
+    settings.background_color.includes('#1a1a1a') || // dark mesh
+    settings.text_color === '#f5f5f5' || // light text indicates dark theme
+    settings.text_color === '#fafafa' ||
+    settings.text_color === '#f8f8f8'
+  );
 
 
 
@@ -284,7 +312,7 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
     return 'Check out this YouTube video!';
   };
 
-  // Render single YouTube highlight card
+  // Render single YouTube highlight card with new minimalist design
   const renderYouTubeHighlightCard = (entry, index, isCarousel = false) => {
     const ytInfo = extractYouTubeInfo(entry.url);
     const videoTitle = generateVideoTitle(entry.url, entry);
@@ -293,186 +321,222 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
     const videoId = ytInfo?.videoId;
     const thumbnailUrl = videoId ? getThumbnailUrl(videoId) : null;
     
+    // Theme-responsive colors (using global isDarkTheme)
+    
+    // For light themes: dark cards for contrast
+    // For dark themes: light cards for contrast
+    const cardBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.08)' 
+      : 'rgba(0, 0, 0, 0.85)';
+    
+    const cardTextColor = isDarkTheme 
+      ? '#ffffff' 
+      : '#ffffff';
+      
+    const cardSecondaryTextColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.7)' 
+      : 'rgba(255, 255, 255, 0.8)';
+      
+    const buttonBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 0.9)' 
+      : 'rgba(255, 255, 255, 0.15)';
+      
+    const buttonTextColor = isDarkTheme 
+      ? '#1a1a1a' 
+      : '#ffffff';
+      
+    const buttonHoverBackgroundColor = isDarkTheme 
+      ? 'rgba(255, 255, 255, 1)' 
+      : 'rgba(255, 255, 255, 0.25)';
+    
     return (
       <div 
         key={entry.id || index} 
         style={{
           position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialYouTubeHighlightsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
+          marginBottom: isCarousel ? '0' : '24px',
+          width: '100%',
+          animation: 'fadeIn 0.6s ease forwards'
         }}
       >
-        {/* YouTube-styled wrapper */}
-        <div style={{
-          background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-          border: '1px solid #333',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          transition: 'all 0.3s ease'
-        }}>
-          {/* YouTube Header */}
-          <div style={{ 
-            backgroundColor: '#000000',
-            padding: '16px',
-            borderBottom: '1px solid #333'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {/* YouTube icon */}
+        {/* Clean, minimalist video card */}
+        <div 
+          className="video-card-hover"
+          style={{
+            backgroundColor: cardBackgroundColor,
+            borderRadius: '12px',
+            overflow: 'hidden',
+            boxShadow: isDarkTheme 
+              ? '0 2px 16px rgba(0, 0, 0, 0.3)' 
+              : '0 2px 16px rgba(0, 0, 0, 0.06)',
+            border: isDarkTheme 
+              ? '1px solid rgba(255, 255, 255, 0.1)' 
+              : '1px solid rgba(0, 0, 0, 0.04)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
+          {/* Video thumbnail with clean overlay */}
+          {thumbnailUrl && (
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              paddingBottom: '56.25%', // 16:9 aspect ratio
+              overflow: 'hidden',
+              backgroundColor: isDarkTheme ? '#2a2a2a' : 'rgba(255, 255, 255, 0.1)'
+            }}>
+              <img 
+                src={thumbnailUrl}
+                alt="Video thumbnail"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+                onError={(e) => {
+                  console.log('Thumbnail failed to load:', thumbnailUrl);
+                  e.target.style.display = 'none';
+                }}
+              />
+              
+              {/* Minimalist play button */}
               <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '56px',
+                height: '56px',
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '32px',
-                height: '32px',
-                backgroundColor: '#FF0000',
-                borderRadius: '50%',
-                overflow: 'hidden'
-              }}>
-                <FaYoutube style={{ color: '#ffffff', fontSize: '16px' }} />
+                cursor: 'pointer',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(0, 0, 0, 0.06)'
+              }}
+              className="play-button-hover"
+              onClick={() => window.open(entry.url, '_blank')}
+              >
+                <FaPlay style={{ 
+                  color: '#1a1a1a', 
+                  fontSize: '18px',
+                  marginLeft: '2px' // Optical adjustment for play icon
+                }} />
               </div>
-              <div>
-                <div style={{
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  fontWeight: '600'
+              
+              {/* Subtle YouTube branding */}
+              <div style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)'
+              }}>
+                <FaYoutube style={{ color: '#FF0000', fontSize: '12px' }} />
+                <span style={{ 
+                  color: 'white', 
+                  fontSize: '11px', 
+                  fontWeight: '500',
+                  letterSpacing: '0.02em'
                 }}>
-                  YouTube Video
-                </div>
-
+                  YOUTUBE
+                </span>
               </div>
             </div>
-          </div>
-
-          {/* YouTube Content */}
-          <div style={{ padding: '16px' }}>
-            {/* Video thumbnail and info */}
+          )}
+          
+          {/* Clean content area */}
+          <div style={{ padding: '20px' }}>
+            {/* Video title and info */}
             {videoDataForUrl ? (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px'
-              }}>
-                {/* Video title from oEmbed API */}
-                <div style={{
-                  fontSize: '16px',
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
                   fontWeight: '600',
-                  marginBottom: '8px',
-                  color: '#ffffff'
+                  color: cardTextColor,
+                  margin: '0 0 8px 0',
+                  lineHeight: '1.3',
+                  letterSpacing: '-0.01em'
                 }}>
                   {videoDataForUrl.title || videoTitle}
-                </div>
+                </h3>
                 
-                {/* Video description */}
                 {videoDataForUrl.author_name && (
-                  <div style={{
+                  <p style={{
                     fontSize: '14px',
-                    color: '#888888',
-                    marginBottom: '8px'
+                    color: cardSecondaryTextColor,
+                    margin: '0 0 16px 0',
+                    fontWeight: '500'
                   }}>
-                    by {videoDataForUrl.author_name}
-                  </div>
+                    {videoDataForUrl.author_name}
+                  </p>
                 )}
-                
-
               </div>
             ) : (
-              <div style={{
-                color: '#ffffff',
-                fontSize: '14px',
-                lineHeight: '1.4',
-                marginBottom: '12px',
-                minHeight: '40px'
-              }}>
-                <div style={{
-                  fontSize: '16px',
+              <div>
+                <h3 style={{
+                  fontSize: '18px',
                   fontWeight: '600',
-                  marginBottom: '8px'
+                  color: cardTextColor,
+                  margin: '0 0 8px 0',
+                  lineHeight: '1.3',
+                  letterSpacing: '-0.01em'
                 }}>
                   {videoTitle}
-                </div>
-                <div style={{
+                </h3>
+                <p style={{
                   fontSize: '14px',
-                  color: '#888888'
+                  color: cardSecondaryTextColor,
+                  margin: '0 0 16px 0'
                 }}>
                   {videoDescription}
-                </div>
+                </p>
               </div>
             )}
             
-            {/* Thumbnail preview */}
-            {thumbnailUrl && (
-              <div style={{
-                marginBottom: '12px',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                position: 'relative'
-              }}>
-                <img 
-                  src={thumbnailUrl}
-                  alt="Video thumbnail"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '200px',
-                    objectFit: 'cover'
-                  }}
-                  onError={(e) => {
-                    console.log('Thumbnail failed to load:', thumbnailUrl);
-                    e.target.style.display = 'none';
-                  }}
-                />
-                {/* Play button overlay */}
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '60px',
-                  height: '60px',
-                  backgroundColor: 'rgba(255, 0, 0, 0.9)',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}>
-                  <FaYoutube style={{ color: '#ffffff', fontSize: '24px' }} />
-                </div>
-              </div>
-            )}
-            
-            {/* External link button */}
+            {/* Minimal action button */}
             <a 
               href={entry.url}
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                display: 'flex',
+                display: 'inline-flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '12px 16px',
-                backgroundColor: '#FF0000',
-                color: '#ffffff',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: buttonBackgroundColor,
+                color: buttonTextColor,
                 textDecoration: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
+                fontSize: '13px',
+                fontWeight: '500',
                 transition: 'all 0.2s ease',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                letterSpacing: '0.01em'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#CC0000';
+                e.target.style.backgroundColor = buttonHoverBackgroundColor;
+                e.target.style.transform = 'translateY(-1px)';
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#FF0000';
+                e.target.style.backgroundColor = buttonBackgroundColor;
+                e.target.style.transform = 'translateY(0)';
               }}
             >
-              <FaExternalLinkAlt style={{ fontSize: '12px' }} />
-              Watch on YouTube
+              <FaExternalLinkAlt style={{ fontSize: '10px' }} />
+              Watch Video
             </a>
           </div>
         </div>
@@ -486,31 +550,50 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
       <div 
         style={{
           ...sectionStyle,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          background: 'rgba(255, 255, 255, 0.25)',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          borderRadius: '16px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
+          padding: '0',
+          margin: '0',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           width: '100%',
-          fontFamily: settings.font_family || 'Inter, sans-serif'
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Section Title */}
+        {/* Clean section header */}
         <div style={{
-          ...sectionTitleStyle,
-          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '8px',
+          marginBottom: '20px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
-          <FaYoutube style={{ color: '#FF0000', fontSize: '20px' }} />
-          <span>YouTube Highlights</span>
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#FF0000',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <FaYoutube style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            YouTube Highlights
+          </h2>
         </div>
 
         {/* Loading state */}
@@ -519,13 +602,13 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            padding: '40px 20px'
+            padding: '60px 20px'
           }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              border: '3px solid #f3f3f3',
-              borderTop: '3px solid #FF0000',
+              width: '24px',
+              height: '24px',
+              border: '2px solid #f0f0f0',
+              borderTop: '2px solid #1a1a1a',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite'
             }} />
@@ -545,36 +628,36 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
             {/* Carousel for multiple videos */}
             {initialYouTubeHighlightsData.length > 1 && (
               <div style={{
-                position: 'relative',
-                overflow: 'hidden'
+                position: 'relative'
               }}>
                 {/* Current highlight */}
                 <div style={{ 
-                  overflow: 'hidden',
                   width: '100%'
                 }}>
                   {renderYouTubeHighlightCard(initialYouTubeHighlightsData[currentIndex], currentIndex, true)}
                 </div>
 
-                {/* Carousel indicators - only dots */}
+                {/* Minimalist carousel indicators */}
                 <div style={{
                   display: 'flex',
                   justifyContent: 'center',
-                  gap: '6px',
-                  marginTop: '12px'
+                  gap: '8px',
+                  marginTop: '20px'
                 }}>
                   {initialYouTubeHighlightsData.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
                       style={{
-                        width: '8px',
+                        width: index === currentIndex ? '24px' : '8px',
                         height: '8px',
-                        borderRadius: '50%',
+                        borderRadius: '4px',
                         border: 'none',
-                        background: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.3)',
+                        background: index === currentIndex 
+                          ? (isDarkTheme ? '#ffffff' : '#1a1a1a')
+                          : (isDarkTheme ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'),
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.3s ease'
                       }}
                     />
                   ))}
@@ -586,73 +669,99 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
       </div>
     );
   } else {
-    // Empty state
+    // Clean empty state
     return (
       <div style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
+        padding: '0',
+        margin: '0',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         width: '100%',
-        fontFamily: settings.font_family || 'Inter, sans-serif'
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}>
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '20px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#FF0000',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <FaYoutube size={14} style={{ color: 'white' }} />
+            <FaYoutube style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             YouTube Highlights
-          </h3>
+          </h2>
         </div>
         
+        {/* Minimal empty state */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
+          padding: '40px 20px',
+          textAlign: 'center',
+          backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8' 
+            ? 'rgba(255, 255, 255, 0.05)' 
+            : 'rgba(0, 0, 0, 0.02)',
+          borderRadius: '12px',
+          border: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px dashed rgba(255, 255, 255, 0.2)' 
+            : '1px dashed rgba(0, 0, 0, 0.1)'
         }}>
-          <FaYoutube size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+          <div style={{
+            width: '48px',
+            height: '48px',
+            backgroundColor: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : 'rgba(0, 0, 0, 0.04)',
+            borderRadius: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '16px'
+          }}>
+            <FaYoutube style={{ 
+              color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+                ? 'rgba(255, 255, 255, 0.6)' 
+                : '#6b7280', 
+              fontSize: '20px' 
+            }} />
+          </div>
           <p style={{ 
             margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
+            fontSize: '14px',
+            color: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+              ? 'rgba(255, 255, 255, 0.7)' 
+              : '#6b7280',
+            fontWeight: '500',
+            lineHeight: '1.4'
           }}>
-            No YouTube highlights yet. Add your best YouTube videos to showcase your content.
+            No YouTube highlights yet.<br />
+            Add your best videos to showcase your content.
           </p>
         </div>
       </div>

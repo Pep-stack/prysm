@@ -87,56 +87,75 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
     return (
       <div style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: 'none',
+        borderRadius: '20px',
+        padding: '32px 24px',
+        boxShadow: 'none',
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         overflow: 'hidden',
         width: '100%',
         maxWidth: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)'
       }}>
-        {/* Title at the top of the container */}
+        {/* Minimalist title section */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          gap: '12px',
+          marginBottom: '24px'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuImage size={14} style={{ color: 'white' }} />
-          </div>
+            width: '2px',
+            height: '20px',
+            background: `linear-gradient(135deg, ${textColor}40, ${textColor}20)`,
+            borderRadius: '1px'
+          }} />
           <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
+            fontSize: '16px',
+            fontWeight: '500',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.02em',
+            opacity: 0.8,
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}>
             Gallery
           </h3>
         </div>
         
-        <div style={placeholderStyle}>
-          <LuImage size={48} style={{ color: textColor, opacity: 0.5 }} />
-          <p style={{ color: textColor, opacity: 0.7 }}>No gallery images yet</p>
+        {/* Clean placeholder */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '120px',
+          gap: '16px'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: `${textColor}08`,
+            borderRadius: '12px'
+          }}>
+            <LuImage size={20} style={{ color: textColor, opacity: 0.4 }} />
+          </div>
+          <p style={{ 
+            color: textColor, 
+            opacity: 0.5, 
+            fontSize: '14px',
+            fontWeight: '400',
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            No images to display
+          </p>
         </div>
       </div>
     );
@@ -147,95 +166,131 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
   return (
     <div style={{
       ...sectionStyle,
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      background: 'rgba(255, 255, 255, 0.25)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-      transition: 'all 0.3s ease',
+      background: 'rgba(255, 255, 255, 0.05)',
+      border: 'none',
+      borderRadius: '20px',
+      padding: '32px 24px',
+      boxShadow: 'none',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       overflow: 'hidden',
       width: '100%',
       maxWidth: '100%',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)'
     }}>
-      {/* Title at the top of the container */}
+      {/* Minimalist title section */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        marginBottom: '16px',
-        paddingBottom: '12px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        gap: '12px',
+        marginBottom: '24px'
       }}>
         <div style={{
-          width: '24px',
-          height: '24px',
-          backgroundColor: '#374151',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.8
-        }}>
-          <LuImage size={14} style={{ color: 'white' }} />
-        </div>
+          width: '2px',
+          height: '20px',
+          background: `linear-gradient(135deg, ${textColor}40, ${textColor}20)`,
+          borderRadius: '1px'
+        }} />
         <h3 style={{
-          ...sectionTitleStyle,
-          fontSize: '18px',
-          fontWeight: '600',
+          fontSize: '16px',
+          fontWeight: '500',
           color: textColor,
           margin: 0,
-          letterSpacing: '-0.01em',
-          opacity: 0.9
+          letterSpacing: '-0.02em',
+          opacity: 0.8,
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
         }}>
           {galleryData[0]?.title || 'Gallery'}
         </h3>
       </div>
 
+      {/* Pure image container */}
       <div 
-        className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
+        style={{
+          position: 'relative',
+          width: '100%',
+          aspectRatio: '16/10',
+          borderRadius: '16px',
+          overflow: 'hidden',
+          background: `${textColor}05`,
+          cursor: galleryData.length > 1 ? 'pointer' : 'default'
+        }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onClick={galleryData.length > 1 ? nextImage : undefined}
       >
         {currentImage.imageUrl && (
           <img
             src={currentImage.imageUrl}
             alt={currentImage.title || 'Gallery image'}
-            className="w-full h-full object-cover"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: 'scale(1)'
+            }}
+            onMouseEnter={(e) => {
+              if (galleryData.length > 1) {
+                e.target.style.transform = 'scale(1.02)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'scale(1)';
+            }}
           />
+        )}
+        
+        {/* Subtle image counter for multiple images */}
+        {galleryData.length > 1 && (
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            padding: '6px 12px',
+            fontSize: '12px',
+            fontWeight: '500',
+            color: 'white',
+            letterSpacing: '0.5px'
+          }}>
+            {currentIndex + 1} / {galleryData.length}
+          </div>
         )}
       </div>
       
-      {/* Dots navigation */}
+      {/* Elegant navigation dots */}
       {galleryData.length > 1 && (
         <div style={{
           display: 'flex',
           justifyContent: 'center',
           gap: '8px',
-          marginTop: '16px',
-          paddingTop: '12px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.3)'
+          marginTop: '20px'
         }}>
           {galleryData.map((image, index) => (
-            <div
+            <button
               key={image.id || index}
               style={{
-                width: '8px',
+                width: index === currentIndex ? '24px' : '8px',
                 height: '8px',
-                borderRadius: '50%',
-                backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
-                opacity: index === currentIndex ? 0.8 : 0.4,
+                borderRadius: '4px',
+                background: index === currentIndex 
+                  ? `linear-gradient(135deg, ${textColor}60, ${textColor}40)`
+                  : `${textColor}20`,
+                border: 'none',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: 'scale(1)'
               }}
               onClick={() => setCurrentIndex(index)}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.3)';
+                e.target.style.transform = 'scale(1.2)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
+                e.target.style.transform = 'scale(1)';
               }}
             />
           ))}
