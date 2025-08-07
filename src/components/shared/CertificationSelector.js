@@ -294,6 +294,27 @@ function CertificationEntry({ entry, index, isEditing, isNew, onEdit, onSave, on
             className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-vertical min-h-20"
           />
         </div>
+
+        {/* Save/Cancel Buttons for individual entry */}
+        <div className="flex gap-3 pt-4 border-t border-gray-700">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!localEntry.name || !localEntry.organization}
+            className="flex-1 px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: (!localEntry.name || !localEntry.organization) ? '#6B7280' : '#f59e0b',
+              color: 'white'
+            }}
+          >
+            {isNew ? 'Add Certification' : 'Save Changes'}
+          </button>
+        </div>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { LuVideo } from 'react-icons/lu';
+import React, { useMemo, useState } from 'react';
+import { LuVideo, LuPlay } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function FeaturedVideoSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
@@ -11,6 +11,54 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   
+  const [showVideo, setShowVideo] = useState(false);
+  
+  // Extract video ID from various platforms
+  const extractVideoInfo = (url) => {
+    if (!url) return null;
+    
+    // YouTube patterns
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (youtubeMatch) {
+      return {
+        platform: 'youtube',
+        videoId: youtubeMatch[1],
+        thumbnailUrl: `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`,
+        embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}`
+      };
+    }
+    
+    // Vimeo patterns
+    const vimeoMatch = url.match(/(?:vimeo\.com\/)([0-9]+)/);
+    if (vimeoMatch) {
+      return {
+        platform: 'vimeo',
+        videoId: vimeoMatch[1],
+        thumbnailUrl: `https://vumbnail.com/${vimeoMatch[1]}.jpg`,
+        embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}`
+      };
+    }
+    
+    // TikTok patterns
+    const tiktokMatch = url.match(/tiktok\.com.*\/video\/(\d+)/);
+    if (tiktokMatch) {
+      return {
+        platform: 'tiktok',
+        videoId: tiktokMatch[1],
+        thumbnailUrl: null, // TikTok doesn't provide easy thumbnail access
+        embedUrl: url
+      };
+    }
+    
+    // Generic video file
+    return {
+      platform: 'generic',
+      videoId: null,
+      thumbnailUrl: null,
+      embedUrl: url
+    };
+  };
+
   // Parse and memoize video data
   const parseVideoData = (videoData) => {
     if (typeof videoData === 'string' && videoData.trim()) {
@@ -29,143 +77,167 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
   };
 
   const videoData = useMemo(() => {
-    return parseVideoData(profile?.featured_video);
+    const parsed = parseVideoData(profile?.featured_video);
+    if (parsed && parsed.videoUrl) {
+      const videoInfo = extractVideoInfo(parsed.videoUrl);
+      return {
+        ...parsed,
+        ...videoInfo
+      };
+    }
+    return parsed;
   }, [profile?.featured_video]);
 
   // Render placeholder when no data
   if (!videoData || !videoData.videoUrl) {
-    return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }}>
-        {/* Header with logo and title */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuVideo size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            {videoData?.title || 'Featured Video'}
-          </h3>
-        </div>
-        
-        <div style={placeholderStyle}>
-          <LuVideo size={48} style={{ color: textColor, opacity: 0.5 }} />
-          <p style={{ color: textColor, opacity: 0.7 }}>No featured video yet</p>
-        </div>
-      </div>
-    );
+    return null; // Don't show empty featured video sections
   }
 
+  const handlePlayClick = () => {
+    setShowVideo(true);
+  };
+
   return (
-    <div
+    <div 
       style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
+        padding: '0',
+        margin: '0',
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '0',
+        boxShadow: 'none',
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
         width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
       }}
     >
-      {/* Header with logo and title */}
+      {/* Clean section header */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
-        marginBottom: '16px',
+        gap: '8px',
+        marginBottom: '20px',
         paddingBottom: '12px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
       }}>
         <div style={{
-          width: '24px',
-          height: '24px',
-          backgroundColor: '#374151',
-          borderRadius: '8px',
+          width: '20px',
+          height: '20px',
+          backgroundColor: '#DC2626',
+          borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.8
+          justifyContent: 'center'
         }}>
-          <LuVideo size={14} style={{ color: 'white' }} />
+          <LuVideo style={{ color: 'white', fontSize: '11px' }} />
         </div>
-        <h3 style={{
+        <h2 style={{
           ...sectionTitleStyle,
-          fontSize: '18px',
+          fontSize: '16px',
           fontWeight: '600',
           color: textColor,
           margin: 0,
-          letterSpacing: '-0.01em',
-          opacity: 0.9
+          letterSpacing: '-0.01em'
         }}>
           {videoData.title || 'Featured Video'}
-        </h3>
+        </h2>
       </div>
 
       {/* Video Container */}
       <div style={{
         position: 'relative',
         width: '100%',
-        aspectRatio: '16/9',
-        backgroundColor: '#000',
+        aspectRatio: '16/10',
         borderRadius: '12px',
         overflow: 'hidden',
-        marginBottom: '16px'
+        background: `${textColor}05`,
+        cursor: 'pointer',
+        marginBottom: '24px'
       }}>
-        <video
-          src={videoData.videoUrl}
-          title={videoData.title || 'Featured Video'}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }}
-          controls
-          preload="metadata"
-          poster={videoData.thumbnailUrl || ''}
-        />
+        {!showVideo && videoData.thumbnailUrl ? (
+          // Thumbnail view with play button
+          <>
+            <img
+              src={videoData.thumbnailUrl}
+              alt={videoData.title || 'Featured Video'}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+              }}
+              onClick={handlePlayClick}
+            />
+            {/* Play button overlay */}
+            <div 
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '64px',
+                height: '64px',
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onClick={handlePlayClick}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                e.target.style.transform = 'translate(-50%, -50%) scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                e.target.style.transform = 'translate(-50%, -50%) scale(1)';
+              }}
+            >
+              <LuPlay style={{ color: 'white', fontSize: '24px', marginLeft: '4px' }} />
+            </div>
+          </>
+        ) : (
+          // Video player or fallback
+          <>
+            {videoData.platform === 'youtube' || videoData.platform === 'vimeo' ? (
+              <iframe
+                src={videoData.embedUrl}
+                title={videoData.title || 'Featured Video'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  border: 'none'
+                }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={videoData.videoUrl}
+                title={videoData.title || 'Featured Video'}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+                controls
+                preload="metadata"
+                poster={videoData.thumbnailUrl || ''}
+              />
+            )}
+          </>
+        )}
       </div>
     </div>
   );

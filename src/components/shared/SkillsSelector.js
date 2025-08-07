@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { LuCode } from 'react-icons/lu';
 
 // Predefined skill categories and skills
 const SKILL_CATEGORIES = {
@@ -125,11 +126,9 @@ export default function SkillsSelector({ value = [], onChange, onSave: modalOnSa
       <div className="flex items-center justify-between p-6 pb-4" style={{ backgroundColor: '#000000' }}>
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-full" style={{ 
-            backgroundColor: '#8b5cf6'
+            backgroundColor: '#3b82f6'
           }}>
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+            <LuCode className="text-white text-xl" />
           </div>
           <div>
             <h3 className="text-white font-semibold text-lg">Skills & Technologies</h3>
@@ -174,6 +173,23 @@ export default function SkillsSelector({ value = [], onChange, onSave: modalOnSa
           </button>
         )}
 
+        {/* Empty state when no skills */}
+        {value.length === 0 && editingIndex !== 'new' && (
+          <div className="text-center py-8 border-2 border-dashed border-gray-600 rounded-lg" style={{ backgroundColor: '#1a1a1a' }}>
+            <div className="w-16 h-16 bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LuCode size={24} className="text-blue-300" />
+            </div>
+            <h4 className="text-white font-semibold text-lg mb-2">No skills yet</h4>
+            <p className="text-gray-400 text-sm mb-4">Add your technical skills and expertise</p>
+            <button
+              onClick={handleAddNew}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Add First Skill
+            </button>
+          </div>
+        )}
+
         {/* Save/Cancel Buttons - Always visible at bottom */}
         <div className="flex gap-3 mt-6 pt-4 border-t border-gray-700">
           <button
@@ -186,7 +202,7 @@ export default function SkillsSelector({ value = [], onChange, onSave: modalOnSa
             onClick={handleSave}
             className="flex-1 px-4 py-3 rounded-lg font-medium transition-all"
             style={{
-              backgroundColor: '#8b5cf6',
+              backgroundColor: '#3b82f6',
               color: 'white'
             }}
           >
@@ -270,7 +286,7 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
               value={localEntry.name || ''}
               onChange={(e) => handleInputChange('name', e.target.value)}
               placeholder="e.g., React, Python, Adobe Photoshop"
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
@@ -281,7 +297,7 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
             <select
               value={localEntry.category || ''}
               onChange={(e) => handleInputChange('category', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select Category</option>
               {Object.keys(SKILL_CATEGORIES).map(category => (
@@ -300,7 +316,7 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
             <select
               value={localEntry.proficiency || 'intermediate'}
               onChange={(e) => handleInputChange('proficiency', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="beginner">Beginner</option>
               <option value="intermediate">Intermediate</option>
@@ -318,7 +334,7 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
               value={localEntry.yearsOfExperience || ''}
               onChange={(e) => handleInputChange('yearsOfExperience', e.target.value)}
               placeholder="e.g., 2-3 years, 5+ years"
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </div>
@@ -333,8 +349,29 @@ function SkillEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, 
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Describe your experience with this skill, projects you've used it on, or specific expertise..."
             rows={3}
-            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical min-h-20"
+            className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-20"
           />
+        </div>
+
+        {/* Save/Cancel Buttons for individual entry */}
+        <div className="flex gap-3 pt-4 border-t border-gray-700">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!localEntry.name || !localEntry.category}
+            className="flex-1 px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: (!localEntry.name || !localEntry.category) ? '#6B7280' : '#3b82f6',
+              color: 'white'
+            }}
+          >
+            {isNew ? 'Add Skill' : 'Save Changes'}
+          </button>
         </div>
       </div>
     );

@@ -18,36 +18,22 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
 
   // Parse and memoize education data to prevent unnecessary recalculations
   const parseEducationData = (educationData) => {
-    console.log('🔍 Parsing education data:', {
-      educationData,
-      type: typeof educationData,
-      isArray: Array.isArray(educationData)
-    });
-    
     if (Array.isArray(educationData)) {
-      const filtered = educationData.filter(entry => entry && typeof entry === 'object');
-      console.log('✅ Parsed as array, filtered entries:', filtered.length);
-      return filtered;
+      return educationData.filter(entry => entry && typeof entry === 'object');
     }
     
     if (typeof educationData === 'string' && educationData.trim()) {
       try {
         const parsed = JSON.parse(educationData);
         if (Array.isArray(parsed)) {
-          const filtered = parsed.filter(entry => entry && typeof entry === 'object');
-          console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
-          return filtered;
-        } else {
-          console.log('⚠️ Parsed JSON but not an array:', parsed);
-          return [];
+          return parsed.filter(entry => entry && typeof entry === 'object');
         }
+        return [];
       } catch (e) {
-        console.error('❌ Error parsing education JSON:', e);
         return [];
       }
     }
     
-    console.log('ℹ️ No valid education data found');
     return [];
   };
 
@@ -73,7 +59,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     }
   };
 
-  // Format date for display
+  // Format date for display (compact format)
   const formatDate = (dateString) => {
     if (!dateString) return '';
     if (dateString.length === 4) return dateString; // Just year
@@ -105,149 +91,152 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
 
-    if (Math.abs(diff) > 50) { // Minimum swipe distance
+    if (Math.abs(diff) > 50) {
       if (diff > 0) {
-        goToNext(); // Swipe left = next
+        goToNext();
       } else {
-        goToPrev(); // Swipe right = previous
+        goToPrev();
       }
     }
   };
 
-  // Render single education card
-  const renderEducationCard = (entry, index, isCarousel = false) => (
+  // Render single education card (compact design)
+  const renderEducationCard = (entry, index) => (
     <div 
       key={entry.id || index} 
       style={{
-        position: 'relative',
-        padding: isCarousel ? '0' : '20px 0',
-        borderBottom: (!isCarousel && index < initialEducationData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
         width: '100%'
       }}
     >
-      {/* Header with degree and institution */}
-      <div style={{ marginBottom: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h4 style={{ 
-              margin: 0, 
-              fontSize: '18px', 
-              fontWeight: '700', 
-              color: textColor,
-              lineHeight: '1.3',
-              marginBottom: '6px',
-              letterSpacing: '-0.01em'
-            }}>
-              {entry.degree}{entry.field ? ` in ${entry.field}` : ''}
-            </h4>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginBottom: '8px'
-            }}>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                backgroundColor: '#374151',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0.8
-              }}>
-                <LuMapPin size={10} style={{ color: 'white' }} />
-              </div>
-              <span style={{
-                fontSize: '14px',
-                color: textColor,
-                fontWeight: '600',
-                opacity: 0.9
-              }}>
-                {entry.institution}
-              </span>
-            </div>
-          </div>
-          
-          {/* Current Education Badge */}
-          {entry.current && (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '4px 8px',
-              backgroundColor: 'rgba(16, 185, 129, 0.2)',
-              color: textColor,
-              fontSize: '11px',
-              fontWeight: '600',
-              borderRadius: '8px',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              <LuClock size={10} />
-              Current
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Date range */}
-      {(entry.startDate || entry.endDate || entry.current) && (
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '4px 8px',
-          marginRight: '8px',
-          marginBottom: '12px',
-          backdropFilter: 'blur(6px)',
-          WebkitBackdropFilter: 'blur(6px)',
-          background: 'rgba(255, 255, 255, 0.2)',
-          borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-        }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: '#374151',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuCalendar size={10} style={{ color: 'white' }} />
-          </div>
-          <span style={{
-            fontSize: '12px',
-            color: textColor,
-            fontWeight: '500',
-            opacity: 0.9
-          }}>
-            {entry.startDate && formatDate(entry.startDate)}
-            {entry.startDate && (entry.endDate || entry.current) && ' — '}
-            {entry.current ? 'Present' : (entry.endDate && formatDate(entry.endDate))}
-          </span>
-        </div>
-      )}
-
-      {/* Description */}
-      {entry.description && (
-        <div style={{ marginBottom: '16px' }}>
-          <p style={{ 
+      {/* Compact header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        gap: '8px'
+      }}>
+        <div style={{ flex: 1 }}>
+          <h4 style={{ 
             margin: 0, 
-            fontSize: '14px', 
+            fontSize: '16px', 
+            fontWeight: '600', 
             color: textColor,
-            lineHeight: '1.6',
-            opacity: 0.9
+            lineHeight: '1.3',
+            letterSpacing: '-0.01em'
           }}>
-            {entry.description}
+            {entry.degree}{entry.field ? ` in ${entry.field}` : ''}
+          </h4>
+          <p style={{
+            margin: '2px 0 0 0',
+            fontSize: '14px',
+            color: textColor,
+            opacity: 0.7,
+            fontWeight: '500'
+          }}>
+            {entry.institution}
           </p>
         </div>
+        {entry.current && (
+          <div style={{
+            padding: '2px 6px',
+            backgroundColor: '#10B981',
+            color: 'white',
+            fontSize: '10px',
+            fontWeight: '600',
+            borderRadius: '8px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            flexShrink: 0
+          }}>
+            Current
+          </div>
+        )}
+      </div>
+
+      {/* Compact meta info */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        flexWrap: 'wrap'
+      }}>
+        {/* Date range */}
+        {(entry.startDate || entry.endDate || entry.current) && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '2px 6px',
+            backgroundColor: `${textColor}15`,
+            borderRadius: '4px'
+          }}>
+            <LuCalendar size={10} style={{ color: textColor, opacity: 0.6 }} />
+            <span style={{
+              fontSize: '11px',
+              color: textColor,
+              fontWeight: '500',
+              opacity: 0.8
+            }}>
+              {entry.startDate && formatDate(entry.startDate)}
+              {entry.startDate && (entry.endDate || entry.current) && ' - '}
+              {entry.current ? 'Present' : (entry.endDate && formatDate(entry.endDate))}
+            </span>
+          </div>
+        )}
+
+        {/* Location */}
+        {entry.location && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            padding: '2px 6px',
+            backgroundColor: `${textColor}15`,
+            borderRadius: '4px'
+          }}>
+            <LuMapPin size={10} style={{ color: textColor, opacity: 0.6 }} />
+            <span style={{
+              fontSize: '11px',
+              color: textColor,
+              fontWeight: '500',
+              opacity: 0.8
+            }}>
+              {entry.location}
+            </span>
+          </div>
+        )}
+
+        {/* GPA */}
+        {entry.gpa && (
+          <span style={{
+            fontSize: '11px',
+            color: textColor,
+            opacity: 0.6,
+            fontWeight: '400'
+          }}>
+            GPA: {entry.gpa}
+          </span>
+        )}
+      </div>
+
+      {/* Compact description (optional, truncated) */}
+      {entry.description && (
+        <p style={{ 
+          margin: 0, 
+          fontSize: '13px', 
+          color: textColor,
+          lineHeight: '1.4',
+          opacity: 0.7,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
+        }}>
+          {entry.description}
+        </p>
       )}
     </div>
   );
@@ -299,186 +288,103 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
     );
   }
 
-  // Render display UI
-  if (initialEducationData.length > 0) {
-    return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit education"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
-      >
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuGraduationCap size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Education
-          </h3>
-        </div>
-
-        {/* Carousel content - Always show carousel for better UX */}
-        <div style={{ position: 'relative' }}>
-          {/* Current education */}
-          <div style={{ 
-            overflow: 'hidden',
-            width: '100%'
-          }}>
-            {renderEducationCard(initialEducationData[currentIndex], currentIndex, true)}
-          </div>
-
-          {/* Dots indicator - Only show if more than 1 education entry */}
-          {initialEducationData.length > 1 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '8px',
-              marginTop: '16px',
-              paddingTop: '12px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.3)'
-            }}>
-              {initialEducationData.map((_, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
-                    opacity: index === currentIndex ? 0.8 : 0.4,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onClick={() => goToSlide(index)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  } else {
-    // Empty state with standardized preview UI
-    return (
-      <div style={{
-        ...placeholderStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} title="Click to add education">
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuGraduationCap size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Education
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
-        }}>
-          <LuGraduationCap size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            Click to add your educational background and achievements
-          </p>
-        </div>
-      </div>
-    );
+  // If no education, don't show section
+  if (initialEducationData.length === 0) {
+    return null;
   }
+
+  // Show education with clean, compact design
+  return (
+    <div 
+      style={{
+        ...sectionStyle,
+        padding: '16px',
+        margin: '0 0 42px 0',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: 'none',
+        borderRadius: '12px',
+        boxShadow: 'none',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        width: '100%',
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Clean section header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
+      }}>
+        <div style={{
+          width: '20px',
+          height: '20px',
+          backgroundColor: '#6B7280',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <LuGraduationCap style={{ color: 'white', fontSize: '11px' }} />
+        </div>
+        <h2 style={{
+          ...sectionTitleStyle,
+          fontSize: '16px',
+          fontWeight: '600',
+          color: textColor,
+          margin: 0,
+          letterSpacing: '-0.01em'
+        }}>
+          Education
+        </h2>
+      </div>
+
+      {/* Compact content */}
+      <div style={{ 
+        marginBottom: initialEducationData.length > 1 ? '12px' : '0px'
+      }}>
+        {renderEducationCard(initialEducationData[currentIndex], currentIndex)}
+      </div>
+
+      {/* Navigation dots */}
+      {initialEducationData.length > 1 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '8px',
+          marginTop: '16px'
+        }}>
+          {initialEducationData.map((_, index) => (
+            <button
+              key={index}
+              style={{
+                width: index === currentIndex ? '24px' : '8px',
+                height: '8px',
+                borderRadius: '4px',
+                background: index === currentIndex 
+                  ? textColor
+                  : `${textColor}30`,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                transform: 'scale(1)'
+              }}
+              onClick={() => goToSlide(index)}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'scale(1.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'scale(1)';
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 } 

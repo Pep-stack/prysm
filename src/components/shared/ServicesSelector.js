@@ -414,6 +414,27 @@ function ServiceEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             <span className="text-white font-medium text-sm">Mark as Popular Service</span>
           </label>
         </div>
+
+        {/* Save/Cancel Buttons for individual entry */}
+        <div className="flex gap-3 pt-4 border-t border-gray-700">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!entry.title || !entry.category}
+            className="flex-1 px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: (!entry.title || !entry.category) ? '#6B7280' : '#059669',
+              color: 'white'
+            }}
+          >
+            {isNew ? 'Add Service' : 'Save Changes'}
+          </button>
+        </div>
       </div>
     );
   }

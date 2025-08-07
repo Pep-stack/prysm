@@ -115,7 +115,7 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
     }
   };
 
-  // Render single service card
+  // Render single service card - compact style like other sections
   const renderServiceCard = (entry, index, isCarousel = false) => {
     const expertiseDisplay = getExpertiseDisplay(entry.expertise);
     
@@ -123,311 +123,166 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
       <div 
         key={entry.id || index} 
         style={{
-          position: 'relative',
-          padding: isCarousel ? '0' : '16px',
-          backgroundColor: isCarousel ? 'transparent' : 'rgba(255, 255, 255, 0.1)',
-          borderRadius: isCarousel ? '0' : '12px',
-          border: isCarousel ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
-          marginBottom: (!isCarousel && index < initialServicesData.length - 1) ? '12px' : '0',
-          width: '100%',
-          backdropFilter: isCarousel ? 'none' : 'blur(6px)',
-          WebkitBackdropFilter: isCarousel ? 'none' : 'blur(6px)'
+          marginBottom: '12px',
+          padding: '12px 0',
+          borderBottom: (!isCarousel && index < initialServicesData.length - 1) ? `1px solid ${textColor}15` : 'none'
         }}
       >
-        {/* Header with service title and expertise */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <h4 style={{ 
-                  margin: 0, 
-                  fontSize: '18px', 
-                  fontWeight: '700', 
-                  color: textColor,
-                  lineHeight: '1.3',
-                  letterSpacing: '-0.01em'
+        {/* Header with service title and badges */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '8px'
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <h4 style={{ 
+                margin: 0, 
+                fontSize: '16px', 
+                fontWeight: '600', 
+                color: textColor,
+                lineHeight: '1.3'
+              }}>
+                {entry.title || 'Untitled Service'}
+              </h4>
+              {entry.isPopular && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '2px',
+                  padding: '2px 6px',
+                  backgroundColor: '#fef3c7',
+                  color: '#d97706',
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  borderRadius: '4px',
+                  border: '1px solid #fbbf24'
                 }}>
-                  {entry.title || 'Untitled Service'}
-                </h4>
-                {entry.isPopular && (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    backgroundColor: '#fef3c7',
-                    color: '#d97706',
-                    fontSize: '10px',
-                    fontWeight: '700',
-                    borderRadius: '12px',
-                    border: '1px solid #fbbf24'
-                  }}>
-                    <LuStar size={10} />
-                    POPULAR
-                  </div>
-                )}
+                  <LuStar size={8} />
+                  POPULAR
+                </div>
+              )}
+            </div>
+            
+            {/* Category and subcategory badges under title */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px', flexWrap: 'wrap' }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '3px 8px',
+                backgroundColor: '#3b82f6',
+                borderRadius: '6px'
+              }}>
+                <LuWrench size={10} style={{ color: 'white' }} />
+                <span style={{
+                  fontSize: '11px',
+                  color: 'white',
+                  fontWeight: '600'
+                }}>
+                  {entry.category || 'Uncategorized'}
+                </span>
               </div>
               
-              {/* Category and expertise badges */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              {entry.subcategory && (
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  padding: '4px 8px',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
+                  padding: '3px 8px',
+                  backgroundColor: `${textColor}15`,
+                  borderRadius: '6px'
                 }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: '#1e40af',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                  <span style={{
+                    fontSize: '11px',
+                    color: textColor,
+                    fontWeight: '500',
                     opacity: 0.8
                   }}>
-                    <LuWrench size={10} style={{ color: 'white' }} />
-                  </div>
-                  <span style={{
-                    fontSize: '12px',
-                    color: textColor,
-                    fontWeight: '600',
-                    opacity: 0.9
-                  }}>
-                    {entry.category || 'Uncategorized'}
+                    {entry.subcategory}
                   </span>
                 </div>
-                
-                {entry.subcategory && (
-                  <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '4px 8px',
-                    backdropFilter: 'blur(6px)',
-                    WebkitBackdropFilter: 'blur(6px)',
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    borderRadius: '8px',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-                  }}>
-                    <span style={{
-                      fontSize: '12px',
-                      color: textColor,
-                      fontWeight: '500',
-                      opacity: 0.8
-                    }}>
-                      {entry.subcategory}
-                    </span>
-                  </div>
-                )}
-                
-                <div style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '4px 8px',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-                }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: expertiseDisplay.color,
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0.8
-                  }}>
-                    <span style={{ fontSize: '8px', color: 'white' }}>{expertiseDisplay.icon}</span>
-                  </div>
-                  <span style={{
-                    fontSize: '12px',
-                    color: textColor,
-                    fontWeight: '600',
-                    opacity: 0.9
-                  }}>
-                    {expertiseDisplay.label}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
+          </div>
+          
+          {/* Expertise badge */}
+          <div style={{
+            padding: '2px 6px',
+            backgroundColor: expertiseDisplay.color,
+            color: 'white',
+            fontSize: '10px',
+            fontWeight: '600',
+            borderRadius: '8px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            flexShrink: 0
+          }}>
+            {expertiseDisplay.label}
           </div>
         </div>
 
-        {/* Service Description */}
+        {/* Price and Duration tags with icons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+          {entry.price && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '3px 8px',
+              backgroundColor: '#10b981',
+              borderRadius: '6px'
+            }}>
+              <LuDollarSign size={10} style={{ color: 'white' }} />
+              <span style={{
+                fontSize: '11px',
+                color: 'white',
+                fontWeight: '600'
+              }}>
+                {entry.price}
+              </span>
+            </div>
+          )}
+          
+          {entry.duration && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '3px 8px',
+              backgroundColor: '#6b7280',
+              borderRadius: '6px'
+            }}>
+              <LuClock size={10} style={{ color: 'white' }} />
+              <span style={{
+                fontSize: '11px',
+                color: 'white',
+                fontWeight: '600'
+              }}>
+                {entry.duration}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Compact description */}
         {entry.description && (
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginTop: '8px' }}>
             <p style={{ 
               margin: 0, 
-              fontSize: '14px', 
+              fontSize: '13px', 
               color: textColor,
-              lineHeight: '1.6',
-              opacity: 0.9
+              lineHeight: '1.4',
+              opacity: 0.7,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
             }}>
               {entry.description}
             </p>
           </div>
         )}
-
-        {/* Service Details */}
-        <div style={{ marginBottom: '16px' }}>
-          {/* Price and Duration */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-            {entry.price && (
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 8px',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                background: 'rgba(34, 197, 94, 0.2)',
-                borderRadius: '8px',
-                border: '1px solid rgba(34, 197, 94, 0.3)',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  backgroundColor: '#059669',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 0.8
-                }}>
-                  <LuDollarSign size={10} style={{ color: 'white' }} />
-                </div>
-                <span style={{
-                  fontSize: '12px',
-                  color: textColor,
-                  fontWeight: '600',
-                  opacity: 0.9
-                }}>
-                  {entry.price}
-                </span>
-              </div>
-            )}
-            
-            {entry.duration && (
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 8px',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                background: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  backgroundColor: '#374151',
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 0.8
-                }}>
-                  <LuClock size={10} style={{ color: 'white' }} />
-                </div>
-                <span style={{
-                  fontSize: '12px',
-                  color: textColor,
-                  fontWeight: '500',
-                  opacity: 0.9
-                }}>
-                  {entry.duration}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Features */}
-          {entry.features && entry.features.length > 0 && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-              marginTop: '12px'
-            }}>
-              <h5 style={{
-                margin: '0 0 8px 0',
-                fontSize: '13px',
-                fontWeight: '600',
-                color: textColor,
-                opacity: 0.8
-              }}>
-                Features & Benefits:
-              </h5>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '6px'
-              }}>
-                {entry.features.slice(0, 4).map((feature, idx) => (
-                  <div key={idx} style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '8px',
-                    padding: '6px 8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
-                  }}>
-                    <div style={{
-                      width: '12px',
-                      height: '12px',
-                      backgroundColor: '#059669',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginTop: '2px',
-                      flexShrink: 0
-                    }}>
-                      <LuCheck size={8} style={{ color: 'white' }} />
-                    </div>
-                    <span style={{
-                      fontSize: '12px',
-                      color: textColor,
-                      lineHeight: '1.4',
-                      opacity: 0.9
-                    }}>
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-                {entry.features.length > 4 && (
-                  <div style={{
-                    fontSize: '11px',
-                    color: textColor,
-                    padding: '4px 8px',
-                    opacity: 0.7,
-                    fontStyle: 'italic'
-                  }}>
-                    +{entry.features.length - 4} more features
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     );
   };
@@ -482,164 +337,124 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
   // Render display UI
   if (initialServicesData.length > 0) {
     return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit services"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '16px',
+          margin: '0 0 42px 0',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: 'none',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           marginBottom: '16px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#6B7280',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <LuWrench size={14} style={{ color: 'white' }} />
+            <LuWrench style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             Services Offered
-          </h3>
+          </h2>
         </div>
-
-        {/* Services content */}
+        
+        {/* Carousel content - Always show carousel for better UX */}
         <div style={{ position: 'relative' }}>
-          {initialServicesData.length === 1 ? (
-            // Single service - show directly
-            <div style={{ 
-              overflow: 'hidden',
-              width: '100%'
-            }}>
-              {renderServiceCard(initialServicesData[0], 0, true)}
-            </div>
-          ) : (
-            // Multiple services - show all in containers
-            <div style={{ 
+          {/* Current service */}
+          <div style={{ 
+            overflow: 'hidden',
+            width: '100%'
+          }}>
+            {renderServiceCard(initialServicesData[currentIndex], currentIndex, true)}
+          </div>
+
+          {/* Navigation dots - Only show if more than 1 service */}
+          {initialServicesData.length > 1 && (
+            <div style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              width: '100%'
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '16px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(0, 0, 0, 0.08)'
             }}>
-              {initialServicesData.map((service, index) => 
-                renderServiceCard(service, index, false)
-              )}
+              {initialServicesData.map((_, index) => (
+                <button
+                  key={index}
+                  style={{
+                    width: index === currentIndex ? '24px' : '8px',
+                    height: '8px',
+                    borderRadius: '4px',
+                    background: index === currentIndex 
+                      ? textColor
+                      : `${textColor}30`,
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: 'scale(1)'
+                  }}
+                  onClick={() => goToSlide(index)}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                />
+              ))}
             </div>
           )}
-
-
         </div>
       </div>
     );
   } else {
-    // Empty state with standardized preview UI
+    // Empty state
     return (
       <div style={{
-        ...placeholderStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} title="Click to add services">
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuWrench size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Services Offered
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
+        ...sectionStyle,
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: textColor,
+        opacity: 0.7
+      }}>
+        <LuWrench size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+        <p style={{
+          margin: 0,
+          fontSize: '16px',
+          color: textColor,
+          opacity: 0.7,
           textAlign: 'center'
         }}>
-          <LuWrench size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            Click to add your professional services with pricing, features, and expertise levels
-          </p>
-        </div>
+          No services added yet. Add your professional services with pricing and expertise levels.
+        </p>
       </div>
     );
   }

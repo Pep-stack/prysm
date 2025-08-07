@@ -436,10 +436,44 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
   if (isEditing) {
     return (
       <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Edit Portfolio Projects</h3>
         <ProjectSelector 
           value={currentSelection}
           onChange={setCurrentSelection}
         />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Save Projects
+          </button>
+        </div>
       </div>
     );
   }

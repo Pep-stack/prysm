@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { LuCalendar, LuExternalLink } from 'react-icons/lu';
+import AppointmentsEditor from '../../shared/AppointmentsEditor';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 export default function AppointmentsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
@@ -11,7 +12,7 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   
-  const [appointmentData, setAppointmentData] = useState(null);
+  const [currentSelection, setCurrentSelection] = useState(null);
 
   // Parse and memoize appointments data
   const parseAppointmentsData = (appointmentsData) => {
@@ -53,6 +54,25 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
     return parseAppointmentsData(profile?.appointments);
   }, [profile?.appointments]);
 
+  // Initialize selection state for editing
+  useEffect(() => {
+    if (isEditing) {
+      setCurrentSelection(initialAppointmentsData || {
+        title: 'Book an Appointment',
+        description: 'Schedule a meeting or consultation with me',
+        calendlyUrl: '',
+        buttonText: 'Book Now',
+        showCalendar: false
+      });
+    }
+  }, [isEditing, initialAppointmentsData]);
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(currentSelection);
+    }
+  };
+
   // Extract Calendly username from URL
   const extractCalendlyUsername = (url) => {
     if (!url) return '';
@@ -82,6 +102,52 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
     return url;
   };
 
+  // Render editing UI
+  if (isEditing) {
+    return (
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Edit Appointments</h3>
+        <AppointmentsEditor 
+          value={currentSelection}
+          onChange={setCurrentSelection}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // Main render
   if (initialAppointmentsData && initialAppointmentsData.calendlyUrl) {
     const calendlyUrl = initialAppointmentsData.calendlyUrl;
@@ -92,194 +158,168 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
       <div 
         style={{
           ...sectionStyle,
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          background: 'rgba(255, 255, 255, 0.25)',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          borderRadius: '16px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          transition: 'all 0.3s ease',
-          overflow: 'hidden',
+          padding: '16px',
+          margin: '0 0 42px 0',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: 'none',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
           width: '100%',
-          maxWidth: '100%',
-          boxSizing: 'border-box'
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         }}
       >
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           marginBottom: '16px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#6B7280',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <LuCalendar size={14} style={{ color: 'white' }} />
+            <LuCalendar style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
-            {initialAppointmentsData.title || 'Schedule a Call'}
-          </h3>
+            {initialAppointmentsData.title || 'Book an Appointment'}
+          </h2>
         </div>
 
-        {/* Content */}
+        {/* Compact content */}
         <div>
           {/* Description */}
           {initialAppointmentsData.description && (
-            <div style={{
+            <p style={{
+              margin: '0 0 12px 0',
+              fontSize: '13px',
               color: textColor,
-              fontSize: '14px',
               lineHeight: '1.4',
-              marginBottom: '16px',
-              opacity: 0.8
+              opacity: 0.7
             }}>
               {initialAppointmentsData.description}
-            </div>
+            </p>
           )}
 
-          {/* Calendly-styled wrapper */}
+          {/* Compact appointment card */}
           <div style={{
-            background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
-            border: '1px solid #333',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-            transition: 'all 0.3s ease'
+            padding: '12px',
+            background: `${textColor}05`,
+            border: `1px solid ${textColor}15`,
+            borderRadius: '8px',
+            marginBottom: '12px'
           }}>
-            {/* Calendly Header */}
-            <div style={{ 
-              backgroundColor: '#000000',
-              padding: '16px',
-              borderBottom: '1px solid #333'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {/* Calendly icon */}
+            {/* Calendar preview or simple info */}
+            {initialAppointmentsData.showCalendar && username ? (
+              <div style={{
+                marginBottom: '12px',
+                borderRadius: '6px',
+                overflow: 'hidden',
+                position: 'relative',
+                minHeight: '200px'
+              }}>
+                <iframe
+                  src={`https://calendly.com/${username}`}
+                  width="100%"
+                  height="300"
+                  frameBorder="0"
+                  title="Calendly Scheduling"
+                  style={{
+                    border: 'none',
+                    borderRadius: '6px'
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{
+                marginBottom: '12px'
+              }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '32px',
-                  height: '32px',
-                  backgroundColor: '#006BFF',
-                  borderRadius: '50%',
-                  overflow: 'hidden'
+                  gap: '8px',
+                  marginBottom: '6px'
                 }}>
-                  <LuCalendar style={{ color: '#ffffff', fontSize: '16px' }} />
-                </div>
-                <div>
                   <div style={{
-                    color: '#ffffff',
-                    fontSize: '14px',
+                    width: '16px',
+                    height: '16px',
+                    backgroundColor: '#006BFF',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <LuCalendar style={{ color: 'white', fontSize: '10px' }} />
+                  </div>
+                  <span style={{
+                    fontSize: '13px',
+                    color: textColor,
                     fontWeight: '600'
                   }}>
-                    Calendly
-                  </div>
-                  <div style={{
-                    color: '#888888',
-                    fontSize: '12px'
-                  }}>
-                    {username ? `@${username}` : 'Scheduling'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Calendly Content */}
-            <div style={{ padding: '16px' }}>
-              {/* Calendar preview or button */}
-              {initialAppointmentsData.showCalendar && username ? (
-                <div style={{
-                  marginBottom: '12px',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  minHeight: '200px'
-                }}>
-                  <iframe
-                    src={`https://calendly.com/${username}`}
-                    width="100%"
-                    height="400"
-                    frameBorder="0"
-                    title="Calendly Scheduling"
-                    style={{
-                      border: 'none',
-                      borderRadius: '8px'
-                    }}
-                  />
-                </div>
-              ) : (
-                <div style={{
-                  color: '#ffffff',
-                  fontSize: '14px',
-                  lineHeight: '1.4',
-                  marginBottom: '12px',
-                  minHeight: '40px'
-                }}>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    marginBottom: '8px'
-                  }}>
                     Ready to schedule?
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: '#888888'
-                  }}>
-                    Click the button below to book your appointment
-                  </div>
+                  </span>
                 </div>
-              )}
-              
-              {/* External link button */}
-              <a 
-                href={embedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '12px 16px',
-                  backgroundColor: '#006BFF',
-                  color: '#ffffff',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#0056CC';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#006BFF';
-                }}
-              >
-                <LuExternalLink style={{ fontSize: '12px' }} />
-                {initialAppointmentsData.buttonText || 'Schedule Now'}
-              </a>
-            </div>
+                <p style={{
+                  fontSize: '12px',
+                  color: textColor,
+                  opacity: 0.7,
+                  margin: 0,
+                  lineHeight: '1.3'
+                }}>
+                  Book your appointment using the link below
+                </p>
+              </div>
+            )}
+            
+            {/* Compact booking button */}
+            <a 
+              href={embedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '10px 16px',
+                backgroundColor: '#006BFF',
+                color: '#ffffff',
+                textDecoration: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#0056CC';
+                e.target.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#006BFF';
+                e.target.style.transform = 'translateY(0px)';
+              }}
+            >
+              <LuExternalLink size={12} />
+              {initialAppointmentsData.buttonText || 'Book Now'}
+            </a>
           </div>
         </div>
       </div>
@@ -289,72 +329,21 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
     return (
       <div style={{
         ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: textColor,
+        opacity: 0.7
       }}>
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuCalendar size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Schedule a Call
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
+        <LuCalendar size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+        <p style={{
+          margin: 0,
+          fontSize: '16px',
+          color: textColor,
+          opacity: 0.7,
           textAlign: 'center'
         }}>
-          <LuCalendar size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            No scheduling link yet. Add your Calendly link to let people book appointments.
-          </p>
-        </div>
+          No appointment booking added yet. Add your scheduling link to let people book meetings with you.
+        </p>
       </div>
     );
   }

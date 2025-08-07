@@ -1,6 +1,7 @@
 import React, { useMemo, useEffect, useState } from "react";
 import { LuHeart, LuCalendar, LuBriefcase, LuUser, LuQuote, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { supabase } from "../../../lib/supabase";
+import ClientTestimonialSelector from '../../shared/ClientTestimonialSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 // Parse testimonials data from profile
@@ -21,7 +22,7 @@ const parseTestimonialsData = (testimonialsData) => {
   return [];
 };
 
-const ClientTestimonialsSectionContent = ({ profile, styles }) => {
+const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, onCancel, user }) => {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   const { settings } = useDesignSettings();
   
@@ -29,6 +30,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
   const textColor = settings.text_color || '#000000';
   const [testimonialsFromDB, setTestimonialsFromDB] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentSelection, setCurrentSelection] = useState([]);
   
   // Debug logging for profile data
   console.log('🔍 CARD-TESTIMONIALS: Component received profile:', {
@@ -162,6 +164,9 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
     return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
+  // Touch handling for swipe gestures
+  const [touchStartX, setTouchStartX] = useState(0);
+
   // Carousel navigation functions
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % initialTestimonialsData.length);
@@ -175,221 +180,229 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
     setCurrentIndex(index);
   };
 
-  // Render single testimonial content
+  // Touch handling for swipe gestures
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+  };
+
+  // Initialize selection state for editing
+  useEffect(() => {
+    if (isEditing) {
+      setCurrentSelection(initialTestimonialsData);
+    }
+  }, [isEditing, initialTestimonialsData]);
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(currentSelection);
+    }
+  };
+
+  // Render editing UI
+  if (isEditing) {
+    return (
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Edit Client Testimonials</h3>
+        <ClientTestimonialSelector 
+          value={currentSelection}
+          onChange={setCurrentSelection}
+          userId={user?.id}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Render single testimonial content - compact style like other sections
   const renderTestimonialCard = (entry, index, isCarousel = false) => {
+    const getImageUrl = () => {
+      let imageUrl = null;
+      
+      // Handle photo_url (from database)
+      if (entry.photo_url) {
+        if (typeof entry.photo_url === 'string' && entry.photo_url.trim() !== '') {
+          imageUrl = entry.photo_url;
+        } else if (entry.photo_url && typeof entry.photo_url === 'object') {
+          if (entry.photo_url.publicUrl) {
+            imageUrl = entry.photo_url.publicUrl;
+          }
+        }
+      }
+      
+      // Handle photo (from form) if no photo_url
+      if (!imageUrl && entry.photo) {
+        if (typeof entry.photo === 'string' && entry.photo.trim() !== '') {
+          imageUrl = entry.photo;
+        } else if (entry.photo instanceof File) {
+          imageUrl = URL.createObjectURL(entry.photo);
+        }
+      }
+      
+      return imageUrl;
+    };
+
     return (
       <div 
         key={entry.id || index} 
         style={{
-          position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialTestimonialsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
+          marginBottom: '12px',
+          padding: '12px 0',
+          borderBottom: (!isCarousel && index < initialTestimonialsData.length - 1) ? `1px solid ${textColor}15` : 'none'
         }}
       >
         {/* Header with client info */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '8px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+            {/* Compact avatar */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '56px',
-              height: '56px',
-              backgroundColor: '#374151',
-              opacity: 0.8,
+              width: '64px',
+              height: '64px',
+              backgroundColor: '#ec4899',
               borderRadius: '50%',
               flexShrink: 0,
-              border: '3px solid rgba(255, 255, 255, 0.6)',
-              overflow: 'hidden',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+              overflow: 'hidden'
             }}>
-              {(() => {
-                let imageUrl = null;
-                
-                // Handle photo_url (from database)
-                if (entry.photo_url) {
-                  if (typeof entry.photo_url === 'string' && entry.photo_url.trim() !== '') {
-                    imageUrl = entry.photo_url;
-                  } else if (entry.photo_url && typeof entry.photo_url === 'object') {
-                    // If it's a Supabase URL object, extract the public URL
-                    if (entry.photo_url.publicUrl) {
-                      imageUrl = entry.photo_url.publicUrl;
+              {getImageUrl() ? (
+                <img 
+                  src={getImageUrl()}
+                  alt={entry.name} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    const fallbackIcon = e.target.nextSibling;
+                    if (fallbackIcon) {
+                      fallbackIcon.style.display = 'flex';
                     }
-                  }
-                }
-                
-                // Handle photo (from form) if no photo_url
-                if (!imageUrl && entry.photo) {
-                  if (typeof entry.photo === 'string' && entry.photo.trim() !== '') {
-                    imageUrl = entry.photo;
-                  } else if (entry.photo instanceof File) {
-                    imageUrl = URL.createObjectURL(entry.photo);
-                  }
-                }
-                
-                // Only render img if we have a valid URL
-                if (imageUrl) {
-                  return (
-                    <img 
-                      src={imageUrl}
-                      alt={entry.name} 
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        // Find the fallback icon and show it
-                        const fallbackIcon = e.target.parentElement.querySelector('.fallback-icon');
-                        if (fallbackIcon) {
-                          fallbackIcon.style.display = 'flex';
-                        }
-                      }}
-                    />
-                  );
-                }
-                
-                return null;
-              })()}
+                  }}
+                />
+              ) : null}
               <LuUser 
-                size={20} 
+                size={24} 
                 style={{ 
                   color: 'white',
-                  display: 'flex'
+                  display: getImageUrl() ? 'none' : 'flex'
                 }} 
-                className="fallback-icon"
               />
             </div>
+            
+            {/* Client info */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h4 style={{ 
-                margin: 0, 
-                fontSize: '18px', 
-                fontWeight: '700', 
+              <h4 style={{
+                margin: '0 0 2px 0',
+                fontSize: '16px',
+                fontWeight: '600',
                 color: textColor,
-                lineHeight: '1.3',
-                marginBottom: '6px',
-                letterSpacing: '-0.01em'
+                lineHeight: '1.3'
               }}>
                 {entry.name}
               </h4>
               {entry.profession && (
-                <div style={{ 
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '4px 8px',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
+                <p style={{
+                  margin: '2px 0 0 0',
+                  fontSize: '14px',
+                  color: textColor,
+                  opacity: 0.7,
+                  fontWeight: '500'
                 }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: '#374151',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0.8
-                  }}>
-                    <LuBriefcase size={10} style={{ color: 'white' }} />
-                  </div>
-                  <span style={{
-                    fontSize: '12px',
-                    color: textColor,
-                    fontWeight: '600',
-                    opacity: 0.9
-                  }}>
-                    {entry.profession}
-                  </span>
-                </div>
+                  {entry.profession}
+                </p>
               )}
             </div>
           </div>
+          
+          {/* Date badge */}
+          {entry.date && (
+            <div style={{
+              padding: '2px 6px',
+              backgroundColor: `${textColor}15`,
+              borderRadius: '4px',
+              flexShrink: 0
+            }}>
+              <span style={{
+                fontSize: '11px',
+                color: textColor,
+                fontWeight: '500',
+                opacity: 0.8
+              }}>
+                {new Date(entry.date).toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  year: 'numeric' 
+                })}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Quote */}
+        {/* Compact quote */}
         {entry.quote && (
-          <div style={{
-            position: 'relative',
-            padding: '16px 20px',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            background: 'rgba(255, 255, 255, 0.4)',
-            borderRadius: '12px',
-            border: '1px solid rgba(255, 255, 255, 0.5)',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.06)',
-            marginBottom: '12px'
-          }}>
-            <div style={{
-              position: 'absolute',
-              left: '12px',
-              top: '12px',
-              width: '20px',
-              height: '20px',
-              backgroundColor: '#374151',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: 0.8
-            }}>
-              <LuQuote size={12} style={{ color: 'white' }} />
-            </div>
-            <p style={{
-              margin: 0,
-              marginLeft: '32px',
-              fontSize: '14px',
+          <div style={{ marginTop: '8px' }}>
+            <p style={{ 
+              margin: 0, 
+              fontSize: '13px', 
               color: textColor,
-              lineHeight: '1.7',
+              lineHeight: '1.4',
+              opacity: 0.7,
               fontStyle: 'italic',
-              fontWeight: '500',
-              opacity: 0.9
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
             }}>
-              {entry.quote}
+              "{entry.quote}"
             </p>
-          </div>
-        )}
-
-        {/* Date */}
-        {entry.date && (
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 14px',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
-            background: 'rgba(255, 255, 255, 0.3)',
-            borderRadius: '10px',
-            border: '1px solid rgba(255, 255, 255, 0.4)',
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-          }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              backgroundColor: '#374151',
-              borderRadius: '6px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: 0.8
-            }}>
-              <LuCalendar size={14} style={{ color: 'white' }} />
-            </div>
-            <span style={{
-              fontSize: '13px',
-              color: textColor,
-              fontWeight: '600',
-              opacity: 0.9
-            }}>
-              {new Date(entry.date).toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </span>
           </div>
         )}
       </div>
@@ -406,63 +419,53 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
   
   if (initialTestimonialsData.length > 0) {
     return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit client testimonials"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '16px',
+          margin: '0 0 42px 0',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: 'none',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Titel bovenaan in de container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           marginBottom: '16px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#6B7280',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <LuHeart size={14} style={{ color: 'white' }} />
+            <LuHeart style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
             Client Testimonials
-          </h3>
+          </h2>
         </div>
         
         {/* Carousel content - Always show carousel for better UX */}
@@ -475,9 +478,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
             {renderTestimonialCard(initialTestimonialsData[currentIndex], currentIndex, true)}
           </div>
 
-
-
-          {/* Dots indicator - Only show if more than 1 testimonial */}
+          {/* Navigation dots - Only show if more than 1 testimonial */}
           {initialTestimonialsData.length > 1 && (
             <div style={{
               display: 'flex',
@@ -485,26 +486,29 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
               gap: '8px',
               marginTop: '16px',
               paddingTop: '12px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.3)'
+              borderTop: '1px solid rgba(0, 0, 0, 0.08)'
             }}>
               {initialTestimonialsData.map((_, index) => (
-                <div
+                <button
                   key={index}
                   style={{
-                    width: '8px',
+                    width: index === currentIndex ? '24px' : '8px',
                     height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
-                    opacity: index === currentIndex ? 0.8 : 0.4,
+                    borderRadius: '4px',
+                    background: index === currentIndex 
+                      ? textColor
+                      : `${textColor}30`,
+                    border: 'none',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: 'scale(1)'
                   }}
                   onClick={() => goToSlide(index)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.3)';
+                    e.target.style.transform = 'scale(1.2)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
+                    e.target.style.transform = 'scale(1)';
                   }}
                 />
               ))}
@@ -514,76 +518,25 @@ const ClientTestimonialsSectionContent = ({ profile, styles }) => {
       </div>
     );
   } else {
-    // Empty state with standardized preview UI
+    // Empty state
     return (
       <div style={{
-        ...placeholderStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} title="Click to add client testimonials">
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuHeart size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Client Testimonials
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
+        ...sectionStyle,
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: textColor,
+        opacity: 0.7
+      }}>
+        <LuHeart size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+        <p style={{
+          margin: 0,
+          fontSize: '16px',
+          color: textColor,
+          opacity: 0.7,
           textAlign: 'center'
         }}>
-          <LuHeart size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            Click to add testimonials from your satisfied clients
-          </p>
-        </div>
+          No testimonials added yet. Add client feedback and reviews.
+        </p>
       </div>
     );
   }

@@ -1,131 +1,271 @@
 'use client';
 
-import React from 'react';
-import { FaEnvelope } from 'react-icons/fa';
+import React, { useState, useEffect, useMemo } from 'react';
+import { LuMail } from 'react-icons/lu';
+import SubscribeSelector from '../../shared/SubscribeSelector';
+import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
-export default function SubscribeSectionContent({ section, profile, styles, isPublicView = false }) {
-  const { sectionStyle, sectionTitleStyle } = styles || {};
+export default function SubscribeSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
+  const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
+  const { settings } = useDesignSettings();
   
-  // Extract data from section
-  const subscribeData = section?.value || {};
-  const {
-    title = subscribeData.t || 'Subscribe',
-    description = subscribeData.d || 'Stay updated with our latest news and updates.',
-    placeholder = subscribeData.p || 'Your email...',
-    buttonText = subscribeData.b || 'Subscribe',
-    formUrl = subscribeData.f || '',
-    successMessage = subscribeData.s || 'Thank you for subscribing!'
-  } = subscribeData;
+  // Get text color from design settings
+  const textColor = settings.text_color || '#000000';
+  
+  const [currentSelection, setCurrentSelection] = useState(null);
 
-  const handleSubscribe = () => {
-    if (formUrl) {
-      window.open(formUrl, '_blank');
+  // Parse and memoize subscribe data
+  const parseSubscribeData = (subscribeData) => {
+    if (typeof subscribeData === 'object' && subscribeData !== null) {
+      return subscribeData;
+    }
+    
+    if (typeof subscribeData === 'string' && subscribeData.trim()) {
+      try {
+        const parsed = JSON.parse(subscribeData);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return parsed;
+        }
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    return null;
+  };
+
+  const initialSubscribeData = useMemo(() => {
+    return parseSubscribeData(profile?.subscribe);
+  }, [profile?.subscribe]);
+
+  // Initialize selection state for editing
+  useEffect(() => {
+    if (isEditing) {
+      setCurrentSelection(initialSubscribeData || {
+        t: 'Subscribe',
+        d: 'Stay updated with our latest news and updates.',
+        p: 'Your email...',
+        b: 'Subscribe',
+        f: '',
+        s: 'Thank you for subscribing!'
+      });
+    }
+  }, [isEditing, initialSubscribeData]);
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(currentSelection);
     }
   };
 
-  return (
-    <div style={{
-      ...sectionStyle,
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      background: 'rgba(255, 255, 255, 0.25)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-      transition: 'all 0.3s ease',
-      overflow: 'hidden',
-      width: '100%',
-      maxWidth: '100%',
-      boxSizing: 'border-box'
-    }} className="w-full">
-      {/* Title at the top of the container */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '16px',
-        paddingBottom: '12px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-      }}>
+  // Render editing UI
+  if (isEditing) {
+    return (
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Edit Subscribe</h3>
+        <SubscribeSelector 
+          value={currentSelection}
+          onChange={setCurrentSelection}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (initialSubscribeData && initialSubscribeData.f) {
+    // Extract data from initialSubscribeData
+    const {
+      t: title = 'Subscribe',
+      d: description = 'Stay updated with our latest news and updates.',
+      p: placeholder = 'Your email...',
+      b: buttonText = 'Subscribe',
+      f: formUrl = '',
+      s: successMessage = 'Thank you for subscribing!'
+    } = initialSubscribeData;
+
+    const handleSubscribe = () => {
+      if (formUrl) {
+        window.open(formUrl, '_blank');
+      }
+    };
+
+    return (
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '16px',
+          margin: '0 0 42px 0',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: 'none',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+      >
+        {/* Clean section header */}
         <div style={{
-          width: '24px',
-          height: '24px',
-          backgroundColor: '#374151',
-          borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.8
+          gap: '8px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
-          <FaEnvelope size={14} style={{ color: 'white' }} />
-        </div>
-        <h3 style={{
-          ...sectionTitleStyle,
-          fontSize: '18px',
-          fontWeight: '600',
-          color: '#000000',
-          margin: 0,
-          letterSpacing: '-0.01em',
-          opacity: 0.9
-        }}>
-          {title}
-        </h3>
-      </div>
-      
-      {description && (
-        <div style={{
-          marginBottom: '16px'
-        }}>
-          <p style={{
-            fontSize: '14px',
-            color: '#000000',
-            opacity: 0.7,
-            margin: 0,
-            lineHeight: '1.5'
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#6B7280',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            {description}
-          </p>
+            <LuMail style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            {title}
+          </h2>
         </div>
-      )}
 
-      {/* Subscribe Form */}
-      <div className="w-full">
-        <div className="flex gap-3 items-center">
-          {/* Email Input */}
-          <div className="flex-1">
+        {/* Compact content */}
+        <div>
+          {/* Description */}
+          {description && (
+            <p style={{
+              margin: '0 0 12px 0',
+              fontSize: '13px',
+              color: textColor,
+              lineHeight: '1.4',
+              opacity: 0.7
+            }}>
+              {description}
+            </p>
+          )}
+
+          {/* Compact subscribe form */}
+          <div style={{
+            display: 'flex',
+            gap: '8px',
+            flexDirection: 'column'
+          }}>
             <input
               type="email"
               placeholder={placeholder}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
               style={{
-                backgroundColor: 'white',
-                color: '#374151'
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: `1px solid ${textColor}30`,
+                background: `${textColor}05`,
+                color: textColor,
+                fontSize: '13px',
+                outline: 'none'
               }}
-              readOnly={!isPublicView}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#10b981';
+                e.target.style.backgroundColor = `${textColor}10`;
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = `${textColor}30`;
+                e.target.style.backgroundColor = `${textColor}05`;
+              }}
             />
+            <button
+              onClick={handleSubscribe}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '10px 16px',
+                backgroundColor: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#0d9668';
+                e.target.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#10b981';
+                e.target.style.transform = 'translateY(0px)';
+              }}
+            >
+              <LuMail size={14} />
+              {buttonText}
+            </button>
           </div>
-          
-          {/* Subscribe Button */}
-          <button
-            onClick={handleSubscribe}
-            disabled={!formUrl}
-            className="px-6 py-3 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            style={{
-              backgroundColor: '#10B981',
-              minWidth: 'fit-content'
-            }}
-          >
-            <FaEnvelope className="text-sm" />
-            {buttonText}
-          </button>
         </div>
-        
-        {/* Help text */}
-        <p className="text-xs text-gray-500 mt-2">
-          We&apos;ll never share your email with anyone else.
+      </div>
+    );
+  } else {
+    // Empty state
+    return (
+      <div style={{
+        ...sectionStyle,
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: textColor,
+        opacity: 0.7
+      }}>
+        <LuMail size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+        <p style={{
+          margin: 0,
+          fontSize: '16px',
+          color: textColor,
+          opacity: 0.7,
+          textAlign: 'center'
+        }}>
+          No subscription form added yet. Add a form URL to let people subscribe to your newsletter.
         </p>
       </div>
-    </div>
-  );
+    );
+  }
 } 

@@ -6,7 +6,6 @@ import { LuLanguages } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
 // Mapping from common language codes to emoji flags
-// This should match the mapping in LanguageSelector.js
 const langToCountry = {
   en: '🇬🇧', // English -> Great Britain flag
   nl: '🇳🇱', // Dutch -> Netherlands flag
@@ -120,7 +119,7 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
     if (isEditing) {
       setCurrentSelection(initialLanguageCodes);
     }
-  }, [isEditing]); // Removed initialLanguageCodes dependency to prevent reset on profile update while editing
+  }, [isEditing]);
 
   const handleSave = () => {
     if (onSave) {
@@ -135,18 +134,20 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
         <h3 style={sectionTitleStyle}>Edit Languages</h3>
         <LanguageSelector 
           value={currentSelection}
-          onChange={setCurrentSelection} // Update local state
+          onChange={setCurrentSelection}
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
           <button 
             onClick={onCancel} 
             style={{ 
-              padding: '8px 16px', 
+              padding: '10px 20px', 
               backgroundColor: '#f3f4f6',
               border: '1px solid #d1d5db',
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '14px',
-              cursor: 'pointer'
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
             }}
           >
             Cancel
@@ -154,13 +155,16 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
           <button 
             onClick={handleSave} 
             style={{ 
-              padding: '8px 16px', 
-              backgroundColor: '#10b981', 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
               color: 'white', 
               border: 'none', 
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '14px',
-              cursor: 'pointer'
+              fontWeight: '600',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(5, 150, 105, 0.2)',
+              transition: 'all 0.2s ease'
             }}
           >
             Save Languages
@@ -170,211 +174,92 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
     );
   }
 
-  // Render display UI (flags and/or language codes)
-  if (initialLanguageCodes.length > 0) {
-    return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit languages"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
-      >
-        {/* Titel bovenaan in de container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuLanguages size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Languages
-          </h3>
-        </div>
-        
-        {/* Languages display */}
-        <div style={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: '12px', 
-          alignItems: 'center' 
-        }}>
-          {initialLanguageCodes.map((code) => {
-            const flagEmoji = langToCountry[code];
-            
-            return (
-              <div 
-                key={code} 
-                style={{
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  border: '1px solid rgba(255, 255, 255, 0.4)',
-                  borderRadius: '12px',
-                  padding: '8px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}
-                title={`Language: ${code.toUpperCase()}`}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                {flagEmoji ? (
-                  <span style={{ 
-                    fontSize: '20px', 
-                    lineHeight: '1'
-                  }}>
-                    {flagEmoji}
-                  </span>
-                ) : (
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    backgroundColor: '#374151',
-                    borderRadius: '6px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: 0.8
-                  }}>
-                    <LuLanguages size={12} style={{ color: 'white' }} />
-                  </div>
-                )}
-                <span style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: textColor,
-                  opacity: 0.9
-                }}>
-                  {code.toUpperCase()}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  } else {
-    // Show placeholder if no languages selected with standardized preview UI
-    return (
-      <div style={{
-        ...placeholderStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} title="Click to edit languages">
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuLanguages size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Languages
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
-        }}>
-          <LuLanguages size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            Click to select languages you speak
-          </p>
-        </div>
-      </div>
-    );
+  // If no languages, don't show section
+  if (initialLanguageCodes.length === 0) {
+    return null;
   }
+
+  // Show languages with clean, compact design
+  return (
+    <div 
+      style={{
+        ...sectionStyle,
+        padding: '16px',
+        margin: '0 0 42px 0',
+        background: 'rgba(255, 255, 255, 0.05)',
+        border: 'none',
+        borderRadius: '12px',
+        boxShadow: 'none',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        width: '100%',
+        fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+      }}
+    >
+      {/* Clean section header */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
+      }}>
+        <div style={{
+          width: '20px',
+          height: '20px',
+          backgroundColor: '#6B7280',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <LuLanguages style={{ color: 'white', fontSize: '11px' }} />
+        </div>
+        <h2 style={{
+          ...sectionTitleStyle,
+          fontSize: '16px',
+          fontWeight: '600',
+          color: textColor,
+          margin: 0,
+          letterSpacing: '-0.01em'
+        }}>
+          Languages
+        </h2>
+      </div>
+
+      {/* Compact content */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px'
+      }}>
+        {initialLanguageCodes.map((langCode, index) => {
+          const flag = langToCountry[langCode] || '🌐';
+          const langName = new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode);
+          
+          return (
+            <div
+              key={index}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 10px',
+                backgroundColor: `${textColor}15`,
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '500',
+                color: textColor,
+                opacity: 0.9
+              }}
+            >
+              <span style={{ fontSize: '14px' }}>{flag}</span>
+              <span>{langName || langCode}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 } 

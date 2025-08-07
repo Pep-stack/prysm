@@ -1,121 +1,75 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { LuCircleHelp, LuChevronDown, LuChevronRight } from 'react-icons/lu';
+import FAQSelector from '../../shared/FAQSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
-import { supabase } from '../../../lib/supabase';
 
-export default function FAQSectionContent({ section, profile, user, styles = {} }) {
-  const [expandedItems, setExpandedItems] = useState(new Set());
-  const [faqData, setFaqData] = useState([]);
+export default function FAQSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
+  const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   const { settings } = useDesignSettings();
   
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   
-  // Load FAQ data directly from database if profile.faq is corrupted
-  useEffect(() => {
-    const loadFAQData = async () => {
-      if (!user?.id) return;
-      
-      console.log('🔍 FAQ-LOAD: Starting FAQ data load for user:', user.id);
-      
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('faq')
-          .eq('id', user.id)
-          .single();
-        
-        if (error) {
-          console.error('❌ FAQ-LOAD: Error loading FAQ data:', error);
-          return;
-        }
-        
-        console.log('🔍 FAQ-LOAD: Raw database response:', {
-          data,
-          hasFAQ: !!data?.faq,
-          faqType: typeof data?.faq
-        });
-        
-        if (data?.faq) {
-          try {
-            const parsedFAQ = typeof data.faq === 'string' ? JSON.parse(data.faq) : data.faq;
-            console.log('🔍 FAQ-LOAD: Parsed FAQ data:', {
-              parsedFAQ,
-              isArray: Array.isArray(parsedFAQ),
-              length: Array.isArray(parsedFAQ) ? parsedFAQ.length : 'not array'
-            });
-            
-            if (Array.isArray(parsedFAQ)) {
-              const cleanFAQData = parsedFAQ.map(item => ({
-                id: item.id,
-                question: item.question,
-                answer: item.answer
-              }));
-              
-              console.log('✅ FAQ-LOAD: Successfully loaded FAQ data from database:', {
-                cleanFAQData,
-                length: cleanFAQData.length
-              });
-              
-              setFaqData(cleanFAQData);
-              return;
-            }
-          } catch (parseError) {
-            console.error('❌ FAQ-LOAD: Error parsing FAQ data:', parseError);
-          }
-        }
-        
-        console.log('🔍 FAQ-LOAD: No FAQ data found in database');
-        setFaqData([]);
-      } catch (error) {
-        console.error('❌ FAQ-LOAD: Unexpected error:', error);
-        setFaqData([]);
-      }
-    };
+  const [expandedItems, setExpandedItems] = useState(new Set());
+  const [currentSelection, setCurrentSelection] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(0);
+
+  // Parse and memoize FAQ data
+  const parseFAQData = (faqData) => {
+    console.log('🔍 Parsing FAQ data:', {
+      faqData,
+      type: typeof faqData,
+      isArray: Array.isArray(faqData)
+    });
     
-    loadFAQData();
-  }, [user?.id]);
-  
-  // Log the FAQ data for debugging
-  console.log('🔍 FAQ-DATA: FAQ data for rendering:', {
-    profileFAQ: profile?.faq,
-    sectionValue: section?.value,
-    parsedFAQData: faqData,
-    faqDataLength: faqData.length
-  });
-  
-  // Section styling
-  const defaultSectionStyle = {
-    padding: '32px',
-    borderRadius: '20px',
-    background: settings.background_color || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: settings.text_color || '#ffffff',
-    fontFamily: settings.font_family || 'Inter, sans-serif',
-    fontSize: settings.font_size || '16px',
-    fontWeight: settings.font_weight || '400',
-    textAlign: settings.text_align || 'left',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
-    border: settings.border_style || 'none',
-    position: 'relative',
-    overflow: 'hidden'
+    if (Array.isArray(faqData)) {
+      const filtered = faqData.filter(entry => entry && typeof entry === 'object');
+      console.log('✅ Parsed as array, filtered entries:', filtered.length);
+      return filtered;
+    }
+    
+    if (typeof faqData === 'string' && faqData.trim()) {
+      try {
+        const parsed = JSON.parse(faqData);
+        if (Array.isArray(parsed)) {
+          const filtered = parsed.filter(entry => entry && typeof entry === 'object');
+          console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
+          return filtered;
+        } else {
+          console.log('⚠️ Parsed JSON but not an array:', parsed);
+          return [];
+        }
+      } catch (e) {
+        console.error('❌ Error parsing FAQ JSON:', e);
+        return [];
+      }
+    }
+    
+    console.log('ℹ️ No valid FAQ data found');
+    return [];
   };
 
-  const defaultSectionTitleStyle = {
-    fontSize: settings.title_font_size || '28px',
-    fontWeight: settings.title_font_weight || '700',
-    marginBottom: '24px',
-    color: settings.title_color || '#ffffff',
-    textAlign: settings.title_align || 'left'
+  const initialFAQData = useMemo(() => {
+    return parseFAQData(profile?.faq);
+  }, [profile?.faq]);
+
+  // Initialize selection state for editing
+  useEffect(() => {
+    if (isEditing) {
+      setCurrentSelection(initialFAQData);
+    }
+  }, [isEditing, initialFAQData]);
+
+  const handleSave = () => {
+    if (onSave) {
+      onSave(currentSelection);
+    }
   };
 
-  // Use provided styles or defaults
-  const finalSectionStyle = { ...defaultSectionStyle, ...styles.sectionStyle };
-  const finalSectionTitleStyle = { ...defaultSectionTitleStyle, ...styles.sectionTitleStyle };
-
-  // Toggle FAQ item
-  const toggleItem = (index) => {
+  const toggleExpanded = (index) => {
     const newExpanded = new Set(expandedItems);
     if (newExpanded.has(index)) {
       newExpanded.delete(index);
@@ -125,228 +79,289 @@ export default function FAQSectionContent({ section, profile, user, styles = {} 
     setExpandedItems(newExpanded);
   };
 
-  // If no FAQ data, show elegant placeholder with standardized preview UI
-  if (!faqData || faqData.length === 0) {
+  // Carousel navigation functions
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % initialFAQData.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + initialFAQData.length) % initialFAQData.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  // Touch handling for swipe gestures
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    }
+  };
+
+  // Reset carousel index when data changes
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [initialFAQData.length]);
+
+  // Render single FAQ item - compact style like other sections
+  const renderFAQCard = (faqItem, index, isCarousel = false) => {
+    const isExpanded = expandedItems.has(index);
+    
     return (
-      <div style={{
-        ...finalSectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }}>
-        {/* Title at the top of the container */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-        }}>
+      <div 
+        key={faqItem.id || index}
+        style={{
+          marginBottom: '12px',
+          padding: '12px 0',
+          borderBottom: (!isCarousel && index < initialFAQData.length - 1) ? `1px solid ${textColor}15` : 'none'
+        }}
+      >
+        {/* Question header - always clickable */}
+        <button
+          onClick={() => toggleExpanded(index)}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 0,
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left',
+            marginBottom: '6px'
+          }}
+        >
+          <h4 style={{
+            margin: 0,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            lineHeight: '1.3',
+            flex: 1,
+            paddingRight: '12px'
+          }}>
+            {faqItem.question}
+          </h4>
+          
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: 0.8
+            padding: '4px',
+            backgroundColor: `${textColor}15`,
+            borderRadius: '4px',
+            flexShrink: 0
           }}>
-            <LuCircleHelp size={14} style={{ color: 'white' }} />
+            {isExpanded ? (
+              <LuChevronDown size={14} style={{ color: textColor, opacity: 0.8 }} />
+            ) : (
+              <LuChevronRight size={14} style={{ color: textColor, opacity: 0.8 }} />
+            )}
           </div>
-          <h3 style={{
-            ...finalSectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
-            margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+        </button>
+
+        {/* Answer - collapsible */}
+        {isExpanded && (
+          <div style={{
+            marginTop: '8px',
+            paddingTop: '8px',
+            borderTop: `1px solid ${textColor}15`
           }}>
-            Frequently Asked Questions
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
-        }}>
-          <LuCircleHelp size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
-            color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
-          }}>
-            No FAQs added yet. Add frequently asked questions to help your visitors.
-          </p>
+            <p style={{
+              margin: 0,
+              fontSize: '13px',
+              color: textColor,
+              lineHeight: '1.4',
+              opacity: 0.7
+            }}>
+              {faqItem.answer}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render editing UI
+  if (isEditing) {
+    return (
+      <div style={sectionStyle}>
+        <h3 style={sectionTitleStyle}>Edit FAQ</h3>
+        <FAQSelector 
+          value={currentSelection}
+          onChange={setCurrentSelection}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+          <button 
+            onClick={onCancel} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#f3f4f6',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSave} 
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: '#059669', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            Save
+          </button>
         </div>
       </div>
     );
   }
 
-  return (
-    <div style={{
-      ...finalSectionStyle,
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      background: 'rgba(255, 255, 255, 0.25)',
-      border: '1px solid rgba(255, 255, 255, 0.4)',
-      borderRadius: '16px',
-      padding: '20px',
-      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-      transition: 'all 0.3s ease',
-      overflow: 'hidden',
-      width: '100%',
-      maxWidth: '100%',
-      boxSizing: 'border-box'
-    }}>
-      {/* Section Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        marginBottom: '16px',
-        paddingBottom: '12px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
-      }}>
+  if (initialFAQData.length > 0) {
+    return (
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '16px',
+          margin: '0 0 42px 0',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: 'none',
+          borderRadius: '12px',
+          boxShadow: 'none',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Clean section header */}
         <div style={{
-          width: '24px',
-          height: '24px',
-          backgroundColor: '#374151',
-          borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          opacity: 0.8
+          gap: '8px',
+          marginBottom: '16px',
+          paddingBottom: '12px',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
         }}>
-          <LuCircleHelp size={14} style={{ color: 'white' }} />
+          <div style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: '#6B7280',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <LuCircleHelp style={{ color: 'white', fontSize: '11px' }} />
+          </div>
+          <h2 style={{
+            ...sectionTitleStyle,
+            fontSize: '16px',
+            fontWeight: '600',
+            color: textColor,
+            margin: 0,
+            letterSpacing: '-0.01em'
+          }}>
+            FAQ
+          </h2>
         </div>
-        <h3 style={{
-          ...finalSectionTitleStyle,
-          fontSize: '18px',
-          fontWeight: '600',
-          color: textColor,
-          margin: 0,
-          letterSpacing: '-0.01em',
-          opacity: 0.9
-        }}>
-          Frequently Asked Questions
-        </h3>
-      </div>
+        
+        {/* Carousel content - Always show carousel for better UX */}
+        <div style={{ position: 'relative' }}>
+          {/* Current FAQ */}
+          <div style={{ 
+            overflow: 'hidden',
+            width: '100%'
+          }}>
+            {renderFAQCard(initialFAQData[currentIndex], currentIndex, true)}
+          </div>
 
-      {/* FAQ Items */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {faqData.map((item, index) => {
-          const isExpanded = expandedItems.has(index);
-          
-          return (
-            <div
-              key={item.id || index}
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              {/* Question Button */}
-              <button
-                onClick={() => toggleItem(index)}
-                style={{
-                  width: '100%',
-                  padding: '16px 20px',
-                  background: 'transparent',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                  color: 'white',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  textAlign: 'left',
-                  transition: 'background-color 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                <span style={{ flex: 1, marginRight: '16px' }}>
-                  {item.question}
-                </span>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '24px',
-                  height: '24px',
-                  transition: 'transform 0.3s ease'
-                }}>
-                  {isExpanded ? (
-                    <LuChevronDown size={20} style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
-                  ) : (
-                    <LuChevronRight size={20} style={{ color: 'rgba(255, 255, 255, 0.8)' }} />
-                  )}
-                </div>
-              </button>
-
-              {/* Answer Content */}
-              {isExpanded && (
-                <div
+          {/* Navigation dots - Only show if more than 1 FAQ */}
+          {initialFAQData.length > 1 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '8px',
+              marginTop: '16px',
+              paddingTop: '12px',
+              borderTop: '1px solid rgba(0, 0, 0, 0.08)'
+            }}>
+              {initialFAQData.map((_, index) => (
+                <button
+                  key={index}
                   style={{
-                    padding: '0 20px 16px 20px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-                    animation: 'slideDown 0.3s ease'
+                    width: index === currentIndex ? '24px' : '8px',
+                    height: '8px',
+                    borderRadius: '4px',
+                    background: index === currentIndex 
+                      ? textColor
+                      : `${textColor}30`,
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: 'scale(1)'
                   }}
-                >
-                  <p style={{
-                    margin: '16px 0 0 0',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '14px',
-                    lineHeight: '1.6',
-                    fontWeight: '400'
-                  }}>
-                    {item.answer}
-                  </p>
-                </div>
-              )}
+                  onClick={() => goToSlide(index)}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'scale(1.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'scale(1)';
+                  }}
+                />
+              ))}
             </div>
-          );
-        })}
+          )}
+        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            max-height: 0;
-          }
-          to {
-            opacity: 1;
-            max-height: 200px;
-          }
-        }
-      `}</style>
-    </div>
-  );
+    );
+  } else {
+    // Empty state
+    return (
+      <div style={{
+        ...sectionStyle,
+        textAlign: 'center',
+        padding: '40px 20px',
+        color: textColor,
+        opacity: 0.7
+      }}>
+        <LuCircleHelp size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
+        <p style={{
+          margin: 0,
+          fontSize: '16px',
+          color: textColor,
+          opacity: 0.7,
+          textAlign: 'center'
+        }}>
+          No FAQs added yet. Add frequently asked questions to help your visitors.
+        </p>
+      </div>
+    );
+  }
 } 
