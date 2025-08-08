@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useFileUpload } from '../../hooks/useFileUpload';
 
 export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUploadSuccess }) {
@@ -92,12 +93,11 @@ export default function ProfileHeaderUploader({ user, currentHeaderUrl, onUpload
       }}>
         {currentHeaderUrl ? (
           <>
-            <img 
+            <Image 
               src={currentHeaderUrl} 
               alt="Profile Header" 
+              fill
               style={{
-                width: '100%',
-                height: '100%',
                 objectFit: 'cover'
               }}
             />

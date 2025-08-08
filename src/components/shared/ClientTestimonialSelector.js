@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { LuPlus, LuPencil, LuTrash2, LuHeart, LuUser, LuCalendar, LuBriefcase, LuUpload, LuX } from 'react-icons/lu';
 import { useTestimonials } from '../../hooks/useTestimonials';
 
@@ -330,10 +331,11 @@ function TestimonialEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDe
             <div className="flex items-center gap-4">
               <div className="w-20 h-20 rounded-full bg-pink-900 flex items-center justify-center overflow-hidden">
                 {newEntry.photo ? (
-                  <img
+                  <Image
                     src={typeof newEntry.photo === 'string' ? newEntry.photo : (newEntry.photo instanceof File ? URL.createObjectURL(newEntry.photo) : newEntry.photo)}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -436,10 +438,11 @@ function TestimonialEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDe
           {/* Avatar */}
           <div className="w-12 h-12 rounded-full bg-pink-900 flex items-center justify-center flex-shrink-0">
             {entry.photo_url || entry.photo ? (
-              <img
+              <Image
                 src={entry.photo_url || (typeof entry.photo === 'string' ? entry.photo : (entry.photo instanceof File ? URL.createObjectURL(entry.photo) : entry.photo))}
                 alt={entry.name}
-                className="w-full h-full object-cover rounded-full"
+                fill
+                className="object-cover rounded-full"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';

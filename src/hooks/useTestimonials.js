@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 export function useTestimonials(userId) {
@@ -7,7 +7,7 @@ export function useTestimonials(userId) {
   const [error, setError] = useState(null);
 
   // Fetch testimonials
-  const fetchTestimonials = async () => {
+  const fetchTestimonials = useCallback(async () => {
     if (!userId) return;
     
     try {
@@ -27,7 +27,7 @@ export function useTestimonials(userId) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   // Add testimonial
   const addTestimonial = async (testimonial) => {
@@ -213,7 +213,7 @@ export function useTestimonials(userId) {
 
   useEffect(() => {
     fetchTestimonials();
-  }, [userId]);
+  }, [userId, fetchTestimonials]);
 
   return {
     testimonials,

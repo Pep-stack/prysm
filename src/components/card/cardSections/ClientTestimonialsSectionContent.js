@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
+import Image from 'next/image';
 import { LuHeart, LuCalendar, LuBriefcase, LuUser, LuQuote, LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { supabase } from "../../../lib/supabase";
 import ClientTestimonialSelector from '../../shared/ClientTestimonialSelector';
@@ -316,10 +317,11 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
               overflow: 'hidden'
             }}>
               {getImageUrl() ? (
-                <img 
+                <Image 
                   src={getImageUrl()}
                   alt={entry.name} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  fill
+                  style={{ objectFit: 'cover' }}
                   onError={(e) => {
                     e.target.style.display = 'none';
                     const fallbackIcon = e.target.nextSibling;
@@ -401,7 +403,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden'
             }}>
-              "{entry.quote}"
+              &ldquo;{entry.quote}&rdquo;
             </p>
           </div>
         )}

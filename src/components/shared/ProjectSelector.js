@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { LuUpload, LuX, LuPlay, LuImage, LuLoader, LuFolderOpen } from 'react-icons/lu';
 import { supabase } from '../../lib/supabase';
 import { getAvailableBucket, diagnoseStorageSetup, findWorkingBucket } from '../../lib/supabase-storage-setup';
@@ -294,7 +295,7 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
       hasMediaItems: !!(localEntry.mediaItems && localEntry.mediaItems.length > 0),
       mediaItemsCount: localEntry.mediaItems?.length || 0
     });
-  }, [localEntry]);
+  }, [localEntry.mediaItems?.length]);
 
   const handleInputChange = (field, value) => {
     console.log('🔄 handleInputChange called:', { field, value, currentLocalEntry: { ...localEntry } });
@@ -496,11 +497,12 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                         controls
                       />
                     ) : (
-                      <img
-                        src={media.url}
-                        alt={`Media ${mediaIndex + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-700"
-                      />
+                                          <Image
+                      src={media.url}
+                      alt={`Media ${mediaIndex + 1}`}
+                      fill
+                      className="object-cover rounded-lg"
+                    />
                     )}
                     <button
                       onClick={() => {
@@ -524,10 +526,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                       controls
                     />
                   ) : (
-                    <img
+                    <Image
                       src={localEntry.mediaUrl}
                       alt="Media"
-                      className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                      fill
+                      className="object-cover rounded-lg"
                     />
                   )}
                   <button
@@ -646,10 +649,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                       muted
                     />
                   ) : (
-                    <img
+                    <Image
                       src={entry.mediaItems[0].url}
                       alt={entry.title}
-                      className="w-full max-h-32 object-cover rounded-lg"
+                      fill
+                      className="object-cover rounded-lg"
                     />
                   )}
                 </div>
@@ -665,10 +669,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                           muted
                         />
                       ) : (
-                        <img
+                        <Image
                           src={media.url}
                           alt={`${entry.title} ${mediaIndex + 1}`}
-                          className="w-full h-20 object-cover rounded-lg"
+                          fill
+                          className="object-cover rounded-lg"
                         />
                       )}
                     </div>
@@ -693,10 +698,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                   muted
                 />
               ) : (
-                <img
+                <Image
                   src={entry.mediaUrl}
                   alt={entry.title}
-                  className="w-full max-h-32 object-cover rounded-lg"
+                  fill
+                  className="object-cover rounded-lg"
                 />
               )}
             </div>
