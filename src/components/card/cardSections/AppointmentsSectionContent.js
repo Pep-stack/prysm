@@ -12,6 +12,21 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   
+  // Function to get contrasting text color
+  const getContrastColor = (backgroundColor) => {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return white for dark colors, black for light colors
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
+  
   const [currentSelection, setCurrentSelection] = useState(null);
 
   // Parse and memoize appointments data
@@ -182,7 +197,7 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: '#6B7280',
+            backgroundColor: settings.icon_color || '#6B7280',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
@@ -198,7 +213,7 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
             margin: 0,
             letterSpacing: '-0.01em'
           }}>
-            {initialAppointmentsData.title || 'Book an Appointment'}
+            Book an Appointment
           </h2>
         </div>
 
@@ -217,110 +232,78 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
             </p>
           )}
 
-          {/* Compact appointment card */}
-          <div style={{
-            padding: '12px',
-            background: `${textColor}05`,
-            border: `1px solid ${textColor}15`,
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            {/* Calendar preview or simple info */}
-            {initialAppointmentsData.showCalendar && username ? (
-              <div style={{
-                marginBottom: '12px',
-                borderRadius: '6px',
-                overflow: 'hidden',
-                position: 'relative',
-                minHeight: '200px'
-              }}>
-                <iframe
-                  src={`https://calendly.com/${username}`}
-                  width="100%"
-                  height="300"
-                  frameBorder="0"
-                  title="Calendly Scheduling"
-                  style={{
-                    border: 'none',
-                    borderRadius: '6px'
-                  }}
-                />
-              </div>
-            ) : (
-              <div style={{
-                marginBottom: '12px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  marginBottom: '6px'
-                }}>
-                  <div style={{
-                    width: '16px',
-                    height: '16px',
-                    backgroundColor: '#006BFF',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <LuCalendar style={{ color: 'white', fontSize: '10px' }} />
-                  </div>
-                  <span style={{
-                    fontSize: '13px',
-                    color: textColor,
-                    fontWeight: '600'
-                  }}>
-                    Ready to schedule?
-                  </span>
-                </div>
-                <p style={{
-                  fontSize: '12px',
-                  color: textColor,
-                  opacity: 0.7,
-                  margin: 0,
-                  lineHeight: '1.3'
-                }}>
-                  Book your appointment using the link below
-                </p>
-              </div>
-            )}
-            
-            {/* Compact booking button */}
-            <a 
-              href={embedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '10px 16px',
-                backgroundColor: '#006BFF',
-                color: '#ffffff',
-                textDecoration: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                transition: 'all 0.2s ease',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#0056CC';
-                e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#006BFF';
-                e.target.style.transform = 'translateY(0px)';
-              }}
-            >
-              <LuExternalLink size={12} />
-              {initialAppointmentsData.buttonText || 'Book Now'}
-            </a>
-          </div>
+          {/* Calendar embed or booking section */}
+          {initialAppointmentsData.showCalendar && username ? (
+            <div style={{
+              marginBottom: '12px',
+              borderRadius: '6px',
+              overflow: 'hidden',
+              border: `1px solid ${textColor}30`,
+              background: `${textColor}05`
+            }}>
+              <iframe
+                src={`https://calendly.com/${username}`}
+                width="100%"
+                height="300"
+                frameBorder="0"
+                title="Calendly Scheduling"
+                style={{
+                  border: 'none',
+                  borderRadius: '6px'
+                }}
+              />
+            </div>
+          ) : (
+            <p style={{
+              fontSize: '13px',
+              color: textColor,
+              opacity: 0.7,
+              margin: '0 0 12px 0'
+            }}>
+              Click below to book your appointment
+            </p>
+          )}
+          
+          {/* Booking button */}
+          <a 
+            href={embedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              backgroundColor: textColor,
+              color: getContrastColor(textColor),
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              border: 'none',
+              boxShadow: `0 2px 8px ${textColor}20`,
+              position: 'relative',
+              minHeight: '44px',
+              width: '40%',
+              boxSizing: 'border-box'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = `0 4px 12px ${textColor}30`;
+              e.target.style.backgroundColor = `${textColor}e6`;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0px)';
+              e.target.style.boxShadow = `0 2px 8px ${textColor}20`;
+              e.target.style.backgroundColor = textColor;
+            }}
+          >
+            <LuExternalLink size={16} />
+            {initialAppointmentsData.buttonText || 'Book Now'}
+          </a>
         </div>
       </div>
     );
@@ -342,7 +325,7 @@ export default function AppointmentsSectionContent({ profile, styles, isEditing,
           opacity: 0.7,
           textAlign: 'center'
         }}>
-          No appointment booking added yet. Add your scheduling link to let people book meetings with you.
+          No appointment booking added yet. Add your scheduling link to let people book appointments with you.
         </p>
       </div>
     );

@@ -250,7 +250,7 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
               alignItems: 'center',
               gap: '4px',
               padding: '3px 8px',
-              backgroundColor: '#6b7280',
+              backgroundColor: settings.icon_color || '#6b7280',
               borderRadius: '6px'
             }}>
               <LuClock size={10} style={{ color: 'white' }} />
@@ -366,7 +366,7 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: '#6B7280',
+            backgroundColor: settings.icon_color || '#6B7280',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

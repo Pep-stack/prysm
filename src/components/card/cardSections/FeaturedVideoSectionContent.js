@@ -125,7 +125,7 @@ export default function FeaturedVideoSectionContent({ profile, styles, isEditing
         <div style={{
           width: '20px',
           height: '20px',
-          backgroundColor: '#DC2626',
+          backgroundColor: settings.icon_color || '#DC2626',
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

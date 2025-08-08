@@ -1,5 +1,113 @@
 import { supabase } from './supabase';
 
+// Diagnose storage setup issues
+export async function diagnoseStorageSetup() {
+  const results = [];
+  
+  try {
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      results.push({
+        type: 'error',
+        message: 'User not authenticated. Please log in first.',
+        action: 'Log in to your account'
+      });
+      return results;
+    }
+    
+    results.push({
+      type: 'success',
+      message: `User authenticated: ${user.email}`,
+      action: null
+    });
+
+    // Check buckets
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      results.push({
+        type: 'error',
+        message: `Cannot list buckets: ${listError.message}`,
+        action: 'Check Supabase connection and permissions'
+      });
+      return results;
+    }
+
+    results.push({
+      type: 'info',
+      message: `Found ${buckets?.length || 0} storage buckets`,
+      action: null
+    });
+
+    const projectMediaBucket = buckets?.find(bucket => bucket.name === 'project-media');
+    
+    if (!projectMediaBucket) {
+      results.push({
+        type: 'warning',
+        message: 'project-media bucket does not exist',
+        action: 'Create bucket or run setup SQL from docs/STORAGE_SETUP.md'
+      });
+    } else {
+      results.push({
+        type: 'success',
+        message: `project-media bucket exists (public: ${projectMediaBucket.public})`,
+        action: projectMediaBucket.public ? null : 'Make bucket public in Supabase Dashboard'
+      });
+    }
+
+    // Test upload to check RLS policies
+    try {
+      const testFile = new Blob(['test'], { type: 'text/plain' });
+      const testPath = `test/${Date.now()}.txt`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('project-media')
+        .upload(testPath, testFile);
+      
+      if (uploadError) {
+        if (uploadError.message?.includes('row-level security policy')) {
+          results.push({
+            type: 'error',
+            message: 'RLS policies are blocking uploads',
+            action: 'Run the storage policy SQL from docs/STORAGE_SETUP.md'
+          });
+        } else {
+          results.push({
+            type: 'error',
+            message: `Upload test failed: ${uploadError.message}`,
+            action: 'Check storage configuration'
+          });
+        }
+      } else {
+        results.push({
+          type: 'success',
+          message: 'Upload test successful',
+          action: null
+        });
+        
+        // Clean up test file
+        await supabase.storage.from('project-media').remove([testPath]);
+      }
+    } catch (testError) {
+      results.push({
+        type: 'error',
+        message: `Upload test error: ${testError.message}`,
+        action: 'Check storage and authentication setup'
+      });
+    }
+
+  } catch (error) {
+    results.push({
+      type: 'error',
+      message: `Diagnosis failed: ${error.message}`,
+      action: 'Check Supabase connection'
+    });
+  }
+  
+  return results;
+}
+
 export async function ensureProjectMediaBucket() {
   try {
     // Check if bucket exists
@@ -63,7 +171,56 @@ export async function ensureStoragePolicies() {
 }
 
 // Alternative bucket names to try if project-media fails
-export const FALLBACK_BUCKETS = ['uploads', 'media', 'files'];
+export const FALLBACK_BUCKETS = ['uploads', 'media', 'files', 'avatars', 'public'];
+
+// Try to find a bucket that already has working permissions
+export async function findWorkingBucket() {
+  try {
+    const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+    
+    if (listError) {
+      console.error('Error listing buckets:', listError);
+      return null;
+    }
+
+    console.log('🔍 Checking available buckets for working permissions...');
+
+    // Try each bucket to see if upload works
+    for (const bucket of buckets || []) {
+      try {
+        console.log(`🧪 Testing bucket: ${bucket.name}`);
+        
+        // Create a small test file
+        const testFile = new Blob(['test'], { type: 'text/plain' });
+        const testPath = `test-${Date.now()}.txt`;
+        
+        // Try to upload to this bucket
+        const { error: uploadError } = await supabase.storage
+          .from(bucket.name)
+          .upload(testPath, testFile);
+        
+        if (!uploadError) {
+          console.log(`✅ Bucket ${bucket.name} works! Cleaning up test file...`);
+          
+          // Clean up test file
+          await supabase.storage.from(bucket.name).remove([testPath]);
+          
+          return bucket.name;
+        } else {
+          console.log(`❌ Bucket ${bucket.name} failed:`, uploadError.message);
+        }
+      } catch (testError) {
+        console.log(`❌ Bucket ${bucket.name} exception:`, testError.message);
+      }
+    }
+    
+    console.log('❌ No working buckets found');
+    return null;
+  } catch (error) {
+    console.error('Error finding working bucket:', error);
+    return null;
+  }
+}
 
 export async function getAvailableBucket() {
   try {

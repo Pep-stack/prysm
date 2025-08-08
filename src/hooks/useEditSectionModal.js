@@ -93,6 +93,20 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
           Object.keys(item).forEach(key => {
             if (typeof item[key] !== 'object' || item[key] === null) {
               cleanItem[key] = item[key];
+            } else if (key === 'mediaItems' && Array.isArray(item[key])) {
+              // Special handling for mediaItems array in projects when loading
+              cleanItem[key] = item[key].map(mediaItem => {
+                if (mediaItem && typeof mediaItem === 'object') {
+                  return {
+                    url: mediaItem.url || '',
+                    type: mediaItem.type || 'image'
+                  };
+                }
+                return mediaItem;
+              });
+            } else if (Array.isArray(item[key])) {
+              // Handle other arrays by copying them safely
+              cleanItem[key] = [...item[key]];
             }
           });
           return cleanItem;
@@ -291,6 +305,20 @@ export function useEditSectionModal(user, initialProfileData, onProfileUpdate) {
               Object.keys(item).forEach(key => {
                 if (typeof item[key] !== 'object' || item[key] === null) {
                   cleanItem[key] = item[key];
+                } else if (key === 'mediaItems' && Array.isArray(item[key])) {
+                  // Special handling for mediaItems array in projects
+                  cleanItem[key] = item[key].map(mediaItem => {
+                    if (mediaItem && typeof mediaItem === 'object') {
+                      return {
+                        url: mediaItem.url || '',
+                        type: mediaItem.type || 'image'
+                      };
+                    }
+                    return mediaItem;
+                  });
+                } else if (Array.isArray(item[key])) {
+                  // Handle other arrays by copying them safely
+                  cleanItem[key] = [...item[key]];
                 }
               });
             }

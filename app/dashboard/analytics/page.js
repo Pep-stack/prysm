@@ -348,27 +348,59 @@ export default function AnalyticsPage() {
         {/* Daily Views Chart */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Daily Views</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={analyticsData.dailyViews}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="date" 
-                tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              />
-              <YAxis />
-              <Tooltip 
-                labelFormatter={(value) => new Date(value).toLocaleDateString()}
-                formatter={(value) => [value, 'Views']}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="views" 
-                stroke="#0088FE" 
-                fill="#0088FE" 
-                fillOpacity={0.3}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="bg-gray-100 rounded-lg p-4">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={analyticsData.dailyViews} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#D1D5DB" 
+                  strokeOpacity={0.8}
+                />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#6B7280', fontSize: 12 }}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#6B7280', fontSize: 12 }}
+                  tickFormatter={(value) => formatNumber(value)}
+                />
+                <Tooltip 
+                  labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  formatter={(value) => [value, 'Views']}
+                  contentStyle={{
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '8px',
+                    color: '#374151'
+                  }}
+                  labelStyle={{ color: '#6B7280' }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="views" 
+                  stroke="#000000" 
+                  strokeWidth={2}
+                  dot={{ 
+                    fill: '#10B981', 
+                    strokeWidth: 2, 
+                    r: 4,
+                    stroke: '#FFFFFF'
+                  }}
+                  activeDot={{ 
+                    r: 6, 
+                    fill: '#059669',
+                    stroke: '#FFFFFF',
+                    strokeWidth: 2
+                  }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Social Clicks - Modern Cards Layout */}

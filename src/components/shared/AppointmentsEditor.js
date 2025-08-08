@@ -4,7 +4,7 @@ import { LuCalendar, LuLink, LuSettings } from 'react-icons/lu';
 
 export default function AppointmentsEditor({ value = '', onChange, onSave: modalOnSave, onCancel: modalOnCancel }) {
   const [appointmentData, setAppointmentData] = useState({
-    title: value?.title || 'Schedule a Call',
+    title: value?.title || 'Book an Appointment',
     description: value?.description || 'Book a time to chat with me',
     calendlyUrl: value?.calendlyUrl || '',
     buttonText: value?.buttonText || 'Schedule Now',
@@ -14,7 +14,7 @@ export default function AppointmentsEditor({ value = '', onChange, onSave: modal
   useEffect(() => {
     if (value && typeof value === 'object') {
       setAppointmentData({
-        title: value.title || 'Schedule a Call',
+        title: value.title || 'Book an Appointment',
         description: value.description || 'Book a time to chat with me',
         calendlyUrl: value.calendlyUrl || '',
         buttonText: value.buttonText || 'Schedule Now',
@@ -85,7 +85,7 @@ export default function AppointmentsEditor({ value = '', onChange, onSave: modal
             <LuCalendar className="text-white text-xl" />
           </div>
           <div>
-            <h3 className="text-white font-semibold text-lg">Schedule a Call</h3>
+            <h3 className="text-white font-semibold text-lg">Book an Appointment</h3>
             <p className="text-gray-400 text-sm">Add your Calendly integration</p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function AppointmentsEditor({ value = '', onChange, onSave: modal
                 setAppointmentData(newData);
                 onChange(newData);
               }}
-              placeholder="Schedule a Call"
+              placeholder="Book an Appointment"
               className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               style={{ backgroundColor: '#1a1a1a' }}
             />

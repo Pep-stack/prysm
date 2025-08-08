@@ -622,6 +622,8 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
             {initialYouTubeHighlightsData.length === 1 && (
               <div>
                 {renderYouTubeHighlightCard(initialYouTubeHighlightsData[0], 0)}
+                {/* Extra spacing at bottom */}
+                <div style={{ marginBottom: '32px' }} />
               </div>
             )}
 
@@ -664,6 +666,9 @@ export default function YouTubeHighlightsSectionContent({ profile, styles, isEdi
                 </div>
               </div>
             )}
+
+            {/* Extra spacing at bottom */}
+            <div style={{ marginBottom: '32px' }} />
           </div>
         )}
       </div>

@@ -12,6 +12,21 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
   
+  // Function to get contrasting text color
+  const getContrastColor = (backgroundColor) => {
+    // Convert hex to RGB
+    const hex = backgroundColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return white for dark colors, black for light colors
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
+  
   const [currentSelection, setCurrentSelection] = useState(null);
 
   // Parse and memoize subscribe data
@@ -138,6 +153,22 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
           fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
         }}
       >
+        <style jsx>{`
+          .subscribe-input::placeholder {
+            color: ${textColor}70;
+            opacity: 1;
+          }
+          .subscribe-input::-webkit-input-placeholder {
+            color: ${textColor}70;
+          }
+          .subscribe-input::-moz-placeholder {
+            color: ${textColor}70;
+            opacity: 1;
+          }
+          .subscribe-input:-ms-input-placeholder {
+            color: ${textColor}70;
+          }
+        `}</style>
         {/* Clean section header */}
         <div style={{
           display: 'flex',
@@ -150,7 +181,7 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: '#6B7280',
+            backgroundColor: settings.icon_color || '#6B7280',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
@@ -185,63 +216,70 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
             </p>
           )}
 
-          {/* Compact subscribe form */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            flexDirection: 'column'
-          }}>
-            <input
-              type="email"
-              placeholder={placeholder}
-              style={{
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: `1px solid ${textColor}30`,
-                background: `${textColor}05`,
-                color: textColor,
-                fontSize: '13px',
-                outline: 'none'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#10b981';
-                e.target.style.backgroundColor = `${textColor}10`;
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = `${textColor}30`;
-                e.target.style.backgroundColor = `${textColor}05`;
-              }}
-            />
-            <button
-              onClick={handleSubscribe}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '10px 16px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#0d9668';
-                e.target.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#10b981';
-                e.target.style.transform = 'translateY(0px)';
-              }}
-            >
-              <LuMail size={14} />
-              {buttonText}
-            </button>
-          </div>
+          {/* Email input */}
+          <input
+            type="email"
+            placeholder={placeholder}
+            style={{
+              width: '100%',
+              padding: '10px 12px',
+              borderRadius: '6px',
+              border: `1px solid ${textColor}30`,
+              background: `${textColor}05`,
+              color: textColor,
+              fontSize: '13px',
+              outline: 'none',
+              marginBottom: '12px',
+              boxSizing: 'border-box'
+            }}
+            className="subscribe-input"
+            onFocus={(e) => {
+              e.target.style.borderColor = textColor;
+              e.target.style.backgroundColor = `${textColor}10`;
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = `${textColor}30`;
+              e.target.style.backgroundColor = `${textColor}05`;
+            }}
+          />
+          
+          {/* Subscribe button */}
+          <button
+            onClick={handleSubscribe}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              padding: '12px 24px',
+              backgroundColor: textColor,
+              color: getContrastColor(textColor),
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: `0 2px 8px ${textColor}20`,
+              position: 'relative',
+              minHeight: '44px',
+              width: '40%',
+              boxSizing: 'border-box'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-1px)';
+              e.target.style.boxShadow = `0 4px 12px ${textColor}30`;
+              e.target.style.backgroundColor = `${textColor}e6`;
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0px)';
+              e.target.style.boxShadow = `0 2px 8px ${textColor}20`;
+              e.target.style.backgroundColor = textColor;
+            }}
+          >
+            <LuMail size={16} />
+            {buttonText}
+          </button>
         </div>
       </div>
     );

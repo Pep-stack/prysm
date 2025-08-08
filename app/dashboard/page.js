@@ -61,6 +61,7 @@ export default function DashboardPageContent() {
   // Use the new simple card sections system
   const cardType = workingProfile?.card_type || CARD_TYPES.PRO;
   const {
+    sections,
     cardSections,
     socialBarSections,
     addSection,
@@ -132,15 +133,23 @@ export default function DashboardPageContent() {
       return;
     }
 
-    // Find the indices of the dragged and target sections
-    const allSections = [...cardSections, ...socialBarSections];
-    const activeIndex = allSections.findIndex(section => section.id === active.id);
-    const overIndex = allSections.findIndex(section => section.id === over.id);
+    // Find the indices in the main sections array (which contains all sections)
+    const activeIndex = sections.findIndex(section => section.id === active.id);
+    const overIndex = sections.findIndex(section => section.id === over.id);
     
     if (activeIndex !== -1 && overIndex !== -1) {
-      reorderSections(activeIndex, overIndex);
+      // Check if items are in the same context (both card sections or both social bar sections)
+      const activeInCardSections = cardSections.some(section => section.id === active.id);
+      const overInCardSections = cardSections.some(section => section.id === over.id);
+      const activeInSocialBar = socialBarSections.some(section => section.id === active.id);
+      const overInSocialBar = socialBarSections.some(section => section.id === over.id);
+      
+      // Only allow reordering within the same context
+      if ((activeInCardSections && overInCardSections) || (activeInSocialBar && overInSocialBar)) {
+        reorderSections(activeIndex, overIndex);
+      }
     }
-  }, [cardSections, socialBarSections, reorderSections]);
+  }, [sections, cardSections, socialBarSections, reorderSections]);
 
   const handleModalSave = useCallback(async (...args) => {
     await originalHandleModalSave(...args);

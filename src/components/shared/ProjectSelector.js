@@ -3,21 +3,41 @@
 import React, { useState, useEffect } from 'react';
 import { LuUpload, LuX, LuPlay, LuImage, LuLoader, LuFolderOpen } from 'react-icons/lu';
 import { supabase } from '../../lib/supabase';
-import { getAvailableBucket } from '../../lib/supabase-storage-setup';
+import { getAvailableBucket, diagnoseStorageSetup, findWorkingBucket } from '../../lib/supabase-storage-setup';
+
+// Global debug function for console
+if (typeof window !== 'undefined') {
+  window.debugPortfolioStorage = async () => {
+    console.log('🔍 Diagnosing portfolio storage setup...');
+    const results = await diagnoseStorageSetup();
+    
+    console.log('📊 Diagnosis Results:');
+    results.forEach(result => {
+      const emoji = result.type === 'success' ? '✅' : 
+                   result.type === 'warning' ? '⚠️' : 
+                   result.type === 'error' ? '❌' : 'ℹ️';
+      console.log(`${emoji} ${result.message}`);
+      if (result.action) {
+        console.log(`   🔧 Action: ${result.action}`);
+      }
+    });
+    
+    if (results.some(r => r.type === 'error')) {
+      console.log('\n📚 For detailed fix instructions, see: docs/STORAGE_SETUP.md');
+      console.log('🚨 Quick fix: Run the SQL from the documentation in Supabase Dashboard → SQL Editor');
+    }
+    
+    return results;
+  };
+}
 
 export default function ProjectSelector({ value = [], onChange, onSave: modalOnSave, onCancel: modalOnCancel }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [newEntry, setNewEntry] = useState({
     title: '',
     description: '',
-    mediaUrl: '',
-    mediaType: 'image', // 'image' or 'video'
-    demoUrl: '',
-    codeUrl: '',
-    technologies: [],
-    startDate: '',
-    endDate: '',
-    status: 'completed',
+    mediaItems: [], // Array of {url, type} objects for multiple media
+    portfolioTitle: '', // Custom title for the portfolio section
     category: ''
   });
 
@@ -44,37 +64,25 @@ export default function ProjectSelector({ value = [], onChange, onSave: modalOnS
 
   const handleAddNew = () => {
     setEditingIndex('new');
-    setNewEntry({
-      title: '',
-      description: '',
-      mediaUrl: '',
-      mediaType: 'image',
-      demoUrl: '',
-      codeUrl: '',
-      technologies: [],
-      startDate: '',
-      endDate: '',
-      status: 'completed',
-      category: ''
-    });
+          setNewEntry({
+        title: '',
+        description: '',
+        mediaItems: [],
+        portfolioTitle: '',
+        category: ''
+      });
   };
 
   const handleSaveNew = () => {
     if (newEntry.title && newEntry.description) {
       const updatedProjects = [...value, { ...newEntry, id: Date.now() }];
       onChange(updatedProjects);
-      setEditingIndex(null);
+      setEditingIndex(null); // This will make Add Project button visible again
       setNewEntry({
         title: '',
         description: '',
-        mediaUrl: '',
-        mediaType: 'image',
-        demoUrl: '',
-        codeUrl: '',
-        technologies: [],
-        startDate: '',
-        endDate: '',
-        status: 'completed',
+        mediaItems: [],
+        portfolioTitle: '',
         category: ''
       });
     }
@@ -85,6 +93,14 @@ export default function ProjectSelector({ value = [], onChange, onSave: modalOnS
   };
 
   const handleSaveEdit = (index, updatedEntry) => {
+    console.log('💾 Saving edited entry:', {
+      index,
+      updatedEntry: { ...updatedEntry },
+      hasMediaItems: !!(updatedEntry.mediaItems && updatedEntry.mediaItems.length > 0),
+      mediaItemsCount: updatedEntry.mediaItems?.length || 0,
+      mediaItems: updatedEntry.mediaItems
+    });
+    
     const updatedProjects = [...value];
     updatedProjects[index] = updatedEntry;
     onChange(updatedProjects);
@@ -157,11 +173,12 @@ export default function ProjectSelector({ value = [], onChange, onSave: modalOnS
             onSave={(updatedEntry) => handleSaveEdit(index, updatedEntry)}
             onDelete={() => handleDelete(index)}
             onCancel={handleCancel}
+            value={value}
           />
         ))}
 
         {/* Add New Entry */}
-        {editingIndex === 'new' ? (
+        {editingIndex === 'new' && (
           <ProjectEntry
             entry={newEntry}
             isEditing={true}
@@ -169,14 +186,19 @@ export default function ProjectSelector({ value = [], onChange, onSave: modalOnS
             onSave={handleSaveNew}
             onCancel={handleCancel}
             onChange={setNewEntry}
+            value={value}
           />
-        ) : (
+        )}
+
+        {/* Add Project Button - Always visible when not adding new */}
+        {editingIndex !== 'new' && (
           <button
             onClick={handleAddNew}
-            className="w-full p-4 border-2 border-dashed border-gray-600 rounded-lg text-gray-400 hover:border-gray-500 hover:text-gray-300 transition-colors font-medium"
+            className="w-full p-4 border-2 border-dashed border-blue-600 rounded-lg text-blue-400 hover:border-blue-500 hover:text-blue-300 hover:bg-blue-900 hover:bg-opacity-20 transition-all font-medium flex items-center justify-center gap-2"
             style={{ backgroundColor: '#1a1a1a' }}
           >
-            + Add Project
+            <LuFolderOpen className="text-lg" />
+            Add Project
           </button>
         )}
 
@@ -204,19 +226,13 @@ export default function ProjectSelector({ value = [], onChange, onSave: modalOnS
   );
 }
 
-function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, onCancel, onChange }) {
+function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete, onCancel, onChange, value }) {
   // Initialize with default structure to prevent undefined errors
   const defaultEntry = {
     title: '',
     description: '',
-    mediaUrl: '',
-    mediaType: 'image',
-    demoUrl: '',
-    codeUrl: '',
-    technologies: [],
-    startDate: '',
-    endDate: '',
-    status: 'completed',
+    mediaItems: [], // Array of {url, type} objects
+    portfolioTitle: '',
     category: '',
     ...entry // Override with actual entry data
   };
@@ -237,17 +253,37 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
     const safeEntry = {
       title: '',
       description: '',
-      mediaUrl: '',
-      mediaType: 'image',
-      demoUrl: '',
-      codeUrl: '',
-      technologies: [],
-      startDate: '',
-      endDate: '',
-      status: 'completed',
+      mediaItems: [], // Array of {url, type} objects
+      portfolioTitle: '',
       category: '',
       ...entry // Override with actual entry data
     };
+    
+    // Convert old mediaUrl/mediaType to new mediaItems format if needed
+    if (safeEntry.mediaUrl && (!safeEntry.mediaItems || safeEntry.mediaItems.length === 0)) {
+      console.log('🔄 Converting old media format to new format:', {
+        oldMediaUrl: safeEntry.mediaUrl,
+        oldMediaType: safeEntry.mediaType,
+        hasMediaItems: !!safeEntry.mediaItems,
+        mediaItemsLength: safeEntry.mediaItems?.length || 0
+      });
+      
+      safeEntry.mediaItems = [{
+        url: safeEntry.mediaUrl,
+        type: safeEntry.mediaType || 'image'
+      }];
+      
+      // Clear old format to prevent confusion
+      delete safeEntry.mediaUrl;
+      delete safeEntry.mediaType;
+      
+      console.log('✅ Converted to new format and cleared old fields:', {
+        newMediaItems: safeEntry.mediaItems,
+        hasOldUrl: !!safeEntry.mediaUrl,
+        hasOldType: !!safeEntry.mediaType
+      });
+    }
+    
     setLocalEntry(safeEntry);
   }, [entry]);
 
@@ -255,8 +291,8 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
   useEffect(() => {
     console.log('🔄 LocalEntry state changed:', {
       localEntry: { ...localEntry },
-      hasMediaUrl: !!localEntry.mediaUrl,
-      mediaUrl: localEntry.mediaUrl
+      hasMediaItems: !!(localEntry.mediaItems && localEntry.mediaItems.length > 0),
+      mediaItemsCount: localEntry.mediaItems?.length || 0
     });
   }, [localEntry]);
 
@@ -279,86 +315,105 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
     }
   };
 
-  const handleAddTechnology = () => {
-    const currentTechnologies = localEntry.technologies || [];
-    if (techInput.trim() && !currentTechnologies.includes(techInput.trim())) {
-      const updated = {
-        ...localEntry,
-        technologies: [...currentTechnologies, techInput.trim()]
-      };
-      setLocalEntry(updated);
-      setTechInput('');
-      if (onChange) onChange(updated);
-    }
-  };
 
-  const handleRemoveTechnology = (techToRemove) => {
-    const currentTechnologies = localEntry.technologies || [];
-    const updated = {
-      ...localEntry,
-      technologies: currentTechnologies.filter(tech => tech !== techToRemove)
-    };
-    setLocalEntry(updated);
-    if (onChange) onChange(updated);
-  };
 
   const handleMediaUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
-    
-    if (!isImage && !isVideo) {
-      setUploadError('Please select an image or video file.');
-      return;
-    }
-
-    // Validate file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('File size must be less than 5MB.');
-      return;
-    }
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
     setUploadError(null);
 
     try {
-      const bucket = getAvailableBucket();
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `projects/${fileName}`;
-
-      const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file);
-
-      if (error) {
-        console.error('Upload error:', error);
-        setUploadError('Failed to upload file. Please try again.');
-        return;
+      let bucket = await getAvailableBucket();
+      
+      // If first bucket fails, try to find a working bucket
+      if (!bucket) {
+        console.log('🔄 No default bucket found, searching for working bucket...');
+        bucket = await findWorkingBucket();
+        
+        if (!bucket) {
+          setUploadError('No working storage bucket found. Please check your Supabase storage setup.');
+          return;
+        }
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(filePath);
+      const newMediaItems = [];
+      
+      for (const file of files) {
+        // Validate file type
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+        
+        if (!isImage && !isVideo) {
+          setUploadError(`File "${file.name}" is not a valid image or video file.`);
+          continue;
+        }
 
-      console.log('✅ Upload successful:', { publicUrl, filePath });
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+          setUploadError(`File "${file.name}" is too large. Max size is 5MB.`);
+          continue;
+        }
 
-      const updated = {
-        ...localEntry,
-        mediaUrl: publicUrl,
-        mediaType: isVideo ? 'video' : 'image'
-      };
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `projects/${fileName}`;
 
-      setLocalEntry(updated);
-      if (onChange) onChange(updated);
-      setForceRender(prev => prev + 1);
+        console.log('🔄 Attempting upload:', { bucket, filePath, fileSize: file.size });
+
+        const { data, error } = await supabase.storage
+          .from(bucket)
+          .upload(filePath, file);
+
+        if (error) {
+          console.error('Upload error details:', error);
+          
+          if (error.message?.includes('row-level security policy')) {
+            setUploadError(
+              'Upload permissions issue. Please check that storage policies are configured correctly in Supabase. ' +
+              'See docs/STORAGE_SETUP.md for instructions.'
+            );
+          } else if (error.message?.includes('must be owner of table')) {
+            setUploadError(
+              'Permission denied: You need admin rights to configure storage. ' +
+              'Try the Dashboard UI method in docs/STORAGE_SETUP.md or contact your project admin.'
+            );
+          } else if (error.message?.includes('not found')) {
+            setUploadError('Storage bucket not found. Please contact support.');
+          } else {
+            setUploadError(`Upload failed: ${error.message || 'Unknown error'}`);
+          }
+          continue;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(filePath);
+
+        console.log('✅ Upload successful:', { publicUrl, filePath });
+
+        newMediaItems.push({
+          url: publicUrl,
+          type: isVideo ? 'video' : 'image'
+        });
+      }
+
+      if (newMediaItems.length > 0) {
+        const currentMediaItems = localEntry.mediaItems || [];
+        const updated = {
+          ...localEntry,
+          mediaItems: [...currentMediaItems, ...newMediaItems]
+        };
+
+        setLocalEntry(updated);
+        if (onChange) onChange(updated);
+        setForceRender(prev => prev + 1);
+      }
 
     } catch (error) {
       console.error('Upload error:', error);
-      setUploadError('Failed to upload file. Please try again.');
+      setUploadError(`Upload failed: ${error.message || 'Please try again.'}`);
     } finally {
       setIsUploading(false);
     }
@@ -368,17 +423,34 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
   if (isEditing) {
     return (
       <div className="mb-4 p-4 rounded-lg" style={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
+        {/* Portfolio Title - Only show for first entry */}
+        {(isNew || (value && value.length === 0)) && (
+          <div className="mb-6 p-4 bg-blue-900 bg-opacity-20 border border-blue-700 rounded-lg">
+            <label className="block text-blue-300 font-semibold mb-2 text-sm">
+              🎨 Portfolio Section Title
+            </label>
+            <input
+              type="text"
+              value={localEntry.portfolioTitle}
+              onChange={(e) => handleInputChange('portfolioTitle', e.target.value)}
+              placeholder="My Work, Projects, Portfolio, Creative Work..."
+              className="w-full px-3 py-2 bg-gray-900 border border-blue-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            />
+            <p className="text-blue-200 text-xs mt-2">💡 This will be the main heading for your entire portfolio section (applies to all items)</p>
+          </div>
+        )}
+
         {/* Title and Description */}
         <div className="grid grid-cols-1 gap-3 mb-4">
           <div>
             <label className="block text-white font-medium mb-2 text-sm">
-              Project Title *
+              Item Title *
             </label>
             <input
               type="text"
               value={localEntry.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="My Awesome Project"
+              placeholder="My Work, Creative Project, Business Venture..."
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -390,7 +462,7 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             <textarea
               value={localEntry.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Brief description of your project..."
+              placeholder="Brief description of your work or project..."
               rows={3}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical min-h-20"
             />
@@ -400,7 +472,7 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
         {/* Media Upload */}
         <div className="mb-4">
           <label className="block text-white font-medium mb-2 text-sm">
-            Project Image/Video *
+            Images & Videos (Multiple)
           </label>
           
           {/* Upload Error Message */}
@@ -410,159 +482,99 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             </div>
           )}
           
-          {(localEntry.mediaUrl && localEntry.mediaUrl.length > 0) ? (
-            <div className="relative mb-3">
-              {localEntry.mediaType === 'video' ? (
-                <video
-                  src={localEntry.mediaUrl}
-                  className="w-full max-h-48 object-cover rounded-lg border border-gray-700"
-                  controls
-                />
-              ) : (
-                <img
-                  src={localEntry.mediaUrl}
-                  alt="Project preview"
-                  className="w-full max-h-48 object-cover rounded-lg border border-gray-700"
-                />
-              )}
-              <button
-                onClick={() => {
-                  handleInputChange('mediaUrl', '');
-                  handleInputChange('mediaType', 'image');
-                  setUploadError(null);
-                }}
-                disabled={isUploading}
-                className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <LuX size={12} />
-              </button>
-            </div>
-          ) : (
-            <div className={`border-2 border-dashed rounded-lg p-5 text-center transition-colors ${isUploading ? 'border-blue-500' : 'border-gray-600'}`}>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                onChange={handleMediaUpload}
-                disabled={isUploading}
-                className="hidden"
-                id={`media-upload-${index}`}
-              />
-              <label
-                htmlFor={`media-upload-${index}`}
-                className="cursor-pointer block"
-              >
-                {isUploading ? (
-                  <div className="flex flex-col items-center">
-                    <LuLoader className="prysm-spin text-blue-500 text-2xl mb-2" />
-                    <span className="text-gray-400 text-sm">Uploading...</span>
+          {/* Display existing media items */}
+          {((localEntry.mediaItems && localEntry.mediaItems.length > 0) || localEntry.mediaUrl) && (
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              {/* Handle new mediaItems format */}
+              {localEntry.mediaItems && localEntry.mediaItems.length > 0 ? (
+                localEntry.mediaItems.map((media, mediaIndex) => (
+                  <div key={mediaIndex} className="relative">
+                    {media.type === 'video' ? (
+                      <video
+                        src={media.url}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                        controls
+                      />
+                    ) : (
+                      <img
+                        src={media.url}
+                        alt={`Media ${mediaIndex + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                      />
+                    )}
+                    <button
+                      onClick={() => {
+                        const newMediaItems = localEntry.mediaItems.filter((_, i) => i !== mediaIndex);
+                        handleInputChange('mediaItems', newMediaItems);
+                      }}
+                      disabled={isUploading}
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <LuX size={12} />
+                    </button>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <LuUpload className="text-gray-400 text-2xl mb-2" />
-                    <span className="text-gray-400 text-sm">Click to upload image or video</span>
-                    <span className="text-gray-500 text-xs mt-1">Max 5MB</span>
-                  </div>
-                )}
-              </label>
-            </div>
-          )}
-        </div>
-
-        {/* URLs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <div>
-            <label className="block text-white font-medium mb-2 text-sm">Demo URL</label>
-            <input
-              type="url"
-              value={localEntry.demoUrl}
-              onChange={(e) => handleInputChange('demoUrl', e.target.value)}
-              placeholder="https://demo.example.com"
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-white font-medium mb-2 text-sm">Code URL</label>
-            <input
-              type="url"
-              value={localEntry.codeUrl}
-              onChange={(e) => handleInputChange('codeUrl', e.target.value)}
-              placeholder="https://github.com/user/repo"
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Technologies */}
-        <div className="mb-4">
-          <label className="block text-white font-medium mb-2 text-sm">Technologies</label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={techInput}
-              onChange={(e) => setTechInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAddTechnology()}
-              placeholder="Add technology..."
-              className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <button
-              onClick={handleAddTechnology}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Add
-            </button>
-          </div>
-          {localEntry.technologies && localEntry.technologies.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {localEntry.technologies.map((tech, idx) => (
-                <span
-                  key={idx}
-                  className="px-3 py-1 bg-gray-700 text-white text-sm rounded-full flex items-center gap-2"
-                >
-                  {tech}
+                ))
+              ) : localEntry.mediaUrl ? (
+                /* Handle old mediaUrl format for backward compatibility */
+                <div className="relative">
+                  {localEntry.mediaType === 'video' ? (
+                    <video
+                      src={localEntry.mediaUrl}
+                      className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={localEntry.mediaUrl}
+                      alt="Media"
+                      className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                    />
+                  )}
                   <button
-                    onClick={() => handleRemoveTechnology(tech)}
-                    className="text-gray-400 hover:text-white"
+                    onClick={() => {
+                      // Convert to new format and remove the old media
+                      handleInputChange('mediaItems', []);
+                      handleInputChange('mediaUrl', '');
+                      handleInputChange('mediaType', 'image');
+                    }}
+                    disabled={isUploading}
+                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black bg-opacity-70 text-white border-none cursor-pointer flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <LuX size={12} />
                   </button>
-                </span>
-              ))}
+                </div>
+              ) : null}
             </div>
           )}
-        </div>
-
-        {/* Dates and Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <div>
-            <label className="block text-white font-medium mb-2 text-sm">Start Date</label>
+          
+          {/* Upload area */}
+          <div className={`border-2 border-dashed rounded-lg p-5 text-center transition-colors ${isUploading ? 'border-blue-500' : 'border-gray-600'}`}>
             <input
-              type="month"
-              value={localEntry.startDate}
-              onChange={(e) => handleInputChange('startDate', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleMediaUpload}
+              disabled={isUploading}
+              className="hidden"
+              id={`media-upload-${index}`}
+              multiple
             />
-          </div>
-          <div>
-            <label className="block text-white font-medium mb-2 text-sm">End Date</label>
-            <input
-              type="month"
-              value={localEntry.endDate}
-              onChange={(e) => handleInputChange('endDate', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <div>
-            <label className="block text-white font-medium mb-2 text-sm">Status</label>
-            <select
-              value={localEntry.status}
-              onChange={(e) => handleInputChange('status', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <label
+              htmlFor={`media-upload-${index}`}
+              className="cursor-pointer block"
             >
-              <option value="completed">Completed</option>
-              <option value="ongoing">Ongoing</option>
-              <option value="paused">Paused</option>
-              <option value="planned">Planned</option>
-            </select>
+              {isUploading ? (
+                <div className="flex flex-col items-center">
+                  <LuLoader className="prysm-spin text-blue-500 text-2xl mb-2" />
+                  <span className="text-gray-400 text-sm">Uploading...</span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <LuUpload className="text-gray-400 text-2xl mb-2" />
+                  <span className="text-gray-400 text-sm">Click to upload images or videos</span>
+                  <span className="text-gray-500 text-xs mt-1">Max 5MB each • Multiple files allowed</span>
+                </div>
+              )}
+            </label>
           </div>
         </div>
 
@@ -573,9 +585,37 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             type="text"
             value={localEntry.category}
             onChange={(e) => handleInputChange('category', e.target.value)}
-            placeholder="e.g., Web Development, Mobile App, Design"
+            placeholder="e.g., Photography, Design, Business, Art..."
             className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+        </div>
+
+        {/* Save/Cancel Buttons for individual entry */}
+        <div className="flex gap-3 pt-4 border-t border-gray-700">
+          <button
+            onClick={onCancel}
+            className="flex-1 px-4 py-3 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              console.log('🚀 Save button clicked - sending data:', {
+                localEntry: { ...localEntry },
+                hasMediaItems: !!(localEntry.mediaItems && localEntry.mediaItems.length > 0),
+                mediaItemsCount: localEntry.mediaItems?.length || 0
+              });
+              onSave(localEntry);
+            }}
+            disabled={!localEntry.title || !localEntry.description}
+            className="flex-1 px-4 py-3 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: (!localEntry.title || !localEntry.description) ? '#374151' : '#3b82f6',
+              color: 'white'
+            }}
+          >
+            {isNew ? 'Add Project' : 'Save Changes'}
+          </button>
         </div>
       </div>
     );
@@ -594,7 +634,57 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
           </p>
           
           {/* Media Preview */}
-          {entry.mediaUrl && (
+          {((entry.mediaItems && entry.mediaItems.length > 0) || entry.mediaUrl) && (
+            <div className="mb-3">
+              {entry.mediaItems.length === 1 ? (
+                /* Single media item - full width */
+                <div>
+                  {entry.mediaItems[0].type === 'video' ? (
+                    <video
+                      src={entry.mediaItems[0].url}
+                      className="w-full max-h-32 object-cover rounded-lg"
+                      muted
+                    />
+                  ) : (
+                    <img
+                      src={entry.mediaItems[0].url}
+                      alt={entry.title}
+                      className="w-full max-h-32 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
+              ) : (
+                /* Multiple media items - grid layout */
+                <div className={`grid gap-2 ${entry.mediaItems.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {entry.mediaItems.slice(0, 3).map((media, mediaIndex) => (
+                    <div key={mediaIndex}>
+                      {media.type === 'video' ? (
+                        <video
+                          src={media.url}
+                          className="w-full h-20 object-cover rounded-lg"
+                          muted
+                        />
+                      ) : (
+                        <img
+                          src={media.url}
+                          alt={`${entry.title} ${mediaIndex + 1}`}
+                          className="w-full h-20 object-cover rounded-lg"
+                        />
+                      )}
+                    </div>
+                  ))}
+                  {entry.mediaItems.length > 3 && (
+                    <div className="w-full h-20 bg-gray-800 rounded-lg flex items-center justify-center">
+                      <span className="text-gray-400 text-xs">+{entry.mediaItems.length - 3} more</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Backward compatibility: Show old single media if mediaUrl exists but no mediaItems */}
+          {entry.mediaUrl && (!entry.mediaItems || entry.mediaItems.length === 0) && (
             <div className="mb-3">
               {entry.mediaType === 'video' ? (
                 <video
@@ -612,39 +702,17 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             </div>
           )}
 
-          {/* Technologies */}
-          {entry.technologies && entry.technologies.length > 0 && (
+          {/* Category */}
+          {entry.category && (
             <div className="mb-3">
-              <div className="flex flex-wrap gap-2">
-                {entry.technologies.slice(0, 5).map((tech, idx) => (
-                  <span
-                    key={idx}
-                    className="px-2 py-1 bg-gray-700 text-gray-300 text-xs rounded"
-                  >
-                    {tech}
-                  </span>
-                ))}
-                {entry.technologies && entry.technologies.length > 5 && (
-                  <span className="text-gray-500 text-xs">
-                    +{entry.technologies.length - 5} more
-                  </span>
-                )}
-              </div>
+              <span className="px-3 py-1 bg-blue-900 text-blue-300 text-xs rounded-full font-medium">
+                {entry.category}
+              </span>
             </div>
           )}
         </div>
         
         <div className="flex gap-2">
-          {entry.demoUrl && (
-            <a
-              href={entry.demoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-            >
-              Demo
-            </a>
-          )}
           <button
             onClick={onEdit}
             className="px-3 py-1 bg-gray-700 text-gray-300 text-xs rounded hover:bg-gray-600 transition-colors"
@@ -660,29 +728,7 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
         </div>
       </div>
 
-      {(entry.startDate || entry.endDate) && (
-        <p className="text-gray-500 text-xs mb-2">
-          {entry.startDate && new Date(entry.startDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          {entry.startDate && entry.endDate && ' - '}
-          {entry.endDate && new Date(entry.endDate + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-        </p>
-      )}
 
-      <div className="flex items-center gap-3">
-        <span className={`px-2 py-1 text-xs rounded font-medium ${
-          entry.status === 'completed' ? 'bg-green-900 text-green-300' : 
-          entry.status === 'ongoing' ? 'bg-blue-900 text-blue-300' : 
-          entry.status === 'paused' ? 'bg-yellow-900 text-yellow-300' : 
-          'bg-gray-700 text-gray-300'
-        }`}>
-          {entry.status}
-        </span>
-        {entry.category && (
-          <span className="text-gray-500 text-xs">
-            {entry.category}
-          </span>
-        )}
-      </div>
     </div>
   );
 } 

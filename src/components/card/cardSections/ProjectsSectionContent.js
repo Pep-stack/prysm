@@ -1,442 +1,268 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { LuFolderOpen, LuCalendar, LuExternalLink, LuGithub, LuPlay, LuImage, LuChevronLeft, LuChevronRight } from 'react-icons/lu';
-import ProjectSelector from '../../shared/ProjectSelector';
+import React, { useState, useEffect } from 'react';
+import { FaExternalLinkAlt, FaFolder, FaBriefcase } from 'react-icons/fa';
+import { LuFolderOpen } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import ProjectSelector from '../../shared/ProjectSelector';
 
-export default function ProjectsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
+// Proper child component so hooks are used safely
+function ProjectCard({ entry, index, isDarkTheme }) {
+  const allMediaItems = entry.mediaItems && entry.mediaItems.length > 0
+    ? entry.mediaItems
+    : (entry.mediaUrl ? [{ url: entry.mediaUrl, type: entry.mediaType || 'image' }] : []);
+
+  const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
+  const cardBackgroundColor = isDarkTheme ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.85)';
+  const cardTextColor = '#ffffff';
+  const cardSecondaryTextColor = isDarkTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.8)';
+
+  const currentMedia = allMediaItems[currentMediaIndex];
+
+  // Mount guard to avoid SSR hydration mismatches for interactive controls
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  return (
+    <div
+      key={entry.id || index}
+      style={{
+        width: '100%',
+        animation: 'fadeIn 0.5s ease-out'
+      }}
+    >
+      <div
+        className="project-card-hover"
+        style={{
+          backgroundColor: cardBackgroundColor,
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: isDarkTheme ? '0 2px 16px rgba(0, 0, 0, 0.3)' : '0 2px 16px rgba(0, 0, 0, 0.06)',
+          border: isDarkTheme ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.04)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)'
+        }}
+      >
+        {currentMedia?.url && (
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            paddingBottom: '56.25%',
+            overflow: 'hidden',
+            backgroundColor: isDarkTheme ? '#2a2a2a' : 'rgba(255, 255, 255, 0.1)'
+          }}>
+            {currentMedia.type === 'video' ? (
+              <video
+                src={currentMedia.url}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                muted
+                loop
+              />
+            ) : (
+              <img
+                src={currentMedia.url}
+                alt={entry.title || 'Project image'}
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            )}
+
+            {/* Media dots indicator for multiple media items - render after mount to avoid SSR mismatch */}
+            {isMounted && allMediaItems.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', gap: '4px' }}>
+                {allMediaItems.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentMediaIndex(idx)}
+                    style={{
+                      width: idx === currentMediaIndex ? '16px' : '6px',
+                      height: '6px',
+                      borderRadius: '3px',
+                      border: 'none',
+                      backgroundColor: idx === currentMediaIndex ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Category badge */}
+            {entry.category && (
+              <div style={{
+                position: 'absolute',
+                bottom: '12px',
+                left: '12px',
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: '6px',
+                padding: '4px 8px',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)'
+              }}>
+                <span style={{ color: '#1a1a1a', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  {entry.category}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Clean content area */}
+        <div style={{ padding: '20px' }}>
+          <h3 style={{ margin: 0, marginBottom: '8px', fontSize: '18px', fontWeight: '600', color: cardTextColor, lineHeight: '1.3', letterSpacing: '-0.01em' }}>
+            {entry.title || 'Untitled Project'}
+          </h3>
+          {entry.description && (
+            <p style={{
+              margin: 0,
+              fontSize: '14px',
+              color: cardSecondaryTextColor,
+              lineHeight: '1.5',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {entry.description}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ProjectsSectionContent({ profile, styles, isEditing, onSave, onCancel, onEdit }) {
+
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(10px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .project-card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .project-card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
   const { settings } = useDesignSettings();
   
-  // Get text color from design settings
+  // Get text color and theme from design settings
   const textColor = settings.text_color || '#000000';
+  const isDarkTheme = settings.theme === 'dark';
   
-  const [currentSelection, setCurrentSelection] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState(0);
+  const [currentSelection, setCurrentSelection] = useState([]);
 
   // Parse and memoize projects data
-  const parseProjectsData = (projectsData) => {
+  const initialProjectsData = React.useMemo(() => {
     console.log('🔍 Parsing projects data:', {
-      projectsData,
-      type: typeof projectsData,
-      isArray: Array.isArray(projectsData)
+      projectsData: profile?.projects,
+      type: typeof profile?.projects,
+      isArray: Array.isArray(profile?.projects)
     });
-    
-    if (Array.isArray(projectsData)) {
-      const filtered = projectsData.filter(entry => entry && typeof entry === 'object');
-      console.log('✅ Parsed as array, filtered entries:', filtered.length);
-      return filtered;
+
+    if (!profile?.projects) {
+      console.log('⚠️ No projects data found');
+      return [];
     }
+
+    let projectsArray = [];
     
-    if (typeof projectsData === 'string' && projectsData.trim()) {
-      try {
-        const parsed = JSON.parse(projectsData);
-        if (Array.isArray(parsed)) {
-          const filtered = parsed.filter(entry => entry && typeof entry === 'object');
-          console.log('✅ Parsed JSON string as array, filtered entries:', filtered.length);
-          return filtered;
-        } else {
-          console.log('⚠️ Parsed JSON but not an array:', parsed);
-          return [];
-        }
-      } catch (e) {
-        console.error('❌ Error parsing projects JSON:', e);
-        return [];
+    try {
+      if (typeof profile.projects === 'string') {
+        projectsArray = JSON.parse(profile.projects);
+        console.log('✅ Parsed JSON string as array, filtered entries:', projectsArray.length);
+      } else if (Array.isArray(profile.projects)) {
+        projectsArray = profile.projects;
+        console.log('✅ Using existing array, entries:', projectsArray.length);
       }
+      
+      // Filter out entries without required fields
+      const filteredEntries = projectsArray.filter(entry => {
+        const hasRequired = entry && (entry.title || entry.description || entry.mediaItems?.length > 0 || entry.mediaUrl);
+        if (!hasRequired) {
+          console.log('⚠️ Filtering out entry missing required fields:', entry);
+        }
+        return hasRequired;
+      });
+      
+      console.log('📋 Filtered entries:', filteredEntries.map(entry => ({
+        title: entry.title,
+        hasMedia: !!(entry.mediaItems?.length || entry.mediaUrl)
+      })));
+      
+      return filteredEntries;
+    } catch (error) {
+      console.error('💥 Error parsing projects data:', error);
+      return [];
     }
-    
-    console.log('ℹ️ No valid projects data found');
-    return [];
-  };
-
-  const initialProjectsData = useMemo(() => {
-    return parseProjectsData(profile?.projects);
   }, [profile?.projects]);
-  
-  // Initialize selection state for editing
-  useEffect(() => {
-    if (isEditing) {
-      setCurrentSelection(initialProjectsData);
+
+  // Custom portfolio title from first entry
+  const portfolioTitle = React.useMemo(() => {
+    if (initialProjectsData.length > 0 && initialProjectsData[0].portfolioTitle) {
+      return initialProjectsData[0].portfolioTitle;
     }
-  }, [isEditing, initialProjectsData]);
+    return 'Portfolio';
+  }, [initialProjectsData]);
 
-  // Reset carousel index when data length changes
-  useEffect(() => {
-    setCurrentIndex(0);
-  }, [initialProjectsData.length]);
-
-  const handleSave = () => {
-    if (onSave) {
-      onSave(currentSelection);
-    }
-  };
-
-  // Format date for display
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    if (dateString.length === 4) return dateString; // Just year
-    return new Date(dateString + '-01').toLocaleDateString('en-US', { 
-      month: 'short', 
-      year: 'numeric' 
-    });
-  };
-
-  // Get status color and icon
-  const getStatusDisplay = (status) => {
-    const statusConfig = {
-      'completed': { color: '#059669', bgColor: '#d1fae5', icon: '✓', label: 'Completed' },
-      'ongoing': { color: '#0284c7', bgColor: '#dbeafe', icon: '⟳', label: 'Ongoing' },
-      'archived': { color: '#6b7280', bgColor: '#f3f4f6', icon: '📦', label: 'Archived' },
-      'paused': { color: '#d97706', bgColor: '#fef3c7', icon: '⏸', label: 'Paused' }
-    };
-    return statusConfig[status] || statusConfig['completed'];
-  };
-
-  // Carousel navigation functions
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % initialProjectsData.length);
-  };
-
-  const goToPrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + initialProjectsData.length) % initialProjectsData.length);
-  };
-
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-
-  // Touch handling for swipe gestures
+  // Touch/swipe handlers for mobile carousel
   const handleTouchStart = (e) => {
     setTouchStartX(e.touches[0].clientX);
   };
 
   const handleTouchEnd = (e) => {
+    if (!touchStartX) return;
+    
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchStartX - touchEndX;
-
+    
     if (Math.abs(diff) > 50) { // Minimum swipe distance
       if (diff > 0) {
-        goToNext(); // Swipe left = next
+        nextProject(); // Swipe left = next
       } else {
-        goToPrev(); // Swipe right = previous
+        prevProject(); // Swipe right = previous
       }
     }
   };
 
-  // Render single project card
-  const renderProjectCard = (entry, index, isCarousel = false) => {
-    const statusDisplay = getStatusDisplay(entry.status);
-    
-    return (
-      <div 
-        key={entry.id || index} 
-        style={{
-          position: 'relative',
-          padding: isCarousel ? '0' : '20px 0',
-          borderBottom: (!isCarousel && index < initialProjectsData.length - 1) ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
-          width: '100%'
-        }}
-      >
-        {/* Header with project title and status */}
-        <div style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h4 style={{ 
-                margin: 0, 
-                fontSize: '18px', 
-                fontWeight: '700', 
-                color: textColor,
-                lineHeight: '1.3',
-                marginBottom: '6px',
-                letterSpacing: '-0.01em'
-              }}>
-                {entry.title || 'Untitled Project'}
-              </h4>
-              <div style={{ 
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '4px 8px',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-                background: 'rgba(255, 255, 255, 0.3)',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
-                marginRight: '8px'
-              }}>
-                <div style={{
-                  width: '16px',
-                  height: '16px',
-                  backgroundColor: statusDisplay.color,
-                  borderRadius: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  opacity: 0.8
-                }}>
-                  <span style={{ fontSize: '8px', color: 'white' }}>{statusDisplay.icon}</span>
-                </div>
-                <span style={{
-                  fontSize: '12px',
-                  color: textColor,
-                  fontWeight: '600',
-                  opacity: 0.9
-                }}>
-                  {statusDisplay.label}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+  const nextProject = () => {
+    if (initialProjectsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === initialProjectsData.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
 
-        {/* Project Image/Video - Large display */}
-        {entry.mediaUrl && (
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            height: '240px',
-            backgroundColor: '#f8fafc',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            marginBottom: '16px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}>
-            {entry.mediaType === 'video' ? (
-              <video
-                src={entry.mediaUrl}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-                muted
-                loop
-                onMouseEnter={(e) => e.target.play()}
-                onMouseLeave={(e) => e.target.pause()}
-              />
-            ) : (
-              <img
-                src={entry.mediaUrl}
-                alt={entry.title}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
-                }}
-              />
-            )}
-            
-            {/* Media Type Indicator */}
-            {entry.mediaType === 'video' && (
-              <div style={{
-                position: 'absolute',
-                top: '8px',
-                right: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '4px 8px',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                fontSize: '10px',
-                fontWeight: '600',
-                borderRadius: '12px',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)'
-              }}>
-                <LuPlay size={10} />
-                VIDEO
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Project Description */}
-        {entry.description && (
-          <div style={{ marginBottom: '16px' }}>
-            <p style={{ 
-              margin: 0, 
-              fontSize: '14px', 
-              color: textColor,
-              lineHeight: '1.6',
-              opacity: 0.9
-            }}>
-              {entry.description}
-            </p>
-          </div>
-        )}
-
-        {/* Project Details */}
-        <div style={{ marginBottom: '16px' }}>
-          {/* Project Date */}
-          {(entry.startDate || entry.endDate) && (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '4px 8px',
-              marginRight: '8px',
-              marginBottom: '8px',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)'
-            }}>
-              <div style={{
-                width: '16px',
-                height: '16px',
-                backgroundColor: '#374151',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0.8
-              }}>
-                <LuCalendar size={10} style={{ color: 'white' }} />
-              </div>
-              <span style={{
-                fontSize: '12px',
-                color: textColor,
-                fontWeight: '500',
-                opacity: 0.9
-              }}>
-                {entry.startDate && formatDate(entry.startDate)}
-                {entry.startDate && entry.endDate && ' - '}
-                {entry.endDate && formatDate(entry.endDate)}
-              </span>
-            </div>
-          )}
-
-          {/* Technologies */}
-          {entry.technologies && entry.technologies.length > 0 && (
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '6px',
-              marginTop: '8px'
-            }}>
-              {entry.technologies.slice(0, 4).map((tech, idx) => (
-                <span
-                  key={idx}
-                  style={{
-                    padding: '4px 8px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    color: textColor,
-                    fontSize: '11px',
-                    fontWeight: '500',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
-                    backdropFilter: 'blur(6px)',
-                    WebkitBackdropFilter: 'blur(6px)'
-                  }}
-                >
-                  {tech}
-                </span>
-              ))}
-              {entry.technologies.length > 4 && (
-                <span style={{
-                  fontSize: '11px',
-                  color: textColor,
-                  padding: '4px 8px',
-                  opacity: 0.7
-                }}>
-                  +{entry.technologies.length - 4}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Action Links */}
-        {(entry.demoUrl || entry.codeUrl) && (
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            marginTop: '12px'
-          }}>
-            {entry.demoUrl && (
-              <a
-                href={entry.demoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                  color: textColor,
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(59, 130, 246, 0.3)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'rgba(59, 130, 246, 0.2)';
-                }}
-              >
-                <LuExternalLink size={12} />
-                Demo
-              </a>
-            )}
-            {entry.codeUrl && (
-              <a
-                href={entry.codeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '6px 12px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  color: textColor,
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  borderRadius: '8px',
-                  textDecoration: 'none',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  backdropFilter: 'blur(6px)',
-                  WebkitBackdropFilter: 'blur(6px)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
-                }}
-              >
-                <LuGithub size={12} />
-                Code
-              </a>
-            )}
-          </div>
-        )}
-      </div>
-    );
+  const prevProject = () => {
+    if (initialProjectsData.length > 1) {
+      setCurrentIndex((prev) => 
+        prev === 0 ? initialProjectsData.length - 1 : prev - 1
+      );
+    }
   };
 
   // Render editing UI
   if (isEditing) {
     return (
       <div style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Edit Portfolio Projects</h3>
+        <h3 style={sectionTitleStyle}>Edit {portfolioTitle}</h3>
         <ProjectSelector 
           value={currentSelection}
           onChange={setCurrentSelection}
@@ -444,217 +270,139 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
           <button 
             onClick={onCancel} 
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#f3f4f6',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
+            style={{
+              padding: '8px 16px',
+              backgroundColor: 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '6px',
+              color: textColor,
+              cursor: 'pointer'
             }}
           >
             Cancel
           </button>
           <button 
-            onClick={handleSave} 
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#059669', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
+            onClick={() => onSave(currentSelection)} 
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#007AFF',
+              border: 'none',
+              borderRadius: '6px',
+              color: 'white',
+              cursor: 'pointer'
             }}
           >
-            Save Projects
+            Save
           </button>
         </div>
       </div>
     );
   }
 
-  // Render display UI
+  // Main component  
   if (initialProjectsData.length > 0) {
     return (
-      <div style={{
-        ...sectionStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} 
-      title="Click to edit projects"
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0px)';
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
-      }}
+      <div 
+        style={{
+          ...sectionStyle,
+          padding: '0',
+          margin: '0',
+          background: 'transparent',
+          border: 'none',
+          borderRadius: '0',
+          boxShadow: 'none',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
+          width: '100%',
+          fontFamily: settings.font_family || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+        }}
+        onClick={onEdit}
       >
-        {/* Title at the top of the container */}
+        {/* Clean section header */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
+          gap: '8px',
+          marginBottom: '20px',
           paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          borderBottom: textColor === '#f5f5f5' || textColor === '#fafafa' || textColor === '#f8f8f8'
+            ? '1px solid rgba(255, 255, 255, 0.2)' 
+            : '1px solid rgba(0, 0, 0, 0.08)'
         }}>
           <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
+            width: '20px',
+            height: '20px',
+            backgroundColor: settings.icon_color || '#6B7280',
+            borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
+            justifyContent: 'center'
           }}>
-            <LuFolderOpen size={14} style={{ color: 'white' }} />
+            <FaBriefcase style={{ color: 'white', fontSize: '11px' }} />
           </div>
-          <h3 style={{
+          <h2 style={{
             ...sectionTitleStyle,
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: '600',
             color: textColor,
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
+            letterSpacing: '-0.01em'
           }}>
-            Projects & Portfolio
-          </h3>
+            Portfolio
+          </h2>
         </div>
 
-        {/* Carousel content - Always show carousel for better UX */}
-        <div style={{ position: 'relative' }}>
-          {/* Current project */}
-          <div style={{ 
-            overflow: 'hidden',
-            width: '100%'
-          }}>
-            {renderProjectCard(initialProjectsData[currentIndex], currentIndex, true)}
-          </div>
-
-          {/* Dots indicator - Only show if more than 1 project */}
-          {initialProjectsData.length > 1 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '8px',
-              marginTop: '16px',
-              paddingTop: '12px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.3)'
-            }}>
-              {initialProjectsData.map((_, index) => (
-                <div
-                  key={index}
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: index === currentIndex ? textColor : 'rgba(255, 255, 255, 0.4)',
-                    opacity: index === currentIndex ? 0.8 : 0.4,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onClick={() => goToSlide(index)}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                />
-              ))}
+        {/* Projects content - All projects displayed vertically */}
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '24px'
+        }}>
+          {initialProjectsData.map((project, index) => (
+            <div key={project.id || index} style={{ width: '100%' }}>
+              <ProjectCard entry={project} index={index} isDarkTheme={isDarkTheme} />
             </div>
-          )}
+          ))}
         </div>
+
+        {/* Extra spacing at bottom */}
+        <div style={{ marginBottom: '32px' }} />
       </div>
     );
   } else {
-    // Empty state with standardized preview UI
+    // Clean empty state
     return (
-      <div style={{
-        ...placeholderStyle,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        background: 'rgba(255, 255, 255, 0.25)',
-        border: '1px solid rgba(255, 255, 255, 0.4)',
-        borderRadius: '16px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        transition: 'all 0.3s ease',
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box'
-      }} title="Click to add projects">
-        {/* Title at the top of the container */}
+      <div 
+        style={{
+          ...sectionStyle,
+          textAlign: 'center',
+          opacity: 0.6,
+          cursor: 'pointer'
+        }}
+        onClick={onEdit}
+      >
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          marginBottom: '16px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.3)'
+          padding: '40px 20px',
+          border: `2px dashed ${isDarkTheme ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+          borderRadius: '12px',
+          backgroundColor: isDarkTheme ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)'
         }}>
-          <div style={{
-            width: '24px',
-            height: '24px',
-            backgroundColor: '#374151',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: 0.8
-          }}>
-            <LuFolderOpen size={14} style={{ color: 'white' }} />
-          </div>
-          <h3 style={{
-            ...sectionTitleStyle,
-            fontSize: '18px',
-            fontWeight: '600',
-            color: textColor,
+          <LuFolderOpen 
+            style={{ 
+              fontSize: '24px', 
+              color: textColor, 
+              opacity: 0.5,
+              marginBottom: '12px'
+            }} 
+          />
+          <p style={{
             margin: 0,
-            letterSpacing: '-0.01em',
-            opacity: 0.9
-          }}>
-            Portfolio Projects
-          </h3>
-        </div>
-        
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '32px 16px',
-          textAlign: 'center'
-        }}>
-          <LuFolderOpen size={48} style={{ color: textColor, opacity: 0.5, marginBottom: '16px' }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '16px',
+            fontSize: '14px',
             color: textColor,
-            opacity: 0.7,
-            fontWeight: '500'
+            opacity: 0.7
           }}>
-            Click to add your portfolio projects with images, descriptions, and links
+            No portfolio items yet. Click to add your first project.
           </p>
         </div>
       </div>

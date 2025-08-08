@@ -303,7 +303,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -351,7 +351,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -400,7 +400,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -449,7 +449,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -497,7 +497,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -545,7 +545,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -594,7 +594,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -643,7 +643,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -747,7 +747,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: '#374151',
+                    backgroundColor: settings.icon_color || '#374151',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -804,7 +804,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                     <div style={{
                       width: '20px',
                       height: '20px',
-                      backgroundColor: '#374151',
+                      backgroundColor: settings.icon_color || '#374151',
                       borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',

@@ -14,7 +14,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#ffffff',
     theme: {
       text_color: '#1a1a1a',
-      icon_color: '#2d2d2d',
+      icon_color: '#1a1a1a',
       secondary_text: '#525252'
     }
   },
@@ -28,7 +28,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#f1f5f9',
     theme: {
       text_color: '#1e293b',
-      icon_color: '#334155',
+      icon_color: '#1e293b',
       secondary_text: '#475569'
     }
   },
@@ -42,7 +42,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#f5f5f4',
     theme: {
       text_color: '#292524',
-      icon_color: '#44403c',
+      icon_color: '#292524',
       secondary_text: '#57534e'
     }
   },
@@ -58,7 +58,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#ffffff',
     theme: {
       text_color: '#171717',
-      icon_color: '#262626',
+      icon_color: '#171717',
       secondary_text: '#404040'
     }
   },
@@ -74,7 +74,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#ffffff',
     theme: {
       text_color: '#0f0f0f',
-      icon_color: '#1f1f1f',
+      icon_color: '#0f0f0f',
       secondary_text: '#3f3f3f'
     }
   },
@@ -89,7 +89,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#fafafa',
     theme: {
       text_color: '#181818',
-      icon_color: '#2a2a2a',
+      icon_color: '#181818',
       secondary_text: '#4a4a4a'
     }
   },
@@ -105,7 +105,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#64748b',
     theme: {
       text_color: '#f8fafc',
-      icon_color: '#e2e8f0',
+      icon_color: '#334155',
       secondary_text: '#cbd5e1'
     }
   },
@@ -119,7 +119,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#84cc16',
     theme: {
       text_color: '#f9fafb',
-      icon_color: '#f3f4f6',
+      icon_color: '#374151',
       secondary_text: '#d1d5db'
     }
   },
@@ -133,7 +133,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#991b1b',
     theme: {
       text_color: '#fef2f2',
-      icon_color: '#fecaca',
+      icon_color: '#7c2d12',
       secondary_text: '#fca5a5'
     }
   },
@@ -147,7 +147,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#3730a3',
     theme: {
       text_color: '#f0f9ff',
-      icon_color: '#dbeafe',
+      icon_color: '#1e3a8a',
       secondary_text: '#93c5fd'
     }
   },
@@ -162,7 +162,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#0a0a0a',
     theme: {
       text_color: '#f5f5f5',
-      icon_color: '#e5e5e5',
+      icon_color: '#404040',
       secondary_text: '#a3a3a3'
     }
   },
@@ -176,7 +176,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#27272a',
     theme: {
       text_color: '#fafafa',
-      icon_color: '#e4e4e7',
+      icon_color: '#3f3f46',
       secondary_text: '#a1a1aa'
     }
   },
@@ -192,7 +192,7 @@ export const THEME_BACKGROUNDS = [
     preview: '#1a1a1a',
     theme: {
       text_color: '#f8f8f8',
-      icon_color: '#e8e8e8',
+      icon_color: '#404040',
       secondary_text: '#b8b8b8'
     }
   }

@@ -57,17 +57,23 @@ export default function PrysmaCard({
         />
       )}
       
-      {/* Separator line */}
-      <div style={{
-        height: '1px',
-        background: 'rgba(0, 0, 0, 0.15)',
-        marginTop: '0px', /* No spacing above separator */
-        marginBottom: '8px', /* Minimal spacing below separator */
-        marginLeft: '24px', /* Indent from left */
-        marginRight: '24px', /* Indent from right */
-        borderRadius: '1px',
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
-      }}></div>
+      {/* Separator line - only show when social buttons exist, but always maintain spacing */}
+      {socialBarSections && socialBarSections.length > 0 ? (
+        <div style={{
+          height: '1px',
+          background: 'rgba(0, 0, 0, 0.15)',
+          marginTop: '16px', /* More spacing above separator from personal info */
+          marginBottom: '8px', /* Minimal spacing below separator */
+          marginLeft: '24px', /* Indent from left */
+          marginRight: '24px', /* Indent from right */
+          borderRadius: '1px',
+          boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
+        }}></div>
+      ) : (
+        <div style={{
+          marginTop: '24px', /* Extra spacing when no social buttons, equivalent to line + margins */
+        }}></div>
+      )}
       
       {/* Main Sections */}
       <div className={`${styles.cardBody} ${hasHeader ? styles.hasHeader : ''}`}>
@@ -93,13 +99,26 @@ export default function PrysmaCard({
       </div>
       
       {/* Social Bar - Bottom position */}
-      {socialBarPosition === 'bottom' && (
-        <SocialBar
-          sections={socialBarSections}
-          profile={profile}
-          user={user}
-          position="bottom"
-        />
+      {socialBarPosition === 'bottom' && socialBarSections && socialBarSections.length > 0 && (
+        <>
+          {/* Separator line above social bar when at bottom */}
+          <div style={{
+            height: '1px',
+            background: 'rgba(0, 0, 0, 0.15)',
+            marginTop: '8px', /* Minimal spacing above separator */
+            marginBottom: '0px', /* No spacing below separator */
+            marginLeft: '24px', /* Indent from left */
+            marginRight: '24px', /* Indent from right */
+            borderRadius: '1px',
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.08)'
+          }}></div>
+          <SocialBar
+            sections={socialBarSections}
+            profile={profile}
+            user={user}
+            position="bottom"
+          />
+        </>
       )}
       
       {/* Fixed Footer */}

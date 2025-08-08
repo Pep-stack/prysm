@@ -324,7 +324,7 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
         <div style={{
           width: '20px',
           height: '20px',
-          backgroundColor: '#6B7280',
+                      backgroundColor: settings.icon_color || '#6B7280',
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

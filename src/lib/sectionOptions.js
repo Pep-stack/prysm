@@ -54,7 +54,7 @@ export const ALL_SECTION_OPTIONS = [
   // BUSINESS - Professional services, testimonials and engagement
   { type: 'services', name: 'Services Offered', icon: LuWrench, category: CATEGORIES.BUSINESS, editorComponent: 'ServicesSelector' },
   { type: 'testimonials', name: 'Client Testimonials', icon: LuHeart, category: CATEGORIES.BUSINESS, editorComponent: 'ClientTestimonialSelector' },
-  { type: 'appointments', name: 'Schedule a Call', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentsEditor' },
+  { type: 'appointments', name: 'Book an Appointment', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentsEditor' },
   { type: 'subscribe', name: 'Subscribe', icon: LuMail, category: CATEGORIES.BUSINESS, editorComponent: 'SubscribeSelector' },
   { type: 'faq', name: 'FAQ', icon: LuCircleHelp, category: CATEGORIES.BUSINESS, editorComponent: 'FAQSelector' },
   

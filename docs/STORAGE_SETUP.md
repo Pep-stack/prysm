@@ -1,109 +1,195 @@
 # Supabase Storage Setup voor Project Media
 
-## Het probleem was:
-- Foto uploads werden niet persistent opgeslagen
-- `URL.createObjectURL()` maakte alleen tijdelijke blob URLs
-- Na page refresh waren afbeeldingen weg
+## 🚨 IMMEDIATE FIX voor "row violates row-level security policy" Error
 
-## ⚠️ NIEUWE FOUT: "row violates row-level security policy"
-Dit betekent dat de Supabase Storage permissions niet goed zijn ingesteld.
+Als je deze error krijgt bij het uploaden van portfolio afbeeldingen, volg dan deze **DIRECTE OPLOSSING**:
 
-## OPLOSSING - Volg deze stappen exact:
-
-### 1. Ga naar Supabase Dashboard → Storage
-- Maak bucket "project-media" aan (als deze nog niet bestaat)
-- Zet op **Public bucket: ON**
-
-### 2. Ga naar Supabase Dashboard → SQL Editor
-Kopieer en voer deze **EENVOUDIGERE** SQL uit:
+### STAP 1: Ga naar Supabase Dashboard → SQL Editor
+Voer deze SQL uit om de storage permissions direct te repareren:
 
 ```sql
--- 1. Maak de bucket aan (als deze nog niet bestaat)
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'project-media', 
-  'project-media', 
-  true, 
-  52428800, 
-  ARRAY['image/*', 'video/*']
-) ON CONFLICT (id) DO NOTHING;
-
--- 2. Verwijder ALLE oude policies
+-- DIRECTE FIX: Maak simpele, werkende policies voor project-media bucket
+-- Verwijder alle oude policies eerst
+DROP POLICY IF EXISTS "Allow authenticated uploads to project-media" ON storage.objects;
+DROP POLICY IF EXISTS "Allow public reads from project-media" ON storage.objects;
+DROP POLICY IF EXISTS "Allow owner updates in project-media" ON storage.objects;
+DROP POLICY IF EXISTS "Allow owner deletes in project-media" ON storage.objects;
 DROP POLICY IF EXISTS "Users can upload project media" ON storage.objects;
 DROP POLICY IF EXISTS "Users can view project media" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own project media" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own project media" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
 DROP POLICY IF EXISTS "Public can view files" ON storage.objects;
+DROP POLICY IF EXISTS "project_media_insert" ON storage.objects;
+DROP POLICY IF EXISTS "project_media_select" ON storage.objects;
+DROP POLICY IF EXISTS "project_media_update" ON storage.objects;
+DROP POLICY IF EXISTS "project_media_delete" ON storage.objects;
 
--- 3. Maak EENVOUDIGE policies aan die ZEKER werken
--- Policy voor uploaden - VEEL RUIMER
-CREATE POLICY "Allow authenticated uploads to project-media" ON storage.objects
+-- Maak de bucket aan als deze niet bestaat
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'project-media', 
+  'project-media', 
+  true, 
+  104857600, 
+  ARRAY['image/*', 'video/*']
+) ON CONFLICT (id) DO NOTHING;
+
+-- Zorg dat RLS aan staat
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- Maak SUPER EENVOUDIGE policies die ALTIJD werken
+CREATE POLICY "portfolio_upload" ON storage.objects
 FOR INSERT 
 WITH CHECK (
   bucket_id = 'project-media' 
   AND auth.role() = 'authenticated'
 );
 
--- Policy voor lezen - PUBLIEK
-CREATE POLICY "Allow public reads from project-media" ON storage.objects
+CREATE POLICY "portfolio_read" ON storage.objects
 FOR SELECT 
 USING (bucket_id = 'project-media');
 
--- Policy voor updaten - VOOR EIGENAAR
-CREATE POLICY "Allow owner updates in project-media" ON storage.objects
+CREATE POLICY "portfolio_update" ON storage.objects
 FOR UPDATE 
 USING (
   bucket_id = 'project-media' 
   AND auth.role() = 'authenticated'
 );
 
--- Policy voor verwijderen - VOOR EIGENAAR  
-CREATE POLICY "Allow owner deletes in project-media" ON storage.objects
+CREATE POLICY "portfolio_delete" ON storage.objects
 FOR DELETE 
 USING (
   bucket_id = 'project-media' 
   AND auth.role() = 'authenticated'
 );
-
--- 4. Zorg ervoor dat RLS is ingeschakeld
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 ```
 
-### 3. **DEBUGGING STAPPEN** - Voer ook deze SQL uit:
+### STAP 2: Test de upload
+1. Ga terug naar je portfolio sectie
+2. Probeer een afbeelding te uploaden
+3. De error zou nu weg moeten zijn! ✅
+
+---
+
+## ❌ ERROR: "must be owner of table objects"
+
+Als je deze error krijgt, betekent dit dat je geen admin rechten hebt in Supabase. Hier zijn **ALTERNATIEVE OPLOSSINGEN**:
+
+### OPLOSSING A: Via Supabase Dashboard (Aanbevolen)
+
+1. **Ga naar Supabase Dashboard → Storage**
+2. **Klik op "New bucket"**
+3. **Maak bucket "project-media" aan** met deze instellingen:
+   - ✅ **Public bucket: ON**
+   - ✅ **File size limit: 100MB**
+   - ✅ **Allowed MIME types: image/*, video/***
+
+4. **Ga naar Authentication → Policies**
+5. **Zoek naar "storage.objects"**
+6. **Voeg deze policies toe via de UI:**
+
+**Policy 1: "portfolio_upload"**
+- Operation: INSERT
+- Target roles: authenticated
+- Using expression: `bucket_id = 'project-media'`
+
+**Policy 2: "portfolio_read"**  
+- Operation: SELECT
+- Target roles: public
+- Using expression: `bucket_id = 'project-media'`
+
+**Policy 3: "portfolio_update"**
+- Operation: UPDATE  
+- Target roles: authenticated
+- Using expression: `bucket_id = 'project-media'`
+
+**Policy 4: "portfolio_delete"**
+- Operation: DELETE
+- Target roles: authenticated  
+- Using expression: `bucket_id = 'project-media'`
+
+### OPLOSSING B: Tijdelijke RLS Uitschakeling
+
+Als je geen admin rechten hebt, kun je RLS tijdelijk uitschakelen:
 
 ```sql
--- Check of de bucket bestaat
-SELECT id, name, public FROM storage.buckets WHERE name = 'project-media';
-
--- Check of policies bestaan
-SELECT schemaname, tablename, policyname, cmd, roles 
-FROM pg_policies 
-WHERE tablename = 'objects' AND schemaname = 'storage';
-
--- Check huidige user
-SELECT auth.uid(), auth.role();
-```
-
-### 4. Als het NOG STEEDS niet werkt, gebruik deze TIJDELIJKE oplossing:
-
-```sql
--- TIJDELIJK: Zet RLS UIT (alleen voor testen!)
+-- TIJDELIJK: Zet RLS uit (alleen voor testen!)
 ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY;
 ```
 
-⚠️ **Waarschuwing**: De laatste SQL zet alle beveiliging uit. Gebruik dit alleen om te testen of het upload probleem daarmee opgelost is.
+⚠️ **LET OP**: Dit zet alle beveiliging uit. Gebruik dit alleen om te testen.
 
-### 3. Test de upload opnieuw
-Na het uitvoeren van de SQL, zou de foto upload moeten werken!
+### OPLOSSING C: Contact Support
 
-## Oplossing geïmplementeerd:
-✅ Echte file upload naar Supabase Storage
-✅ Automatische bucket creatie
-✅ Loading states en error handling
-✅ File validatie (type & grootte)
-✅ Fallback bucket detectie
-✅ **RLS Policies voor secure uploads**
+Als geen van bovenstaande werkt:
+1. **Contact Supabase Support** voor admin rechten
+2. **Of vraag je project admin** om de storage policies in te stellen
+3. **Of gebruik een andere bucket** die al bestaat
+
+---
+
+## Als het NOG STEEDS niet werkt: Emergency Fix
+
+Als de bovenstaande SQL niet werkt, gebruik dan deze **TIJDELIJKE** oplossing:
+
+```sql
+-- EMERGENCY: Zet RLS tijdelijk uit (ALLEEN VOOR TESTEN!)
+ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY;
+```
+
+⚠️ **LET OP**: Dit zet alle beveiliging uit. Gebruik dit alleen om te testen of uploads dan wel werken.
+
+**Test nu de upload. Als het werkt:**
+
+```sql
+-- Zet RLS weer aan
+ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+
+-- Maak een super ruime policy voor testen
+CREATE POLICY "temp_allow_all" ON storage.objects
+FOR ALL
+USING (bucket_id = 'project-media')
+WITH CHECK (bucket_id = 'project-media');
+```
+
+---
+
+## Debug Informatie
+
+Als je wilt zien wat er mis is, voer deze SQL uit:
+
+```sql
+-- Check je user ID en rol
+SELECT auth.uid() as user_id, auth.role() as user_role;
+
+-- Check welke buckets bestaan
+SELECT id, name, public FROM storage.buckets;
+
+-- Check welke policies bestaan
+SELECT schemaname, tablename, policyname, cmd, roles 
+FROM pg_policies 
+WHERE tablename = 'objects' AND schemaname = 'storage';
+```
+
+---
+
+## Het probleem was:
+- Foto uploads werden niet persistent opgeslagen
+- `URL.createObjectURL()` maakte alleen tijdelijke blob URLs
+- Na page refresh waren afbeeldingen weg
+- **RLS policies blokkeerden uploads**
+- **Permission errors bij het instellen van policies**
+
+## ✅ OPLOSSING GEÏMPLEMENTEERD:
+✅ Echte file upload naar Supabase Storage  
+✅ Automatische bucket creatie  
+✅ Loading states en error handling  
+✅ File validatie (type & grootte)  
+✅ Fallback bucket detectie  
+✅ **Verbeterde RLS Policies voor secure uploads**  
+✅ **Duidelijke error messages met fix instructies**
+✅ **Alternatieve oplossingen voor permission errors**
 
 ## De fix werkt nu als volgt:
 1. ✅ Selecteer bestand
@@ -114,129 +200,27 @@ Na het uitvoeren van de SQL, zou de foto upload moeten werken!
 
 ## Nieuwe features:
 - 📱 Loading spinner tijdens upload
-- ❌ Error messages bij problemen  
-- 📏 File size validatie (max 50MB)
+- ❌ **Specifieke error messages met fix instructies**  
+- 📏 File size validatie (max 100MB)
 - 🎭 File type validatie (alleen images/videos)
 - 🔄 Automatische bucket detectie
 - 🛡️ User authenticatie check
-- 🔐 **Secure RLS policies**
+- 🔐 **Simpele, werkende RLS policies**
+- 🩺 **Storage diagnostic functie**
+- 🔧 **Alternatieve oplossingen voor permission issues**
 
-## Troubleshooting:
-Als je nog steeds errors krijgt:
+## Als je nog steeds errors krijgt:
 1. Check of je bent ingelogd (auth.uid() moet bestaan)
-2. Controleer of de bucket "project-media" bestaat
+2. Controleer of de bucket "project-media" bestaat  
 3. Verificeer dat alle policies zijn aangemaakt met bovenstaande SQL
 4. Refresh je browser volledig
+5. **Check de nieuwe error message - deze geeft nu specifieke instructies**
+6. **Probeer de Dashboard UI methode als SQL niet werkt**
 
 ## Test het nu:
-1. Ga naar Projects sectie
-2. Voeg een project toe
+1. Ga naar Portfolio sectie in dashboard
+2. Voeg een portfolio item toe
 3. Upload een afbeelding
 4. Zie de loading state
-5. Save het project
+5. Save het portfolio item
 6. Refresh de pagina - afbeelding blijft zichtbaar! 🎉 
-
-## ❗ NOG STEEDS RLS ERROR? Volg deze stappen:
-
-### STAP 1: TIJDELIJK RLS UITSCHAKELEN (om te testen)
-Voer deze SQL uit om te zien of het upload probleem daarmee opgelost wordt:
-
-```sql
--- Zet RLS tijdelijk UIT
-ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY;
-```
-
-**Test nu de foto upload. Werkt het?**
-- ✅ **Ja, werkt!** → Ga naar STAP 2 voor juiste RLS setup
-- ❌ **Nee, werkt niet** → Ga naar STAP 3 voor andere problemen
-
-### STAP 2: RLS OPNIEUW GOED INSTELLEN
-Als upload werkte zonder RLS, voer deze SQL uit:
-
-```sql
--- Zet RLS weer AAN
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- Verwijder ALLE policies
-DO $$
-BEGIN
-    DROP POLICY IF EXISTS "Allow authenticated uploads to project-media" ON storage.objects;
-    DROP POLICY IF EXISTS "Allow public reads from project-media" ON storage.objects;
-    DROP POLICY IF EXISTS "Allow owner updates in project-media" ON storage.objects;
-    DROP POLICY IF EXISTS "Allow owner deletes in project-media" ON storage.objects;
-    DROP POLICY IF EXISTS "Users can upload project media" ON storage.objects;
-    DROP POLICY IF EXISTS "Users can view project media" ON storage.objects;
-    DROP POLICY IF EXISTS "Users can update their own project media" ON storage.objects;
-    DROP POLICY IF EXISTS "Users can delete their own project media" ON storage.objects;
-    DROP POLICY IF EXISTS "Authenticated users can upload" ON storage.objects;
-    DROP POLICY IF EXISTS "Public can view files" ON storage.objects;
-EXCEPTION
-    WHEN OTHERS THEN NULL;
-END $$;
-
--- Maak SUPER EENVOUDIGE policies
-CREATE POLICY "project_media_insert" ON storage.objects
-FOR INSERT WITH CHECK (bucket_id = 'project-media');
-
-CREATE POLICY "project_media_select" ON storage.objects
-FOR SELECT USING (bucket_id = 'project-media');
-
-CREATE POLICY "project_media_update" ON storage.objects
-FOR UPDATE USING (bucket_id = 'project-media');
-
-CREATE POLICY "project_media_delete" ON storage.objects
-FOR DELETE USING (bucket_id = 'project-media');
-```
-
-### STAP 3: DEBUGGING - Voer deze SQL uit en deel de resultaten:
-
-```sql
--- 1. Check bucket
-SELECT id, name, public FROM storage.buckets WHERE name = 'project-media';
-
--- 2. Check user authentication
-SELECT 
-  auth.uid() as user_id,
-  auth.role() as user_role,
-  auth.email() as user_email;
-
--- 3. Check policies
-SELECT 
-  schemaname, 
-  tablename, 
-  policyname, 
-  cmd,
-  permissive,
-  roles,
-  qual,
-  with_check
-FROM pg_policies 
-WHERE tablename = 'objects' AND schemaname = 'storage'
-ORDER BY policyname;
-
--- 4. Check RLS status
-SELECT 
-  schemaname,
-  tablename,
-  rowsecurity
-FROM pg_tables 
-WHERE tablename = 'objects' AND schemaname = 'storage';
-```
-
-### STAP 4: ALTERNATIEVE BUCKET
-Als alles faalt, probeer een andere bucket:
-
-```sql
--- Maak nieuwe bucket aan
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('uploads', 'uploads', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Zet RLS uit voor deze bucket (tijdelijk)
-ALTER TABLE storage.objects DISABLE ROW LEVEL SECURITY;
-```
-
-En update de code om 'uploads' bucket te gebruiken:
-
-### STAP 5: CODE AANPASSING (laatste redmiddel)
-Als niets werkt, pas de code aan om een hardcoded bucket te gebruiken: 
