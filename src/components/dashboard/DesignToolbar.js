@@ -194,11 +194,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
           <div className="fixed inset-0 bg-black/30 z-40" aria-label="Close Design Settings Overlay" onClick={() => setShowMenu(false)} />
           <div
             ref={menuRef}
-            className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 w-[95vw] max-w-md sm:max-w-lg"
+            className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-4 md:p-6 flex flex-col gap-4 md:gap-6 w-[95vw] max-w-sm sm:max-w-md lg:max-w-lg"
             role="dialog"
             aria-modal="true"
             tabIndex={-1}
-            style={{ maxHeight: '85vh', overflowY: 'auto' }}
+            style={{ maxHeight: '90vh', overflowY: 'auto' }}
           >
             <button
               aria-label="Close Design Settings"
@@ -251,11 +251,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               {/* Light Themes */}
               <div>
                 <span className="text-xs font-medium text-gray-500 mb-2 block">Light Themes</span>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                   {THEME_BACKGROUNDS.filter(theme => theme.category === 'light').map(theme => (
                     <button
                       key={theme.id}
-                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                      className={`relative group flex flex-col items-center p-2 md:p-3 rounded-lg border transition-all hover:shadow-md aspect-square ${
                         currentTheme.id === theme.id 
                           ? 'border-emerald-500 bg-emerald-50 shadow-md' 
                           : 'border-gray-200 hover:border-gray-300'
@@ -265,7 +265,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                       aria-label={`Select ${theme.label} theme`}
                     >
                       <div 
-                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-gray-200 mb-1.5 overflow-hidden flex-shrink-0"
                         style={{ 
                           ...(theme.isPattern
                             ? { 
@@ -279,9 +279,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                           )
                         }}
                       />
-                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight flex-grow">{theme.label}</span>
                       {currentTheme.id === theme.id && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
                       )}
@@ -293,11 +293,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               {/* Color Themes */}
               <div>
                 <span className="text-xs font-medium text-gray-500 mb-2 block">Color Themes</span>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                   {THEME_BACKGROUNDS.filter(theme => theme.category === 'color').map(theme => (
                     <button
                       key={theme.id}
-                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                      className={`relative group flex flex-col items-center p-2 md:p-3 rounded-lg border transition-all hover:shadow-md aspect-square ${
                         currentTheme.id === theme.id 
                           ? 'border-emerald-500 bg-emerald-50 shadow-md' 
                           : 'border-gray-200 hover:border-gray-300'
@@ -307,7 +307,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                       aria-label={`Select ${theme.label} theme`}
                     >
                       <div 
-                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-gray-200 mb-1.5 overflow-hidden flex-shrink-0"
                         style={{ 
                           ...(theme.isPattern
                             ? { 
@@ -321,9 +321,44 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                           )
                         }}
                       />
-                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight flex-grow">{theme.label}</span>
                       {currentTheme.id === theme.id && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pattern Themes */}
+              <div>
+                <span className="text-xs font-medium text-gray-500 mb-2 block">Pattern Themes</span>
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+                  {THEME_BACKGROUNDS.filter(theme => theme.category === 'pattern').map(theme => (
+                    <button
+                      key={theme.id}
+                      className={`relative group flex flex-col items-center p-2 md:p-3 rounded-lg border transition-all hover:shadow-md aspect-square ${
+                        currentTheme.id === theme.id 
+                          ? 'border-emerald-500 bg-emerald-50 shadow-md' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => handleThemeSelect(theme)}
+                      type="button"
+                      aria-label={`Select ${theme.label} theme`}
+                    >
+                      <div 
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-gray-200 mb-1.5 overflow-hidden flex-shrink-0"
+                        style={{ 
+                          backgroundColor: theme.backgroundColor,
+                          backgroundImage: theme.value,
+                          backgroundSize: theme.backgroundSize || 'auto'
+                        }}
+                      />
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight flex-grow">{theme.label}</span>
+                      {currentTheme.id === theme.id && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
                       )}
@@ -335,11 +370,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               {/* Dark Themes */}
               <div>
                 <span className="text-xs font-medium text-gray-500 mb-2 block">Dark Themes</span>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
                   {THEME_BACKGROUNDS.filter(theme => theme.category === 'dark').map(theme => (
                     <button
                       key={theme.id}
-                      className={`relative group flex flex-col items-center p-3 rounded-xl border transition-all hover:shadow-md ${
+                      className={`relative group flex flex-col items-center p-2 md:p-3 rounded-lg border transition-all hover:shadow-md aspect-square ${
                         currentTheme.id === theme.id 
                           ? 'border-emerald-500 bg-emerald-50 shadow-md' 
                           : 'border-gray-200 hover:border-gray-300'
@@ -349,7 +384,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                       aria-label={`Select ${theme.label} theme`}
                     >
                       <div 
-                        className="w-12 h-12 rounded-lg border-2 border-gray-200 mb-2 overflow-hidden"
+                        className="w-8 h-8 md:w-10 md:h-10 rounded-lg border border-gray-200 mb-1.5 overflow-hidden flex-shrink-0"
                         style={{ 
                           ...(theme.isPattern
                             ? { 
@@ -363,9 +398,9 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                           )
                         }}
                       />
-                      <span className="text-xs font-medium text-gray-700 text-center leading-tight">{theme.label}</span>
+                      <span className="text-xs font-medium text-gray-700 text-center leading-tight flex-grow">{theme.label}</span>
                       {currentTheme.id === theme.id && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <span className="text-white text-xs">✓</span>
                         </div>
                       )}
@@ -414,7 +449,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               aria-label="Save Appearance"
               onClick={handleSave}
               disabled={saving || isLoading}
-              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-2 sm:py-3 text-sm sm:text-base font-semibold"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full border bg-emerald-500 text-white shadow-sm disabled:opacity-50 hover:ring-2 hover:ring-emerald-200 transition py-3 md:py-3 text-sm md:text-base font-semibold min-h-[44px]"
               type="button"
             >
               {isLoading ? 'Loading...' : saving ? 'Saving...' : 'Save'}

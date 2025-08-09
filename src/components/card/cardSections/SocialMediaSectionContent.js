@@ -22,7 +22,26 @@ const SOCIALS = [
 export default function SocialMediaSectionContent({ section, profile, user, styles = {}, onSocialClick }) {
   // Haal kleur uit design settings (fallback op zwart)
   const { settings } = useDesignSettings();
-  const iconColor = settings?.icon_color || '#222';
+  
+  // Smart icon color - check if this is a colored or dark theme
+  const isColoredTheme = settings.background_color && (
+    settings.background_color.includes('linear-gradient') && 
+    settings.background_color.includes('#ffffff')
+  );
+  const isDarkTheme = settings.background_color && (
+    settings.background_color.includes('#000000') ||
+    settings.background_color.includes('#0a0a0a') ||
+    settings.background_color.includes('#18181b') ||
+    settings.background_color.includes('#1a1a1a') ||
+    settings.background_color.includes('#0c0c0c') ||
+    settings.background_color.includes('#111827') ||
+    settings.background_color.includes('#1e293b') ||
+    settings.background_color.includes('#252525') ||
+    settings.background_color.includes('#1c1c1c')
+  );
+  
+  // Use smart contrast for social icons - black for colored themes, white for dark themes
+  const iconColor = isColoredTheme ? '#000000' : isDarkTheme ? '#ffffff' : (settings?.icon_color || '#222');
   const iconSize = styles?.iconSize || 32;
 
   // section.type bepaalt welk icoon we tonen

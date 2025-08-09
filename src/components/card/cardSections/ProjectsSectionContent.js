@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { FaExternalLinkAlt, FaFolder, FaBriefcase } from 'react-icons/fa';
 import { LuFolderOpen } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 import ProjectSelector from '../../shared/ProjectSelector';
 
 // Proper child component so hooks are used safely
@@ -332,7 +333,9 @@ export default function ProjectsSectionContent({ profile, styles, isEditing, onS
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: settings.icon_color || '#6B7280',
+            backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuCode, LuStar, LuClock, LuAward } from 'react-icons/lu';
 import SkillsSelector from '../../shared/SkillsSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function SkillsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -301,7 +302,9 @@ export default function SkillsSectionContent({ profile, styles, isEditing, onSav
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: settings.icon_color || '#6B7280',
+            backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

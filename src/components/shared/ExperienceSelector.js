@@ -295,34 +295,60 @@ function ExperienceEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDel
             <label className="block text-white font-medium mb-2 text-sm">
               Start Date
             </label>
-            <input
-              type="month"
-              value={localEntry.startDate || ''}
-              onChange={(e) => handleInputChange('startDate', e.target.value)}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type="date"
+                value={localEntry.startDate || ''}
+                onChange={(e) => handleInputChange('startDate', e.target.value)}
+                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{
+                  colorScheme: 'dark',
+                  WebkitColorScheme: 'dark',
+                  WebkitAppearance: 'none',
+                  MozAppearance: 'textfield'
+                }}
+              />
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
           </div>
           
           <div>
             <label className="block text-white font-medium mb-2 text-sm">
               End Date
             </label>
-            <div className="space-y-2">
-              <input
-                type="month"
-                value={localEntry.endDate || ''}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
-                disabled={localEntry.current}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-              />
-              <label className="flex items-center gap-2">
+            <div className="space-y-3">
+              <div className="relative">
+                <input
+                  type="date"
+                  value={localEntry.endDate || ''}
+                  onChange={(e) => handleInputChange('endDate', e.target.value)}
+                  disabled={localEntry.current}
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    colorScheme: 'dark',
+                    WebkitColorScheme: 'dark',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'textfield'
+                  }}
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={localEntry.current || false}
                   onChange={(e) => handleInputChange('current', e.target.checked)}
-                  className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500 focus:ring-2"
+                  className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
                 />
-                <span className="text-gray-300 text-sm">Currently working here</span>
+                <span className="text-gray-300 text-sm select-none">Currently working here</span>
               </label>
             </div>
           </div>
@@ -396,7 +422,13 @@ function ExperienceEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDel
           <div className="flex items-center gap-2 mb-3 text-gray-400 text-sm">
             {entry.startDate && (
               <span>
-                {new Date(entry.startDate + '-01').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                {(() => {
+                  // Handle both old format (YYYY-MM) and new format (YYYY-MM-DD)
+                  const date = entry.startDate.includes('-') && entry.startDate.split('-').length === 3 
+                    ? new Date(entry.startDate) 
+                    : new Date(entry.startDate + '-01');
+                  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                })()}
               </span>
             )}
             <span>-</span>
@@ -404,7 +436,13 @@ function ExperienceEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDel
               <span className="text-green-400">Present</span>
             ) : entry.endDate ? (
               <span>
-                {new Date(entry.endDate + '-01').toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+                {(() => {
+                  // Handle both old format (YYYY-MM) and new format (YYYY-MM-DD)
+                  const date = entry.endDate.includes('-') && entry.endDate.split('-').length === 3 
+                    ? new Date(entry.endDate) 
+                    : new Date(entry.endDate + '-01');
+                  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+                })()}
               </span>
             ) : (
               <span>Not specified</span>

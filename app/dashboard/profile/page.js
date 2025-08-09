@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from '../../../src/components/auth/SessionProvider';
 import { useProfileEditor } from '../../../src/hooks/useProfileEditor';
 import { LuUser, LuImage, LuImagePlus, LuSave, LuArrowLeft, LuSettings, LuMonitor, LuBriefcase, LuBuilding2, LuCheck, LuX, LuPause, LuClock } from 'react-icons/lu';
+import SizeSlider from '../../../src/components/shared/SizeSlider';
 import { useFileUpload } from '../../../src/hooks/useFileUpload';
 import { supabase } from '../../../src/lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
@@ -62,6 +63,19 @@ export default function ProfilePage() {
     }
     
     return settings;
+  };
+
+  // Helper function to get preview size based on avatar size setting (uitgebreid)
+  const getPreviewSize = (avatarSize) => {
+    switch (avatarSize) {
+      case 'xs': return 'w-40 h-40'; // 160px
+      case 'small': return 'w-48 h-48'; // 192px
+      case 'medium': return 'w-56 h-56'; // 224px
+      case 'large': return 'w-64 h-64'; // 256px
+      case 'xl': return 'w-72 h-72'; // 288px
+      case 'xxl': return 'w-80 h-80'; // 320px
+      default: return 'w-56 h-56'; // 224px (medium fallback)
+    }
   };
   const [cardDisplaySettings, setCardDisplaySettings] = useState(getCardDisplaySettings(cardType));
 
@@ -824,9 +838,21 @@ export default function ProfilePage() {
                         <img 
                           src={cardImages.avatar_url || 'https://via.placeholder.com/220x220?text=Avatar'} 
                           alt="Profile Avatar" 
-                          className={`w-56 h-56 object-cover border-4 border-white shadow-xl ${
+                          className={`${getPreviewSize(cardDisplaySettings.avatar_size)} object-cover border-4 border-white shadow-xl transition-all duration-300 ${
                             cardDisplaySettings.display_type === 'round_avatar' ? 'rounded-full' : 'rounded-3xl'
                           }`}
+                        />
+                      </div>
+
+                      {/* Avatar Size Slider */}
+                      <div className="mb-6">
+                        <label className="block text-sm font-medium text-gray-900 mb-4 text-center">
+                          Avatar Size
+                        </label>
+                        <SizeSlider
+                          value={cardDisplaySettings.avatar_size || 'medium'}
+                          onChange={(newSize) => handleCardDisplaySettingChange('avatarSize', newSize)}
+                          className="max-w-xs mx-auto"
                         />
                       </div>
                     </div>
@@ -844,7 +870,7 @@ export default function ProfilePage() {
                         <div className="flex items-center justify-center w-full h-12 px-4 bg-white border-2 border-dashed border-gray-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors duration-200">
                           <LuImagePlus className="w-5 h-5 text-gray-400 mr-2" />
                           <span className="text-sm font-medium text-gray-600">
-                            {avatarFile ? avatarFile.name : 'Kies bestand'}
+                            {avatarFile ? avatarFile.name : 'Choose file'}
                           </span>
                         </div>
                       </div>

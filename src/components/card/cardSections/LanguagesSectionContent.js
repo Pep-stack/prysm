@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import LanguageSelector from '../../shared/LanguageSelector';
 import { LuLanguages } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 // Mapping from common language codes to emoji flags
 const langToCountry = {
@@ -208,7 +209,9 @@ export default function LanguagesSectionContent({ profile, styles, isEditing, on
         <div style={{
           width: '20px',
           height: '20px',
-                      backgroundColor: settings.icon_color || '#6B7280',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

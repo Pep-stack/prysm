@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuAward, LuCalendar, LuBuilding2, LuExternalLink } from 'react-icons/lu';
 import CertificationSelector from '../../shared/CertificationSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function CertificationsSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -309,7 +310,9 @@ export default function CertificationsSectionContent({ profile, styles, isEditin
         <div style={{
           width: '20px',
           height: '20px',
-                      backgroundColor: settings.icon_color || '#6B7280',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

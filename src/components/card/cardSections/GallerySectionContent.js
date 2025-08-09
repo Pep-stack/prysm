@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { LuImage } from 'react-icons/lu';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function GallerySectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -119,7 +120,9 @@ export default function GallerySectionContent({ profile, styles, isEditing, onSa
         <div style={{
           width: '20px',
           height: '20px',
-                      backgroundColor: settings.icon_color || '#6B7280',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+            ? '#000000' 
+            : (settings.icon_color || '#6B7280'),
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

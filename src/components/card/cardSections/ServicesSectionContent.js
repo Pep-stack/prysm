@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuWrench, LuDollarSign, LuClock, LuStar, LuChevronLeft, LuChevronRight, LuCheck } from 'react-icons/lu';
 import ServicesSelector from '../../shared/ServicesSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function ServicesSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -366,7 +367,9 @@ export default function ServicesSectionContent({ profile, styles, isEditing, onS
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: settings.icon_color || '#6B7280',
+            backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

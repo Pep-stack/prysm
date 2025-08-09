@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuCircleHelp, LuChevronDown, LuChevronRight } from 'react-icons/lu';
 import FAQSelector from '../../shared/FAQSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function FAQSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -272,7 +273,9 @@ export default function FAQSectionContent({ profile, styles, isEditing, onSave, 
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: settings.icon_color || '#6B7280',
+            backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

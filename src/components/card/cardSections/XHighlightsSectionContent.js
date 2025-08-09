@@ -411,7 +411,9 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
         style={{
           ...sectionStyle,
           padding: '0',
+          paddingBottom: '16px',
           margin: '0',
+          marginBottom: '48px',
           background: 'transparent',
           border: 'none',
           borderRadius: '0',
@@ -504,7 +506,8 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
                   display: 'flex',
                   justifyContent: 'center',
                   gap: '8px',
-                  marginTop: '20px'
+                  marginTop: '20px',
+                  marginBottom: '16px'
                 }}>
                   {initialXHighlightsData.map((_, index) => (
                     <button
@@ -536,7 +539,9 @@ export default function XHighlightsSectionContent({ profile, styles, isEditing, 
       <div style={{
         ...sectionStyle,
         padding: '0',
+        paddingBottom: '16px',
         margin: '0',
+        marginBottom: '48px',
         background: 'transparent',
         border: 'none',
         borderRadius: '0',

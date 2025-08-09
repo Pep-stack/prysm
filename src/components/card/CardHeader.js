@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image'; // Gebruik next/image voor avatar
 import styles from './CardHeader.module.css'; // Importeer de CSS Module
 import { useDesignSettings } from '../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../lib/themeSystem';
 import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuClock, LuUser, LuClock3, LuBuilding2, LuPhone, LuMail } from 'react-icons/lu';
 
 // Helper functie voor initialen
@@ -40,12 +41,29 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   // Get card background color from design settings (fallback op wit)
   const cardBgColor = settings.background_color || '#fff';
 
-  // Avatar grootte bepalen
+  // Avatar grootte bepalen (uitgebreid voor meer sizes)
   const getAvatarSize = (size) => {
     switch (size) {
-      case 'small': return 60;
-      case 'large': return 120;
-      default: return 80; // medium
+      case 'xs': return 50;
+      case 'small': return 70;
+      case 'medium': return 90;
+      case 'large': return 110;
+      case 'xl': return 130;
+      case 'xxl': return 150;
+      default: return 90; // medium fallback
+    }
+  };
+
+  // Display avatar grootte bepalen (voor grote avatar in display modes)
+  const getDisplayAvatarSize = (size) => {
+    switch (size) {
+      case 'xs': return 240;
+      case 'small': return 280;
+      case 'medium': return 320;
+      case 'large': return 360;
+      case 'xl': return 400;
+      case 'xxl': return 440;
+      default: return 320; // medium fallback
     }
   };
 
@@ -68,6 +86,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
   };
 
   const avatarSizePx = getAvatarSize(avatarSize);
+  const displayAvatarSizePx = getDisplayAvatarSize(avatarSize);
   const avatarBorderRadius = getAvatarBorderRadius(avatarShape);
   const avatarJustification = getAvatarJustification(avatarPosition);
 
@@ -214,25 +233,26 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
               <Image
                 src={avatarUrl}
                 alt={personalInfo?.name || user?.email || 'Profile Avatar'}
-                width={320}
-                height={320}
+                width={displayAvatarSizePx}
+                height={displayAvatarSizePx}
                 style={{ 
                   objectFit: 'cover',
                   borderRadius: displayType === 'round_avatar' ? '50%' : 24,
-                  width: '320px',
-                  height: '320px',
+                  width: `${displayAvatarSizePx}px`,
+                  height: `${displayAvatarSizePx}px`,
                   display: 'block',
                   border: 'none',
                   boxShadow: 'none',
+                  transition: 'all 0.3s ease',
                 }}
               />
             ) : (
               <div 
                 style={{
-                  width: '320px',
-                  height: '320px',
+                  width: `${displayAvatarSizePx}px`,
+                  height: `${displayAvatarSizePx}px`,
                   borderRadius: displayType === 'round_avatar' ? '50%' : 24,
-                  fontSize: '128px',
+                  fontSize: `${Math.floor(displayAvatarSizePx * 0.4)}px`,
                   flexShrink: 0,
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: 'white',
@@ -241,6 +261,7 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   justifyContent: 'center',
                   border: 'none',
                   boxShadow: 'none',
+                  transition: 'all 0.3s ease',
                 }}
               >
                 <span>
@@ -303,7 +324,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -351,7 +374,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -400,7 +425,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -449,7 +476,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -497,7 +526,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -545,7 +576,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -594,7 +627,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -643,7 +678,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -747,7 +784,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   <div style={{
                     width: '20px',
                     height: '20px',
-                    backgroundColor: settings.icon_color || '#374151',
+                    backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
@@ -804,7 +843,9 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                     <div style={{
                       width: '20px',
                       height: '20px',
-                      backgroundColor: settings.icon_color || '#374151',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+                      ? '#000000' 
+                      : (settings.icon_color || '#374151'),
                       borderRadius: '6px',
                       display: 'flex',
                       alignItems: 'center',

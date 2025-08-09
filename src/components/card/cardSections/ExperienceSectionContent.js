@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuBriefcase, LuCalendar, LuMapPin, LuClock, LuBuilding2 } from 'react-icons/lu';
 import ExperienceSelector from '../../shared/ExperienceSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function ExperienceSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -59,7 +60,11 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
   // Format date for display (compact format)
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString + '-01').toLocaleDateString('en-US', { 
+    // Handle both old format (YYYY-MM) and new format (YYYY-MM-DD)
+    const date = dateString.includes('-') && dateString.split('-').length === 3 
+      ? new Date(dateString) 
+      : new Date(dateString + '-01');
+    return date.toLocaleDateString('en-US', { 
       month: 'short', 
       year: 'numeric' 
     });
@@ -69,8 +74,17 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
   const calculateDuration = (startDate, endDate, isCurrent) => {
     if (!startDate) return '';
     
-    const start = new Date(startDate + '-01');
-    const end = isCurrent ? new Date() : new Date(endDate + '-01');
+    // Handle both old format (YYYY-MM) and new format (YYYY-MM-DD)
+    const start = startDate.includes('-') && startDate.split('-').length === 3 
+      ? new Date(startDate) 
+      : new Date(startDate + '-01');
+    const end = isCurrent 
+      ? new Date() 
+      : (endDate 
+          ? (endDate.includes('-') && endDate.split('-').length === 3 
+              ? new Date(endDate) 
+              : new Date(endDate + '-01'))
+          : new Date());
     
     const diffTime = Math.abs(end - start);
     const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30.44));
@@ -349,7 +363,9 @@ export default function ExperienceSectionContent({ profile, styles, isEditing, o
         <div style={{
           width: '20px',
           height: '20px',
-                      backgroundColor: settings.icon_color || '#6B7280',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

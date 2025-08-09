@@ -4,6 +4,7 @@ import { LuHeart, LuCalendar, LuBriefcase, LuUser, LuQuote, LuChevronLeft, LuChe
 import { supabase } from "../../../lib/supabase";
 import ClientTestimonialSelector from '../../shared/ClientTestimonialSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 // Parse testimonials data from profile
 const parseTestimonialsData = (testimonialsData) => {
@@ -451,7 +452,9 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: settings.icon_color || '#6B7280',
+            backgroundColor: needsDarkIconBackground(settings.background_color) 
+              ? '#000000' 
+              : (settings.icon_color || '#6B7280'),
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { LuGraduationCap, LuCalendar, LuMapPin, LuClock } from 'react-icons/lu';
 import EducationSelector from '../../shared/EducationSelector';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
+import { needsDarkIconBackground } from '../../../lib/themeSystem';
 
 export default function EducationSectionContent({ profile, styles, isEditing, onSave, onCancel }) {
   const { sectionStyle, sectionTitleStyle, placeholderStyle } = styles || {};
@@ -324,7 +325,9 @@ export default function EducationSectionContent({ profile, styles, isEditing, on
         <div style={{
           width: '20px',
           height: '20px',
-                      backgroundColor: settings.icon_color || '#6B7280',
+                      backgroundColor: needsDarkIconBackground(settings.background_color) 
+            ? '#000000' 
+            : (settings.icon_color || '#6B7280'),
           borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',

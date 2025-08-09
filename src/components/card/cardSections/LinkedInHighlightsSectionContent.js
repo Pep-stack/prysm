@@ -406,7 +406,19 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: '#0077b5',
+            backgroundColor: settings.background_color && (
+              (settings.background_color.includes('linear-gradient') && 
+               settings.background_color.includes('#ffffff')) ||
+              settings.background_color.includes('#000000') ||
+              settings.background_color.includes('#0a0a0a') ||
+              settings.background_color.includes('#18181b') ||
+              settings.background_color.includes('#1a1a1a') ||
+              settings.background_color.includes('#0c0c0c') ||
+              settings.background_color.includes('#111827') ||
+              settings.background_color.includes('#1e293b') ||
+              settings.background_color.includes('#252525') ||
+              settings.background_color.includes('#1c1c1c')
+            ) ? '#000000' : '#0077b5',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
@@ -526,7 +538,19 @@ export default function LinkedInHighlightsSectionContent({ profile, styles, isEd
           <div style={{
             width: '20px',
             height: '20px',
-            backgroundColor: '#0077b5',
+            backgroundColor: settings.background_color && (
+              (settings.background_color.includes('linear-gradient') && 
+               settings.background_color.includes('#ffffff')) ||
+              settings.background_color.includes('#000000') ||
+              settings.background_color.includes('#0a0a0a') ||
+              settings.background_color.includes('#18181b') ||
+              settings.background_color.includes('#1a1a1a') ||
+              settings.background_color.includes('#0c0c0c') ||
+              settings.background_color.includes('#111827') ||
+              settings.background_color.includes('#1e293b') ||
+              settings.background_color.includes('#252525') ||
+              settings.background_color.includes('#1c1c1c')
+            ) ? '#000000' : '#0077b5',
             borderRadius: '4px',
             display: 'flex',
             alignItems: 'center',
