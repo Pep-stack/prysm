@@ -33,11 +33,18 @@
 }
 
 @media (max-width: 767px) {
-  /* Make header break out to full viewport on mobile */
-  .fullWidth, .contained {
+  /* Make only fullWidth header break out to full viewport on mobile */
+  .fullWidth {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
+  }
+  
+  /* Keep contained headers properly contained on mobile */
+  .contained {
+    width: 100%;
+    margin: 0;
+    max-width: 100%;
   }
   
   .profileSection {

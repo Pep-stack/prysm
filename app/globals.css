@@ -60,3 +60,16 @@ html, body {
 *, *::before, *::after {
   box-sizing: inherit;
 }
+
+/* Extra viewport width protection for mobile */
+@media (max-width: 768px) {
+  body, main, div {
+    max-width: 100vw;
+  }
+  
+  /* Prevent any container from pushing content outside viewport */
+  .container, [class*="container"], [class*="Card"] {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}

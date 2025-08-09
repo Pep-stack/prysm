@@ -5,11 +5,17 @@ import { getSectionsKey } from '../../../src/lib/sectionOptions';
 import { THEME_BACKGROUNDS } from '../../../src/lib/themeSystem';
 import { useEffect } from 'react';
 
-// Define which section types are considered social media (same as in the hook)
+// Define which section types are considered social media buttons (for social bar only)
 const SOCIAL_MEDIA_TYPES = [
-  'linkedin', 'x_profile', 'instagram', 'github_gitlab', 'dribbble_behance',
+  'linkedin', 'instagram', 'github_gitlab', 'dribbble_behance', 
   'youtube_channel', 'tiktok', 'facebook', 'stackoverflow', 'contact_buttons',
   'email', 'whatsapp'
+];
+
+// Profile sections should render as regular sections, not social bar buttons
+const PROFILE_SECTION_TYPES = [
+  'x_profile', 'linkedin_profile', 'instagram_profile', 'spotify_profile', 'snapchat_profile', 
+  'tiktok_profile', 'behance_profile', 'dribbble_profile'
 ];
 
 export default function PublicProfilePageContent({ profile }) {

@@ -8,7 +8,7 @@ import { getDefaultSectionProps, getSectionOptionsByCardType, CARD_TYPES } from 
 // Define which section types are allowed in the social bar (buttons only)
 const ALLOWED_SOCIAL_BAR_TYPES = new Set([
   'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook',
-  'snapchat', 'reddit', 'phone', 'whatsapp', 'behance'
+  'snapchat', 'reddit', 'phone', 'whatsapp', 'behance', 'spotify'
 ]);
 
 export function useSimpleCardSections(user, cardType = CARD_TYPES.PRO) {

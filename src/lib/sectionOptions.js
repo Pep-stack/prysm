@@ -8,7 +8,7 @@ import {
   LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp,
   LuImage, LuVideo, LuFileText, LuCircleHelp, LuLink
 } from "react-icons/lu";
-import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaTiktok } from 'react-icons/fa6';
+import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaVimeo, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaTiktok, FaSpotify } from 'react-icons/fa6';
 
 // Card types - simplified to only PRO
 export const CARD_TYPES = {
@@ -61,6 +61,8 @@ export const ALL_SECTION_OPTIONS = [
   // SOCIAL HIGHLIGHTS - Social media content highlights
   { type: 'x_highlights', name: 'X Highlights', icon: FaXTwitter, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'XHighlightsEditor' },
   { type: 'youtube_highlights', name: 'YouTube Highlights', icon: FaYoutube, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'YouTubeHighlightsEditor' },
+  { type: 'vimeo_highlights', name: 'Vimeo Highlights', icon: FaVimeo, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'VimeoHighlightsEditor' },
+  { type: 'spotify_highlights', name: 'Spotify Highlights', icon: FaSpotify, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'SpotifyHighlightsEditor' },
   { type: 'linkedin_highlights', name: 'LinkedIn Highlights', icon: FaLinkedin, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'LinkedInHighlightsEditor' },
   { type: 'tiktok_highlights', name: 'TikTok Highlights', icon: FaTiktok, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'TikTokHighlightsEditor' },
   { type: 'github_highlights', name: 'GitHub Highlights', icon: FaGithub, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'GitHubHighlightsEditor' },
@@ -69,6 +71,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'instagram_profile', name: 'Instagram Profile', icon: FaInstagram, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'InstagramProfileEditor' },
   { type: 'linkedin_profile', name: 'LinkedIn Profile', icon: FaLinkedin, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'LinkedInProfileEditor' },
   { type: 'x_profile', name: 'X Profile', icon: FaXTwitter, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'XProfileEditor' },
+  { type: 'spotify_profile', name: 'Spotify Profile', icon: FaSpotify, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'SpotifyProfileEditor' },
   { type: 'snapchat_profile', name: 'Snapchat Profile', icon: FaSnapchat, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'SnapchatProfileEditor' },
   { type: 'tiktok_profile', name: 'TikTok Profile', icon: FaTiktok, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'TikTokProfileEditor' },
   { type: 'behance_profile', name: 'Behance Profile', icon: FaBehance, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'BehanceProfileEditor' },
@@ -80,6 +83,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'x', name: 'X (Twitter)', icon: FaXTwitter, category: CATEGORIES.SOCIAL_BUTTONS },
   { type: 'instagram', name: 'Instagram', icon: FaInstagram, category: CATEGORIES.SOCIAL_BUTTONS },
   { type: 'youtube', name: 'YouTube', icon: FaYoutube, category: CATEGORIES.SOCIAL_BUTTONS },
+  { type: 'spotify', name: 'Spotify', icon: FaSpotify, category: CATEGORIES.SOCIAL_BUTTONS },
   { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp, category: CATEGORIES.SOCIAL_BUTTONS },
   { type: 'facebook', name: 'Facebook', icon: FaFacebook, category: CATEGORIES.SOCIAL_BUTTONS },
   { type: 'tiktok', name: 'TikTok', icon: FaTiktok, category: CATEGORIES.SOCIAL_BUTTONS },
@@ -168,6 +172,8 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
      // Social highlights defaults
     x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },
     youtube_highlights: { title: defaultTitle, value: [], editorComponent: 'YouTubeHighlightsEditor' },
+    vimeo_highlights: { title: defaultTitle, value: [], editorComponent: 'VimeoHighlightsEditor' },
+    spotify_highlights: { title: defaultTitle, value: [], editorComponent: 'SpotifyHighlightsEditor' },
     linkedin_highlights: { title: defaultTitle, value: [], editorComponent: 'LinkedInHighlightsEditor' },
     tiktok_highlights: { title: defaultTitle, value: [], editorComponent: 'TikTokHighlightsEditor' },
     github_highlights: { title: defaultTitle, value: [], editorComponent: 'GitHubHighlightsEditor' },
@@ -176,10 +182,12 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     linkedin: { title: defaultTitle, value: '' },
     github_gitlab: { title: defaultTitle, value: '' },
     x_profile: { title: defaultTitle, value: '' },
+    spotify_profile: { title: defaultTitle, value: '' },
     instagram: { title: defaultTitle, value: '' },
     youtube_channel: { title: defaultTitle, value: '' },
     tiktok: { title: defaultTitle, value: '' },
     facebook: { title: defaultTitle, value: '' },
+    spotify: { title: defaultTitle, value: '' },
     whatsapp: { title: defaultTitle, value: '' },
   };
 

@@ -12,7 +12,7 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
   // Only render simple social button types in the social bar
   const allowedButtonTypes = new Set([
     'whatsapp', 'linkedin', 'instagram', 'github', 'youtube', 'tiktok',
-    'facebook', 'dribbble', 'behance', 'snapchat', 'reddit', 'x', 'phone'
+    'facebook', 'dribbble', 'behance', 'snapchat', 'reddit', 'x', 'spotify', 'phone'
   ]);
   
   if (!sections || sections.length === 0) {
@@ -73,6 +73,7 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
               case 'snapchat': return 'snapchat';
               case 'reddit': return 'reddit';
               case 'x': return 'x';
+              case 'spotify': return 'spotify';
               default: return null;
             }
           };

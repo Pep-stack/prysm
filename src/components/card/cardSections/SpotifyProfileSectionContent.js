@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaSpotify } from 'react-icons/fa6';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 
-export default function XProfileSectionContent({ section, profile, styles, isEditing, onSave, onCancel }) {
+export default function SpotifyProfileSectionContent({ section, profile, styles, isEditing, onSave, onCancel }) {
   const [profileUrl, setProfileUrl] = useState('');
   const [username, setUsername] = useState('');
 
@@ -15,9 +15,9 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
   // Get text color from design settings
   const textColor = settings.text_color || '#000000';
 
-  // Parse X profile data
-  const parseXProfileData = (profileData) => {
-    console.log('🔍 Parsing X profile data:', {
+  // Parse Spotify profile data
+  const parseSpotifyProfileData = (profileData) => {
+    console.log('🔍 Parsing Spotify profile data:', {
       profileData,
       type: typeof profileData,
       isNull: profileData === null,
@@ -76,35 +76,35 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
     return null;
   };
 
-  // Extract username from X URL
+  // Extract username from Spotify URL
   const extractUsername = (url) => {
     if (!url) return '';
-    // Handle both x.com and twitter.com URLs
-    const match = url.match(/(?:x\.com|twitter\.com)\/([^\/\?]+)/);
-    return match ? match[1] : '';
+    // Handle spotify.com URLs - both user and artist profiles
+    const match = url.match(/spotify\.com\/(user|artist)\/([^\/\?]+)/);
+    return match ? match[2] : '';
   };
 
-  // Get X profile data from profile (matching LinkedIn Profile approach)
-  const xProfileData = useMemo(() => {
+  // Get Spotify profile data from profile (matching LinkedIn Profile approach)
+  const spotifyProfileData = useMemo(() => {
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
-      x_profile: profile?.x_profile,
+      spotify_profile: profile?.spotify_profile,
       profileKeys: profile ? Object.keys(profile) : 'no profile',
-      hasXProfile: !!profile?.x_profile,
+      hasSpotifyProfile: !!profile?.spotify_profile,
       // Also check section for fallback
       section: section,
       sectionValue: section?.value,
       hasValue: !!section?.value
     });
-    // Primary: Check profile.x_profile (where data is actually saved)
+    // Primary: Check profile.spotify_profile (where data is actually saved)
     // Fallback: Check section.value (for editor preview)
-    return profile?.x_profile || section?.value;
-  }, [profile?.x_profile, section?.value]);
+    return profile?.spotify_profile || section?.value;
+  }, [profile?.spotify_profile, section?.value]);
 
   // Parse data on mount
   useEffect(() => {
-    console.log('🔄 useEffect triggered with xProfileData:', xProfileData);
-    const parsedData = parseXProfileData(xProfileData);
+    console.log('🔄 useEffect triggered with spotifyProfileData:', spotifyProfileData);
+    const parsedData = parseSpotifyProfileData(spotifyProfileData);
     console.log('📊 Parsed data result:', parsedData);
     
     if (parsedData) {
@@ -116,7 +116,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
       setProfileUrl('');
       setUsername('');
     }
-  }, [xProfileData]);
+  }, [spotifyProfileData]);
 
   // Section styling
   const defaultSectionStyle = {
@@ -153,13 +153,13 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
       username: username,
       hasProfileUrl: !!profileUrl,
       hasUsername: !!username,
-      xProfileData: xProfileData
+      spotifyProfileData: spotifyProfileData
     });
     
     // TEMPORARY TEST: Force show profile card for testing (matching LinkedIn Profile approach)
-    if (xProfileData && typeof xProfileData === 'string' && (xProfileData.includes('x.com') || xProfileData.includes('twitter.com'))) {
-      console.log('🧪 TEST: Forcing profile display with data:', xProfileData);
-      const testUsername = extractUsername(xProfileData);
+    if (spotifyProfileData && typeof spotifyProfileData === 'string' && spotifyProfileData.includes('spotify.com')) {
+      console.log('🧪 TEST: Forcing profile display with data:', spotifyProfileData);
+      const testUsername = extractUsername(spotifyProfileData);
       return (
         <div style={{
           backdropFilter: 'blur(12px)',
@@ -193,14 +193,14 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
                 width: '40px',
                 height: '40px',
                 borderRadius: '50%',
-                background: '#000000',
+                background: '#1DB954',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                boxShadow: '0 2px 8px rgba(29, 185, 84, 0.3)',
                 flexShrink: 0
               }}>
-                <FaXTwitter size={18} color="white" />
+                <FaSpotify size={18} color="white" />
               </div>
               <div style={{
                 display: 'flex',
@@ -214,7 +214,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
                   letterSpacing: '-0.2px',
                   fontFamily: settings.font_family || 'Inter, sans-serif'
                 }}>
-                  @{testUsername}
+                  {testUsername}
                 </div>
                 <div style={{
                   fontSize: (parseInt(settings.font_size) || 16) - 3 + 'px',
@@ -222,14 +222,14 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
                   fontWeight: '400',
                   fontFamily: settings.font_family || 'Inter, sans-serif'
                 }}>
-                  X Profile
+                  Spotify Profile
                 </div>
               </div>
             </div>
 
             {/* Right side - Button */}
             <button style={{
-              background: '#000000',
+              background: '#1DB954',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -241,21 +241,21 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
               alignItems: 'center',
               gap: '8px',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+              boxShadow: '0 2px 8px rgba(29, 185, 84, 0.3)',
               letterSpacing: '-0.1px',
               flexShrink: 0,
               fontFamily: settings.font_family || 'Inter, sans-serif'
             }}
             onMouseEnter={(e) => {
               e.target.style.transform = 'translateY(-1px)';
-              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+              e.target.style.boxShadow = '0 4px 12px rgba(29, 185, 84, 0.4)';
             }}
             onMouseLeave={(e) => {
               e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+              e.target.style.boxShadow = '0 2px 8px rgba(29, 185, 84, 0.3)';
             }}
             onClick={() => {
-              window.open(xProfileData, '_blank', 'noopener,noreferrer');
+              window.open(spotifyProfileData, '_blank', 'noopener,noreferrer');
             }}
             >
               <FaExternalLinkAlt size={12} />
@@ -298,14 +298,14 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              background: '#000000',
+              background: '#1DB954',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+              boxShadow: '0 2px 8px rgba(29, 185, 84, 0.3)',
               flexShrink: 0
             }}>
-              <FaXTwitter size={18} color="white" />
+              <FaSpotify size={18} color="white" />
             </div>
             <div style={{
               display: 'flex',
@@ -319,7 +319,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
                 letterSpacing: '-0.2px',
                 fontFamily: settings.font_family || 'Inter, sans-serif'
               }}>
-                X Profile
+                Spotify Profile
               </div>
               <div style={{
                 fontSize: (parseInt(settings.font_size) || 16) - 3 + 'px',
@@ -327,7 +327,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
                 fontWeight: '400',
                 fontFamily: settings.font_family || 'Inter, sans-serif'
               }}>
-                Add your X profile
+                Add your Spotify profile
               </div>
             </div>
           </div>
@@ -394,14 +394,14 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
             width: '40px',
             height: '40px',
             borderRadius: '50%',
-            background: '#000000',
+            background: '#1DB954',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 2px 8px rgba(29, 185, 84, 0.3)',
             flexShrink: 0
           }}>
-            <FaXTwitter size={18} color="white" />
+            <FaSpotify size={18} color="white" />
           </div>
           <div style={{
             display: 'flex',
@@ -415,7 +415,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
               letterSpacing: '-0.2px',
               fontFamily: settings.font_family || 'Inter, sans-serif'
             }}>
-              @{username}
+              {username}
             </div>
             <div style={{
               fontSize: (parseInt(settings.font_size) || 16) - 3 + 'px',
@@ -423,14 +423,14 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
               fontWeight: '400',
               fontFamily: settings.font_family || 'Inter, sans-serif'
             }}>
-              X Profile
+              Spotify Profile
             </div>
           </div>
         </div>
 
         {/* Right side - Button */}
         <button style={{
-          background: '#000000',
+          background: '#1DB954',
           color: 'white',
           border: 'none',
           borderRadius: '12px',
@@ -442,21 +442,21 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
           alignItems: 'center',
           gap: '8px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+          boxShadow: '0 2px 8px rgba(29, 185, 84, 0.3)',
           letterSpacing: '-0.1px',
           flexShrink: 0,
           fontFamily: settings.font_family || 'Inter, sans-serif'
         }}
         onMouseEnter={(e) => {
           e.target.style.transform = 'translateY(-1px)';
-          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+          e.target.style.boxShadow = '0 4px 12px rgba(29, 185, 84, 0.4)';
         }}
         onMouseLeave={(e) => {
           e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+          e.target.style.boxShadow = '0 2px 8px rgba(29, 185, 84, 0.3)';
         }}
         onClick={() => {
-          const displayUrl = profileUrl || (xProfileData && typeof xProfileData === 'string' ? xProfileData : '');
+          const displayUrl = profileUrl || (spotifyProfileData && typeof spotifyProfileData === 'string' ? spotifyProfileData : '');
           if (displayUrl) {
             window.open(displayUrl, '_blank', 'noopener,noreferrer');
           }
@@ -468,4 +468,4 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
       </div>
     </div>
   );
-} 
+}

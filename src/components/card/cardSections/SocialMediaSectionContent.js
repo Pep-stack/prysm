@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDesignSettings } from '../../dashboard/DesignSettingsContext';
 import { FaGithub, FaLinkedin, FaInstagram, FaYoutube, FaRedditAlien, FaSnapchatGhost, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaTiktok } from 'react-icons/fa';
-import { FaXTwitter } from 'react-icons/fa6';
+import { FaXTwitter, FaSpotify } from 'react-icons/fa6';
 
 const SOCIALS = [
   { type: 'github', name: 'GitHub', icon: FaGithub },
@@ -9,13 +9,13 @@ const SOCIALS = [
   { type: 'x', name: 'X', icon: FaXTwitter },
   { type: 'instagram', name: 'Instagram', icon: FaInstagram },
   { type: 'youtube', name: 'YouTube', icon: FaYoutube },
-
+  { type: 'spotify', name: 'Spotify', icon: FaSpotify },
+  { type: 'tiktok', name: 'TikTok', icon: FaTiktok },
   { type: 'reddit', name: 'Reddit', icon: FaRedditAlien },
   { type: 'snapchat', name: 'Snapchat', icon: FaSnapchatGhost },
   { type: 'facebook', name: 'Facebook', icon: FaFacebook },
   { type: 'dribbble', name: 'Dribbble', icon: FaDribbble },
   { type: 'behance', name: 'Behance', icon: FaBehance },
-  { type: 'tiktok', name: 'TikTok', icon: FaTiktok },
   { type: 'whatsapp', name: 'WhatsApp', icon: FaWhatsapp },
 ];
 
@@ -56,6 +56,8 @@ export default function SocialMediaSectionContent({ section, profile, user, styl
         return profile?.reddit;
       case 'whatsapp':
         return profile?.whatsapp;
+      case 'spotify':
+        return profile?.spotify;
       default:
         return null;
     }

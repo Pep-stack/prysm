@@ -23,11 +23,14 @@ import TikTokHighlightsSectionContent from './cardSections/TikTokHighlightsSecti
 import InstagramProfileSectionContent from './cardSections/InstagramHighlightsSectionContent';
 import LinkedInProfileSectionContent from './cardSections/LinkedInProfileSectionContent';
 import XProfileSectionContent from './cardSections/XProfileSectionContent';
+import SpotifyProfileSectionContent from './cardSections/SpotifyProfileSectionContent';
 import SnapchatProfileSectionContent from './cardSections/SnapchatProfileSectionContent';
 import TikTokProfileSectionContent from './cardSections/TikTokProfileSectionContent';
 import BehanceProfileSectionContent from './cardSections/BehanceProfileSectionContent';
 import DribbbleProfileSectionContent from './cardSections/DribbbleProfileSectionContent';
 import GitHubHighlightsSectionContent from './cardSections/GitHubHighlightsSectionContent';
+import SpotifyHighlightsSectionContent from './cardSections/SpotifyHighlightsSectionContent';
+import VimeoHighlightsSectionContent from './cardSections/VimeoHighlightsSectionContent';
 import AppointmentsSectionContent from './cardSections/AppointmentsSectionContent';
 import SubscribeSectionContent from './cardSections/SubscribeSectionContent';
 import PublicationSectionContent from './cardSections/PublicationSectionContent';
@@ -76,11 +79,14 @@ const proSectionComponentMap = {
   'instagram_profile': InstagramProfileSectionContent,
   'linkedin_profile': LinkedInProfileSectionContent,
   'x_profile': XProfileSectionContent,
+  'spotify_profile': SpotifyProfileSectionContent,
   'snapchat_profile': SnapchatProfileSectionContent,
   'tiktok_profile': TikTokProfileSectionContent,
   'behance_profile': BehanceProfileSectionContent,
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
+  'spotify_highlights': SpotifyHighlightsSectionContent,
+  'vimeo_highlights': VimeoHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
   'faq': FAQSectionContent,
@@ -99,6 +105,7 @@ export const sectionComponentMap = {
   'behance': SocialMediaSectionContent,
   'snapchat': SocialMediaSectionContent,
   'reddit': SocialMediaSectionContent,
+  'spotify': SocialMediaSectionContent,
   'phone': SocialMediaSectionContent,
   // Other sections
   'experience': ExperienceSectionContent,
@@ -119,11 +126,14 @@ export const sectionComponentMap = {
   'instagram_profile': InstagramProfileSectionContent,
   'linkedin_profile': LinkedInProfileSectionContent,
   'x_profile': XProfileSectionContent,
+  'spotify_profile': SpotifyProfileSectionContent,
   'snapchat_profile': SnapchatProfileSectionContent,
   'tiktok_profile': TikTokProfileSectionContent,
   'behance_profile': BehanceProfileSectionContent,
   'dribbble_profile': DribbbleProfileSectionContent,
   'github_highlights': GitHubHighlightsSectionContent,
+  'spotify_highlights': SpotifyHighlightsSectionContent,
+  'vimeo_highlights': VimeoHighlightsSectionContent,
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
   'faq': FAQSectionContent,

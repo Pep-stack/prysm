@@ -21,6 +21,7 @@ import InstagramEditor from '../shared/InstagramEditor';
 import LinkedInEditor from '../shared/LinkedInEditor';
 import GitHubEditor from '../shared/GitHubEditor';
 import XEditor from '../shared/XEditor';
+import SpotifyEditor from '../shared/SpotifyEditor';
 import YouTubeEditor from '../shared/YouTubeEditor';
 import EmailEditor from '../shared/EmailEditor';
 import WhatsAppEditor from '../shared/WhatsAppEditor';
@@ -36,11 +37,14 @@ import TikTokHighlightsEditor from '../shared/TikTokHighlightsEditor';
 import InstagramProfileEditor from '../shared/InstagramProfileEditor';
 import LinkedInProfileEditor from '../shared/LinkedInProfileEditor';
 import XProfileEditor from '../shared/XProfileEditor';
+import SpotifyProfileEditor from '../shared/SpotifyProfileEditor';
 import SnapchatProfileEditor from '../shared/SnapchatProfileEditor';
 import TikTokProfileEditor from '../shared/TikTokProfileEditor';
 import BehanceProfileEditor from '../shared/BehanceProfileEditor';
 import DribbbleProfileEditor from '../shared/DribbbleProfileEditor';
 import GitHubHighlightsEditor from '../shared/GitHubHighlightsEditor';
+import SpotifyHighlightsEditor from '../shared/SpotifyHighlightsEditor';
+import VimeoHighlightsEditor from '../shared/VimeoHighlightsEditor';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -395,6 +399,18 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // Spotify-specific editor
+    if (section.type === 'spotify') {
+      return (
+        <SpotifyEditor 
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // YouTube-specific editor
     if (section.type === 'youtube') {
       return (
@@ -575,6 +591,18 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // Spotify Profile-specific editor
+    if (section.type === 'spotify_profile') {
+      return (
+        <SpotifyProfileEditor
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // Snapchat Profile-specific editor
     if (section.type === 'snapchat_profile') {
       return (
@@ -635,6 +663,30 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // Spotify Highlights-specific editor
+    if (section.type === 'spotify_highlights') {
+      return (
+        <SpotifyHighlightsEditor
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Vimeo Highlights-specific editor
+    if (section.type === 'vimeo_highlights') {
+      return (
+        <VimeoHighlightsEditor
+          value={value || ''}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // Default rendering based on inputType
     console.log('⚠️ EDIT-MODAL: No custom editor component found, using default input');
     if (section.inputType === 'textarea') {
@@ -662,8 +714,8 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
 
-  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, Appointments, and Publications, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments' || section.type === 'publications') {
+  // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, Vimeo Highlights, Spotify Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Spotify Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, Appointments, and Publications, render the custom editor directly without the standard modal wrapper
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'spotify' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'vimeo_highlights' || section.type === 'spotify_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'spotify_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments' || section.type === 'publications') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 
