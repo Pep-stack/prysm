@@ -254,7 +254,7 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              padding: '12px 24px',
+              padding: '12px 20px',
               backgroundColor: textColor,
               color: getContrastColor(textColor),
               border: 'none',
@@ -266,7 +266,8 @@ export default function SubscribeSectionContent({ profile, styles, isEditing, on
               boxShadow: `0 2px 8px ${textColor}20`,
               position: 'relative',
               minHeight: '44px',
-              width: '40%',
+              minWidth: 'fit-content',
+              whiteSpace: 'nowrap',
               boxSizing: 'border-box'
             }}
             onMouseEnter={(e) => {

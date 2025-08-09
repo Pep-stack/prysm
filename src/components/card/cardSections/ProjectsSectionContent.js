@@ -14,6 +14,7 @@ function ProjectCard({ entry, index, isDarkTheme }) {
     : (entry.mediaUrl ? [{ url: entry.mediaUrl, type: entry.mediaType || 'image' }] : []);
 
   const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
+  const [touchStartX, setTouchStartX] = React.useState(0);
   const cardBackgroundColor = isDarkTheme ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.85)';
   const cardTextColor = '#ffffff';
   const cardSecondaryTextColor = isDarkTheme ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.8)';
@@ -25,6 +26,34 @@ function ProjectCard({ entry, index, isDarkTheme }) {
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Touch/swipe handlers for mobile media navigation
+  const handleTouchStart = (e) => {
+    if (allMediaItems.length <= 1) return;
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (allMediaItems.length <= 1 || !touchStartX) return;
+    
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > 50) { // Minimum swipe distance
+      if (diff > 0) {
+        // Swipe left = next image
+        setCurrentMediaIndex((prev) => 
+          prev === allMediaItems.length - 1 ? 0 : prev + 1
+        );
+      } else {
+        // Swipe right = previous image
+        setCurrentMediaIndex((prev) => 
+          prev === 0 ? allMediaItems.length - 1 : prev - 1
+        );
+      }
+    }
+    setTouchStartX(0);
+  };
 
   return (
     <div
@@ -47,13 +76,18 @@ function ProjectCard({ entry, index, isDarkTheme }) {
         }}
       >
         {currentMedia?.url && (
-          <div style={{
-            position: 'relative',
-            width: '100%',
-            paddingBottom: '56.25%',
-            overflow: 'hidden',
-            backgroundColor: isDarkTheme ? '#2a2a2a' : 'rgba(255, 255, 255, 0.1)'
-          }}>
+          <div 
+            style={{
+              position: 'relative',
+              width: '100%',
+              paddingBottom: '56.25%',
+              overflow: 'hidden',
+              backgroundColor: isDarkTheme ? '#2a2a2a' : 'rgba(255, 255, 255, 0.1)',
+              cursor: allMediaItems.length > 1 ? 'pointer' : 'default'
+            }}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             {currentMedia.type === 'video' ? (
               <video
                 src={currentMedia.url}
@@ -69,25 +103,68 @@ function ProjectCard({ entry, index, isDarkTheme }) {
               />
             )}
 
-            {/* Media dots indicator for multiple media items - render after mount to avoid SSR mismatch */}
+            {/* Media dots indicator and counter for multiple media items - render after mount to avoid SSR mismatch */}
             {isMounted && allMediaItems.length > 1 && (
-              <div style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', gap: '4px' }}>
-                {allMediaItems.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentMediaIndex(idx)}
-                    style={{
-                      width: idx === currentMediaIndex ? '16px' : '6px',
-                      height: '6px',
-                      borderRadius: '3px',
-                      border: 'none',
-                      backgroundColor: idx === currentMediaIndex ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                ))}
-              </div>
+              <>
+                {/* Image counter and swipe hint */}
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '12px', 
+                  right: '12px', 
+                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                  borderRadius: '8px',
+                  padding: '4px 8px',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}>
+                  <span style={{ 
+                    color: 'white', 
+                    fontSize: '11px', 
+                    fontWeight: '600' 
+                  }}>
+                    {currentMediaIndex + 1}/{allMediaItems.length}
+                  </span>
+                </div>
+
+                {/* Navigation dots */}
+                <div style={{ position: 'absolute', bottom: '12px', right: '12px', display: 'flex', gap: '4px' }}>
+                  {allMediaItems.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentMediaIndex(idx)}
+                      style={{
+                        width: idx === currentMediaIndex ? '16px' : '6px',
+                        height: '6px',
+                        borderRadius: '3px',
+                        border: 'none',
+                        backgroundColor: idx === currentMediaIndex ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.5)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Subtle swipe indicators on mobile */}
+                <div style={{ 
+                  position: 'absolute', 
+                  bottom: '12px', 
+                  left: '12px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                  borderRadius: '6px',
+                  padding: '4px 6px',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)'
+                }}>
+                  <span style={{ 
+                    color: 'rgba(255, 255, 255, 0.8)', 
+                    fontSize: '10px',
+                    fontWeight: '500'
+                  }}>
+                    ← Swipe →
+                  </span>
+                </div>
+              </>
             )}
 
             {/* Category badge */}
