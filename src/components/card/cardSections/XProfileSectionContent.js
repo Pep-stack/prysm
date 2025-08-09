@@ -140,7 +140,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
   const finalSectionStyle = { ...defaultSectionStyle, ...sectionStyle };
   const finalSectionTitleStyle = { ...defaultSectionTitleStyle, ...sectionTitleStyle };
 
-  // If no profile data, show elegant placeholder
+  // If no profile data, show elegant placeholder (compact info card like Instagram Profile)
   if (!profileUrl || !username) {
     console.log('🚫 Showing placeholder because:', {
       profileUrl: profileUrl,
@@ -150,115 +150,7 @@ export default function XProfileSectionContent({ profile, styles, isEditing, onS
       xProfileData: xProfileData
     });
     
-    // TEMPORARY TEST: Force show profile card for testing
-    if (xProfileData && typeof xProfileData === 'string' && (xProfileData.includes('x.com') || xProfileData.includes('twitter.com'))) {
-      console.log('🧪 TEST: Forcing profile display with data:', xProfileData);
-      const testUsername = extractUsername(xProfileData);
-      return (
-        <div style={{
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          background: 'rgba(255, 255, 255, 0.25)',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          borderRadius: '16px',
-          padding: '20px',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          cursor: 'pointer',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-          width: '100%',
-          ...sectionStyle
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '16px'
-          }}>
-            {/* Left side - Icon and username */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              flex: '1'
-            }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: '#000000',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-                flexShrink: 0
-              }}>
-                <FaXTwitter size={18} color="white" />
-              </div>
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px'
-              }}>
-                <div style={{
-                  fontSize: settings.font_size || '16px',
-                  fontWeight: settings.font_weight || '600',
-                  color: settings.text_color || 'rgba(255, 255, 255, 0.95)',
-                  letterSpacing: '-0.2px',
-                  fontFamily: settings.font_family || 'Inter, sans-serif'
-                }}>
-                  @{testUsername}
-                </div>
-                <div style={{
-                  fontSize: (parseInt(settings.font_size) || 16) - 3 + 'px',
-                  color: settings.text_color ? `${settings.text_color}CC` : 'rgba(255, 255, 255, 0.7)',
-                  fontWeight: '400',
-                  fontFamily: settings.font_family || 'Inter, sans-serif'
-                }}>
-                  X Profile
-                </div>
-              </div>
-            </div>
-
-            {/* Right side - Button */}
-            <button style={{
-              background: '#000000',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '10px 16px',
-              fontSize: settings.font_size ? (parseInt(settings.font_size) - 2) + 'px' : '14px',
-              fontWeight: settings.font_weight || '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-              letterSpacing: '-0.1px',
-              flexShrink: 0,
-              fontFamily: settings.font_family || 'Inter, sans-serif'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-1px)';
-              e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
-            }}
-            onClick={() => {
-              window.open(xProfileData, '_blank', 'noopener,noreferrer');
-            }}
-            >
-              <FaExternalLinkAlt size={12} />
-              View
-            </button>
-          </div>
-        </div>
-      );
-    }
+    // Remove previous test/force render block to avoid unintended rendering in social bar
     
     return (
       <div style={{

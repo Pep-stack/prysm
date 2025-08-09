@@ -306,6 +306,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
             {/* Compact avatar */}
             <div style={{
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

@@ -489,20 +489,20 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
               {/* Handle new mediaItems format */}
               {localEntry.mediaItems && localEntry.mediaItems.length > 0 ? (
                 localEntry.mediaItems.map((media, mediaIndex) => (
-                  <div key={mediaIndex} className="relative">
+                  <div key={mediaIndex} className="relative w-full h-32">
                     {media.type === 'video' ? (
                       <video
                         src={media.url}
-                        className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                        className="w-full h-full object-cover rounded-lg border border-gray-700"
                         controls
                       />
                     ) : (
-                                          <Image
-                      src={media.url}
-                      alt={`Media ${mediaIndex + 1}`}
-                      fill
-                      className="object-cover rounded-lg"
-                    />
+                      <Image
+                        src={media.url}
+                        alt={`Media ${mediaIndex + 1}`}
+                        fill
+                        className="object-cover rounded-lg"
+                      />
                     )}
                     <button
                       onClick={() => {
@@ -518,11 +518,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                 ))
               ) : localEntry.mediaUrl ? (
                 /* Handle old mediaUrl format for backward compatibility */
-                <div className="relative">
+                <div className="relative w-full h-32">
                   {localEntry.mediaType === 'video' ? (
                     <video
                       src={localEntry.mediaUrl}
-                      className="w-full h-32 object-cover rounded-lg border border-gray-700"
+                      className="w-full h-full object-cover rounded-lg border border-gray-700"
                       controls
                     />
                   ) : (
@@ -641,11 +641,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
             <div className="mb-3">
               {entry.mediaItems.length === 1 ? (
                 /* Single media item - full width */
-                <div>
+                <div className="relative w-full h-32">
                   {entry.mediaItems[0].type === 'video' ? (
                     <video
                       src={entry.mediaItems[0].url}
-                      className="w-full max-h-32 object-cover rounded-lg"
+                      className="w-full h-full object-cover rounded-lg"
                       muted
                     />
                   ) : (
@@ -661,11 +661,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
                 /* Multiple media items - grid layout */
                 <div className={`grid gap-2 ${entry.mediaItems.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                   {entry.mediaItems.slice(0, 3).map((media, mediaIndex) => (
-                    <div key={mediaIndex}>
+                    <div key={mediaIndex} className="relative w-full h-20">
                       {media.type === 'video' ? (
                         <video
                           src={media.url}
-                          className="w-full h-20 object-cover rounded-lg"
+                          className="w-full h-full object-cover rounded-lg"
                           muted
                         />
                       ) : (
@@ -690,11 +690,11 @@ function ProjectEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDelete
           
           {/* Backward compatibility: Show old single media if mediaUrl exists but no mediaItems */}
           {entry.mediaUrl && (!entry.mediaItems || entry.mediaItems.length === 0) && (
-            <div className="mb-3">
+            <div className="mb-3 relative w-full h-32">
               {entry.mediaType === 'video' ? (
                 <video
                   src={entry.mediaUrl}
-                  className="w-full max-h-32 object-cover rounded-lg"
+                  className="w-full h-full object-cover rounded-lg"
                   muted
                 />
               ) : (

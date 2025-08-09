@@ -329,7 +329,7 @@ function TestimonialEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDe
           <div>
             <label className="block text-white font-medium mb-2 text-sm">Client Photo (Optional)</label>
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-pink-900 flex items-center justify-center overflow-hidden">
+              <div className="relative w-20 h-20 rounded-full bg-pink-900 flex items-center justify-center overflow-hidden">
                 {newEntry.photo ? (
                   <Image
                     src={typeof newEntry.photo === 'string' ? newEntry.photo : (newEntry.photo instanceof File ? URL.createObjectURL(newEntry.photo) : newEntry.photo)}
@@ -436,7 +436,7 @@ function TestimonialEntry({ entry, index, isEditing, isNew, onEdit, onSave, onDe
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-start gap-3 flex-1">
           {/* Avatar */}
-          <div className="w-12 h-12 rounded-full bg-pink-900 flex items-center justify-center flex-shrink-0">
+          <div className="relative w-12 h-12 rounded-full bg-pink-900 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {entry.photo_url || entry.photo ? (
               <Image
                 src={entry.photo_url || (typeof entry.photo === 'string' ? entry.photo : (entry.photo instanceof File ? URL.createObjectURL(entry.photo) : entry.photo))}

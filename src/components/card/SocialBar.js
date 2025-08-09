@@ -9,6 +9,12 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
   const { settings } = useDesignSettings();
   const { trackSocialClick } = useContactTracking(profile?.id);
   
+  // Only render simple social button types in the social bar
+  const allowedButtonTypes = new Set([
+    'whatsapp', 'linkedin', 'instagram', 'github', 'youtube', 'tiktok',
+    'facebook', 'dribbble', 'behance', 'snapchat', 'reddit', 'x', 'phone'
+  ]);
+  
   if (!sections || sections.length === 0) {
     return null;
   }
@@ -34,7 +40,9 @@ export default function SocialBar({ sections = [], profile, user, position = 'to
           rowGap: '24px',
         }}
       >
-        {sections.map((section) => {
+        {sections
+          .filter((section) => allowedButtonTypes.has(section.type))
+          .map((section) => {
           const SectionComponent = sectionComponentMap[section.type];
           if (!SectionComponent) {
             console.warn(`No component found for section type: ${section.type}`);

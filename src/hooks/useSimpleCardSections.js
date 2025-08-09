@@ -5,11 +5,11 @@ import { supabase } from '../lib/supabase';
 import { v4 as uuidv4 } from 'uuid';
 import { getDefaultSectionProps, getSectionOptionsByCardType, CARD_TYPES } from '../lib/sectionOptions';
 
-// Define which section types are social media
-const SOCIAL_MEDIA_TYPES = [
-  'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook', 
-  'snapchat', 'reddit', 'phone', 'whatsapp', 'email', 'behance'
-];
+// Define which section types are allowed in the social bar (buttons only)
+const ALLOWED_SOCIAL_BAR_TYPES = new Set([
+  'github', 'x', 'dribbble', 'youtube', 'tiktok', 'linkedin', 'instagram', 'facebook',
+  'snapchat', 'reddit', 'phone', 'whatsapp', 'behance'
+]);
 
 export function useSimpleCardSections(user, cardType = CARD_TYPES.PRO) {
   const [sections, setSections] = useState([]);
@@ -96,8 +96,8 @@ export function useSimpleCardSections(user, cardType = CARD_TYPES.PRO) {
       type: sectionType,
       ...defaultProps,
       ...(sectionOption?.editorComponent && { editorComponent: sectionOption.editorComponent }),
-      // Add area for social media types
-      ...(SOCIAL_MEDIA_TYPES.includes(sectionType) && { area: 'social_bar' })
+      // Add area for social bar button types only
+      ...(ALLOWED_SOCIAL_BAR_TYPES.has(sectionType) && { area: 'social_bar' })
     };
     
     // Optimistic update: update UI immediately
@@ -133,11 +133,14 @@ export function useSimpleCardSections(user, cardType = CARD_TYPES.PRO) {
 
   // Helper functions to split sections
   const getCardSections = useCallback(() => {
-    return sections.filter(section => !section.area || section.area !== 'social_bar');
+    // Include anything not explicitly in social_bar, plus any items incorrectly placed in social_bar
+    // that are not allowed button types (auto-correct placement for profile sections)
+    return sections.filter(section => section.area !== 'social_bar' || !ALLOWED_SOCIAL_BAR_TYPES.has(section.type));
   }, [sections]);
 
   const getSocialBarSections = useCallback(() => {
-    return sections.filter(section => section.area === 'social_bar');
+    // Only allow button types in the social bar
+    return sections.filter(section => section.area === 'social_bar' && ALLOWED_SOCIAL_BAR_TYPES.has(section.type));
   }, [sections]);
 
   // Load initial data
