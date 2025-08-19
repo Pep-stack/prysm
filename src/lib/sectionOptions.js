@@ -6,7 +6,7 @@ import {
   LuBriefcase, LuBookOpen, LuAward, LuMusic, LuCode,
   LuFolderOpen, LuBuilding2, LuCalendar, LuMapPin,
   LuClock, LuDollarSign, LuUsers, LuHeart, LuThumbsUp,
-  LuImage, LuVideo, LuFileText, LuCircleHelp, LuLink
+  LuImage, LuVideo, LuFileText, LuCircleHelp, LuLink, LuGlobe
 } from "react-icons/lu";
 import { FaGithub, FaLinkedin, FaXTwitter, FaInstagram, FaYoutube, FaVimeo, FaRedditAlien, FaSnapchat, FaFacebook, FaDribbble, FaBehance, FaWhatsapp, FaTiktok, FaSpotify } from 'react-icons/fa6';
 
@@ -57,6 +57,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'appointments', name: 'Book an Appointment', icon: LuCalendar, category: CATEGORIES.BUSINESS, editorComponent: 'AppointmentsEditor' },
   { type: 'subscribe', name: 'Subscribe', icon: LuMail, category: CATEGORIES.BUSINESS, editorComponent: 'SubscribeSelector' },
   { type: 'faq', name: 'FAQ', icon: LuCircleHelp, category: CATEGORIES.BUSINESS, editorComponent: 'FAQSelector' },
+  { type: 'website_preview', name: 'Website Preview', icon: LuGlobe, category: CATEGORIES.BUSINESS, editorComponent: 'WebsitePreviewEditor' },
   
   // SOCIAL HIGHLIGHTS - Social media content highlights
   { type: 'x_highlights', name: 'X Highlights', icon: FaXTwitter, category: CATEGORIES.SOCIAL_HIGHLIGHTS, editorComponent: 'XHighlightsEditor' },
@@ -76,6 +77,7 @@ export const ALL_SECTION_OPTIONS = [
   { type: 'tiktok_profile', name: 'TikTok Profile', icon: FaTiktok, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'TikTokProfileEditor' },
   { type: 'behance_profile', name: 'Behance Profile', icon: FaBehance, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'BehanceProfileEditor' },
   { type: 'dribbble_profile', name: 'Dribbble Profile', icon: FaDribbble, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'DribbbleProfileEditor' },
+  { type: 'custom_profile', name: 'Custom Profile', icon: LuUser, category: CATEGORIES.SOCIAL_PROFILES, editorComponent: 'CustomProfileEditor' },
 
   // SOCIAL MEDIA BUTTONS - Simple social media links for social bar
   { type: 'linkedin', name: 'LinkedIn', icon: FaLinkedin, category: CATEGORIES.SOCIAL_BUTTONS },
@@ -168,6 +170,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
      appointments: { title: defaultTitle, value: '', editorComponent: 'AppointmentsEditor' },
     subscribe: { title: defaultTitle, value: '', editorComponent: 'SubscribeSelector' },
     faq: { title: defaultTitle, value: [], editorComponent: 'FAQSelector' },
+    website_preview: { title: defaultTitle, value: [], editorComponent: 'WebsitePreviewEditor' },
 
      // Social highlights defaults
     x_highlights: { title: defaultTitle, value: [], editorComponent: 'XHighlightsEditor' },
@@ -189,6 +192,7 @@ export const getDefaultSectionProps = (type, cardType = CARD_TYPES.PRO) => {
     facebook: { title: defaultTitle, value: '' },
     spotify: { title: defaultTitle, value: '' },
     whatsapp: { title: defaultTitle, value: '' },
+    custom_profile: { title: defaultTitle, value: [], editorComponent: 'CustomProfileEditor' },
   };
 
   return defaults[type] || { title: defaultTitle, value: '' };

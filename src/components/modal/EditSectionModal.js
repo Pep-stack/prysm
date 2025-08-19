@@ -45,6 +45,8 @@ import DribbbleProfileEditor from '../shared/DribbbleProfileEditor';
 import GitHubHighlightsEditor from '../shared/GitHubHighlightsEditor';
 import SpotifyHighlightsEditor from '../shared/SpotifyHighlightsEditor';
 import VimeoHighlightsEditor from '../shared/VimeoHighlightsEditor';
+import WebsitePreviewEditor from '../shared/WebsitePreviewEditor';
+import CustomProfileEditor from '../shared/CustomProfileEditor';
 
 export default function EditSectionModal({ isOpen, onClose, section, value, onChange, onSave, user }) {
   // Note: Removed the console.log from here during cleanup
@@ -687,6 +689,30 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
       );
     }
 
+    // Website Preview-specific editor
+    if (section.type === 'website_preview') {
+      return (
+        <WebsitePreviewEditor
+          value={value || []}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
+    // Custom Profile-specific editor
+    if (section.type === 'custom_profile') {
+      return (
+        <CustomProfileEditor
+          value={value || []}
+          onChange={onChange}
+          onSave={onSave}
+          onCancel={onClose}
+        />
+      );
+    }
+
     // Default rendering based on inputType
     console.log('⚠️ EDIT-MODAL: No custom editor component found, using default input');
     if (section.inputType === 'textarea') {
@@ -715,7 +741,7 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
 
 
   // For TikTok, Instagram, LinkedIn, GitHub, X, YouTube, Email, WhatsApp, Facebook, Dribbble, Snapchat, Reddit, Phone, X Highlights, YouTube Highlights, Vimeo Highlights, Spotify Highlights, LinkedIn Highlights, TikTok Highlights, Instagram Profile, LinkedIn Profile, X Profile, Spotify Profile, Snapchat Profile, TikTok Profile, GitHub Highlights, Gallery, Featured Video, Appointments, and Publications, render the custom editor directly without the standard modal wrapper
-  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'spotify' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'vimeo_highlights' || section.type === 'spotify_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'spotify_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments' || section.type === 'publications') {
+  if (section.type === 'tiktok' || section.type === 'instagram' || section.type === 'linkedin' || section.type === 'github' || section.type === 'x' || section.type === 'spotify' || section.type === 'youtube' || section.type === 'email' || section.type === 'whatsapp' || section.type === 'facebook' || section.type === 'dribbble' || section.type === 'snapchat' || section.type === 'reddit' || section.type === 'phone' || section.type === 'x_highlights' || section.type === 'youtube_highlights' || section.type === 'vimeo_highlights' || section.type === 'spotify_highlights' || section.type === 'linkedin_highlights' || section.type === 'tiktok_highlights' || section.type === 'instagram_profile' || section.type === 'linkedin_profile' || section.type === 'x_profile' || section.type === 'spotify_profile' || section.type === 'snapchat_profile' || section.type === 'tiktok_profile' || section.type === 'behance_profile' || section.type === 'dribbble_profile' || section.type === 'github_highlights' || section.type === 'gallery' || section.type === 'featured_video' || section.type === 'appointments' || section.type === 'publications' || section.type === 'website_preview' || section.type === 'custom_profile') {
     return (
       <div style={modalOverlayStyle} onClick={onClose}> 
         <div style={{...modalContentStyle, maxWidth: '500px', backgroundColor: 'transparent', padding: 0, boxShadow: 'none'}} onClick={(e) => e.stopPropagation()}> 
@@ -742,7 +768,9 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
          section.editorComponent !== 'LanguageSelector' &&
          section.editorComponent !== 'SubscribeSelector' &&
          section.editorComponent !== 'FAQSelector' &&
-         section.editorComponent !== 'AppointmentsEditor' && (
+         section.editorComponent !== 'AppointmentsEditor' &&
+         section.editorComponent !== 'WebsitePreviewEditor' &&
+         section.editorComponent !== 'CustomProfileEditor' && (
           <h3>Edit {section.name}</h3>
         )}
         
@@ -759,7 +787,9 @@ export default function EditSectionModal({ isOpen, onClose, section, value, onCh
          section.editorComponent !== 'LanguageSelector' &&
          section.editorComponent !== 'SubscribeSelector' &&
          section.editorComponent !== 'FAQSelector' &&
-         section.editorComponent !== 'AppointmentsEditor' && (
+         section.editorComponent !== 'AppointmentsEditor' &&
+         section.editorComponent !== 'WebsitePreviewEditor' &&
+         section.editorComponent !== 'CustomProfileEditor' && (
           <div style={buttonContainerStyle}>
             <button 
               onClick={onClose} 

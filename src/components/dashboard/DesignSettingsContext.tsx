@@ -21,6 +21,7 @@ export function DesignSettingsProvider({ initial, children }) {
     text_color: automaticColors.text_color,
     icon_color: automaticColors.icon_color,
     social_bar_position: initial?.social_bar_position || 'top',
+    name_size: initial?.name_size || 'small',
     ...initial
   });
 
@@ -35,7 +36,7 @@ export function DesignSettingsProvider({ initial, children }) {
         try {
           const { data, error } = await supabase
             .from('profiles')
-            .select('font_family, background_color, text_color, icon_color, social_bar_position')
+            .select('font_family, background_color, text_color, icon_color, social_bar_position, name_size')
             .eq('id', initial.id)
             .single();
 
@@ -48,6 +49,7 @@ export function DesignSettingsProvider({ initial, children }) {
               text_color: initial?.text_color || '#000000',
               icon_color: initial?.icon_color || 'auto',
               social_bar_position: initial?.social_bar_position || 'top',
+              name_size: initial?.name_size || 'small',
               ...initial
             });
           } else if (data) {

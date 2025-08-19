@@ -35,6 +35,8 @@ import AppointmentsSectionContent from './cardSections/AppointmentsSectionConten
 import SubscribeSectionContent from './cardSections/SubscribeSectionContent';
 import PublicationSectionContent from './cardSections/PublicationSectionContent';
 import FAQSectionContent from './cardSections/FAQSectionContent';
+import WebsitePreviewSectionContent from './cardSections/WebsitePreviewSectionContent';
+import CustomProfileSectionContent from './cardSections/CustomProfileSectionContent';
 
 
 // Lazy import for ServicesSectionContent to avoid circular dependency
@@ -90,6 +92,8 @@ const proSectionComponentMap = {
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
   'faq': FAQSectionContent,
+  'website_preview': WebsitePreviewSectionContent,
+  'custom_profile': CustomProfileSectionContent,
 };
 
 export const sectionComponentMap = {
@@ -137,6 +141,8 @@ export const sectionComponentMap = {
   'appointments': AppointmentsSectionContent,
   'subscribe': SubscribeSectionContent,
   'faq': FAQSectionContent,
+  'website_preview': WebsitePreviewSectionContent,
+  'custom_profile': CustomProfileSectionContent,
 };
 
 // Component rendert nu altijd de publieke/statische view

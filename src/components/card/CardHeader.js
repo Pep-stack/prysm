@@ -17,6 +17,18 @@ const getInitials = (name) => {
   return name.charAt(0).toUpperCase();
 };
 
+// Function to get font size based on name_size setting
+const getNameFontSize = (nameSize) => {
+  switch (nameSize) {
+    case 'small': return '28px';
+    case 'medium': return '32px';
+    case 'large': return '36px';
+    case 'extra-large': return '40px';
+    case 'xxl': return '44px';
+    default: return '32px';
+  }
+};
+
 export default function CardHeader({ profile, user, isPublicView = false, backgroundColor }) {
   const { settings } = useDesignSettings();
 
@@ -284,7 +296,11 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
           >
             {/* Name - stays the same */}
             {personalInfo?.name && (
-              <h2 className={styles.name} style={{ color: textColor, marginBottom: '36px' }}> {/* Increased from 28px to 36px */}
+              <h2 className={styles.name} style={{ 
+                color: textColor, 
+                marginBottom: '36px',
+                fontSize: getNameFontSize(settings.name_size || 'small')
+              }}> {/* Increased from 28px to 36px */}
                 {personalInfo.name}
               </h2>
             )}

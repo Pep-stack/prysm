@@ -23,12 +23,21 @@ const SOCIAL_BAR_POSITION_OPTIONS = [
   { label: 'Bottom (Above Footer)', value: 'bottom', name: 'Bottom' }
 ];
 
+const NAME_SIZE_OPTIONS = [
+  { label: 'Small', value: 'small', fontSize: '28px' },
+  { label: 'Medium', value: 'medium', fontSize: '32px' },
+  { label: 'Large', value: 'large', fontSize: '36px' },
+  { label: 'Extra Large', value: 'extra-large', fontSize: '40px' },
+  { label: 'XXL', value: 'xxl', fontSize: '44px' }
+];
+
 export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const { settings, setSettings, isLoading, updateThemeColors } = useDesignSettings();
   
-  // Simplified state - only font and social bar position are manual
+  // Simplified state - only font, social bar position, and name size are manual
   const [fontFamily, setFontFamily] = useState(settings.font_family || initial?.font_family || 'Inter, sans-serif');
   const [socialBarPosition, setSocialBarPosition] = useState(settings.social_bar_position || initial?.social_bar_position || 'top');
+  const [nameSize, setNameSize] = useState(settings.name_size || initial?.name_size || 'small');
   
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -37,9 +46,11 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [showSocialBarPositionDropdown, setShowSocialBarPositionDropdown] = useState(false);
+  const [showNameSizeDropdown, setShowNameSizeDropdown] = useState(false);
   const fontDropdownRef = useRef(null);
   const themeDropdownRef = useRef(null);
   const socialBarPositionDropdownRef = useRef(null);
+  const nameSizeDropdownRef = useRef(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -48,16 +59,18 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       if (showFontDropdown && fontDropdownRef.current && !fontDropdownRef.current.contains(e.target)) setShowFontDropdown(false);
       if (showThemeDropdown && themeDropdownRef.current && !themeDropdownRef.current.contains(e.target)) setShowThemeDropdown(false);
       if (showSocialBarPositionDropdown && socialBarPositionDropdownRef.current && !socialBarPositionDropdownRef.current.contains(e.target)) setShowSocialBarPositionDropdown(false);
+      if (showNameSizeDropdown && nameSizeDropdownRef.current && !nameSizeDropdownRef.current.contains(e.target)) setShowNameSizeDropdown(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showMenu, showFontDropdown, showThemeDropdown, showSocialBarPositionDropdown]);
+  }, [showMenu, showFontDropdown, showThemeDropdown, showSocialBarPositionDropdown, showNameSizeDropdown]);
 
-  // Sync only font and social bar position from context
+  // Sync only font, social bar position, and name size from context
   useEffect(() => {
     if (!isLoading && settings.font_family && !fontFamily) {
       setFontFamily(settings.font_family);
       setSocialBarPosition(settings.social_bar_position || 'top');
+      setNameSize(settings.name_size || 'small');
     }
   }, [settings, isLoading]);
 
@@ -67,6 +80,7 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       console.log('🔄 TOOLBAR: Using initial prop values as fallback');
       setFontFamily(initial.font_family);
       setSocialBarPosition(initial.social_bar_position || 'top');
+      setNameSize(initial.name_size || 'small');
     }
   }, [initial, settings, isLoading]);
 
@@ -91,7 +105,8 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
       text_color: settings.text_color, // Automatic from theme
       background_color: settings.background_color, // Set via theme selection
       icon_color: settings.icon_color, // Automatic from theme
-      social_bar_position: socialBarPosition
+      social_bar_position: socialBarPosition,
+      name_size: nameSize
     };
 
     console.log('🔥 SAVE: Attempting to save settings:', {
@@ -167,6 +182,12 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
     setShowSocialBarPositionDropdown(false);
   };
 
+  const handleNameSizeSelect = (size) => {
+    setNameSize(size);
+    // NIET automatisch context updaten - alleen bij save
+    setShowNameSizeDropdown(false);
+  };
+
   // Get current theme for preview
   const currentTheme = THEME_BACKGROUNDS.find(theme => theme.value === settings.background_color) || THEME_BACKGROUNDS[0];
   
@@ -230,6 +251,71 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
                         className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${fontFamily === opt.value ? 'bg-emerald-100' : ''}`}
                         style={{ fontFamily: opt.value }}
                         onClick={() => handleFontSelect(opt.value)}
+                        type="button"
+                        aria-label={opt.label}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Name Size */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Name Size</span>
+              <div className="relative" ref={nameSizeDropdownRef}>
+                <button
+                  aria-label="Name Size"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
+                  onClick={() => setShowNameSizeDropdown(!showNameSizeDropdown)}
+                  type="button"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                  </svg>
+                </button>
+                {showNameSizeDropdown && (
+                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[140px] z-30">
+                    {NAME_SIZE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${nameSize === opt.value ? 'bg-emerald-100' : ''}`}
+                        onClick={() => handleNameSizeSelect(opt.value)}
+                        type="button"
+                        aria-label={opt.label}
+                      >
+                        <span style={{ fontSize: '11px' }}>{opt.label}</span>
+                        <span className="text-gray-400 ml-1">({opt.fontSize})</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Social Bar Position */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 mb-1">Social Bar Position</span>
+              <div className="relative" ref={socialBarPositionDropdownRef}>
+                <button
+                  aria-label="Social Bar Position"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
+                  onClick={() => setShowSocialBarPositionDropdown(!showSocialBarPositionDropdown)}
+                  type="button"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                </button>
+                {showSocialBarPositionDropdown && (
+                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[180px] z-30">
+                    {SOCIAL_BAR_POSITION_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${socialBarPosition === opt.value ? 'bg-emerald-100' : ''}`}
+                        onClick={() => handleSocialBarPositionSelect(opt.value)}
                         type="button"
                         aria-label={opt.label}
                       >
@@ -410,38 +496,6 @@ export default function DesignToolbar({ initial, userId, onProfileUpdate }) {
               </div>
 
 
-            </div>
-
-            {/* Social Bar Position */}
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-gray-500 mb-1">Social Bar Position</span>
-              <div className="relative" ref={socialBarPositionDropdownRef}>
-                <button
-                  aria-label="Social Bar Position"
-                  className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:ring-2 hover:ring-emerald-200 transition"
-                  onClick={() => setShowSocialBarPositionDropdown(!showSocialBarPositionDropdown)}
-                  type="button"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                  </svg>
-                </button>
-                {showSocialBarPositionDropdown && (
-                  <div className="absolute mt-2 bg-white border border-gray-200 rounded-md shadow p-1 min-w-[180px] z-30">
-                    {SOCIAL_BAR_POSITION_OPTIONS.map(opt => (
-                      <button
-                        key={opt.value}
-                        className={`block w-full text-left px-2 py-1 text-xs hover:bg-emerald-50 rounded ${socialBarPosition === opt.value ? 'bg-emerald-100' : ''}`}
-                        onClick={() => handleSocialBarPositionSelect(opt.value)}
-                        type="button"
-                        aria-label={opt.label}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Save Button */}
