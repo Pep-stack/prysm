@@ -89,7 +89,7 @@ export default function SnapchatProfileSectionContent({ profile, styles, isEditi
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       snapchat_profile: profile?.snapchat_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasSnapchatProfile: !!profile?.snapchat_profile
     });
     return profile?.snapchat_profile;

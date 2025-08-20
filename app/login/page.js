@@ -1,22 +1,41 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../src/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getAuthErrorMessage } from '../../src/lib/authErrors';
+import SocialLoginButtons from '../../src/components/auth/SocialLoginButtons';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Handle URL parameters for errors and success messages
+  useEffect(() => {
+    const urlError = searchParams.get('error');
+    const urlSuccess = searchParams.get('success');
+    
+    if (urlError) {
+      setError(decodeURIComponent(urlError));
+    }
+    
+    if (urlSuccess) {
+      setSuccess(decodeURIComponent(urlSuccess));
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(null);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -25,13 +44,13 @@ export default function LoginPage() {
       });
       
       if (error) {
-        setError(error.message);
+        setError(getAuthErrorMessage(error));
       } else {
         router.push('/dashboard');
         router.refresh();
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(getAuthErrorMessage(err));
       console.error("Login error:", err);
     } finally {
       setLoading(false);
@@ -57,6 +76,23 @@ export default function LoginPage() {
           <h2 className="text-center text-3xl font-bold text-black">
             Log in to your account
           </h2>
+        </div>
+
+        {/* Social Login Buttons */}
+        <div className="space-y-4">
+          <SocialLoginButtons 
+            onError={setError} 
+            onLoading={setLoading}
+          />
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">OR</span>
+            </div>
+          </div>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4">
@@ -102,6 +138,14 @@ export default function LoginPage() {
             <p className="text-sm text-red-600 text-center">
               {error}
             </p>
+          )}
+
+          {success && (
+            <div className="rounded-md bg-green-50 p-4">
+              <p className="text-sm text-green-800 text-center">
+                {success}
+              </p>
+            </div>
           )}
 
           <div>

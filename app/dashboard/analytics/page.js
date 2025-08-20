@@ -7,8 +7,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
-  LuEye, LuUsers, LuTrendingUp, LuCalendar, LuSmartphone, LuMonitor, 
-  LuGlobe, LuBarChart3, LuRefreshCw, LuArrowUp, LuArrowDown, LuMessageSquare, LuPhone, LuMail, LuMessageCircle, LuShare2, LuQrCode
+  LuEye, LuUsers, LuTrendingUp, LuRefreshCw, LuShare2
 } from "react-icons/lu";
 import { FaLinkedin, FaInstagram, FaGithub, FaYoutube, FaTiktok, FaWhatsapp, FaEnvelope, FaPhone, FaTwitter, FaFacebook, FaDribbble, FaBehance, FaSnapchatGhost, FaRedditAlien } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -125,95 +124,7 @@ export default function AnalyticsPage() {
     return Icon ? <Icon className="h-4 w-4" /> : <LuShare2 className="h-4 w-4" />;
   };
 
-  const getReferrerDisplayName = (referrerSource) => {
-    switch (referrerSource) {
-      case 'direct': return 'Direct';
-      case 'qr_code': return 'QR Code';
-      case 'instagram': return 'Instagram';
-      case 'linkedin': return 'LinkedIn';
-      case 'x': return 'X (Twitter)';
-      case 'facebook': return 'Facebook';
-      case 'tiktok': return 'TikTok';
-      case 'youtube': return 'YouTube';
-      case 'github': return 'GitHub';
-      case 'google': return 'Google';
-      case 'whatsapp': return 'WhatsApp';
-      case 'telegram': return 'Telegram';
-      case 'reddit': return 'Reddit';
-      case 'dribbble': return 'Dribbble';
-      case 'behance': return 'Behance';
-      case 'snapchat': return 'Snapchat';
-      case 'discord': return 'Discord';
-      case 'twitch': return 'Twitch';
-      case 'pinterest': return 'Pinterest';
-      case 'safari': return 'Safari';
-      case 'email': return 'Email';
-      case 'other': return 'Other';
-      default: return referrerSource.charAt(0).toUpperCase() + referrerSource.slice(1);
-    }
-  };
 
-  const getReferrerIcon = (referrerSource) => {
-    const iconMap = {
-      'qr_code': LuQrCode,
-      'instagram': FaInstagram,
-      'linkedin': FaLinkedin,
-      'x': FaXTwitter,
-      'facebook': FaFacebook,
-      'tiktok': FaTiktok,
-      'youtube': FaYoutube,
-      'github': FaGithub,
-      'whatsapp': FaWhatsapp,
-      'telegram': LuMessageCircle,
-      'reddit': FaRedditAlien,
-      'dribbble': FaDribbble,
-      'behance': FaBehance,
-      'snapchat': FaSnapchatGhost,
-      'discord': LuMessageCircle,
-      'twitch': LuGlobe,
-      'pinterest': LuGlobe,
-      'safari': LuGlobe,
-      'email': FaEnvelope,
-      'google': LuGlobe,
-      'direct': LuGlobe,
-      'other': LuGlobe
-    };
-    
-    const Icon = iconMap[referrerSource] || LuGlobe;
-    if (referrerSource === 'snapchat') {
-      return <FaSnapchatGhost className="h-4 w-4" style={{ color: 'black' }} />;
-    }
-    return <Icon className="h-4 w-4" />;
-  };
-
-  const getReferrerColor = (referrerSource) => {
-    const colorMap = {
-      'qr_code': '#6366F1',
-      'instagram': '#E4405F',
-      'linkedin': '#0077B5',
-      'x': '#000000',
-      'facebook': '#1877F2',
-      'tiktok': '#FF0050',
-      'youtube': '#FF0000',
-      'github': '#333333',
-      'whatsapp': '#25D366',
-      'telegram': '#0088CC',
-      'reddit': '#FF4500',
-      'dribbble': '#EA4C89',
-      'behance': '#1769FF',
-      'snapchat': '#FFFC00',
-      'discord': '#7289DA',
-      'twitch': '#9146FF',
-      'pinterest': '#BD081C',
-      'safari': '#007AFF',
-      'email': '#EA4335',
-      'google': '#4285F4',
-      'direct': '#10B981',
-      'other': '#8884D8'
-    };
-    
-    return colorMap[referrerSource] || '#8884D8';
-  };
 
   if (isLoading) {
     return (
@@ -549,74 +460,13 @@ export default function AnalyticsPage() {
           </ResponsiveContainer>
         </div>
 
-        {/* Referrer Breakdown */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Traffic Sources</h3>
-          <div className="relative">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart 
-                data={Object.entries(analyticsData.referrerBreakdown || {}).map(([referrer, count]) => ({
-                  name: getReferrerDisplayName(referrer),
-                  views: count,
-                  referrer: referrer
-                }))}
-                margin={{ top: 20, right: 20, left: 20, bottom: 80 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="name" 
-                  tick={false}
-                  axisLine={false}
-                />
-                <YAxis 
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(value) => formatNumber(value)}
-                />
-                <Tooltip 
-                  formatter={(value) => [value, 'Views']}
-                  labelFormatter={(label) => label}
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                  }}
-                />
-                <Bar 
-                  dataKey="views" 
-                  radius={[4, 4, 0, 0]}
-                  fill="#10B981"
-                />
-              </BarChart>
-            </ResponsiveContainer>
-            
-            {/* Referrer Icons Directly Under Each Bar */}
-            <div className="absolute bottom-0 left-0 right-0 flex justify-around px-4">
-              {Object.entries(analyticsData.referrerBreakdown || {}).map(([referrer, count]) => (
-                <div key={referrer} className="flex flex-col items-center space-y-1">
-                  <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: getReferrerColor(referrer) }}
-                  >
-                    <div className="text-white">
-                      {getReferrerIcon(referrer)}
-                    </div>
-                  </div>
-                  <span className="text-xs font-bold text-gray-900">{count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Geographic Data Section */}
-      <div className="mb-8">
+        {/* Geographic Distribution */}
         <GeographicBreakdown 
           geographicData={analyticsData?.geographicPoints || []} 
         />
       </div>
+
+
     </div>
   );
 } 

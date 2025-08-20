@@ -89,7 +89,7 @@ export default function XProfileSectionContent({ section, profile, styles, isEdi
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       x_profile: profile?.x_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasXProfile: !!profile?.x_profile,
       // Also check section for fallback
       section: section,

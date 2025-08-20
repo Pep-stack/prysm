@@ -87,7 +87,7 @@ export default function LinkedInProfileSectionContent({ profile, styles, isEditi
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       linkedin_profile: profile?.linkedin_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasLinkedInProfile: !!profile?.linkedin_profile
     });
     return profile?.linkedin_profile;

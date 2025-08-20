@@ -1,21 +1,42 @@
 'use client'; // Nodig voor hooks en interactie
 
-import React from 'react';
-import { useSession } from '../../../src/components/auth/SessionProvider'; // Pas pad aan indien nodig
-import { LuCircleUser, LuCreditCard, LuShieldCheck, LuTrash2, LuExternalLink } from "react-icons/lu"; // Iconen
+import React, { useState, useEffect } from 'react';
+import { useSession } from '../../../src/components/auth/SessionProvider';
+import { supabase } from '../../../src/lib/supabase';
+import { LuCircleUser, LuCreditCard, LuShieldCheck, LuTrash2, LuExternalLink, LuCrown, LuStar, LuZap } from "react-icons/lu";
+import { SUBSCRIPTION_PLANS } from '../../../src/components/auth/SubscriptionSelector';
 
 export default function AccountSettingsPage() {
   const { user, loading: sessionLoading } = useSession();
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
 
-  // --- Placeholder Data (VERVANG DIT met echte data fetching) ---
-  // Haal deze gegevens op van je backend/database/Stripe
-  const subscription = {
-    planName: 'Pro Plan', // Voorbeeld
-    status: 'Active', // Voorbeeld: Active, Trial, Canceled, Past Due
-    renewalDate: 'December 31, 2024', // Voorbeeld formaat
-    isLoading: false, // Zet op true tijdens het laden van abonnement data
-  };
-  // --- Einde Placeholder Data ---
+  // Fetch subscription data
+  useEffect(() => {
+    const fetchSubscriptionData = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching subscription:', error);
+        } else if (data) {
+          setSubscription(data);
+        }
+      } catch (err) {
+        console.error('Error fetching subscription:', err);
+      } finally {
+        setSubscriptionLoading(false);
+      }
+    };
+
+    fetchSubscriptionData();
+  }, [user]);
 
   // Placeholder Functie: Navigeer naar Stripe Billing Portal
   const handleManageBilling = async () => {
@@ -108,31 +129,91 @@ export default function AccountSettingsPage() {
               <LuCreditCard className="w-5 h-5 flex-shrink-0" />
               <h2 className="text-base font-medium text-black">Subscription</h2>
             </div>
+            
             {/* Details */}
-            <div className="text-sm space-y-2 sm:pl-8">
-              {subscription ? (
+            <div className="text-sm space-y-3 sm:pl-8">
+              {subscriptionLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                </div>
+              ) : subscription ? (
                 <>
-                  <p><span className="font-medium text-gray-500 w-28 inline-block">Current Plan:</span> {subscription.planName}</p>
-                  <p className="flex items-center">
+                  {/* Plan Info with Icon */}
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-500 w-28 inline-block">Current Plan:</span>
+                    <div className="flex items-center gap-2">
+                      {subscription.subscription_plan === 'pro' && <LuStar className="w-4 h-4 text-emerald-600" />}
+                      {subscription.subscription_plan === 'business' && <LuZap className="w-4 h-4 text-blue-600" />}
+                      {subscription.subscription_plan === 'free' && <LuCrown className="w-4 h-4 text-gray-600" />}
+                      <span className="font-medium">
+                        {SUBSCRIPTION_PLANS[subscription.subscription_plan]?.name || subscription.subscription_plan}
+                      </span>
+                      <span className="text-gray-500">
+                        ({SUBSCRIPTION_PLANS[subscription.subscription_plan]?.price || 'Free'})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="flex items-center">
                     <span className="font-medium text-gray-500 w-28 inline-block">Status:</span>
-                    {/* Dynamische status badge */}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      subscription.status === 'Active' ? 'bg-green-100 text-green-800' :
-                      subscription.status === 'Trial' ? 'bg-blue-100 text-blue-800' :
-                      'bg-gray-100 text-gray-800' // Default/Canceled/Etc.
+                      subscription.subscription_status === 'active' ? 'bg-green-100 text-green-800' :
+                      subscription.subscription_status === 'trialing' ? 'bg-blue-100 text-blue-800' :
+                      subscription.subscription_status === 'past_due' ? 'bg-yellow-100 text-yellow-800' :
+                      subscription.subscription_status === 'canceled' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
-                      {subscription.status}
+                      {subscription.subscription_status === 'trialing' ? 'Trial' :
+                       subscription.subscription_status === 'active' ? 'Active' :
+                       subscription.subscription_status === 'past_due' ? 'Past Due' :
+                       subscription.subscription_status === 'canceled' ? 'Canceled' :
+                       subscription.subscription_status}
                     </span>
-                  </p>
-                  <p><span className="font-medium text-gray-500 w-28 inline-block">Renews on:</span> {subscription.renewalDate}</p>
-                  {/* Knop om facturering te beheren */}
-                  <button
-                    onClick={handleManageBilling}
-                    className="mt-3 inline-flex items-center gap-1.5 text-sm text-[#00C896] hover:text-[#00A078] font-medium group"
-                  >
-                    Manage Billing & Invoices
-                    <LuExternalLink className="w-3 h-3 opacity-70 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </div>
+
+                  {/* Trial End Date */}
+                  {subscription.trial_end_date && subscription.subscription_status === 'trialing' && (
+                    <p>
+                      <span className="font-medium text-gray-500 w-28 inline-block">Trial Ends:</span>
+                      {new Date(subscription.trial_end_date).toLocaleDateString()}
+                    </p>
+                  )}
+
+                  {/* Renewal Date */}
+                  {subscription.subscription_end_date && (
+                    <p>
+                      <span className="font-medium text-gray-500 w-28 inline-block">
+                        {subscription.subscription_status === 'active' ? 'Renews on:' : 'Expires on:'}
+                      </span>
+                      {new Date(subscription.subscription_end_date).toLocaleDateString()}
+                    </p>
+                  )}
+
+                  {/* Upgrade/Manage Buttons */}
+                  <div className="mt-4 flex gap-2">
+                    {subscription.subscription_plan === 'free' && (
+                      <button
+                        onClick={() => alert('Upgrade flow to be implemented')}
+                        className="inline-flex items-center gap-1.5 text-sm text-white bg-[#00C896] hover:bg-[#00A078] font-medium px-3 py-1.5 rounded-md transition-colors"
+                      >
+                        <LuStar className="w-3 h-3" />
+                        Upgrade to Pro
+                      </button>
+                    )}
+                    
+                    {subscription.subscription_plan !== 'free' && (
+                      <button
+                        onClick={handleManageBilling}
+                        className="inline-flex items-center gap-1.5 text-sm text-[#00C896] hover:text-[#00A078] font-medium group"
+                      >
+                        Manage Billing & Invoices
+                        <LuExternalLink className="w-3 h-3 opacity-70 group-hover:opacity-100 transition-opacity" />
+                      </button>
+                    )}
+                  </div>
                 </>
               ) : (
                 <p className="text-gray-500">Subscription details not available.</p>

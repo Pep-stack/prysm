@@ -23,7 +23,7 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
       isUndefined: profileData === undefined,
       stringLength: typeof profileData === 'string' ? profileData.length : 'N/A',
       isArray: Array.isArray(profileData),
-      keys: typeof profileData === 'object' ? Object.keys(profileData) : 'N/A'
+      keys: typeof profileData === 'object' && profileData !== null ? Object.keys(profileData) : 'N/A'
     });
     
     // Handle string format (direct URL)
@@ -87,7 +87,7 @@ export default function InstagramProfileSectionContent({ profile, styles, isEdit
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       instagram_profile: profile?.instagram_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasInstagramProfile: !!profile?.instagram_profile
     });
     return profile?.instagram_profile;

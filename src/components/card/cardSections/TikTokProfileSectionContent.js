@@ -89,7 +89,7 @@ export default function TikTokProfileSectionContent({ profile, styles, isEditing
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       tiktok_profile: profile?.tiktok_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasTikTokProfile: !!profile?.tiktok_profile
     });
     return profile?.tiktok_profile;

@@ -89,7 +89,7 @@ export default function BehanceProfileSectionContent({ profile, styles, isEditin
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       behance_profile: profile?.behance_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasBehanceProfile: !!profile?.behance_profile
     });
     return profile?.behance_profile;

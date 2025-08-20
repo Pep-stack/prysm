@@ -37,7 +37,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
   // Debug logging for profile data
   console.log('🔍 CARD-TESTIMONIALS: Component received profile:', {
     profileId: profile?.id,
-    profileKeys: profile ? Object.keys(profile) : [],
+    profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : [],
     hasProfile: !!profile,
     profileType: typeof profile
   });
@@ -51,7 +51,7 @@ const ClientTestimonialsSectionContent = ({ profile, styles, isEditing, onSave, 
       console.log('🔍 CARD-TESTIMONIALS: Starting fetch with profile:', {
         profileId: profile?.id,
         hasProfile: !!profile,
-        profileKeys: profile ? Object.keys(profile) : []
+        profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : []
       });
       
       if (!profile?.id) {

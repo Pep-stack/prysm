@@ -89,7 +89,7 @@ export default function SpotifyProfileSectionContent({ section, profile, styles,
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       spotify_profile: profile?.spotify_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasSpotifyProfile: !!profile?.spotify_profile,
       // Also check section for fallback
       section: section,

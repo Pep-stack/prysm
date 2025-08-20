@@ -8,6 +8,7 @@ import { getAvailableBucket } from '../../lib/supabase-storage-setup';
 export default function GalleryEditor({ value = '', onChange, onSave, onCancel }) {
   const [gallery, setGallery] = useState([]);
   const [title, setTitle] = useState('');
+  const [displayType, setDisplayType] = useState('standard'); // 'standard' or 'mobile'
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
 
@@ -19,6 +20,10 @@ export default function GalleryEditor({ value = '', onChange, onSave, onCancel }
         // Set title from first item if available
         if (parsed.length > 0 && parsed[0].title) {
           setTitle(parsed[0].title);
+        }
+        // Set display type from first item if available
+        if (parsed.length > 0 && parsed[0].displayType) {
+          setDisplayType(parsed[0].displayType);
         }
       } catch (e) {
         setGallery([]);
@@ -218,10 +223,11 @@ export default function GalleryEditor({ value = '', onChange, onSave, onCancel }
   };
 
   const handleSave = () => {
-    // Create gallery data with title
+    // Create gallery data with title and display type
     const galleryData = gallery.map(img => ({
       ...img,
-      title: title || 'Gallery Image'
+      title: title || 'Gallery Image',
+      displayType: displayType
     }));
     
     onChange(galleryData);
@@ -272,6 +278,45 @@ export default function GalleryEditor({ value = '', onChange, onSave, onCancel }
             placeholder="Enter gallery title"
             className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent"
           />
+        </div>
+
+        {/* Display Type Toggle */}
+        <div className="mb-6">
+          <label className="block text-white text-sm font-medium mb-3">
+            Display Format
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setDisplayType('standard')}
+              className={`px-4 py-3 rounded-lg border-2 transition-all text-sm font-medium ${
+                displayType === 'standard'
+                  ? 'border-white bg-white text-black'
+                  : 'border-gray-600 bg-gray-800 text-white hover:border-gray-500'
+              }`}
+            >
+              <div className="text-center">
+                <div className="text-lg mb-1">🖼️</div>
+                <div>Standard Gallery</div>
+                <div className="text-xs opacity-70 mt-1">16:10 aspect ratio</div>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setDisplayType('mobile')}
+              className={`px-4 py-3 rounded-lg border-2 transition-all text-sm font-medium ${
+                displayType === 'mobile'
+                  ? 'border-white bg-white text-black'
+                  : 'border-gray-600 bg-gray-800 text-white hover:border-gray-500'
+              }`}
+            >
+              <div className="text-center">
+                <div className="text-lg mb-1">📱</div>
+                <div>Mobile Gallery</div>
+                <div className="text-xs opacity-70 mt-1">Scrollable mobile format</div>
+              </div>
+            </button>
+          </div>
         </div>
 
         {/* Add Image Section */}

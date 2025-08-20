@@ -89,7 +89,7 @@ export default function DribbbleProfileSectionContent({ profile, styles, isEditi
     console.log('🔍 DEBUG: Profile data received:', {
       profile: profile,
       dribbble_profile: profile?.dribbble_profile,
-      profileKeys: profile ? Object.keys(profile) : 'no profile',
+      profileKeys: profile && typeof profile === 'object' ? Object.keys(profile) : 'no profile',
       hasDribbbleProfile: !!profile?.dribbble_profile
     });
     return profile?.dribbble_profile;
