@@ -176,7 +176,7 @@ export default function CheckoutPage() {
             Complete Your Subscription
           </h2>
           <p className="text-gray-600 mb-6">
-            You're about to subscribe to the <span className="font-semibold text-[#00C896]">{currentPlan.name} Plan</span>
+            You&apos;re about to subscribe to the <span className="font-semibold text-[#00C896]">{currentPlan.name} Plan</span>
           </p>
         </div>
 
