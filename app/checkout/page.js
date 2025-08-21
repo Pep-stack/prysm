@@ -104,12 +104,16 @@ function CheckoutContent() {
       }
 
       // Redirect to Stripe Checkout
+      console.log('🔑 Loading Stripe with publishable key:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.substring(0, 20) + '...');
       const stripe = await getStripe();
+      console.log('💳 Redirecting to checkout with session:', data.sessionId);
+      
       const { error } = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
       });
 
       if (error) {
+        console.error('🚨 Stripe redirect error:', error);
         throw new Error(error.message);
       }
     } catch (err) {
