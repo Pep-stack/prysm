@@ -103,7 +103,7 @@ export default function CheckoutSuccessPage() {
             <div className="text-sm text-blue-800">
               <p className="font-medium mb-1">14-Day Free Trial</p>
               <p className="text-blue-700">
-                Your trial period has started. You won't be charged until your trial ends. 
+                Your trial period has started. You won&apos;t be charged until your trial ends. 
                 Cancel anytime from your dashboard.
               </p>
             </div>
