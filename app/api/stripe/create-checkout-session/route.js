@@ -110,7 +110,7 @@ export async function POST(request) {
         .eq('id', user.id);
     }
 
-    // Create checkout session
+    // Create checkout session with explicit configuration
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       payment_method_types: ['card'],
@@ -134,9 +134,23 @@ export async function POST(request) {
           plan: plan,
         },
       },
+      // Force modern checkout experience
+      ui_mode: 'hosted',
+      redirect_on_completion: 'always',
     });
 
-    return NextResponse.json({ sessionId: session.id });
+    console.log('✅ Created checkout session:', {
+      id: session.id,
+      url: session.url,
+      mode: session.mode,
+      ui_mode: session.ui_mode
+    });
+
+    // Return both session ID and URL for flexibility
+    return NextResponse.json({ 
+      sessionId: session.id,
+      checkoutUrl: session.url 
+    });
   } catch (error) {
     console.error('Error creating checkout session:', error);
     return NextResponse.json(

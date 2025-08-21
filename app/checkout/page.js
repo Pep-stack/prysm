@@ -103,7 +103,14 @@ function CheckoutContent() {
         throw new Error(data.error || 'Failed to create checkout session');
       }
 
-      // Redirect to Stripe Checkout
+      // Try direct URL redirect first (bypasses SDK issues)
+      if (data.checkoutUrl) {
+        console.log('🔗 Using direct checkout URL:', data.checkoutUrl);
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+
+      // Fallback to SDK redirect
       const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
       console.log('🔑 Full env check:', {
         hasKey: !!publishableKey,
@@ -111,6 +118,7 @@ function CheckoutContent() {
         keyStart: publishableKey?.substring(0, 12),
         keyType: publishableKey?.startsWith('pk_live_') ? 'live' : publishableKey?.startsWith('pk_test_') ? 'test' : 'unknown'
       });
+      
       const stripe = await getStripe();
       console.log('💳 Redirecting to checkout with session:', data.sessionId);
       
