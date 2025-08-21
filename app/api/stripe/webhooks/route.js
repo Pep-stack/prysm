@@ -10,10 +10,6 @@ export async function POST(request) {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!stripeSecretKey || !endpointSecret) {
-    console.error('Stripe envs missing', {
-      hasSecretKey: Boolean(stripeSecretKey),
-      hasWebhookSecret: Boolean(endpointSecret),
-    });
     return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 500 });
   }
   const stripe = new Stripe(stripeSecretKey, { 

@@ -10,7 +10,6 @@ export async function POST(request) {
     // Guard and initialize Stripe inside the handler
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
     if (!stripeSecretKey) {
-      console.error('STRIPE_SECRET_KEY not configured for portal session');
       return NextResponse.json(
         { error: 'Stripe configuration missing' },
         { status: 500 }

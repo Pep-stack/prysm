@@ -74,9 +74,6 @@ function CheckoutContent() {
     setError('');
 
     try {
-      console.log('🚀 Starting checkout for plan:', selectedPlan);
-      console.log('🔗 API URL:', '/api/stripe/create-checkout-session');
-      
       // Create checkout session
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
@@ -86,18 +83,13 @@ function CheckoutContent() {
         body: JSON.stringify({ plan: selectedPlan }),
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response ok:', response.ok);
-
       // Check if response is ok before parsing JSON
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ API Error Response:', errorText);
         throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('✅ Checkout session data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create checkout session');
@@ -105,44 +97,21 @@ function CheckoutContent() {
 
       // Try direct URL redirect first (bypasses SDK issues)
       if (data.checkoutUrl) {
-        console.log('🔗 Using direct checkout URL:', data.checkoutUrl);
         window.location.href = data.checkoutUrl;
         return;
       }
 
       // Fallback to SDK redirect
-      const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-      console.log('🔑 Full env check:', {
-        hasKey: !!publishableKey,
-        keyLength: publishableKey?.length,
-        keyStart: publishableKey?.substring(0, 12),
-        keyType: publishableKey?.startsWith('pk_live_') ? 'live' : publishableKey?.startsWith('pk_test_') ? 'test' : 'unknown'
-      });
-      
       const stripe = await getStripe();
-      console.log('💳 Redirecting to checkout with session:', data.sessionId);
       
       const { error } = await stripe.redirectToCheckout({
         sessionId: data.sessionId,
       });
 
       if (error) {
-        console.error('🚨 Stripe redirect error:', error);
-        console.error('🚨 Error details:', {
-          type: error.type,
-          code: error.code,
-          message: error.message,
-          param: error.param
-        });
         throw new Error(error.message);
       }
-
-      // If we get here without redirect, something went wrong
-      console.error('🚨 Stripe redirect completed but no redirect occurred');
     } catch (err) {
-      console.error('Checkout error:', err);
-      console.error('Error details:', err);
-      
       // More specific error messages
       if (err.message.includes('STRIPE_PUBLISHABLE_KEY')) {
         setError('Stripe configuration missing. Please contact support.');
@@ -300,11 +269,7 @@ function CheckoutContent() {
               </svg>
               Start Free Trial
             </button>
-            
-            {/* Debug Info */}
-            <div className="text-xs text-gray-400 text-center">
-              Plan: {plan} | User: {user?.email || 'Loading...'}
-            </div>
+
 
             <button
               onClick={() => router.push('/dashboard')}

@@ -13,9 +13,6 @@ const PRICE_IDS = {
   business: 'price_TEMP_BUSINESS', // Business Plan - Will be added later
 };
 
-// Log price IDs for debugging
-console.log('💰 Available Price IDs:', PRICE_IDS);
-
 export async function POST(request) {
   try {
     // Check if Stripe keys are configured
@@ -34,11 +31,9 @@ export async function POST(request) {
     });
 
     const { plan } = await request.json();
-    console.log('Received plan:', plan);
 
     // Validate plan
     if (!plan || !PRICE_IDS[plan]) {
-      console.error('Invalid plan:', plan, 'Available plans:', Object.keys(PRICE_IDS));
       return NextResponse.json(
         { error: `Invalid plan selected: ${plan}` },
         { status: 400 }
@@ -68,7 +63,6 @@ export async function POST(request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError) {
-      console.error('Supabase auth error:', authError);
       return NextResponse.json(
         { error: 'Authentication error: ' + authError.message },
         { status: 401 }
@@ -76,14 +70,11 @@ export async function POST(request) {
     }
 
     if (!user) {
-      console.error('No user found');
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
     }
-
-    console.log('User authenticated:', user.email);
 
     // Get user profile for customer info
     const { data: profile } = await supabase
@@ -113,15 +104,7 @@ export async function POST(request) {
         .eq('id', user.id);
     }
 
-    // Create checkout session with explicit configuration
-    console.log('🔧 Creating checkout session with config:', {
-      customer: customerId,
-      plan: plan,
-      priceId: PRICE_IDS[plan],
-      successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`
-    });
-
+    // Create checkout session
     const sessionConfig = {
       customer: customerId,
       payment_method_types: ['card'],
@@ -138,25 +121,16 @@ export async function POST(request) {
         user_id: user.id,
         plan: plan,
       },
-      // Temporarily remove trial to test basic checkout
-      // subscription_data: {
-      //   trial_period_days: 14, // 14-day free trial
-      //   metadata: {
-      //     user_id: user.id,
-      //     plan: plan,
-      //   },
-      // },
+      subscription_data: {
+        trial_period_days: 14, // 14-day free trial
+        metadata: {
+          user_id: user.id,
+          plan: plan,
+        },
+      },
     };
 
-    // Try without ui_mode first (might not be supported in this API version)
     const session = await stripe.checkout.sessions.create(sessionConfig);
-
-    console.log('✅ Created checkout session:', {
-      id: session.id,
-      url: session.url,
-      mode: session.mode,
-      ui_mode: session.ui_mode
-    });
 
     // Return both session ID and URL for flexibility
     return NextResponse.json({ 
@@ -164,23 +138,9 @@ export async function POST(request) {
       checkoutUrl: session.url 
     });
   } catch (error) {
-    console.error('❌ Error creating checkout session:', error);
-    console.error('❌ Error details:', {
-      message: error.message,
-      type: error.type,
-      code: error.code,
-      param: error.param,
-      stack: error.stack
-    });
-    
-    // Return more specific error info
+    console.error('Error creating checkout session:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to create checkout session',
-        details: error.message,
-        type: error.type,
-        code: error.code
-      },
+      { error: 'Failed to create checkout session' },
       { status: 500 }
     );
   }
