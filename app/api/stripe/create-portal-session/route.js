@@ -3,18 +3,21 @@ import Stripe from 'stripe';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-// Initialize Stripe with better error handling
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  console.error('❌ STRIPE_SECRET_KEY is missing from environment variables');
-}
-
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2023-10-16',
-});
+// Do not initialize Stripe at module level to avoid build-time env access
 
 export async function POST(request) {
   try {
+    // Guard and initialize Stripe inside the handler
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+      console.error('STRIPE_SECRET_KEY not configured for portal session');
+      return NextResponse.json(
+        { error: 'Stripe configuration missing' },
+        { status: 500 }
+      );
+    }
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
+
     // Get authenticated user
     const cookieStore = cookies();
     const supabase = createServerClient(
