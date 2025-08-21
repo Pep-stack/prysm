@@ -105,7 +105,7 @@ export default function VerifyEmailPage() {
             Check your email
           </h2>
           <p className="text-gray-600 mb-6">
-            We've sent a verification link to{' '}
+            We&apos;ve sent a verification link to{' '}
             <span className="font-semibold text-[#00C896]">
               {email || 'your email address'}
             </span>
@@ -123,7 +123,7 @@ export default function VerifyEmailPage() {
               <ol className="list-decimal list-inside space-y-1 text-blue-700">
                 <li>Check your email inbox</li>
                 <li>Click the verification link</li>
-                <li>You'll be redirected to your dashboard</li>
+                <li>You&apos;ll be redirected to your dashboard</li>
               </ol>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function VerifyEmailPage() {
 
         {/* Help Text */}
         <div className="text-center text-xs text-gray-500 mt-6">
-          <p>Didn't receive the email? Check your spam folder or try resending.</p>
+          <p>Didn&apos;t receive the email? Check your spam folder or try resending.</p>
           <p className="mt-1">
             Need help?{' '}
             <a href="mailto:support@prysma.com" className="text-[#00C896] hover:text-[#00a078] font-medium">

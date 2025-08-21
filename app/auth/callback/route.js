@@ -151,8 +151,8 @@ export async function GET(request) {
       const selectedPlan = data.user?.user_metadata?.selected_plan;
       
       if (selectedPlan && selectedPlan !== 'free') {
-        // For paid plans, redirect to dashboard with plan info
-        return NextResponse.redirect(`${requestUrl.origin}/dashboard?plan=${selectedPlan}&new_user=true`);
+        // For paid plans, redirect to Stripe checkout
+        return NextResponse.redirect(`${requestUrl.origin}/checkout?plan=${selectedPlan}`);
       } else {
         // For free plan or default, redirect to dashboard
         return response;
