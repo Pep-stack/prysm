@@ -16,7 +16,9 @@ export async function POST(request) {
         { status: 500 }
       );
     }
-    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
+    const stripe = new Stripe(stripeSecretKey, { 
+      apiVersion: '2025-07-30.basil'
+    });
 
     // Get authenticated user
     const cookieStore = cookies();

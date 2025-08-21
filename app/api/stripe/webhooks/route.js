@@ -16,7 +16,9 @@ export async function POST(request) {
     });
     return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 500 });
   }
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
+  const stripe = new Stripe(stripeSecretKey, { 
+    apiVersion: '2025-07-30.basil'
+  });
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
 

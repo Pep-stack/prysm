@@ -25,8 +25,10 @@ export async function POST(request) {
       );
     }
 
-    // Safe to initialize Stripe now
-    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
+    // Safe to initialize Stripe now - use latest API version
+    const stripe = new Stripe(stripeSecretKey, { 
+      apiVersion: '2025-07-30.basil'
+    });
 
     const { plan } = await request.json();
     console.log('Received plan:', plan);

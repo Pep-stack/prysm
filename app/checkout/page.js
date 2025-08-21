@@ -104,7 +104,13 @@ function CheckoutContent() {
       }
 
       // Redirect to Stripe Checkout
-      console.log('🔑 Loading Stripe with publishable key:', process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.substring(0, 20) + '...');
+      const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+      console.log('🔑 Full env check:', {
+        hasKey: !!publishableKey,
+        keyLength: publishableKey?.length,
+        keyStart: publishableKey?.substring(0, 12),
+        keyType: publishableKey?.startsWith('pk_live_') ? 'live' : publishableKey?.startsWith('pk_test_') ? 'test' : 'unknown'
+      });
       const stripe = await getStripe();
       console.log('💳 Redirecting to checkout with session:', data.sessionId);
       
@@ -114,8 +120,17 @@ function CheckoutContent() {
 
       if (error) {
         console.error('🚨 Stripe redirect error:', error);
+        console.error('🚨 Error details:', {
+          type: error.type,
+          code: error.code,
+          message: error.message,
+          param: error.param
+        });
         throw new Error(error.message);
       }
+
+      // If we get here without redirect, something went wrong
+      console.error('🚨 Stripe redirect completed but no redirect occurred');
     } catch (err) {
       console.error('Checkout error:', err);
       console.error('Error details:', err);
