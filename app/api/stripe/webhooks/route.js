@@ -3,19 +3,20 @@ import Stripe from 'stripe';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-// Initialize Stripe with better error handling
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-if (!stripeSecretKey) {
-  console.error('❌ STRIPE_SECRET_KEY is missing from environment variables');
-}
-
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2023-10-16',
-});
-
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// Do not initialize Stripe or read secrets at module scope to avoid build-time crashes
 
 export async function POST(request) {
+  // Guard and initialize Stripe inside handler
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!stripeSecretKey || !endpointSecret) {
+    console.error('Stripe envs missing', {
+      hasSecretKey: Boolean(stripeSecretKey),
+      hasWebhookSecret: Boolean(endpointSecret),
+    });
+    return NextResponse.json({ error: 'Stripe configuration missing' }, { status: 500 });
+  }
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' });
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
 
