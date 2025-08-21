@@ -74,6 +74,9 @@ function CheckoutContent() {
     setError('');
 
     try {
+      console.log('🚀 Starting checkout for plan:', selectedPlan);
+      console.log('🔗 API URL:', '/api/stripe/create-checkout-session');
+      
       // Create checkout session
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
@@ -83,14 +86,18 @@ function CheckoutContent() {
         body: JSON.stringify({ plan: selectedPlan }),
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+
       // Check if response is ok before parsing JSON
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('API Error Response:', errorText);
+        console.error('❌ API Error Response:', errorText);
         throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('✅ Checkout session data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create checkout session');
