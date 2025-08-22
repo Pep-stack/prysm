@@ -5,6 +5,7 @@ import { useSession } from '../../../src/components/auth/SessionProvider';
 import { supabase } from '../../../src/lib/supabase';
 import { LuCircleUser, LuCreditCard, LuShieldCheck, LuTrash2, LuExternalLink, LuCrown, LuStar, LuZap } from "react-icons/lu";
 import { SUBSCRIPTION_PLANS } from '../../../src/components/auth/SubscriptionSelector';
+import { DesignSettingsProvider } from '../../../src/components/dashboard/DesignSettingsContext';
 
 export default function AccountSettingsPage() {
   const { user, loading: sessionLoading } = useSession();
@@ -14,22 +15,68 @@ export default function AccountSettingsPage() {
   // Fetch subscription data
   useEffect(() => {
     const fetchSubscriptionData = async () => {
-      if (!user) return;
+      if (!user) {
+        console.log('No user found, skipping subscription fetch');
+        return;
+      }
+
+      console.log('Fetching subscription data for user:', user);
+      console.log('User ID:', user?.id);
 
       try {
+        // First check if profile exists
         const { data, error } = await supabase
           .from('profiles')
-          .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date, subscription_metadata')
+          .select('*')
           .eq('id', user.id)
           .single();
 
+        if (data) {
+          console.log('Profile data found:', Object.keys(data));
+          console.log('Available columns:', Object.keys(data).join(', '));
+        }
+
         if (error) {
           console.error('Error fetching subscription:', error);
+          console.error('User ID:', user?.id);
+          console.error('Error details:', JSON.stringify(error, null, 2));
         } else if (data) {
-          setSubscription(data);
+          console.log('Profile data loaded:', data);
+          // Extract subscription data from profile
+          const subscriptionData = {
+            subscription_plan: data.subscription_plan || 'free',
+            subscription_status: data.subscription_status || 'active',
+            subscription_start_date: data.subscription_start_date,
+            subscription_end_date: data.subscription_end_date,
+            trial_end_date: data.trial_end_date,
+            subscription_metadata: data.subscription_metadata || {}
+          };
+          console.log('Extracted subscription data:', subscriptionData);
+          setSubscription(subscriptionData);
+        } else {
+          console.warn('No subscription data found for user:', user?.id);
+          // Set default free plan if no data found
+          setSubscription({
+            subscription_plan: 'free',
+            subscription_status: 'active',
+            subscription_start_date: null,
+            subscription_end_date: null,
+            trial_end_date: null,
+            subscription_metadata: {}
+          });
         }
       } catch (err) {
-        console.error('Error fetching subscription:', err);
+        console.error('Error fetching subscription (catch):', err);
+        console.error('User:', user);
+        // Set default free plan on error
+        setSubscription({
+          subscription_plan: 'free',
+          subscription_status: 'active',
+          subscription_start_date: null,
+          subscription_end_date: null,
+          trial_end_date: null,
+          subscription_metadata: {}
+        });
       } finally {
         setSubscriptionLoading(false);
       }
@@ -45,14 +92,26 @@ export default function AccountSettingsPage() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date, subscription_metadata')
+        .select('*')
         .eq('id', user.id)
         .single();
 
       if (error) {
         console.error('Error refreshing subscription:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
       } else if (data) {
-        setSubscription(data);
+        // Extract subscription data from profile
+        const subscriptionData = {
+          subscription_plan: data.subscription_plan || 'free',
+          subscription_status: data.subscription_status || 'active',
+          subscription_start_date: data.subscription_start_date,
+          subscription_end_date: data.subscription_end_date,
+          trial_end_date: data.trial_end_date,
+          subscription_metadata: data.subscription_metadata || {}
+        };
+        setSubscription(subscriptionData);
+      } else {
+        console.warn('No subscription data found during refresh for user:', user?.id);
       }
     } catch (err) {
       console.error('Error refreshing subscription:', err);
@@ -131,7 +190,7 @@ export default function AccountSettingsPage() {
   };
 
   // --- Loading State ---
-  if (sessionLoading || subscription.isLoading) {
+  if (sessionLoading || subscriptionLoading) {
     return (
       <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
         <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px]">
@@ -155,8 +214,9 @@ export default function AccountSettingsPage() {
 
   // --- Pagina Content ---
   return (
-    <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
-      <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px] space-y-6 pb-16 md:pb-0">
+    <DesignSettingsProvider initial={user}>
+      <div className="flex justify-center px-4 max-w-screen-lg mx-auto">
+        <div className="w-full sm:w-[300px] md:w-[360px] lg:w-[420px] space-y-6 pb-16 md:pb-0">
         <h1 className="text-xl font-semibold text-black">Account Settings</h1>
         {/* --- Account Informatie Card --- */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -357,5 +417,6 @@ export default function AccountSettingsPage() {
         </div>
       </div>
     </div>
+    </DesignSettingsProvider>
   );
 }
