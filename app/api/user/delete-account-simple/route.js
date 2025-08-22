@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 export async function DELETE(request) {
   try {
     console.log('🗑️ Simple account deletion request received');
+    console.log('🕐 Timestamp:', new Date().toISOString());
 
     // Initialize Stripe if configured
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -84,16 +85,37 @@ export async function DELETE(request) {
     if (profile) {
       try {
         console.log('🗑️ Deleting profile...');
-        const { error: profileDeleteError } = await supabase
+        console.log('🔍 Profile to delete:', { id: user.id, email: profile.email });
+        
+        // First try to count how many rows match our delete condition
+        const { count: beforeCount, error: countError } = await supabase
           .from('profiles')
-          .delete()
+          .select('*', { count: 'exact', head: true })
+          .eq('id', user.id);
+        
+        console.log('📊 Profiles found before deletion:', beforeCount);
+        if (countError) {
+          console.error('❌ Error counting profiles:', countError);
+        }
+        
+        const { error: profileDeleteError, count: deletedCount } = await supabase
+          .from('profiles')
+          .delete({ count: 'exact' })
           .eq('id', user.id);
         
         if (profileDeleteError) {
           console.error('❌ Profile deletion error:', profileDeleteError);
+          console.error('❌ Profile deletion error details:', JSON.stringify(profileDeleteError, null, 2));
         } else {
-          console.log('✅ Profile deleted successfully');
-          deletionResults.profile = true;
+          console.log('✅ Profile deletion completed');
+          console.log('📊 Rows deleted:', deletedCount);
+          if (deletedCount > 0) {
+            console.log('✅ Profile actually deleted from database');
+            deletionResults.profile = true;
+          } else {
+            console.warn('⚠️ No rows were deleted - profile may not exist or permission denied');
+            deletionResults.profile = false;
+          }
         }
       } catch (error) {
         console.error('❌ Profile deletion exception:', error);
@@ -113,8 +135,9 @@ export async function DELETE(request) {
       
       if (analyticsDeleteError && analyticsDeleteError.code !== 'PGRST116') {
         console.error('❌ Analytics deletion error:', analyticsDeleteError);
+        console.error('❌ Analytics deletion error details:', JSON.stringify(analyticsDeleteError, null, 2));
       } else {
-        console.log('✅ Analytics deleted successfully');
+        console.log('✅ Analytics deleted successfully (or no data found)');
         deletionResults.analytics = true;
       }
     } catch (error) {
@@ -131,8 +154,9 @@ export async function DELETE(request) {
       
       if (testimonialsDeleteError && testimonialsDeleteError.code !== 'PGRST116') {
         console.error('❌ Testimonials deletion error:', testimonialsDeleteError);
+        console.error('❌ Testimonials deletion error details:', JSON.stringify(testimonialsDeleteError, null, 2));
       } else {
-        console.log('✅ Testimonials deleted successfully');
+        console.log('✅ Testimonials deleted successfully (or no data found)');
         deletionResults.testimonials = true;
       }
     } catch (error) {

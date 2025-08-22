@@ -213,14 +213,25 @@ export default function AccountSettingsPage() {
       console.log("🗑️ Initiating account deletion...");
       console.log("User ID:", user?.id);
       
-      // Call the delete account API
-      console.log("📡 Calling delete account API...");
-      const response = await fetch('/api/user/delete-account-simple', {
+      // Call the delete account API - try admin endpoint first
+      console.log("📡 Calling admin delete account API...");
+      let response = await fetch('/api/user/delete-account-admin', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
       });
+
+      // If admin endpoint fails, try simple endpoint
+      if (!response.ok && response.status === 500) {
+        console.log("⚠️ Admin endpoint failed, trying simple endpoint...");
+        response = await fetch('/api/user/delete-account-simple', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
 
       console.log("📡 API Response status:", response.status);
       console.log("📡 API Response ok:", response.ok);
