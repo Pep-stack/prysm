@@ -213,24 +213,55 @@ export default function AccountSettingsPage() {
       console.log("🗑️ Initiating account deletion...");
       console.log("User ID:", user?.id);
       
-      // Call the delete account API - try admin endpoint first
-      console.log("📡 Calling admin delete account API...");
-      let response = await fetch('/api/user/delete-account-admin', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      
+      console.log("🎫 Access token available:", !!accessToken);
+      
+      // Try token-based endpoint first if we have a token
+      let response;
+      if (accessToken) {
+        console.log("📡 Calling token-based delete account API...");
+        response = await fetch('/api/user/delete-account-token', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
+      } else {
+        console.log("⚠️ No access token found, trying admin endpoint...");
+        response = await fetch('/api/user/delete-account-admin', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
 
-      // If admin endpoint fails, try simple endpoint
-      if (!response.ok && response.status === 500) {
-        console.log("⚠️ Admin endpoint failed, trying simple endpoint...");
+      // If first endpoint fails, try fallback endpoints
+      if (!response.ok && (response.status === 500 || response.status === 401)) {
+        console.log(`⚠️ First endpoint failed with status ${response.status}, trying fallback...`);
+        
+        // Log the error for debugging
+        try {
+          const errorData = await response.json();
+          console.log("❌ First endpoint error:", errorData);
+        } catch (e) {
+          console.log("❌ Could not parse error response");
+        }
+        
+        // Try simple endpoint as fallback
+        console.log("📡 Trying simple endpoint as fallback...");
         response = await fetch('/api/user/delete-account-simple', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
           },
         });
+        
+        console.log("📡 Fallback endpoint response status:", response.status);
       }
 
       console.log("📡 API Response status:", response.status);

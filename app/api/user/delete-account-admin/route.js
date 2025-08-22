@@ -36,10 +36,17 @@ export async function DELETE(request) {
 
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
+    console.log('🔍 Auth check result:', { 
+      user: user ? { id: user.id, email: user.email } : null, 
+      error: authError 
+    });
+    
     if (authError || !user) {
-      console.error('Authentication error:', authError);
+      console.error('❌ Authentication failed:', authError);
+      console.error('❌ User object:', user);
+      console.error('❌ Cookies available:', cookieStore.getAll().map(c => c.name));
       return NextResponse.json(
-        { error: 'Authentication required' },
+        { error: 'Authentication required', details: authError?.message },
         { status: 401 }
       );
     }
