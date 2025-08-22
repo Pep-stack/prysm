@@ -165,27 +165,80 @@ export default function AccountSettingsPage() {
     }
   };
 
-  // Placeholder Functie: Wachtwoord wijzigen
-  const handleChangePassword = () => {
-      alert("Change Password functionality (Backend integration required)");
-      // Idealiter link je naar een aparte pagina of modal voor wachtwoordwijziging
+  // Change Password functionality
+  const handleChangePassword = async () => {
+    const newPassword = prompt("Enter your new password (minimum 6 characters):");
+    
+    if (!newPassword) {
+      return; // User cancelled
+    }
+    
+    if (newPassword.length < 6) {
+      alert("Password must be at least 6 characters long.");
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (error) {
+        console.error('Error changing password:', error);
+        alert(`Failed to change password: ${error.message}`);
+      } else {
+        alert("Password changed successfully!");
+      }
+    } catch (err) {
+      console.error('Error changing password:', err);
+      alert("An error occurred while changing your password. Please try again.");
+    }
   };
 
-   // Placeholder Functie: Account verwijderen
-   const handleDeleteAccount = () => {
+   // Account deletion with subscription cancellation
+   const handleDeleteAccount = async () => {
     // Extra bevestiging
-    if (confirm("Are you absolutely sure you want to delete your account?\nThis action is permanent and cannot be undone.")) {
-        alert("Account Deletion (Backend integration required)");
-        // VOORBEELD Backend Call:
-        // try {
-        //    await fetch('/api/user/delete', { method: 'DELETE' }); // Je API route
-        //    // Log gebruiker uit na succesvolle verwijdering
-        //    signOut({ callbackUrl: '/' });
-        // } catch (error) {
-        //    console.error("Error deleting account:", error);
-        //    alert("Could not delete account. Please try again later.");
-        // }
-        console.log("Initiating account deletion...");
+    if (!confirm("Are you absolutely sure you want to delete your account?\n\nThis will:\n• Cancel any active subscriptions\n• Delete all your profile data\n• Remove all your cards and content\n\nThis action is permanent and cannot be undone.")) {
+      return;
+    }
+
+    // Second confirmation
+    const confirmText = prompt("Type 'DELETE' to confirm account deletion:");
+    if (confirmText !== 'DELETE') {
+      alert("Account deletion cancelled.");
+      return;
+    }
+
+    try {
+      console.log("Initiating account deletion...");
+      
+      // Call the delete account API
+      const response = await fetch('/api/user/delete-account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete account');
+      }
+
+      const result = await response.json();
+      console.log('Account deletion result:', result);
+
+      alert("Your account has been successfully deleted. You will now be signed out.");
+      
+      // Sign out the user
+      await supabase.auth.signOut();
+      
+      // Redirect to home page
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert(`Could not delete account: ${error.message}\nPlease try again or contact support.`);
     }
   };
 
