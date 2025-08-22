@@ -98,19 +98,27 @@ export async function POST(request) {
         console.log('Payment failed:', invoice.id);
         
         if (invoice.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
-          const userId = subscription.metadata?.user_id;
-          
-          if (userId) {
-            await supabase
-              .from('profiles')
-              .update({
-                subscription_status: 'past_due',
-                updated_at: new Date().toISOString(),
-              })
-              .eq('stripe_subscription_id', subscription.id);
+          try {
+            const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+            const userId = subscription.metadata?.user_id;
             
-            console.log(`Marked subscription as past due for user ${userId}`);
+            if (userId) {
+              const { error } = await supabase
+                .from('profiles')
+                .update({
+                  subscription_status: 'past_due',
+                  updated_at: new Date().toISOString(),
+                })
+                .eq('stripe_subscription_id', subscription.id);
+              
+              if (error) {
+                console.error('Error updating subscription status for payment failure:', error);
+              } else {
+                console.log(`Marked subscription as past due for user ${userId}`);
+              }
+            }
+          } catch (error) {
+            console.error('Error processing payment failure webhook:', error);
           }
         }
         break;
@@ -123,16 +131,24 @@ export async function POST(request) {
         const userId = subscription.metadata?.user_id;
         
         if (userId) {
-          await supabase
-            .from('profiles')
-            .update({
-              subscription_status: subscription.status,
-              subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_subscription_id', subscription.id);
-          
-          console.log(`Updated subscription status to ${subscription.status} for user ${userId}`);
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .update({
+                subscription_status: subscription.status,
+                subscription_end_date: new Date(subscription.current_period_end * 1000).toISOString(),
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_subscription_id', subscription.id);
+            
+            if (error) {
+              console.error('Error updating subscription:', error);
+            } else {
+              console.log(`Updated subscription status to ${subscription.status} for user ${userId}`);
+            }
+          } catch (error) {
+            console.error('Error processing subscription update webhook:', error);
+          }
         }
         break;
       }
@@ -144,18 +160,68 @@ export async function POST(request) {
         const userId = subscription.metadata?.user_id;
         
         if (userId) {
-          await supabase
-            .from('profiles')
-            .update({
-              subscription_plan: 'free',
-              subscription_status: 'cancelled',
-              subscription_end_date: new Date().toISOString(),
-              stripe_subscription_id: null,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_subscription_id', subscription.id);
-          
-          console.log(`Cancelled subscription for user ${userId}, reverted to free plan`);
+          try {
+            const { error } = await supabase
+              .from('profiles')
+              .update({
+                subscription_plan: 'free',
+                subscription_status: 'cancelled',
+                subscription_end_date: new Date().toISOString(),
+                stripe_subscription_id: null,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_subscription_id', subscription.id);
+            
+            if (error) {
+              console.error('Error cancelling subscription:', error);
+            } else {
+              console.log(`Cancelled subscription for user ${userId}, reverted to free plan`);
+            }
+          } catch (error) {
+            console.error('Error processing subscription deletion webhook:', error);
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.trial_will_end': {
+        const subscription = event.data.object;
+        console.log('Trial will end:', subscription.id);
+        
+        const userId = subscription.metadata?.user_id;
+        
+        if (userId) {
+          try {
+            // Get current subscription metadata
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('subscription_metadata')
+              .eq('stripe_subscription_id', subscription.id)
+              .single();
+
+            const currentMetadata = profile?.subscription_metadata || {};
+            
+            // Update trial end notification flag
+            const { error } = await supabase
+              .from('profiles')
+              .update({
+                subscription_metadata: {
+                  ...currentMetadata,
+                  trial_ending_notification_sent: true,
+                  trial_will_end_at: new Date(subscription.trial_end * 1000).toISOString()
+                },
+                updated_at: new Date().toISOString(),
+              })
+              .eq('stripe_subscription_id', subscription.id);
+            
+            if (error) {
+              console.error('Error updating trial end notification:', error);
+            } else {
+              console.log(`Trial ending notification set for user ${userId}`);
+            }
+          } catch (error) {
+            console.error('Error processing trial will end webhook:', error);
+          }
         }
         break;
       }

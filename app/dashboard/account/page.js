@@ -19,7 +19,7 @@ export default function AccountSettingsPage() {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date')
+          .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date, subscription_metadata')
           .eq('id', user.id)
           .single();
 
@@ -38,19 +38,72 @@ export default function AccountSettingsPage() {
     fetchSubscriptionData();
   }, [user]);
 
-  // Placeholder Functie: Navigeer naar Stripe Billing Portal
+  // Function to refresh subscription data
+  const refreshSubscriptionData = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('subscription_plan, subscription_status, subscription_start_date, subscription_end_date, trial_end_date, subscription_metadata')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error refreshing subscription:', error);
+      } else if (data) {
+        setSubscription(data);
+      }
+    } catch (err) {
+      console.error('Error refreshing subscription:', err);
+    }
+  };
+
+  // Listen for subscription changes (optional: real-time updates)
+  useEffect(() => {
+    if (!user) return;
+
+    const subscription = supabase
+      .channel('profile-subscription-changes')
+      .on('postgres_changes', 
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
+        }, 
+        (payload) => {
+          console.log('Subscription updated:', payload);
+          refreshSubscriptionData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);
+
+  // Navigate to Stripe Billing Portal
   const handleManageBilling = async () => {
-    alert("Navigating to Billing Portal (Backend integration required)");
-    // VOORBEELD Backend Call:
-    // try {
-    //   const response = await fetch('/api/stripe/create-portal-session'); // Je API route
-    //   if (!response.ok) throw new Error('Failed to create portal session');
-    //   const { url } = await response.json();
-    //   window.location.href = url; // Redirect naar Stripe
-    // } catch (error) {
-    //   console.error("Error creating billing portal session:", error);
-    //   alert("Could not open billing portal. Please try again later.");
-    // }
+    try {
+      const response = await fetch('/api/stripe/create-portal-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create portal session');
+      }
+
+      const { url } = await response.json();
+      window.location.href = url; // Redirect to Stripe billing portal
+    } catch (error) {
+      console.error("Error creating billing portal session:", error);
+      alert("Could not open billing portal. Please try again later.");
+    }
   };
 
   // Placeholder Functie: Wachtwoord wijzigen
@@ -176,10 +229,48 @@ export default function AccountSettingsPage() {
 
                   {/* Trial End Date */}
                   {subscription.trial_end_date && subscription.subscription_status === 'trialing' && (
-                    <p>
-                      <span className="font-medium text-gray-500 w-28 inline-block">Trial Ends:</span>
-                      {new Date(subscription.trial_end_date).toLocaleDateString()}
-                    </p>
+                    <div>
+                      <p>
+                        <span className="font-medium text-gray-500 w-28 inline-block">Trial Ends:</span>
+                        {new Date(subscription.trial_end_date).toLocaleDateString()}
+                      </p>
+                      {(() => {
+                        const trialEndDate = new Date(subscription.trial_end_date);
+                        const today = new Date();
+                        const daysLeft = Math.ceil((trialEndDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysLeft <= 3 && daysLeft > 0) {
+                          return (
+                            <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md">
+                              <p className="text-sm text-yellow-800">
+                                ⚠️ Your trial expires in {daysLeft} day{daysLeft !== 1 ? 's' : ''}. 
+                                <button 
+                                  onClick={() => window.location.href = '/checkout?plan=pro'}
+                                  className="ml-1 text-yellow-900 underline hover:text-yellow-700"
+                                >
+                                  Upgrade now
+                                </button> to continue using Pro features.
+                              </p>
+                            </div>
+                          );
+                        } else if (daysLeft <= 0) {
+                          return (
+                            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                              <p className="text-sm text-red-800">
+                                🚨 Your trial has expired. 
+                                <button 
+                                  onClick={() => window.location.href = '/checkout?plan=pro'}
+                                  className="ml-1 text-red-900 underline hover:text-red-700"
+                                >
+                                  Upgrade now
+                                </button> to restore Pro features.
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
                   )}
 
                   {/* Renewal Date */}
@@ -196,7 +287,7 @@ export default function AccountSettingsPage() {
                   <div className="mt-4 flex gap-2">
                     {subscription.subscription_plan === 'free' && (
                       <button
-                        onClick={() => alert('Upgrade flow to be implemented')}
+                        onClick={() => window.location.href = '/checkout?plan=pro'}
                         className="inline-flex items-center gap-1.5 text-sm text-white bg-[#00C896] hover:bg-[#00A078] font-medium px-3 py-1.5 rounded-md transition-colors"
                       >
                         <LuStar className="w-3 h-3" />
