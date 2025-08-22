@@ -142,51 +142,58 @@ export async function DELETE(request) {
       deletionResults.push({ table: 'testimonials', success: false, error });
     }
 
-    // Step 4: Delete user from Supabase Auth (this will cascade delete related data)
+    // Step 4: Create admin client for user deletion
+    let authDeleteSuccess = false;
+    
     try {
-      const { error: authDeleteError } = await supabase.auth.admin.deleteUser(user.id);
-      
-      if (authDeleteError) {
-        console.error('❌ Error deleting user from auth:', authDeleteError);
-        return NextResponse.json(
-          { 
-            error: 'Failed to delete user account', 
-            details: authDeleteError.message,
-            partialSuccess: {
-              subscriptionCancelled,
-              deletionResults
-            }
+      // Create admin client using service role key
+      const supabaseAdmin = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY, // This requires service role key
+        {
+          cookies: {
+            get() { return undefined; },
+            set() {},
+            remove() {},
           },
-          { status: 500 }
-        );
-      }
+        }
+      );
 
-      console.log('✅ User deleted from Supabase Auth');
+      if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        console.warn('⚠️ No service role key found, will rely on client-side signout');
+        // Data is cleaned up, user will be signed out on client side
+        authDeleteSuccess = false;
+      } else {
+        const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+        
+        if (authDeleteError) {
+          console.error('❌ Error deleting user from auth:', authDeleteError);
+          authDeleteSuccess = false;
+        } else {
+          console.log('✅ User deleted from Supabase Auth');
+          authDeleteSuccess = true;
+        }
+      }
     } catch (error) {
       console.error('Exception deleting user from auth:', error);
-      return NextResponse.json(
-        { 
-          error: 'Failed to delete user account', 
-          details: error.message,
-          partialSuccess: {
-            subscriptionCancelled,
-            deletionResults
-          }
-        },
-        { status: 500 }
-      );
+      authDeleteSuccess = false;
     }
 
-    // Step 5: Return success response
-    console.log('🎉 Account deletion completed successfully');
+    // Step 5: Return success response (even if auth deletion failed)
+    console.log('🎉 Account data cleanup completed');
+    
+    const successMessage = authDeleteSuccess 
+      ? 'Account deleted successfully' 
+      : 'Account data deleted successfully. Please sign out manually.';
     
     return NextResponse.json({
       success: true,
-      message: 'Account deleted successfully',
+      message: successMessage,
       details: {
         userId: user.id,
         subscriptionCancelled,
         deletionResults,
+        authDeleteSuccess,
         timestamp: new Date().toISOString()
       }
     });

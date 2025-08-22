@@ -210,35 +210,73 @@ export default function AccountSettingsPage() {
     }
 
     try {
-      console.log("Initiating account deletion...");
+      console.log("🗑️ Initiating account deletion...");
+      console.log("User ID:", user?.id);
       
       // Call the delete account API
-      const response = await fetch('/api/user/delete-account', {
+      console.log("📡 Calling delete account API...");
+      const response = await fetch('/api/user/delete-account-simple', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
+      console.log("📡 API Response status:", response.status);
+      console.log("📡 API Response ok:", response.ok);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete account');
+        let errorMessage = 'Failed to delete account';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+          console.error('❌ Account deletion error response:', errorData);
+        } catch (parseError) {
+          console.error('❌ Could not parse error response:', parseError);
+          // Try to get response text for debugging
+          try {
+            const responseText = await response.text();
+            console.error('❌ Raw response:', responseText);
+          } catch (textError) {
+            console.error('❌ Could not get response text:', textError);
+          }
+        }
+        throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log('Account deletion result:', result);
+      let result;
+      try {
+        result = await response.json();
+        console.log('✅ Account deletion result:', result);
+      } catch (parseError) {
+        console.error('❌ Could not parse success response:', parseError);
+        throw new Error('Account deletion completed but response parsing failed');
+      }
 
-      alert("Your account has been successfully deleted. You will now be signed out.");
-      
-      // Sign out the user
-      await supabase.auth.signOut();
-      
-      // Redirect to home page
-      window.location.href = '/';
+      if (result.success) {
+        console.log('🎉 Account deletion successful!');
+        alert(result.message || "Your account has been successfully deleted. You will now be signed out.");
+        
+        console.log('👋 Signing out user...');
+        // Sign out the user
+        await supabase.auth.signOut();
+        
+        console.log('🏠 Redirecting to home page...');
+        // Redirect to home page
+        window.location.href = '/';
+      } else {
+        console.error('❌ Account deletion failed:', result);
+        throw new Error(result.message || 'Account deletion failed');
+      }
       
     } catch (error) {
-      console.error("Error deleting account:", error);
-      alert(`Could not delete account: ${error.message}\nPlease try again or contact support.`);
+      console.error("💥 Error deleting account:", error);
+      console.error("Error details:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      alert(`Could not delete account: ${error.message}\n\nPlease check the console for more details or contact support.`);
     }
   };
 
