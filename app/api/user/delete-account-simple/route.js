@@ -150,7 +150,7 @@ export async function DELETE(request) {
       const { error: testimonialsDeleteError } = await supabase
         .from('testimonials')
         .delete()
-        .eq('profile_id', user.id);
+        .eq('user_id', user.id);
       
       if (testimonialsDeleteError && testimonialsDeleteError.code !== 'PGRST116') {
         console.error('❌ Testimonials deletion error:', testimonialsDeleteError);

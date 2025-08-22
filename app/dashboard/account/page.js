@@ -234,6 +234,16 @@ export default function AccountSettingsPage() {
           if (testResponse.ok) {
             const testResult = await testResponse.json();
             console.log("🧪 Permission test results:", testResult);
+            
+            // Log detailed test results
+            if (testResult.tests) {
+              console.log("📊 Test Details:");
+              console.log("- Read:", testResult.tests.read);
+              console.log("- Update:", testResult.tests.update);
+              console.log("- Insert:", testResult.tests.insert);
+              console.log("- Delete:", testResult.tests.delete);
+              console.log("- Profile Count:", testResult.tests.profileCount);
+            }
           } else {
             console.log("❌ Permission test failed:", testResponse.status);
           }
@@ -320,6 +330,38 @@ export default function AccountSettingsPage() {
 
       if (result.success) {
         console.log('🎉 Account deletion successful!');
+        
+        // Check if profile was actually deleted
+        if (result.details?.deletionResults?.profile === false) {
+          console.warn('⚠️ Profile may not have been deleted from database');
+          
+          // Try force delete as last resort
+          const confirmForce = confirm("Profile deletion may have failed. Try force delete with admin privileges?\n\nThis requires service role key to be configured.");
+          if (confirmForce) {
+            try {
+              console.log("🔥 Attempting force delete...");
+              const forceResponse = await fetch('/api/user/force-delete', {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId: user.id }),
+              });
+              
+              if (forceResponse.ok) {
+                const forceResult = await forceResponse.json();
+                console.log("🔥 Force delete result:", forceResult);
+                alert("Account forcefully deleted!");
+              } else {
+                console.error("❌ Force delete failed:", forceResponse.status);
+                alert("Force delete failed. Please contact support.");
+              }
+            } catch (forceError) {
+              console.error("❌ Force delete error:", forceError);
+            }
+          }
+        }
+        
         alert(result.message || "Your account has been successfully deleted. You will now be signed out.");
         
         console.log('👋 Signing out user...');

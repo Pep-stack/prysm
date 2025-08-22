@@ -80,7 +80,7 @@ export async function DELETE(request) {
     // Step 3: Delete related data
     const deletionTasks = [
       { table: 'analytics', column: 'profile_id' },
-      { table: 'testimonials', column: 'profile_id' }
+      { table: 'testimonials', column: 'user_id' }
     ];
 
     const deletionResults = {};
