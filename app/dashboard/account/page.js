@@ -252,17 +252,29 @@ export default function AccountSettingsPage() {
         }
       }
       
-      // Try token-based endpoint first if we have a token
+      // Try complete endpoint first if we have a token and service role key
       let response;
       if (accessToken) {
-        console.log("📡 Calling token-based delete account API...");
-        response = await fetch('/api/user/delete-account-token', {
+        console.log("📡 Calling complete delete account API...");
+        response = await fetch('/api/user/delete-account-complete', {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`,
           },
         });
+        
+        // If complete endpoint fails due to missing service role key, try token endpoint
+        if (!response.ok && response.status === 500) {
+          console.log("⚠️ Complete endpoint failed, trying token endpoint...");
+          response = await fetch('/api/user/delete-account-token', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+        }
       } else {
         console.log("⚠️ No access token found, trying admin endpoint...");
         response = await fetch('/api/user/delete-account-admin', {
