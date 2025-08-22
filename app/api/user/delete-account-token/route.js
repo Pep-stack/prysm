@@ -166,6 +166,22 @@ export async function DELETE(request) {
     
     console.log('✅ Data cleanup completed:', deletionResults);
 
+    // Check if any critical deletion failed
+    const criticalFailure = !deletionResults.profile;
+    if (criticalFailure) {
+      console.error('❌ Critical deletion failure - profile not deleted');
+      return NextResponse.json({
+        success: false,
+        error: 'Account deletion failed - profile could not be deleted',
+        details: {
+          userId: user.id,
+          subscriptionCancelled,
+          deletionResults,
+          timestamp: new Date().toISOString()
+        }
+      }, { status: 500 });
+    }
+
     // Step 4: Return success response
     console.log('🎉 Token-based account deletion completed');
     

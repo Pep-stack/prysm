@@ -219,6 +219,29 @@ export default function AccountSettingsPage() {
       
       console.log("🎫 Access token available:", !!accessToken);
       
+      // First test our permissions
+      if (accessToken) {
+        console.log("🧪 Testing delete permissions first...");
+        try {
+          const testResponse = await fetch('/api/user/test-delete-permissions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          
+          if (testResponse.ok) {
+            const testResult = await testResponse.json();
+            console.log("🧪 Permission test results:", testResult);
+          } else {
+            console.log("❌ Permission test failed:", testResponse.status);
+          }
+        } catch (testError) {
+          console.error("❌ Permission test error:", testError);
+        }
+      }
+      
       // Try token-based endpoint first if we have a token
       let response;
       if (accessToken) {
