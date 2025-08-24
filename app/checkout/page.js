@@ -196,27 +196,59 @@ function CheckoutContent() {
           </p>
         </div>
 
-        {/* Plan Details */}
-        <div className="bg-gradient-to-r from-[#00C896] to-[#00A078] bg-opacity-5 border border-[#00C896] border-opacity-20 rounded-xl p-6 mb-6">
-          <div className="text-center mb-4">
-            <h3 className="text-2xl font-bold text-gray-900">{currentPlan.name}</h3>
-            <div className="mt-2">
-              <span className="text-3xl font-bold text-gray-900">{currentPlan.price}</span>
-              <span className="text-gray-500 ml-1">{currentPlan.period}</span>
+        {/* Plan Details - Using exact Pro card UI */}
+        <div className="relative border-2 border-[#00C896] bg-gradient-to-br from-white to-gray-50 rounded-2xl p-4 sm:p-6 shadow-2xl scale-105">
+          {/* Popular Badge - Top Right */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="bg-white border-2 border-[#00C896] text-[#00C896] text-xs font-bold px-3 py-1 rounded-full shadow-md">
+              Most Popular
             </div>
           </div>
-          
-          <div className="space-y-3">
+
+          {/* Selection Indicator */}
+          <div className="absolute top-4 left-4">
+            <div className="w-6 h-6 bg-[#00C896] rounded-full flex items-center justify-center shadow-lg">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Plan Header */}
+          <div className="text-center mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 mb-3">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7 text-[#00C896]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{currentPlan.name}</h3>
+            
+            <div className="mb-2">
+              <span className="text-2xl sm:text-3xl font-bold text-gray-900">{currentPlan.price}</span>
+              <span className="text-gray-500 text-sm ml-1">/{currentPlan.period}</span>
+            </div>
+            
+            <p className="text-gray-600 text-xs sm:text-sm">Most popular choice</p>
+          </div>
+
+          {/* Features List */}
+          <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
             {currentPlan.features.map((feature, index) => (
-              <div key={index} className="flex items-center space-x-3">
-                <div className="flex-shrink-0 w-5 h-5 bg-[#00C896] rounded-full flex items-center justify-center">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div key={index} className="flex items-start space-x-3">
+                <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center mt-0.5">
+                  <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">{feature}</span>
+                <span className="text-xs sm:text-sm text-gray-700 leading-relaxed">{feature}</span>
               </div>
             ))}
+          </div>
+
+          {/* Selection State */}
+          <div className="text-center py-3 px-4 rounded-xl font-medium text-sm bg-[#00C896] text-white shadow-md">
+            ✓ Selected
           </div>
         </div>
 
