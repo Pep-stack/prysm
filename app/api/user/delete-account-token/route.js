@@ -166,13 +166,19 @@ export async function DELETE(request) {
     
     console.log('✅ Data cleanup completed:', deletionResults);
 
-    // Check if any critical deletion failed
-    const criticalFailure = !deletionResults.profile;
+    // If profile wasn't found initially, that's OK - it might already be deleted
+    if (!profile) {
+      console.log('ℹ️ Profile was already deleted, considering cleanup successful');
+      deletionResults.profile = true; // Mark as successful if already gone
+    }
+
+    // Check if any critical deletion failed (only if profile existed but couldn't be deleted)
+    const criticalFailure = profile && !deletionResults.profile;
     if (criticalFailure) {
-      console.error('❌ Critical deletion failure - profile not deleted');
+      console.error('❌ Critical deletion failure - profile existed but could not be deleted');
       return NextResponse.json({
         success: false,
-        error: 'Account deletion failed - profile could not be deleted',
+        error: 'Account deletion failed - profile existed but could not be deleted',
         details: {
           userId: user.id,
           subscriptionCancelled,
