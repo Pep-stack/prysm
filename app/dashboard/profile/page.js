@@ -835,13 +835,23 @@ export default function ProfilePage() {
                       
                       {/* Avatar Preview */}
                       <div className="flex justify-center mb-6">
-                        <img 
-                          src={cardImages.avatar_url || 'https://via.placeholder.com/220x220?text=Avatar'} 
-                          alt="Profile Avatar" 
-                          className={`${getPreviewSize(cardDisplaySettings.avatar_size)} object-cover border-4 border-white shadow-xl transition-all duration-300 ${
-                            cardDisplaySettings.display_type === 'round_avatar' ? 'rounded-full' : 'rounded-3xl'
-                          }`}
-                        />
+                        {cardImages.avatar_url ? (
+                          <img 
+                            src={cardImages.avatar_url} 
+                            alt="Profile Avatar" 
+                            className={`${getPreviewSize(cardDisplaySettings.avatar_size)} object-cover border-4 border-white shadow-xl transition-all duration-300 ${
+                              cardDisplaySettings.display_type === 'round_avatar' ? 'rounded-full' : 'rounded-3xl'
+                            }`}
+                          />
+                        ) : (
+                          <div 
+                            className={`${getPreviewSize(cardDisplaySettings.avatar_size)} border-2 border-gray-300 bg-transparent flex items-center justify-center text-gray-500 font-bold text-2xl transition-all duration-300 ${
+                              cardDisplaySettings.display_type === 'round_avatar' ? 'rounded-full' : 'rounded-3xl'
+                            }`}
+                          >
+                            {profile?.name ? profile.name.charAt(0).toUpperCase() : 'U'}
+                          </div>
+                        )}
                       </div>
 
                       {/* Avatar Size Slider */}

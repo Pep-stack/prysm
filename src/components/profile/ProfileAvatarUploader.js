@@ -56,11 +56,17 @@ export default function ProfileAvatarUploader({ user, currentAvatarUrl, onUpload
         onMouseLeave={() => setHover(false)}
         style={{ width: 110, height: 110 }}
       >
-        <img
-          src={currentAvatarUrl || 'https://via.placeholder.com/150'}
-          alt="Profile Avatar"
-          className="w-[110px] h-[110px] rounded-full object-cover border-2 border-gray-200 shadow-sm"
-        />
+        {currentAvatarUrl ? (
+          <img
+            src={currentAvatarUrl}
+            alt="Profile Avatar"
+            className="w-[110px] h-[110px] rounded-full object-cover border-2 border-gray-200 shadow-sm"
+          />
+        ) : (
+          <div className="w-[110px] h-[110px] rounded-full border-2 border-gray-200 bg-transparent flex items-center justify-center text-gray-500 font-bold text-lg">
+            {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+          </div>
+        )}
         {currentAvatarUrl && hover && (
           <button
             type="button"

@@ -19,11 +19,14 @@ import AvailableSectionList from '../../src/components/dashboard/AvailableSectio
 import SocialBarDropzone from '../../src/components/dashboard/SocialBarDropzone';
 import EditSectionModal from '../../src/components/modal/EditSectionModal';
 import AvatarUploadModal from '../../src/components/modal/AvatarUploadModal';
+import SimpleOnboardingModal from '../../src/components/onboarding/SimpleOnboardingModal';
+
 
 import { useEditSectionModal } from '../../src/hooks/useEditSectionModal';
 import { useAvatarUploadModal } from '../../src/hooks/useAvatarUploadModal';
 import { useUserProfile } from '../../src/hooks/useUserProfile';
 import { useSimpleCardSections } from '../../src/hooks/useSimpleCardSections';
+import { useSimpleOnboarding } from '../../src/hooks/useSimpleOnboarding';
 
 import { CARD_TYPES } from '../../src/lib/sectionOptions';
 import { sectionComponentMap } from '../../src/components/card/CardSectionRenderer';
@@ -100,6 +103,24 @@ export default function DashboardPageContent() {
     closeModal: closeAvatarModal,
     handleSuccess: handleAvatarUploadSuccess,
   } = useAvatarUploadModal(handleAvatarUpdate);
+
+  // Onboarding hook - automatically shows for new users
+  const {
+    isOpen: isOnboardingOpen,
+    currentStep,
+    totalSteps,
+    onboardingData,
+    isLoading: isOnboardingLoading,
+    isFirstStep,
+    isLastStep,
+    progress,
+    nextStep,
+    previousStep,
+    updateData: updateOnboardingData,
+    completeOnboarding,
+    closeOnboarding,
+    skipOnboarding
+  } = useSimpleOnboarding(user, profile);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -193,18 +214,27 @@ export default function DashboardPageContent() {
     }
   };
 
+  // Don't render onboarding until user is loaded
+  if (sessionLoading) {
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  }
+
   return (
     <DesignSettingsProvider initial={workingProfile}>
       <div className="flex flex-col lg:flex-row gap-6 px-6 max-w-screen-xl mx-auto">
         <aside className="w-full lg:w-[500px] flex-shrink-0 lg:border-r lg:border-gray-200 lg:pr-6">
+
+          
           <div className="mb-6">
-            <DesignToolbar initial={workingProfile} userId={user.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
+            <DesignToolbar initial={workingProfile} userId={user?.id} onProfileUpdate={handleProfileUpdateFromToolbar} />
           </div>
-          <AvailableSectionList
-            onAddSection={handleAddSection}
-            existingSectionTypes={existingSectionTypes}
-            cardType={workingProfile?.card_type || CARD_TYPES.PRO}
-          />
+          <div>
+            <AvailableSectionList
+              onAddSection={handleAddSection}
+              existingSectionTypes={existingSectionTypes}
+              cardType={workingProfile?.card_type || CARD_TYPES.PRO}
+            />
+          </div>
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -216,20 +246,24 @@ export default function DashboardPageContent() {
               onRemoveSection={handleRemoveSection}
               onEditSection={openEditModal}
             />
-            <EditableSectionList
-              items={cardSections}
-              onRemoveSection={handleRemoveSection}
-              onEditSection={openEditModal}
-            />
+            <div>
+              <EditableSectionList
+                items={cardSections}
+                onRemoveSection={handleRemoveSection}
+                onEditSection={openEditModal}
+              />
+            </div>
           </DndContext>
 
         </aside>
-        <DashboardMainWithBg 
-          profile={profile} 
-          user={user} 
-          cardSections={cardSections}
-          socialBarSections={socialBarSections}
-        />
+        <div>
+          <DashboardMainWithBg 
+            profile={profile} 
+            user={user} 
+            cardSections={cardSections}
+            socialBarSections={socialBarSections}
+          />
+        </div>
         <EditSectionModal
           isOpen={isEditModalOpen}
           onClose={closeEditModal}
@@ -244,6 +278,25 @@ export default function DashboardPageContent() {
           isOpen={isAvatarModalOpen}
           onClose={closeAvatarModal}
           onUploadSuccess={handleAvatarUploadSuccess}
+          user={user}
+        />
+        
+        {/* Automatic Onboarding Modal */}
+        <SimpleOnboardingModal
+          isOpen={isOnboardingOpen}
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          onboardingData={onboardingData}
+          isLoading={isOnboardingLoading}
+          isFirstStep={isFirstStep}
+          isLastStep={isLastStep}
+          progress={progress}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onUpdateData={updateOnboardingData}
+          onComplete={completeOnboarding}
+          onClose={closeOnboarding}
+          onSkip={skipOnboarding}
           user={user}
         />
       </div>

@@ -9,7 +9,7 @@ import { LuBriefcase, LuMapPin, LuGlobe, LuFileText, LuCheck, LuX, LuPause, LuCl
 
 // Helper functie voor initialen
 const getInitials = (name) => {
-  if (!name) return '?';
+  if (!name) return '';
   const words = name.split(' ');
   if (words.length > 1) {
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
@@ -266,12 +266,12 @@ export default function CardHeader({ profile, user, isPublicView = false, backgr
                   borderRadius: displayType === 'round_avatar' ? '50%' : 24,
                   fontSize: `${Math.floor(displayAvatarSizePx * 0.4)}px`,
                   flexShrink: 0,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
+                  background: 'transparent',
+                  color: '#666',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  border: 'none',
+                  border: '2px solid #e5e7eb',
                   boxShadow: 'none',
                   transition: 'all 0.3s ease',
                 }}

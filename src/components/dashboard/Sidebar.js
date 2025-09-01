@@ -2,18 +2,20 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from '../auth/SessionProvider';
 import { LuLayoutDashboard, LuCircleUser, LuLink, LuQrCode, LuSettings, LuLogOut, LuGlobe, LuChartBar } from "react-icons/lu"; // Lucide icons (strak)
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useSession();
 
   const handleSignOut = async () => {
      try {
         await signOut();
-        // Redirect gebeurt meestal via SessionProvider of een effect
+        // Redirect naar landing page na uitloggen
+        router.push('/');
      } catch (error) {
         console.error('Error signing out:', error);
      }
