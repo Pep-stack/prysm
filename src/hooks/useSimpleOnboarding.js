@@ -100,6 +100,8 @@ export function useSimpleOnboarding(user, profile) {
     setIsLoading(true);
     
     try {
+      console.log('🔄 Starting onboarding completion with data:', onboardingData);
+      
       // Save final profile data
       const profileUpdate = {
         id: user.id,
@@ -111,14 +113,21 @@ export function useSimpleOnboarding(user, profile) {
         onboarding_step: TOTAL_STEPS,
         updated_at: new Date().toISOString()
       };
+      
+      console.log('📝 Profile update data:', profileUpdate);
 
       if (onboardingData.photo && onboardingData.photo !== profile?.avatar_url) {
         profileUpdate.avatar_url = onboardingData.photo;
       }
 
-      await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .upsert(profileUpdate);
+      
+      if (profileError) {
+        console.error('Error updating profile:', profileError);
+        throw profileError;
+      }
 
       // Add selected sections to card_sections
       const allSections = [];
@@ -149,21 +158,28 @@ export function useSimpleOnboarding(user, profile) {
         allSections.push(...socialSections);
       }
 
+      console.log('📋 All sections to save:', allSections);
+      
       // Update profile with all sections
       if (allSections.length > 0) {
-        await supabase
+        const { error: sectionsError } = await supabase
           .from('profiles')
           .update({ 
             card_sections: allSections,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
+          
+        if (sectionsError) {
+          console.error('Error updating sections:', sectionsError);
+          throw sectionsError;
+        }
       }
 
       console.log('✅ Onboarding completed successfully');
       setIsOpen(false);
       
-      // Refresh the page to show updated profile
+      // Refresh the page to show updated profile data
       window.location.reload();
       
     } catch (error) {

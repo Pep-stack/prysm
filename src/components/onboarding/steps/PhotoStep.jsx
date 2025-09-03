@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { LuImage, LuUpload, LuX } from 'react-icons/lu';
+import { supabase } from '../../../lib/supabase';
 
 export default function PhotoStep({ data, onUpdateData, onNext, user }) {
   const [photo, setPhoto] = useState(data.photo || null);
@@ -33,12 +34,38 @@ export default function PhotoStep({ data, onUpdateData, onNext, user }) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPhoto(e.target.result);
-        onUpdateData({ photo: e.target.result });
       };
       reader.readAsDataURL(file);
 
-      // In a real app, you'd upload to Supabase storage here
-      // For now, we'll just use the data URL
+      // Upload to Supabase storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: urlData } = await supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      if (!urlData || !urlData.publicUrl) {
+        throw new Error('Could not get public URL for avatar.');
+      }
+
+      const newAvatarUrl = urlData.publicUrl;
+      
+      // Update onboarding data with the real URL
+      onUpdateData({ photo: newAvatarUrl });
       
     } catch (err) {
       console.error('Error uploading photo:', err);
