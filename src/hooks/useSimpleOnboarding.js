@@ -41,6 +41,11 @@ export function useSimpleOnboarding(user, profile) {
   useEffect(() => {
     if (user && profile && needsOnboarding && !isOpen) {
       console.log('🎯 New user detected, starting onboarding automatically');
+      console.log('📊 Profile status:', {
+        onboarding_completed: profile.onboarding_completed,
+        card_sections_length: profile.card_sections?.length || 0,
+        needsOnboarding
+      });
       setIsOpen(true);
       setCurrentStep(ONBOARDING_STEPS.WELCOME);
     }
@@ -104,7 +109,6 @@ export function useSimpleOnboarding(user, profile) {
       
       // Save final profile data
       const profileUpdate = {
-        id: user.id,
         name: onboardingData.name,
         headline: onboardingData.headline,
         bio: onboardingData.bio,
@@ -122,12 +126,15 @@ export function useSimpleOnboarding(user, profile) {
 
       const { error: profileError } = await supabase
         .from('profiles')
-        .upsert(profileUpdate);
+        .update(profileUpdate)
+        .eq('id', user.id);
       
       if (profileError) {
         console.error('Error updating profile:', profileError);
         throw profileError;
       }
+      
+      console.log('✅ Profile updated successfully');
 
       // Add selected sections to card_sections
       const allSections = [];
