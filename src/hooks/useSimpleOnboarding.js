@@ -115,13 +115,31 @@ export function useSimpleOnboarding(user, profile) {
         background_color: getThemeBackgroundValue(onboardingData.selectedTheme),
         onboarding_completed: true,
         onboarding_step: TOTAL_STEPS,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        // Also save to card_profiles for proper display
+        card_profiles: {
+          ...profile?.card_profiles,
+          pro: {
+            ...profile?.card_profiles?.pro,
+            name: onboardingData.name,
+            headline: onboardingData.headline,
+            bio: onboardingData.bio
+          }
+        }
       };
       
       console.log('📝 Profile update data:', profileUpdate);
 
       if (onboardingData.photo && onboardingData.photo !== profile?.avatar_url) {
         profileUpdate.avatar_url = onboardingData.photo;
+        // Also save to card_images for proper display
+        profileUpdate.card_images = {
+          ...profile?.card_images,
+          pro: {
+            ...profile?.card_images?.pro,
+            avatar_url: onboardingData.photo
+          }
+        };
       }
 
       const { error: profileError } = await supabase
@@ -167,12 +185,14 @@ export function useSimpleOnboarding(user, profile) {
 
       console.log('📋 All sections to save:', allSections);
       
-      // Update profile with all sections
+      // Update profile with all sections (combine with onboarding completion)
       if (allSections.length > 0) {
         const { error: sectionsError } = await supabase
           .from('profiles')
           .update({ 
             card_sections: allSections,
+            onboarding_completed: true, // Ensure this is set again
+            onboarding_step: TOTAL_STEPS,
             updated_at: new Date().toISOString()
           })
           .eq('id', user.id);
@@ -181,6 +201,8 @@ export function useSimpleOnboarding(user, profile) {
           console.error('Error updating sections:', sectionsError);
           throw sectionsError;
         }
+        
+        console.log('✅ Sections and onboarding completion updated successfully');
       }
 
       console.log('✅ Onboarding completed successfully');
