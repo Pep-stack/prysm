@@ -56,6 +56,27 @@
   justify-content: center;
 }
 
+/* Stijl voor SVG iconen - meerdere selectors voor maximale compatibiliteit */
+.logoItem svg,
+.logoItem svg *,
+.logoItem [class*="fa-"],
+.logoItem [class*="Fa"],
+.socialIcon,
+.logoItem .socialIcon,
+.logoCarouselContainer svg,
+.logoCarouselContainer [class*="fa-"] {
+  color: #000 !important;
+  fill: #000 !important;
+  opacity: 0.6 !important;
+  font-size: 48px !important;
+}
+
+/* Extra specifieke regel voor React Icons */
+.logoItem > svg {
+  color: #000 !important;
+  fill: #000 !important;
+}
+
 .logoItem img {
   max-height: 100%;
   max-width: none;
