@@ -19,7 +19,7 @@
   }
 }
 
-/* Container voor de carousel - mask ZEER STERK aangepast */
+/* Container voor de carousel */
 .logoCarouselContainer {
   width: 100%;
   overflow: hidden;
@@ -30,7 +30,7 @@
   mask-image: linear-gradient(to right, transparent, black 45%, black 55%, transparent);
 }
 
-/* Basis track stijl - gap VERGROOT */
+/* Basis track stijl */
 .logoTrack {
   display: flex;
   width: fit-content;
@@ -48,7 +48,7 @@
   animation-duration: 120s; /* Houd consistent met .logoTrack */
 }
 
-/* Stijl voor elk logo item (hoogte blijft 80px) */
+/* Stijl voor elk logo item */
 .logoItem {
   height: 80px;
   display: flex;
@@ -65,16 +65,17 @@
 .logoItem .socialIcon,
 .logoCarouselContainer svg,
 .logoCarouselContainer [class*="fa-"] {
-  color: #000 !important;
-  fill: #000 !important;
-  opacity: 0.6 !important;
-  font-size: 48px !important;
+  font-size: 70px;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* Extra specifieke regel voor React Icons */
 .logoItem > svg {
-  color: #000 !important;
-  fill: #000 !important;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .logoItem img {
@@ -85,9 +86,15 @@
   transition: transform 0.3s ease;
 }
 
-/* Stijl voor logo bij hover (alleen scale) */
+/* Stijl voor logo bij hover */
 .logoItem:hover img {
   transform: scale(1.1);
+}
+
+/* Hover effect voor social icons */
+.logoItem:hover svg {
+  transform: scale(1.1);
+  opacity: 1;
 }
 
 /* Responsive aanpassingen (voorbeeld) */
@@ -99,6 +106,17 @@
   }
   .logoItem {
     height: 60px;
+  }
+  
+  .logoItem svg,
+  .logoItem svg *,
+  .logoItem [class*="fa-"],
+  .logoItem [class*="Fa"],
+  .socialIcon,
+  .logoItem .socialIcon,
+  .logoCarouselContainer svg,
+  .logoCarouselContainer [class*="fa-"] {
+    font-size: 50px;
   }
    /* Pas eventueel mask aan voor mobiel */
   .logoCarouselContainer {

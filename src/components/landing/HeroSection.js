@@ -49,16 +49,16 @@ export default function HeroSection() {
 
   return (
     <section style={{
-        ...commonStyles.sectionPadding,
+        padding: '60px 20px',
         color: colors.darkGrey || '#333',
         background: `
-          linear-gradient(to bottom, transparent 0%, transparent 85%, rgba(248, 249, 250, 0.3) 95%, rgba(248, 249, 250, 0.8) 100%),
+          linear-gradient(to bottom, transparent 0%, transparent 50%, rgba(248, 249, 250, 0.1) 60%, rgba(248, 249, 250, 0.3) 70%, rgba(248, 249, 250, 0.6) 75%, rgba(248, 249, 250, 0.8) 80%, rgba(248, 249, 250, 0.9) 85%, #FFFFFF 90%),
           radial-gradient(ellipse at center bottom, ${highlightColorRgba(0.2)} 0%, transparent 60%) center bottom / 150% 80% no-repeat,
           radial-gradient(ellipse at center bottom, ${blackRgba(0.1)} 0%, transparent 60%) center bottom / 150% 80% no-repeat,
-          ${colors.white}
+          #FFFFFF
         `,
         paddingBottom: '100px',
-        paddingTop: '80px',
+        paddingTop: '80px'
      }}>
      <motion.div
        style={commonStyles.container}

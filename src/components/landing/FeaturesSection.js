@@ -38,10 +38,8 @@ const LogoCarouselRow = ({ logos, uniqueKeyPrefix, reverse = false }) => {
               <IconComponent 
                 className={styles.socialIcon}
                 style={{ 
-                  color: '#000 !important',
-                  fontSize: '48px !important',
-                  opacity: '0.6 !important',
-                  fill: '#000 !important'
+                  color: platform.color,
+                  fontSize: '70px'
                 }}
               />
             </div>
@@ -55,17 +53,21 @@ const LogoCarouselRow = ({ logos, uniqueKeyPrefix, reverse = false }) => {
 export default function FeaturesSection() {
   return (
    <section id="features" style={{
-     ...commonStyles.sectionPadding, 
-     background: `
-       linear-gradient(to bottom, rgba(248, 249, 250, 0.8) 0%, rgba(248, 249, 250, 0.3) 15%, transparent 25%),
-       ${colors.white}
-     `,
+     padding: '60px 20px',
+     background: colors.white,
+     marginTop: '-50px',
      paddingTop: '80px',
      paddingBottom: '80px'
    }}>
       {/* Trusted by text */}
       <motion.div
-        style={{...commonStyles.container, textAlign: 'center', marginBottom: '50px'}}
+        style={{
+          maxWidth: '1200px', 
+          margin: '0 auto', 
+          textAlign: 'center', 
+          marginBottom: '50px',
+          background: 'transparent'
+        }}
         initial="initial"
         whileInView="animate"
         viewport={{ once: true, amount: 0.2 }}
@@ -77,17 +79,15 @@ export default function FeaturesSection() {
           fontWeight: '700',
           color: '#000',
           marginBottom: '0',
-          lineHeight: '1.2'
+          lineHeight: '1.2',
+          background: 'transparent'
         }}>
           Integrate Your Favourite Platforms
         </h2>
       </motion.div>
 
-      {/* Eerste Carousel Rij */}
+      {/* Carousel Rij */}
       <LogoCarouselRow logos={socialPlatforms} uniqueKeyPrefix="row1" />
-
-      {/* Tweede Carousel Rij */}
-      <LogoCarouselRow logos={socialPlatforms} uniqueKeyPrefix="row2" reverse={true} />
 
     </section>
   );

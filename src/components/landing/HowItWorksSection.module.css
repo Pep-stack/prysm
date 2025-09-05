@@ -1,0 +1,949 @@
+.section {
+  padding: 80px 20px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  min-height: 600px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.textContent {
+  padding-right: 20px;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 40px;
+  line-height: 1.2;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.step:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(8px);
+}
+
+.activeStep {
+  background: rgba(0, 200, 150, 0.05);
+  border-color: rgba(0, 200, 150, 0.2);
+  transform: translateX(8px);
+}
+
+.stepNumber {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.activeStep .stepNumber {
+  background: linear-gradient(135deg, #00C896, #00A078);
+  box-shadow: 0 4px 15px rgba(0, 200, 150, 0.3);
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.stepSubtitle {
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.visualContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  position: relative;
+}
+
+.visualContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Interactive Dashboard Visual */
+.dashboardCard {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  width: 420px;
+  max-height: 600px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.dashboardHeader h4 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.sectionCount {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.dashboardContent {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.categorySection {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.categoryHeader:hover {
+  background: #f3f4f6;
+}
+
+.categoryIcon {
+  color: #6b7280;
+}
+
+.categoryName {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.categoryChevron {
+  color: #9ca3af;
+}
+
+.sectionsContainer {
+  overflow: hidden;
+}
+
+.sectionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+.sectionOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 70px;
+  position: relative;
+}
+
+.sectionOption:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.sectionAdded {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #059669;
+}
+
+.sectionAdded:hover {
+  background: #dcfce7 !important;
+  border-color: #86efac !important;
+}
+
+.sectionIcon {
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.sectionAdded .sectionIcon {
+  color: #059669;
+}
+
+.sectionName {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.sectionAdded .sectionName {
+  color: #059669;
+}
+
+.addedIndicator {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  background: #059669;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.addedSectionsArea {
+  border-top: 2px solid #f3f4f6;
+  background: #f8fafc;
+}
+
+.addedSectionsHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.addedSectionsHeader h5 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.addedSectionsList {
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.addedSectionItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #00C896;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addedSectionItem:hover {
+  background: #00A078;
+  transform: scale(1.05);
+}
+
+.removeIcon {
+  margin-left: 4px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.removeIcon:hover {
+  opacity: 1;
+}
+
+/* Integrations Visual */
+.integrationsHub {
+  position: relative;
+  width: 400px;
+  height: 400px;
+}
+
+.centralNode {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(0, 200, 150, 0.3);
+  z-index: 10;
+}
+
+.prysmaLogo {
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.platformNode {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  border: 2px solid;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 5;
+}
+
+.platformIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.platformName {
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.connectionLine {
+  position: absolute;
+  top: 50%;
+  right: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00C896, transparent);
+  z-index: 1;
+}
+
+/* Analytics Visual - Styled like real analytics UI */
+.analyticsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 450px;
+}
+
+.metricCard {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.metricLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 8px 0 4px 0;
+  color: #111827;
+}
+
+.metricTrend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.metricIcon {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metricIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Link Creation Visual */
+.linkCard {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  border: 1px solid #e5e7eb;
+}
+
+.linkHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.linkIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.linkIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.linkInfo h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.linkInfo p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.linkSection {
+  margin-bottom: 20px;
+}
+
+.linkSection label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.linkInput {
+  display: flex;
+  align-items: center;
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 8px;
+}
+
+.linkUrl {
+  flex: 1;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.9rem;
+  color: #059669;
+  font-weight: 500;
+  padding: 4px 0;
+}
+
+.linkActions {
+  display: flex;
+  gap: 4px;
+}
+
+.editButton, .copyButton {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: #00C896;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.editButton:hover, .copyButton:hover {
+  background: #00A078;
+  transform: scale(1.05);
+}
+
+.editButton svg, .copyButton svg {
+  width: 12px;
+  height: 12px;
+}
+
+.linkCustomize h5 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.linkCustomize ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.linkCustomize li {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 6px;
+  padding-left: 16px;
+  position: relative;
+}
+
+.linkCustomize li::before {
+  content: '•';
+  color: #00C896;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+/* QR Code Visual */
+.qrCard {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+  border: 1px solid #e5e7eb;
+}
+
+.qrTitle {
+  margin: 0 0 8px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.qrSubtitle {
+  margin: 0 0 32px 0;
+  font-size: 0.95rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.qrCodeContainer {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.qrCode {
+  width: 200px;
+  height: 200px;
+  background: white;
+  border: 8px solid #f9fafb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.qrPattern {
+  width: 160px;
+  height: 160px;
+  position: relative;
+  background: white;
+}
+
+.qrCorner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #000;
+  border-radius: 2px;
+}
+
+.qrCorner:nth-child(1) {
+  top: 8px;
+  left: 8px;
+}
+
+.qrCorner:nth-child(2) {
+  top: 8px;
+  right: 8px;
+}
+
+.qrCorner:nth-child(3) {
+  bottom: 8px;
+  left: 8px;
+}
+
+.qrCorner::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background: #000;
+  border-radius: 1px;
+}
+
+.qrData {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  right: 40px;
+  bottom: 40px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
+  gap: 1px;
+}
+
+.qrPixel {
+  background: #000;
+  border-radius: 1px;
+  opacity: 0;
+  animation: fadeInPixel 0.1s ease-in-out forwards;
+}
+
+@keyframes fadeInPixel {
+  to {
+    opacity: 1;
+  }
+}
+
+.downloadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.downloadButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.downloadButton:hover {
+  filter: brightness(1.1);
+}
+
+/* Link Only Visual */
+.linkOnlyContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.linkCardSingle {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  border: 1px solid #e5e7eb;
+}
+
+.qrCodeSmall {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border: 4px solid #f9fafb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto;
+}
+
+.qrPatternSmall {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  background: white;
+}
+
+.qrCornerSmall {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid #000;
+  border-radius: 1px;
+}
+
+.qrCornerSmall:nth-child(1) {
+  top: 3px;
+  left: 3px;
+}
+
+.qrCornerSmall:nth-child(2) {
+  top: 3px;
+  right: 3px;
+}
+
+.qrCornerSmall:nth-child(3) {
+  bottom: 3px;
+  left: 3px;
+}
+
+.qrCornerSmall::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: #000;
+  border-radius: 0.5px;
+}
+
+.qrDataSmall {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 0.5px;
+}
+
+.qrPixelSmall {
+  background: #000;
+  border-radius: 0.5px;
+  opacity: 0;
+  animation: fadeInPixel 0.1s ease-in-out forwards;
+}
+
+.downloadButtonSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.downloadButtonSmall svg {
+  width: 12px;
+  height: 12px;
+}
+
+.downloadButtonSmall:hover {
+  filter: brightness(1.1);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+  
+  .textContent {
+    padding-right: 0;
+  }
+  
+  .step {
+    flex-direction: column;
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .stepNumber {
+    align-self: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 20px;
+  }
+  
+  .dashboardCard {
+    width: 340px;
+    max-height: 500px;
+  }
+  
+  .sectionsGrid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  
+  .sectionOption {
+    min-height: 60px;
+    padding: 10px 6px;
+  }
+  
+  .sectionIcon {
+    font-size: 16px;
+  }
+  
+  .sectionName {
+    font-size: 0.7rem;
+  }
+  
+  .addedSectionsList {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .integrationsHub {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .analyticsGrid {
+    width: 320px;
+    grid-template-columns: 1fr;
+  }
+  
+  .metricCard {
+    min-height: 100px;
+  }
+  
+  .metricValue {
+    font-size: 1.5rem;
+  }
+  
+  .linkCard, .qrCard {
+    width: 300px;
+    padding: 20px;
+  }
+  
+  .qrCode {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .qrPattern {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .linkCardSingle {
+    width: 300px;
+    padding: 20px;
+  }
+  
+  .centralNode {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .prysmaLogo {
+    font-size: 24px;
+  }
+  
+  .platformNode {
+    width: 60px;
+    height: 60px;
+  }
+}
