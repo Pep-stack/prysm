@@ -105,7 +105,7 @@ export default function RequestSectionComponent() {
               className={styles.subheading}
               variants={fadeInUp}
             >
-              Help us build the perfect professional platform. Share your section idea and we'll consider adding it to Prysma.
+              Help us build the perfect professional platform. Share your section idea and we&apos;ll consider adding it to Prysma.
             </motion.p>
           </div>
 
@@ -257,7 +257,7 @@ export default function RequestSectionComponent() {
                   <FaCheck className={styles.successIcon} />
                   <h3 className={styles.successTitle}>Request Submitted!</h3>
                   <p className={styles.successMessage}>
-                    Thank you for your suggestion. We'll review your idea and get back to you soon.
+                    Thank you for your suggestion. We&apos;ll review your idea and get back to you soon.
                   </p>
                 </div>
               </motion.div>

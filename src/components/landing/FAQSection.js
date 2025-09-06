@@ -20,17 +20,17 @@ const FAQ_DATA = [
   {
     id: 3,
     question: "What makes Prysma profiles more effective than traditional resumes?",
-    answer: "Prysma profiles are interactive, always up-to-date, and mobile-optimized. While resumes are static documents, your Prysma profile can include live portfolio pieces, social proof, testimonials, and direct contact options. Plus, you can track who's viewing your profile and when."
+    answer: "Prysma profiles are interactive, always up-to-date, and mobile-optimized. While resumes are static documents, your Prysma profile can include live portfolio pieces, social proof, testimonials, and direct contact options. Plus, you can track who&apos;s viewing your profile and when."
   },
   {
     id: 4,
     question: "Can Prysma help me stand out in my industry?",
-    answer: "Absolutely! With 25+ professional sections, custom themes, and advanced design options, you can create a unique professional presence that reflects your personal brand. Showcase your work, achievements, and personality in ways that traditional platforms simply can't match."
+    answer: "Absolutely! With 25+ professional sections, custom themes, and advanced design options, you can create a unique professional presence that reflects your personal brand. Showcase your work, achievements, and personality in ways that traditional platforms simply can&apos;t match."
   },
   {
     id: 5,
     question: "Is Prysma worth the investment for my career?",
-    answer: "Many professionals see a return on investment within weeks. With detailed analytics, you'll know exactly who's interested in your work. Plus, our free plan includes all essential features, so you can start building your professional presence at no cost and upgrade when you're ready for advanced features."
+    answer: "Many professionals see a return on investment within weeks. With detailed analytics, you&apos;ll know exactly who&apos;s interested in your work. Plus, our free plan includes all essential features, so you can start building your professional presence at no cost and upgrade when you&apos;re ready for advanced features."
   }
 ];
 
