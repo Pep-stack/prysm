@@ -15,39 +15,57 @@ export default function CreatorStorySection() {
       whileInView="animate"
       viewport={{ once: true, amount: 0.2 }}
       variants={fadeInUp}
-      transition={{ duration: 0.6, delay: 0.2 }}
     >
-       <div className={styles.mainLogo}>
-         <Image
-           src="/images/logo.png"
-           alt="Prysma Logo"
-           width={100}
-           height={33}
-         />
-       </div>
+      <div className={styles.content}>
+        {/* Logo */}
+        <motion.div 
+          className={styles.logoContainer}
+          variants={fadeInUp}
+        >
+          <Image
+            src="/images/logo.png"
+            alt="Prysma Logo"
+            width={120}
+            height={40}
+            className={styles.logo}
+          />
+        </motion.div>
 
-       <h2 className={styles.heading}>Why I Built Prysma</h2>
+        {/* Heading */}
+        <motion.h2 
+          className={styles.heading}
+          variants={fadeInUp}
+        >
+          Why I Built Prysma
+        </motion.h2>
 
-       <p className={styles.paragraph}>
-         Prysma was born from a simple insight: in a world full of noise, professionals need clarity. As a founder, I kept seeing how hard it was for ambitious individuals to present themselves online without relying on scattered tools or generic platforms. So I built Prysma — a smart, streamlined hub where your digital presence actually works for you. Whether you&apos;re a freelancer, coach, or creative entrepreneur, Prysma helps you showcase your value, connect with the right people, and grow your business with confidence.
-       </p>
+        {/* Story */}
+        <motion.p 
+          className={styles.paragraph}
+          variants={fadeInUp}
+        >
+          Prysma was born from a simple insight: in a world full of noise, professionals need clarity. As a founder, I kept seeing how hard it was for ambitious individuals to present themselves online without relying on scattered tools or generic platforms. So I built Prysma — a smart, streamlined hub where your digital presence actually works for you.
+        </motion.p>
 
-       <a
-         href="#"
-         target="_blank"
-         rel="noopener noreferrer"
-         className={styles.followButton}
-       >
-         <span>Follow the build on&nbsp;</span>
-         <Image
-           src="/images/logo/x.png"
-           alt="X logo"
-           width={40}
-           height={40}
-           className={styles.xLogo}
-           style={{ display: 'inline-block', verticalAlign: 'middle' }}
-         />
-       </a>
+        {/* Follow Button */}
+        <motion.a
+          href="https://x.com/useprysma"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.followButton}
+          variants={fadeInUp}
+          whileHover={{ 
+            scale: 1.05,
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)'
+          }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <span>Follow the build on</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={styles.xIcon}>
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </motion.a>
+      </div>
     </motion.div>
   </section>
  );

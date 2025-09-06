@@ -591,6 +591,117 @@
   left: 0;
 }
 
+/* Dynamic Link Builder Styles */
+.nameInputSection {
+  margin-bottom: 16px;
+}
+
+.nameInputSection label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.nameInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #111827;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: #00C896;
+  box-shadow: 0 0 0 3px rgba(0, 200, 150, 0.1);
+}
+
+.copiedButton {
+  background: #10b981 !important;
+}
+
+.copiedButton:hover {
+  background: #059669 !important;
+}
+
+.linkPreview {
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.previewCard {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.previewAvatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.previewHeader h6 {
+  margin: 0 0 2px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.previewHeader p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.claimButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #00C896, #00A078);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 200, 150, 0.3);
+}
+
+.claimButton svg {
+  width: 16px;
+  height: 16px;
+}
+
+.claimButton:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(0, 200, 150, 0.4);
+}
+
 /* QR Code Visual */
 .qrCard {
   background: white;
@@ -931,6 +1042,26 @@
   .linkCardSingle {
     width: 300px;
     padding: 20px;
+  }
+  
+  .nameInput {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .previewCard {
+    padding: 12px;
+  }
+  
+  .previewAvatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .claimButton {
+    padding: 10px 16px;
+    font-size: 0.85rem;
   }
   
   .centralNode {
