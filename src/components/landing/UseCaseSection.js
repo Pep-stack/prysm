@@ -20,14 +20,13 @@ export default function UseCaseSection() {
 
   const profileExamples = {
     Professional: {
-      name: 'Sarah Chen - Marketing Director',
-      details: 'Today 2:05 PM • LinkedIn, Email, Phone',
+      name: 'Alex Carter',
+      details: 'Founder @ NextGen Labs • Amsterdam, The Netherlands',
       sections: [
-        { title: 'About', content: '• 8+ years in digital marketing\n• Specialized in B2B growth strategies' },
-        { title: 'Experience', content: '• Marketing Director at TechCorp\n• Led campaigns with 300% ROI increase' },
-        { title: 'Skills', content: '• Digital Marketing\n• Team Leadership\n• Data Analytics' },
-        { title: 'Contact', content: '• sarah@prysma.com\n• +1 (555) 123-4567' },
-        { title: 'Social Links', content: '• LinkedIn Profile\n• Portfolio Website' }
+        { title: 'About', content: 'Building AI-driven tools that simplify business. Startup mentor & keynote speaker.' },
+        { title: 'Position', content: '• CEO, NextGen Labs\n• CET (UTC+1)' },
+        { title: 'Website', content: 'nextgenlabs.io' },
+        { title: 'Contact', content: 'Visit Website' }
       ]
     },
     Creative: {
@@ -160,32 +159,250 @@ export default function UseCaseSection() {
           variants={fadeInUp}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-            {/* Profile header */}
-            <div className="mb-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {currentExample.name}
-              </h3>
-              <div className="flex items-center text-sm text-gray-500">
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                </svg>
-                {currentExample.details}
+          {selectedCategory === 'Professional' ? (
+            // Show profcard.png image for Professional category with 3D rotation effect
+            <motion.div 
+              className="shadow-xl" 
+              style={{ 
+                borderRadius: '15px', 
+                overflow: 'hidden',
+                perspective: '1000px'
+              }}
+              animate={{
+                rotateY: [0, 8, -8, 0],
+                rotateX: [0, 4, -4, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <motion.img 
+                src="/images/profcard.png" 
+                alt="Professional Profile Card - Alex Carter"
+                className="w-full h-auto"
+                style={{ 
+                  display: 'block', 
+                  borderRadius: '15px',
+                  transformStyle: 'preserve-3d'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 15px 35px rgba(0,0,0,0.15)',
+                    '0 25px 50px rgba(0,0,0,0.25)',
+                    '0 15px 35px rgba(0,0,0,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+          ) : selectedCategory === 'Creative' ? (
+            // Show creative.png image for Creative category with 3D rotation effect
+            <motion.div 
+              className="shadow-xl" 
+              style={{ 
+                borderRadius: '15px', 
+                overflow: 'hidden',
+                perspective: '1000px'
+              }}
+              animate={{
+                rotateY: [0, 8, -8, 0],
+                rotateX: [0, 4, -4, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <motion.img 
+                src="/images/creative.png" 
+                alt="Creative Profile Card"
+                className="w-full h-auto"
+                style={{ 
+                  display: 'block', 
+                  borderRadius: '15px',
+                  transformStyle: 'preserve-3d'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 15px 35px rgba(0,0,0,0.15)',
+                    '0 25px 50px rgba(0,0,0,0.25)',
+                    '0 15px 35px rgba(0,0,0,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+          ) : selectedCategory === 'Entrepreneur' ? (
+            // Show entrepener.png image for Entrepreneur category with 3D rotation effect
+            <motion.div 
+              className="shadow-xl" 
+              style={{ 
+                borderRadius: '15px', 
+                overflow: 'hidden',
+                perspective: '1000px'
+              }}
+              animate={{
+                rotateY: [0, 8, -8, 0],
+                rotateX: [0, 4, -4, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <motion.img 
+                src="/images/entrepener.png" 
+                alt="Entrepreneur Profile Card - Marcus Johnson"
+                className="w-full h-auto"
+                style={{ 
+                  display: 'block', 
+                  borderRadius: '15px',
+                  transformStyle: 'preserve-3d'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 15px 35px rgba(0,0,0,0.15)',
+                    '0 25px 50px rgba(0,0,0,0.25)',
+                    '0 15px 35px rgba(0,0,0,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+          ) : selectedCategory === 'Freelancer' ? (
+            // Show freelance.png image for Freelancer category with 3D rotation effect
+            <motion.div 
+              className="shadow-xl" 
+              style={{ 
+                borderRadius: '15px', 
+                overflow: 'hidden',
+                perspective: '1000px'
+              }}
+              animate={{
+                rotateY: [0, 8, -8, 0],
+                rotateX: [0, 4, -4, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <motion.img 
+                src="/images/freelance.png" 
+                alt="Freelancer Profile Card - Emma Wilson"
+                className="w-full h-auto"
+                style={{ 
+                  display: 'block', 
+                  borderRadius: '15px',
+                  transformStyle: 'preserve-3d'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 15px 35px rgba(0,0,0,0.15)',
+                    '0 25px 50px rgba(0,0,0,0.25)',
+                    '0 15px 35px rgba(0,0,0,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+          ) : selectedCategory === 'Student' ? (
+            // Show kim.png image for Student category with permanent 3D rotation effect
+            <motion.div 
+              className="shadow-xl" 
+              style={{ 
+                borderRadius: '15px', 
+                overflow: 'hidden',
+                perspective: '1000px'
+              }}
+              animate={{
+                rotateY: [0, 8, -8, 0],
+                rotateX: [0, 4, -4, 0],
+                scale: [1, 1.05, 1]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <motion.img 
+                src="/images/kim.png" 
+                alt="Student Profile Card"
+                className="w-full h-auto"
+                style={{ 
+                  display: 'block', 
+                  borderRadius: '15px',
+                  transformStyle: 'preserve-3d'
+                }}
+                animate={{
+                  boxShadow: [
+                    '0 15px 35px rgba(0,0,0,0.15)',
+                    '0 25px 50px rgba(0,0,0,0.25)',
+                    '0 15px 35px rgba(0,0,0,0.15)'
+                  ]
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            </motion.div>
+          ) : (
+            // Show regular card content for other categories (fallback)
+            <div className="bg-white shadow-xl p-6 border border-gray-100" style={{ borderRadius: '15px' }}>
+              {/* Profile header */}
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  {currentExample.name}
+                </h3>
+                <div className="flex items-center text-sm text-gray-500">
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                  </svg>
+                  {currentExample.details}
+                </div>
+              </div>
+
+              {/* Profile sections */}
+              <div className="space-y-4">
+                {currentExample.sections.map((section, index) => (
+                  <div key={index}>
+                    <h4 className="font-semibold text-gray-900 mb-2">{section.title}</h4>
+                    <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+                      {section.content}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Profile sections */}
-            <div className="space-y-4">
-              {currentExample.sections.map((section, index) => (
-                <div key={index}>
-                  <h4 className="font-semibold text-gray-900 mb-2">{section.title}</h4>
-                  <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
-                    {section.content}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </motion.div>
       </div>
     </section>

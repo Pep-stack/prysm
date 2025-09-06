@@ -278,32 +278,243 @@ export default function HeroSection() {
          </Link>
        </motion.div>
 
-       {/* Product Image */}
+       {/* 3D Hero Image with Floating Screens */}
        <motion.div 
          style={{
-           marginTop: '20px',
-           borderRadius: '12px',
+           marginTop: '60px',
            position: 'relative',
-           margin: '20px auto 0 auto',
+           margin: '60px auto 0 auto',
            width: 'fit-content',
+           height: '600px',
+           perspective: '1200px',
+           display: 'flex',
+           alignItems: 'center',
+           justifyContent: 'center'
          }}
          initial={{ opacity: 0, y: 40 }}
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 1, delay: 0.8 }}
        >
-         <Image
-           src="/images/Prysma mock up.png"
-           alt="Prysma App Mockup"
-           width={450}
-           height={300}
+         {/* Central Profile Card */}
+         <motion.div
            style={{
-             display: 'block',
-             maxWidth: '100%',
-             height: 'auto',
-             borderRadius: '12px',
-             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1)'
+             position: 'relative',
+             zIndex: 10,
+             borderRadius: '15px',
+             overflow: 'hidden'
            }}
-         />
+           animate={{
+             rotateY: [0, 3, -3, 0],
+             scale: [1, 1.02, 1]
+           }}
+           transition={{
+             duration: 6,
+             repeat: Infinity,
+             ease: "easeInOut"
+           }}
+         >
+           <Image
+             src="/images/profcard.png"
+             alt="Professional Profile Card - Alex Carter"
+             width={350}
+             height={450}
+             style={{
+               display: 'block',
+               borderRadius: '15px',
+               boxShadow: '0 25px 80px rgba(0, 0, 0, 0.15)'
+             }}
+           />
+         </motion.div>
+
+         {/* Floating Screen 1 - Top Left */}
+         <motion.div
+           style={{
+             position: 'absolute',
+             top: '20px',
+             left: '-80px',
+             zIndex: 5,
+             borderRadius: '12px',
+             overflow: 'hidden'
+           }}
+           animate={{
+             rotateY: [0, -15, 0],
+             rotateX: [0, 5, 0],
+             y: [0, -10, 0],
+             scale: [0.7, 0.75, 0.7]
+           }}
+           transition={{
+             duration: 8,
+             repeat: Infinity,
+             ease: "easeInOut",
+             delay: 0.5
+           }}
+           initial={{ opacity: 0, scale: 0.5, rotateY: -30 }}
+           whileInView={{ opacity: 1, scale: 0.7, rotateY: 0 }}
+         >
+           <Image
+             src="/images/screen1.png"
+             alt="Screen 1"
+             width={200}
+             height={250}
+             style={{
+               display: 'block',
+               borderRadius: '12px',
+               boxShadow: '0 15px 40px rgba(0, 0, 0, 0.2)'
+             }}
+           />
+         </motion.div>
+
+         {/* Floating Screen 2 - Top Right */}
+         <motion.div
+           style={{
+             position: 'absolute',
+             top: '40px',
+             right: '-100px',
+             zIndex: 4,
+             borderRadius: '12px',
+             overflow: 'hidden'
+           }}
+           animate={{
+             rotateY: [0, 20, 0],
+             rotateX: [0, -8, 0],
+             y: [0, 15, 0],
+             scale: [0.6, 0.65, 0.6]
+           }}
+           transition={{
+             duration: 7,
+             repeat: Infinity,
+             ease: "easeInOut",
+             delay: 1
+           }}
+           initial={{ opacity: 0, scale: 0.4, rotateY: 40 }}
+           whileInView={{ opacity: 1, scale: 0.6, rotateY: 0 }}
+         >
+           <Image
+             src="/images/screen2.png"
+             alt="Screen 2"
+             width={180}
+             height={220}
+             style={{
+               display: 'block',
+               borderRadius: '12px',
+               boxShadow: '0 12px 35px rgba(0, 0, 0, 0.18)'
+             }}
+           />
+         </motion.div>
+
+         {/* Floating Screen 3 - Bottom Left */}
+         <motion.div
+           style={{
+             position: 'absolute',
+             bottom: '60px',
+             left: '-60px',
+             zIndex: 6,
+             borderRadius: '12px',
+             overflow: 'hidden'
+           }}
+           animate={{
+             rotateY: [0, -10, 0],
+             rotateX: [0, 10, 0],
+             y: [0, -20, 0],
+             scale: [0.65, 0.7, 0.65]
+           }}
+           transition={{
+             duration: 9,
+             repeat: Infinity,
+             ease: "easeInOut",
+             delay: 1.5
+           }}
+           initial={{ opacity: 0, scale: 0.5, rotateY: -25 }}
+           whileInView={{ opacity: 1, scale: 0.65, rotateY: 0 }}
+         >
+           <Image
+             src="/images/screen3.png"
+             alt="Screen 3"
+             width={190}
+             height={240}
+             style={{
+               display: 'block',
+               borderRadius: '12px',
+               boxShadow: '0 18px 45px rgba(0, 0, 0, 0.16)'
+             }}
+           />
+         </motion.div>
+
+         {/* Floating Screen 4 - Bottom Right */}
+         <motion.div
+           style={{
+             position: 'absolute',
+             bottom: '20px',
+             right: '-70px',
+             zIndex: 3,
+             borderRadius: '12px',
+             overflow: 'hidden'
+           }}
+           animate={{
+             rotateY: [0, 25, 0],
+             rotateX: [0, -5, 0],
+             y: [0, 10, 0],
+             scale: [0.55, 0.6, 0.55]
+           }}
+           transition={{
+             duration: 10,
+             repeat: Infinity,
+             ease: "easeInOut",
+             delay: 2
+           }}
+           initial={{ opacity: 0, scale: 0.4, rotateY: 35 }}
+           whileInView={{ opacity: 1, scale: 0.55, rotateY: 0 }}
+         >
+           <Image
+             src="/images/screen4.png"
+             alt="Screen 4"
+             width={170}
+             height={210}
+             style={{
+               display: 'block',
+               borderRadius: '12px',
+               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.14)'
+             }}
+           />
+         </motion.div>
+
+         {/* Floating Screen 5 - Center Back */}
+         <motion.div
+           style={{
+             position: 'absolute',
+             top: '100px',
+             right: '20px',
+             zIndex: 2,
+             borderRadius: '12px',
+             overflow: 'hidden'
+           }}
+           animate={{
+             rotateY: [0, 15, 0],
+             rotateX: [0, 8, 0],
+             y: [0, -25, 0],
+             scale: [0.5, 0.55, 0.5]
+           }}
+           transition={{
+             duration: 11,
+             repeat: Infinity,
+             ease: "easeInOut",
+             delay: 2.5
+           }}
+           initial={{ opacity: 0, scale: 0.3, rotateY: 30 }}
+           whileInView={{ opacity: 1, scale: 0.5, rotateY: 0 }}
+         >
+           <Image
+             src="/images/screen5.png"
+             alt="Screen 5"
+             width={160}
+             height={200}
+             style={{
+               display: 'block',
+               borderRadius: '12px',
+               boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)'
+             }}
+           />
+         </motion.div>
        </motion.div>
      </motion.div>
    </section>
