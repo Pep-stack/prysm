@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { colors, typography, commonStyles, fadeInUp } from '../../lib/landingStyles';
+import DynamicBranches from './DynamicBranches';
 
 export default function HeroSection() {
   // Define the green highlight color
@@ -88,7 +89,7 @@ export default function HeroSection() {
           radial-gradient(ellipse at center bottom, ${blackRgba(0.1)} 0%, transparent 60%) center bottom / 150% 80% no-repeat,
           #FFFFFF
         `,
-        paddingBottom: '100px',
+        paddingBottom: '20px',
         paddingTop: '80px'
      }}>
      <motion.div
@@ -99,25 +100,31 @@ export default function HeroSection() {
        variants={fadeInUp}
        transition={{ duration: 0.6 }}
      >
-       {/* Announcement Badge */}
-       <motion.div
-         initial={{ opacity: 0, y: 20 }}
-         animate={{ opacity: 1, y: 0 }}
-         transition={{ duration: 0.6, delay: 0.1 }}
-       >
-         <Link href="#features" style={announcementBadgeStyle}>
-           <Image
-             src="/images/prysma-icon.png"
-             alt="Prysma Icon"
-             width={40}
-             height={40}
-             style={{ flexShrink: 0 }}
-           />
-           <span>NEW: Enhanced Profile Builder</span>
-           <span style={{ fontSize: '12px' }}>→</span>
-         </Link>
-       </motion.div>
 
+       {/* Main Headline 
+       
+       ALTERNATIVE HEADLINES FOR A/B TESTING:
+       
+       Option A: "Stop Losing Clients to a Bad First Impression"
+       
+       Option B (Current): "Turn Your Skills Into a Client Magnet"
+       
+       Option C: "Your Portfolio Is Costing You Clients"
+       
+       Option D: "Why 73% of Freelancers Lose Clients in the First 10 Seconds"
+       
+       ALTERNATIVE SUBHEADLINES:
+       
+       Option A: "Create a professional profile that converts visitors into paying clients in under 5 minutes. No design skills needed."
+       
+       Option B (Current): "Build a stunning professional profile that gets you hired faster. Takes 5 minutes, works 24/7."
+       
+       Option C: "Stop sending clients to your messy LinkedIn. Create a conversion-focused profile that actually sells your services."
+       
+       Option D: "The professional profile that turns your skills into a steady stream of high-paying clients."
+       
+       */}
+       
        {/* Main Headline */}
        <motion.h1 
          style={{
@@ -132,8 +139,8 @@ export default function HeroSection() {
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.8, delay: 0.2 }}
        >
-         The Professional <span style={{ color: highlightColor }}>Profile</span>{' '}
-         <span style={{ color: '#999' }}>for People who</span> <span style={{ color: highlightColor }}>Build</span> and <span style={{ color: highlightColor }}>Create</span>
+         Turn Your <span style={{ color: highlightColor }}>Skills</span>{' '}
+         <span style={{ color: '#999' }}>Into a</span> <span style={{ color: highlightColor }}>Client Magnet</span>
        </motion.h1>
 
        {/* Subheadline */}
@@ -143,7 +150,7 @@ export default function HeroSection() {
            fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
            fontWeight: '700',
            color: '#666',
-           maxWidth: '600px',
+           maxWidth: '650px',
            margin: '0 auto 40px auto',
            lineHeight: '1.5',
          }}
@@ -151,7 +158,7 @@ export default function HeroSection() {
          animate={{ opacity: 1, y: 0 }}
          transition={{ duration: 0.8, delay: 0.4 }}
        >
-         Prysma takes your work, skills, and projects and makes them awesome
+         Build a stunning professional profile that gets you hired faster. Takes 5 minutes, works 24/7.
        </motion.p>
 
        {/* Interactive Link Builder - Simplified */}
@@ -273,249 +280,27 @@ export default function HeroSection() {
              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
              </svg>
-             <span>Claim Your Link</span>
+             <span>Get Your Professional Link</span>
            </motion.button>
          </Link>
        </motion.div>
 
-       {/* 3D Hero Image with Floating Screens */}
-       <motion.div 
-         style={{
-           marginTop: '60px',
-           position: 'relative',
-           margin: '60px auto 0 auto',
-           width: 'fit-content',
-           height: '600px',
-           perspective: '1200px',
-           display: 'flex',
-           alignItems: 'center',
-           justifyContent: 'center'
-         }}
-         initial={{ opacity: 0, y: 40 }}
-         animate={{ opacity: 1, y: 0 }}
-         transition={{ duration: 1, delay: 0.8 }}
-       >
-         {/* Central Profile Card */}
-         <motion.div
-           style={{
-             position: 'relative',
-             zIndex: 10,
-             borderRadius: '15px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, 3, -3, 0],
-             scale: [1, 1.02, 1]
-           }}
-           transition={{
-             duration: 6,
-             repeat: Infinity,
-             ease: "easeInOut"
-           }}
-         >
-           <Image
-             src="/images/profcard.png"
-             alt="Professional Profile Card - Alex Carter"
-             width={350}
-             height={450}
-             style={{
-               display: 'block',
-               borderRadius: '15px',
-               boxShadow: '0 25px 80px rgba(0, 0, 0, 0.15)'
-             }}
-           />
-         </motion.div>
-
-         {/* Floating Screen 1 - Top Left */}
-         <motion.div
-           style={{
-             position: 'absolute',
-             top: '20px',
-             left: '-80px',
-             zIndex: 5,
-             borderRadius: '12px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, -15, 0],
-             rotateX: [0, 5, 0],
-             y: [0, -10, 0],
-             scale: [0.7, 0.75, 0.7]
-           }}
-           transition={{
-             duration: 8,
-             repeat: Infinity,
-             ease: "easeInOut",
-             delay: 0.5
-           }}
-           initial={{ opacity: 0, scale: 0.5, rotateY: -30 }}
-           whileInView={{ opacity: 1, scale: 0.7, rotateY: 0 }}
-         >
-           <Image
-             src="/images/screen1.png"
-             alt="Screen 1"
-             width={200}
-             height={250}
-             style={{
-               display: 'block',
-               borderRadius: '12px',
-               boxShadow: '0 15px 40px rgba(0, 0, 0, 0.2)'
-             }}
-           />
-         </motion.div>
-
-         {/* Floating Screen 2 - Top Right */}
-         <motion.div
-           style={{
-             position: 'absolute',
-             top: '40px',
-             right: '-100px',
-             zIndex: 4,
-             borderRadius: '12px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, 20, 0],
-             rotateX: [0, -8, 0],
-             y: [0, 15, 0],
-             scale: [0.6, 0.65, 0.6]
-           }}
-           transition={{
-             duration: 7,
-             repeat: Infinity,
-             ease: "easeInOut",
-             delay: 1
-           }}
-           initial={{ opacity: 0, scale: 0.4, rotateY: 40 }}
-           whileInView={{ opacity: 1, scale: 0.6, rotateY: 0 }}
-         >
-           <Image
-             src="/images/screen2.png"
-             alt="Screen 2"
-             width={180}
-             height={220}
-             style={{
-               display: 'block',
-               borderRadius: '12px',
-               boxShadow: '0 12px 35px rgba(0, 0, 0, 0.18)'
-             }}
-           />
-         </motion.div>
-
-         {/* Floating Screen 3 - Bottom Left */}
-         <motion.div
-           style={{
-             position: 'absolute',
-             bottom: '60px',
-             left: '-60px',
-             zIndex: 6,
-             borderRadius: '12px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, -10, 0],
-             rotateX: [0, 10, 0],
-             y: [0, -20, 0],
-             scale: [0.65, 0.7, 0.65]
-           }}
-           transition={{
-             duration: 9,
-             repeat: Infinity,
-             ease: "easeInOut",
-             delay: 1.5
-           }}
-           initial={{ opacity: 0, scale: 0.5, rotateY: -25 }}
-           whileInView={{ opacity: 1, scale: 0.65, rotateY: 0 }}
-         >
-           <Image
-             src="/images/screen3.png"
-             alt="Screen 3"
-             width={190}
-             height={240}
-             style={{
-               display: 'block',
-               borderRadius: '12px',
-               boxShadow: '0 18px 45px rgba(0, 0, 0, 0.16)'
-             }}
-           />
-         </motion.div>
-
-         {/* Floating Screen 4 - Bottom Right */}
-         <motion.div
-           style={{
-             position: 'absolute',
-             bottom: '20px',
-             right: '-70px',
-             zIndex: 3,
-             borderRadius: '12px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, 25, 0],
-             rotateX: [0, -5, 0],
-             y: [0, 10, 0],
-             scale: [0.55, 0.6, 0.55]
-           }}
-           transition={{
-             duration: 10,
-             repeat: Infinity,
-             ease: "easeInOut",
-             delay: 2
-           }}
-           initial={{ opacity: 0, scale: 0.4, rotateY: 35 }}
-           whileInView={{ opacity: 1, scale: 0.55, rotateY: 0 }}
-         >
-           <Image
-             src="/images/screen4.png"
-             alt="Screen 4"
-             width={170}
-             height={210}
-             style={{
-               display: 'block',
-               borderRadius: '12px',
-               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.14)'
-             }}
-           />
-         </motion.div>
-
-         {/* Floating Screen 5 - Center Back */}
-         <motion.div
-           style={{
-             position: 'absolute',
-             top: '100px',
-             right: '20px',
-             zIndex: 2,
-             borderRadius: '12px',
-             overflow: 'hidden'
-           }}
-           animate={{
-             rotateY: [0, 15, 0],
-             rotateX: [0, 8, 0],
-             y: [0, -25, 0],
-             scale: [0.5, 0.55, 0.5]
-           }}
-           transition={{
-             duration: 11,
-             repeat: Infinity,
-             ease: "easeInOut",
-             delay: 2.5
-           }}
-           initial={{ opacity: 0, scale: 0.3, rotateY: 30 }}
-           whileInView={{ opacity: 1, scale: 0.5, rotateY: 0 }}
-         >
-           <Image
-             src="/images/screen5.png"
-             alt="Screen 5"
-             width={160}
-             height={200}
-             style={{
-               display: 'block',
-               borderRadius: '12px',
-               boxShadow: '0 8px 25px rgba(0, 0, 0, 0.12)'
-             }}
-           />
-         </motion.div>
-       </motion.div>
+      {/* Dynamic Branches Visualization */}
+      <motion.div 
+        style={{
+          marginTop: '60px',
+          position: 'relative',
+          margin: '60px auto 0 auto',
+          width: '100%',
+          maxWidth: '1000px',
+          height: '600px'
+        }}
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.8 }}
+      >
+        <DynamicBranches />
+      </motion.div>
      </motion.div>
    </section>
   );

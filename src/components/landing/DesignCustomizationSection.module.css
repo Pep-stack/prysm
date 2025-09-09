@@ -286,6 +286,23 @@
   text-align: center;
 }
 
+.cardImageContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.cardImage {
+  width: 280px;
+  height: auto;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  object-fit: cover;
+  transition: all 0.4s ease;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .designHub {
@@ -324,6 +341,10 @@
     width: 240px;
     height: 280px;
     padding: 24px;
+  }
+  
+  .cardImage {
+    width: 240px;
   }
   
   .profileImage {

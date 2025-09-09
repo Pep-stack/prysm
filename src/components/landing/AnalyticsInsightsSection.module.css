@@ -1,0 +1,606 @@
+.section {
+  padding: 80px 20px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  min-height: 700px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.textContent {
+  padding-right: 20px;
+}
+
+.heading {
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.subheading {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.feature:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(8px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.activeFeature {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.2);
+  transform: translateX(8px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+}
+
+.featureNumber {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.activeFeature .featureNumber {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.featureContent {
+  flex: 1;
+}
+
+.featureTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.featureSubtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.visualContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 600px;
+  position: relative;
+}
+
+.visualContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Analytics Card Styles */
+.analyticsCard {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  width: 480px;
+  max-height: 650px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.analyticsHeader {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid #e5e7eb;
+  padding: 20px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.periodSelector {
+  display: flex;
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.periodBtn {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodBtn.active {
+  background: white;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 20px;
+}
+
+.metricCard {
+  background: #fafafa;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.metricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.metricLabel {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.metricIcon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metricValue {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 8px 0 4px 0;
+  color: #111827;
+}
+
+.metricTrend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chartSection {
+  padding: 0 20px 20px;
+}
+
+.chartTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.chartContainer {
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 16px;
+  height: 140px;
+}
+
+.chart {
+  width: 100%;
+  height: 100%;
+}
+
+/* Geographic Card Styles */
+.geographicCard {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  width: 480px;
+  max-height: 650px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid #f3f4f6;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.headerIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.cardSubtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+
+.countryList {
+  padding: 20px;
+}
+
+.listTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.countryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.countryItem:last-child {
+  border-bottom: none;
+}
+
+.countryInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.countryFlag {
+  font-size: 1.2rem;
+}
+
+.countryName {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.countryStats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.visitorCount {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937;
+  min-width: 40px;
+  text-align: right;
+}
+
+.countryBar {
+  width: 60px;
+  height: 4px;
+  background: #f3f4f6;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.countryProgress {
+  height: 100%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 2px;
+}
+
+/* Social Card Styles */
+.socialCard {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  width: 480px;
+  max-height: 650px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.socialGrid {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.socialPlatform {
+  background: #fafafa;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.socialPlatform:hover {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.platformHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.platformIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.platformInfo {
+  flex: 1;
+}
+
+.platformName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: block;
+}
+
+.platformClicks {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.platformProgress {
+  width: 100%;
+  height: 4px;
+  background: #f3f4f6;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+.platformStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clickCount {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.trendIndicator {
+  display: flex;
+  align-items: center;
+}
+
+.insightCard {
+  margin: 0 20px 20px;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 1px solid #f59e0b;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.insightIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f59e0b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.insightContent {
+  flex: 1;
+}
+
+.insightTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #92400e;
+  margin: 0 0 4px 0;
+}
+
+.insightText {
+  font-size: 0.8rem;
+  color: #a16207;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+  
+  .textContent {
+    padding-right: 0;
+  }
+  
+  .feature {
+    flex-direction: column;
+    text-align: left;
+    align-items: flex-start;
+  }
+  
+  .featureNumber {
+    align-self: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 60px 20px;
+  }
+  
+  .content {
+    gap: 30px;
+  }
+  
+  .analyticsCard,
+  .geographicCard,
+  .socialCard {
+    width: 100%;
+    max-width: 400px;
+    max-height: 500px;
+  }
+  
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .metricCard {
+    min-height: 80px;
+    padding: 12px;
+  }
+  
+  .metricValue {
+    font-size: 1.4rem;
+  }
+  
+  .chartContainer {
+    height: 100px;
+  }
+  
+  .socialGrid {
+    padding: 16px;
+    gap: 12px;
+  }
+  
+  .socialPlatform {
+    padding: 12px;
+  }
+  
+  .platformIcon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .countryList {
+    padding: 16px;
+  }
+  
+  .countryStats {
+    gap: 8px;
+  }
+  
+  .countryBar {
+    width: 40px;
+  }
+  
+  
+  .insightCard {
+    margin: 0 16px 16px;
+    padding: 12px;
+  }
+  
+  .insightIcon {
+    width: 28px;
+    height: 28px;
+  }
+}

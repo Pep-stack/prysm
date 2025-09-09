@@ -84,6 +84,7 @@ const XTweetCard = ({ name, username, verified, tweet, timestamp, likes, replies
 export default function TestimonialsSection() {
   const [showMore, setShowMore] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   React.useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -91,6 +92,11 @@ export default function TestimonialsSection() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  const handleTwitterReview = () => {
+    const tweetText = encodeURIComponent("Just discovered @useprysma - looks like an amazing tool for professionals! 🚀 #prysma #professionalprofile");
+    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
+  };
 
  return (
   <section style={{...commonStyles.sectionPadding, backgroundColor: colors.white}}> {/* Changed background to white */} 
@@ -102,9 +108,18 @@ export default function TestimonialsSection() {
       variants={fadeInUp}
       transition={{ duration: 0.6, delay: 0.4 }} // Stagger animation
     >
-      <h2 style={commonStyles.h2}>What Professionals Are Saying</h2>
-      {/* Use dynamic grid for X embeds */} 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto auto-rows-auto">
+      
+
+      {/* Blurred Testimonials Grid */}
+      <div className="relative">
+        <div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto auto-rows-auto"
+          style={{
+            filter: 'blur(4px)',
+            opacity: 0.3,
+            pointerEvents: 'none'
+          }}
+        >
         {/* First testimonial - always visible */}
         <XTweetCard 
           name="Aisha Patel"
@@ -202,34 +217,86 @@ Perfect for tracking ROI on my professional content and seeing which services ge
             </>
           )}
         </AnimatePresence>
-      </div>
+        </div>
 
-      {/* Show More Button - Only visible on mobile */}
-      <div className="block md:hidden mt-8 text-center">
-        <motion.button
-          onClick={() => setShowMore(!showMore)}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {showMore ? (
-            <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/>
+        {/* Compact Review CTA Overlay */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <motion.div 
+            className="bg-gradient-to-br from-blue-50 to-indigo-50 backdrop-blur-sm rounded-xl p-6 border border-blue-100 shadow-lg max-w-sm mx-4 text-center relative overflow-hidden pointer-events-auto"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            whileHover={{ scale: 1.02 }}
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+          >
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                <defs>
+                  <pattern id="twitter-pattern-overlay" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <circle cx="10" cy="10" r="1" fill="currentColor" />
+                  </pattern>
+                </defs>
+                <rect width="100" height="100" fill="url(#twitter-pattern-overlay)" />
               </svg>
-              Show Less
-            </>
-          ) : (
-            <>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-              Show More Reviews ({4})
-            </>
-          )}
-        </motion.button>
+            </div>
+            
+            {/* Content */}
+            <div className="relative z-10">
+              <motion.div
+                animate={{ rotate: isHovered ? 10 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="inline-block mb-3"
+              >
+                <svg className="w-8 h-8 text-black mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </motion.div>
+              
+              <h3 className="text-lg font-bold text-gray-900 mb-2">
+                Share Your Experience
+              </h3>
+              
+              <p className="text-gray-600 mb-4 text-sm">
+                Help us build trust by sharing your thoughts about Prysma on X. Get 6 months free Pro when your tweet gets 100+ likes!
+              </p>
+              
+              <motion.button
+                onClick={handleTwitterReview}
+                className="inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 transition-colors duration-200 text-sm"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+                Share on X
+                <motion.span
+                  animate={{ x: isHovered ? 3 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  →
+                </motion.span>
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Show More Button - Only visible on mobile (also blurred) */}
+        <div className="block md:hidden mt-8 text-center" style={{ filter: 'blur(4px)', opacity: 0.3 }}>
+          <motion.button
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full font-medium transition-colors duration-200"
+            style={{ pointerEvents: 'none' }}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+            Show More Reviews (4)
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   </section>
- );
+);
 }; 

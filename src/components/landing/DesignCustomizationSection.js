@@ -73,57 +73,18 @@ export default function DesignCustomizationSection() {
           <div className={styles.visualContent}>
             {/* Central Hub Layout */}
             <div className={styles.designHub}>
-              {/* Central Live Preview Card - Simplified */}
+              {/* Central Card Image */}
               <motion.div 
-                className={styles.previewCard}
-                style={{ 
-                  background: selectedTheme.background,
-                  color: selectedTheme.textColor 
-                }}
-                animate={{ 
-                  background: selectedTheme.background,
-                  color: selectedTheme.textColor,
-                  opacity: 1,
-                  scale: 1
-                }}
+                className={styles.cardImageContainer}
                 initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
               >
-                {/* Profile Photo */}
-                <div className={styles.simpleProfileContainer}>
-                  <div className={styles.profilePhoto}>
-                    <img 
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face"
-                      alt="John Smith"
-                      className={styles.profileImage}
-                    />
-                  </div>
-                  
-                  {/* Name with Dynamic Size */}
-                  <motion.h3 
-                    className={styles.dynamicName}
-                    animate={{ 
-                      fontSize: selectedNameSize.fontSize,
-                      fontFamily: selectedFont.value,
-                      color: selectedTheme.textColor
-                    }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    John Smith
-                  </motion.h3>
-                  
-                  <motion.p 
-                    className={styles.simpleProfileTitle}
-                    animate={{ 
-                      fontFamily: selectedFont.value,
-                      color: selectedTheme.textColor + '80'
-                    }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    Product Designer
-                  </motion.p>
-                </div>
-
+                <img 
+                  src="/images/creative.png"
+                  alt="Professional Card Example"
+                  className={styles.cardImage}
+                />
               </motion.div>
 
               {/* Design Settings Button - Top Center */}

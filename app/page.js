@@ -9,6 +9,7 @@ import FeaturesSection from '../src/components/landing/FeaturesSection';
 import UseCaseSection from '../src/components/landing/UseCaseSection';
 import HowItWorksSection from '../src/components/landing/HowItWorksSection';
 import DesignCustomizationSection from '../src/components/landing/DesignCustomizationSection';
+import AnalyticsInsightsSection from '../src/components/landing/AnalyticsInsightsSection';
 import PricingSection from '../src/components/landing/PricingSection';
 import RequestSectionComponent from '../src/components/landing/RequestSectionComponent';
 import TestimonialsSection from '../src/components/landing/TestimonialsSection';
@@ -30,9 +31,10 @@ export default function HomePage() {
       </div>
       <div id="features">
         <FeaturesSection />
-        <UseCaseSection />
         <HowItWorksSection />
+        <UseCaseSection />
         <DesignCustomizationSection />
+        <AnalyticsInsightsSection />
       </div>
       <div id="pricing">
         <PricingSection />
