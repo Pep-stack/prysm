@@ -351,7 +351,7 @@ export default function AnalyticsInsightsSection() {
               Understand your professional impact
             </h2>
             <p className={styles.subheading}>
-              Get detailed insights into how your profile performs, who's viewing your content, 
+              Get detailed insights into how your profile performs, who&apos;s viewing your content, 
               and which platforms drive the most engagement. Make data-driven decisions to grow your professional presence.
             </p>
             
