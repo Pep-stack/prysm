@@ -38,10 +38,10 @@ export default function HomePage() {
       </div>
       <div id="pricing">
         <PricingSection />
-        <RequestSectionComponent />
+        <TestimonialsSection />
       </div>
       <div id="testimonials">
-        <TestimonialsSection />
+        <RequestSectionComponent />
         <FAQSection />
       </div>
       <CreatorStorySection /> 

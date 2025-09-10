@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeInUp } from '../../lib/landingStyles';
 import styles from './HowItWorksSection.module.css';
@@ -109,6 +109,18 @@ const STEPS = [
 
 export default function HowItWorksSection() {
   const [activeStep, setActiveStep] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const ProfileCreationVisual = () => {
     const [expandedCategories, setExpandedCategories] = useState({
@@ -192,7 +204,7 @@ export default function HowItWorksSection() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: isMobile ? 0.15 : 0.3 }}
                         className={styles.sectionsContainer}
                       >
                         <div className={styles.sectionsGrid}>
@@ -206,7 +218,7 @@ export default function HowItWorksSection() {
                                 className={`${styles.sectionOption} ${isAdded ? styles.sectionAdded : ''}`}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, delay: index * 0.05 }}
+                                transition={{ duration: isMobile ? 0.15 : 0.3, delay: isMobile ? index * 0.02 : index * 0.05 }}
                                 whileHover={{ scale: isAdded ? 1 : 1.02 }}
                                 onClick={() => isAdded ? removeSection(section.type) : addSection(section)}
                               >
@@ -217,7 +229,7 @@ export default function HowItWorksSection() {
                                     className={styles.addedIndicator}
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    transition={{ duration: 0.2 }}
+                                    transition={{ duration: isMobile ? 0.1 : 0.2 }}
                                   >
                                     ✓
                                   </motion.div>
@@ -239,7 +251,7 @@ export default function HowItWorksSection() {
                 className={styles.addedSectionsArea}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: isMobile ? 0.2 : 0.4 }}
               >
                 <div className={styles.addedSectionsHeader}>
                   <h5>Added to Profile ({addedSections.length})</h5>
@@ -253,7 +265,7 @@ export default function HowItWorksSection() {
                         className={styles.addedSectionItem}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
+                        transition={{ duration: isMobile ? 0.15 : 0.3, delay: isMobile ? index * 0.05 : index * 0.1 }}
                         onClick={() => removeSection(section.type)}
                       >
                         <SectionIcon size={14} />
@@ -573,7 +585,7 @@ export default function HowItWorksSection() {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: isMobile ? 0.25 : 0.5 }}
               >
                 {renderVisual()}
               </motion.div>

@@ -82,11 +82,14 @@ export default function PricingSection() {
       variants={fadeInUp}
       transition={{ duration: 0.6, delay: 0.2 }}
     >
-      <h2 className={styles.heading}>Help your whole network work smarter</h2>
+      <h2 className={styles.heading}>Choose Your Professional Journey</h2>
       <p className={styles.subheading}>
-        With Prysma, both professionals and teams can share their work more effectively, 
-        keeping everyone connected to what matters most
+        From freelancers to established professionals, Prysma adapts to your needs. Start free and upgrade when you're ready to unlock advanced features that help you stand out in your industry.
       </p>
+      {/* Mobile scroll hint */}
+      <div className="block md:hidden text-center text-sm text-gray-500 mb-4">
+        ← Swipe to see all plans →
+      </div>
       <div className={styles.pricingGrid}>
         {/* Free Plan */}
         <div className={styles.card}>

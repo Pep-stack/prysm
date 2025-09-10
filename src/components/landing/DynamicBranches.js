@@ -6,6 +6,18 @@ import Image from 'next/image';
 
 const DynamicBranches = () => {
   const [visibleBranches, setVisibleBranches] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const leftBranches = [
     {
@@ -14,7 +26,10 @@ const DynamicBranches = () => {
       icon: '🔗',
       delay: 1.0,
       rotation: 1,
-      position: { top: '40px', right: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '20px', right: 'calc(50% + 90px)' },
+        desktop: { top: '40px', right: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'qr-code',
@@ -22,7 +37,10 @@ const DynamicBranches = () => {
       icon: '📱',
       delay: 1.5,
       rotation: -2,
-      position: { top: '110px', right: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '70px', right: 'calc(50% + 90px)' },
+        desktop: { top: '110px', right: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'custom-design',
@@ -30,7 +48,10 @@ const DynamicBranches = () => {
       icon: '🎨',
       delay: 2.0,
       rotation: 2,
-      position: { top: '180px', right: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '120px', right: 'calc(50% + 90px)' },
+        desktop: { top: '180px', right: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'analytics',
@@ -38,7 +59,10 @@ const DynamicBranches = () => {
       icon: '📊',
       delay: 2.5,
       rotation: -1,
-      position: { top: '250px', right: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '170px', right: 'calc(50% + 90px)' },
+        desktop: { top: '250px', right: 'calc(50% + 150px)' }
+      }
     }
   ];
 
@@ -49,7 +73,10 @@ const DynamicBranches = () => {
       icon: '💼',
       delay: 3.0,
       rotation: -1,
-      position: { top: '40px', left: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '20px', left: 'calc(50% + 90px)' },
+        desktop: { top: '40px', left: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'social-integration',
@@ -57,7 +84,10 @@ const DynamicBranches = () => {
       icon: '🌐',
       delay: 3.5,
       rotation: 2,
-      position: { top: '110px', left: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '70px', left: 'calc(50% + 90px)' },
+        desktop: { top: '110px', left: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'contact-management',
@@ -65,7 +95,10 @@ const DynamicBranches = () => {
       icon: '📞',
       delay: 4.0,
       rotation: -2,
-      position: { top: '180px', left: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '120px', left: 'calc(50% + 90px)' },
+        desktop: { top: '180px', left: 'calc(50% + 150px)' }
+      }
     },
     {
       id: 'lead-generation',
@@ -73,7 +106,10 @@ const DynamicBranches = () => {
       icon: '🎯',
       delay: 4.5,
       rotation: 1,
-      position: { top: '250px', left: 'calc(50% + 150px)' }
+      position: { 
+        mobile: { top: '170px', left: 'calc(50% + 90px)' },
+        desktop: { top: '250px', left: 'calc(50% + 150px)' }
+      }
     }
   ];
 
@@ -89,7 +125,7 @@ const DynamicBranches = () => {
 
 
   return (
-    <div className="relative w-full h-[400px] flex items-center justify-center">
+    <div className="relative w-full h-[300px] sm:h-[350px] md:h-[400px] flex items-center justify-center overflow-hidden px-4">
       {/* Central Prysma Icon */}
       <motion.div 
         className="relative z-20"
@@ -100,9 +136,9 @@ const DynamicBranches = () => {
         <Image
           src="/images/prysma-icon.png"
           alt="Prysma Icon"
-          width={220}
-          height={220}
-          className="object-contain"
+          width={160}
+          height={160}
+          className="object-contain sm:w-[180px] sm:h-[180px] md:w-[220px] md:h-[220px]"
         />
       </motion.div>
 
@@ -110,11 +146,13 @@ const DynamicBranches = () => {
       <AnimatePresence>
         {allBranches.map((branch) => {
           const isVisible = visibleBranches.includes(branch.id);
+          const currentPosition = isMobile ? branch.position.mobile : branch.position.desktop;
+          
           return isVisible ? (
             <motion.div
               key={branch.id}
               className="absolute z-10"
-              style={branch.position}
+              style={currentPosition}
               initial={{ opacity: 0, scale: 0, rotate: 0 }}
               animate={{ opacity: 1, scale: 1, rotate: branch.rotation }}
               transition={{ 
@@ -125,7 +163,9 @@ const DynamicBranches = () => {
               }}
             >
               <motion.div
-                className="bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg flex items-center gap-3 cursor-pointer hover:shadow-xl transition-shadow duration-200"
+                className={`bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg flex items-center gap-2 cursor-pointer hover:shadow-xl transition-shadow duration-200 ${
+                  isMobile ? 'px-2 py-2' : 'px-4 py-3'
+                }`}
                 whileHover={{ 
                   scale: 1.05, 
                   y: -2,
@@ -133,8 +173,10 @@ const DynamicBranches = () => {
                 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span className="text-lg">{branch.icon}</span>
-                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                <span className={isMobile ? 'text-base' : 'text-lg'}>{branch.icon}</span>
+                <span className={`font-medium text-gray-700 whitespace-nowrap ${
+                  isMobile ? 'text-xs' : 'text-sm'
+                }`}>
                   {branch.label}
                 </span>
               </motion.div>
