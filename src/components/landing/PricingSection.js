@@ -84,7 +84,7 @@ export default function PricingSection() {
     >
       <h2 className={styles.heading}>Choose Your Professional Journey</h2>
       <p className={styles.subheading}>
-        From freelancers to established professionals, Prysma adapts to your needs. Start free and upgrade when you're ready to unlock advanced features that help you stand out in your industry.
+        From freelancers to established professionals, Prysma adapts to your needs. Start free and upgrade when you&apos;re ready to unlock advanced features that help you stand out in your industry.
       </p>
       {/* Mobile scroll hint */}
       <div className="block md:hidden text-center text-sm text-gray-500 mb-4">
