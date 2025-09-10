@@ -230,6 +230,7 @@ export default function HeroSection() {
              padding: '6px 8px 6px 20px',
              gap: '12px',
              maxWidth: '500px',
+             width: '100%',
              margin: '0 auto 20px auto',
              boxShadow: availabilityStatus === 'available' ? '0 4px 25px rgba(0, 200, 150, 0.2)' :
                        availabilityStatus === 'taken' ? '0 4px 25px rgba(239, 68, 68, 0.2)' :
@@ -248,10 +249,11 @@ export default function HeroSection() {
            transition={{ duration: 0.4 }}
          >
            <span style={{
-             fontSize: '0.95rem',
+             fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)',
              color: '#059669',
              fontWeight: '500',
-             fontFamily: "'Monaco', 'Menlo', monospace"
+             fontFamily: "'Monaco', 'Menlo', monospace",
+             flexShrink: 0
            }}>
              https://useprysma.com/
            </span>
@@ -265,12 +267,13 @@ export default function HeroSection() {
                flex: 1,
                border: 'none',
                background: 'transparent',
-               fontSize: '0.95rem',
+               fontSize: 'clamp(0.8rem, 2.5vw, 0.95rem)',
                color: availabilityStatus === 'taken' ? '#dc2626' : '#059669',
                fontWeight: '500',
                fontFamily: "'Monaco', 'Menlo', monospace",
                outline: 'none',
-               minWidth: '120px'
+               minWidth: '80px',
+               maxWidth: '200px'
              }}
              whileFocus={{ scale: 1.02 }}
            />
@@ -278,8 +281,8 @@ export default function HeroSection() {
 
            <motion.button 
              style={{
-               width: '36px',
-               height: '36px',
+               width: 'clamp(32px, 8vw, 36px)',
+               height: 'clamp(32px, 8vw, 36px)',
                border: 'none',
                borderRadius: '50%',
                background: copied ? '#10b981' : highlightColor,
@@ -289,18 +292,19 @@ export default function HeroSection() {
                justifyContent: 'center',
                cursor: 'pointer',
                transition: 'all 0.2s ease',
-               flexShrink: 0
+               flexShrink: 0,
+               minWidth: '32px'
              }}
              onClick={handleCopy}
              whileHover={{ scale: 1.1 }}
              whileTap={{ scale: 0.9 }}
            >
              {copied ? (
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+               <svg width="clamp(14px, 4vw, 16px)" height="clamp(14px, 4vw, 16px)" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                </svg>
              ) : (
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+               <svg width="clamp(14px, 4vw, 16px)" height="clamp(14px, 4vw, 16px)" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
                </svg>
              )}
@@ -313,7 +317,7 @@ export default function HeroSection() {
              style={{
                display: 'inline-flex',
                alignItems: 'center',
-               gap: '12px',
+               gap: 'clamp(8px, 2vw, 12px)',
                background: inputName && availabilityStatus === 'available' ? highlightColor : 
                          inputName && availabilityStatus === 'taken' ? '#ef4444' :
                          inputName && availabilityStatus === 'error' ? '#f59e0b' :
@@ -324,8 +328,8 @@ export default function HeroSection() {
                       inputName && availabilityStatus === 'error' ? '2px solid #f59e0b' :
                       inputName ? '2px solid #6b7280' : '2px solid #e5e7eb',
                borderRadius: '50px',
-               padding: '12px 24px',
-               fontSize: '16px',
+               padding: 'clamp(10px, 3vw, 12px) clamp(16px, 4vw, 24px)',
+               fontSize: 'clamp(14px, 3.5vw, 16px)',
                fontWeight: '600',
                textDecoration: 'none',
                cursor: inputName && availabilityStatus === 'available' ? 'pointer' : 'not-allowed',
@@ -335,7 +339,9 @@ export default function HeroSection() {
                          inputName && availabilityStatus === 'error' ? '0 4px 20px rgba(245, 158, 11, 0.2)' :
                          inputName ? '0 4px 20px rgba(107, 114, 128, 0.2)' : '0 2px 10px rgba(0, 0, 0, 0.05)',
                opacity: inputName ? 1 : 0.6,
-               pointerEvents: inputName && availabilityStatus === 'available' ? 'auto' : 'none'
+               pointerEvents: inputName && availabilityStatus === 'available' ? 'auto' : 'none',
+               maxWidth: '100%',
+               whiteSpace: 'nowrap'
              }}
              whileHover={inputName && availabilityStatus === 'available' ? { 
                scale: 1.05, 
@@ -344,7 +350,7 @@ export default function HeroSection() {
              } : {}}
              whileTap={{ scale: 0.95 }}
            >
-             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+             <svg width="clamp(16px, 4vw, 18px)" height="clamp(16px, 4vw, 18px)" viewBox="0 0 24 24" fill="currentColor">
                <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
              </svg>
              <span>
